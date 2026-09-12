@@ -86,7 +86,7 @@
 
 .login {
   padding: var(--spacing-8) var(--spacing-10);
-  border-radius: var(--radius-8);
+  border-radius: var(--radius-12);
   border: var(--border-hairline) solid var(--color-brand-primary);
   background: var(--color-brand-primary);
   color: var(--color-label-inverse);
