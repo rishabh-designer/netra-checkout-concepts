@@ -108,15 +108,34 @@ export function QuoteModal({
           >
             <div className={styles.left}>
               <header className={styles.header}>
-                <button className={styles.iconBtn} aria-label="Back">
+                <button type="button" className={styles.ctrl} aria-label="Back">
                   <ChevronLeft />
                 </button>
-                <span className={styles.stepper}>
-                  <span className={styles.stepDot} /> {content.stepLabel}
-                </span>
-                <button className={styles.iconBtn} aria-label="Close" onClick={onClose}>
-                  <Close />
-                </button>
+                <div className={styles.headerRight}>
+                  <span className={styles.stepPill}>
+                    <span className={styles.stepCheck}>
+                      <TickerCheck />
+                    </span>
+                    {content.stepLabel}
+                  </span>
+                  <IkkatMark
+                    pattern={3}
+                    width={12}
+                    color="var(--color-brand-secondary)"
+                    className={styles.headBead}
+                  />
+                  <span className={styles.stepDotCtrl} aria-hidden>
+                    <StepDot />
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.ctrl}
+                    aria-label="Close"
+                    onClick={onClose}
+                  >
+                    <HeaderClose />
+                  </button>
+                </div>
               </header>
 
               <h2 className={styles.title}>{content.title}</h2>
@@ -499,18 +518,67 @@ function ChevronDown() {
   );
 }
 
+/* Header back-chevron (Figma 12px, neutral-secondary grey). */
 function ChevronLeft() {
   return (
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden>
-      <path d="m14.5 7-5 5 5 5" stroke="var(--color-label-basic)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" aria-hidden>
+      <path
+        d="M10.5 13 5.5 8l5-5"
+        stroke="var(--color-label-secondary)"
+        strokeWidth="1.65"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
+/* Right-panel search-bar close (unboxed, larger). */
 function Close() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden>
       <path d="m7 7 10 10M17 7 7 17" stroke="var(--color-label-basic)" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/* Header close X (Figma 12px, neutral-secondary grey). */
+function HeaderClose() {
+  return (
+    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" aria-hidden>
+      <path d="M4 4l8 8M12 4l-8 8" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/* Green success check (Figma icon/ticker): filled roundel with a cut-out tick. */
+function TickerCheck() {
+  return (
+    <svg viewBox="0 0 10 10" width="10" height="10" fill="none" aria-hidden>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M0 5a5 5 0 1 1 10 0A5 5 0 0 1 0 5Zm7.4-1.236a.3.3 0 0 0-.482-.482L4.205 5.995 3.082 4.873a.3.3 0 0 0-.482.482l1.363 1.363a.3.3 0 0 0 .482 0L7.4 3.764Z"
+        fill="var(--color-success)"
+      />
+    </svg>
+  );
+}
+
+/* Next-step indicator dot (Figma: brand dot inside a faint brand ring). */
+function StepDot() {
+  return (
+    <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
+      <rect
+        x="0.267"
+        y="0.267"
+        width="11.467"
+        height="11.467"
+        rx="5.733"
+        stroke="var(--color-brand-primary-border)"
+        strokeWidth="0.533"
+      />
+      <circle cx="6" cy="6" r="5" fill="var(--color-brand-primary)" />
     </svg>
   );
 }

@@ -7,6 +7,7 @@
 
 .value {
   font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
   font-size: var(--font-size-display-xs);
   line-height: 1;
   color: var(--color-brand-primary);

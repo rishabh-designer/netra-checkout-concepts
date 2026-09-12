@@ -19,6 +19,7 @@
 
 .title {
   font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
   font-weight: 400;
   font-size: var(--font-size-display-md);
   line-height: 1;

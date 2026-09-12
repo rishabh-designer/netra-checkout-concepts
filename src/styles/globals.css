@@ -9,11 +9,13 @@
   --color-brand-primary-muted: #9082b3;
   --color-brand-primary-subtle: #f4f1ff;
   --color-brand-primary-faint: #dbd7ea;
+  --color-brand-primary-border: #d1c6ff;
   --color-brand-secondary: #ff7700;
 
   /* labels */
   --color-label-basic: #1c1c1c;
   --color-label-primary: #1c1d1f;
+  --color-label-secondary: #6f7378;
   --color-label-tertiary: #a9acb1;
   --color-label-placeholder: #bec2c6;
   --color-label-inverse: #ffffff;
@@ -97,6 +99,13 @@
     var(--font-anek-malayalam), var(--font-anek-odia), var(--font-anek-tamil),
     var(--font-anek-telugu), sans-serif;
   --font-display: var(--font-instrument-serif), serif;
+  /*
+   * OpenType features for Instrument Serif. The Google webfont next/font pulls
+   * only carries kerning + common ligatures (no dlig/ordn/stylistic sets), so
+   * those are the only settings that can be honoured — applied wherever the
+   * display face is set via `font-feature-settings: var(--font-display-features)`.
+   */
+  --font-display-features: "kern" 1, "liga" 1;
 }
 
 * {
