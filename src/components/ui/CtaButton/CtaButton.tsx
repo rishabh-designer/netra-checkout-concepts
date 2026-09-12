@@ -50,25 +50,23 @@ export function CtaButton({ label = "Continue", meta, onClick }: CtaButtonProps)
   }, [reduced]);
 
   return (
-    <div className={styles.beam}>
-      <button type="button" className={styles.button} onClick={onClick}>
-        <span className={styles.labelSlot}>
-          <TextEffect
-            per="char"
-            preset="fade"
-            trigger={revealed}
-            className={styles.label}
-          >
-            {sentence}
-          </TextEffect>
-        </span>
-        <ChevronRightIcon
-          ref={chevronRef}
-          size={20}
-          color="var(--color-label-inverse)"
-          className={styles.chevron}
-        />
-      </button>
-    </div>
+    <button type="button" className={styles.button} onClick={onClick}>
+      <span className={styles.labelSlot}>
+        <TextEffect
+          per="char"
+          preset="fade"
+          trigger={revealed}
+          className={styles.label}
+        >
+          {sentence}
+        </TextEffect>
+      </span>
+      <ChevronRightIcon
+        ref={chevronRef}
+        size={20}
+        color="var(--color-label-inverse)"
+        className={styles.chevron}
+      />
+    </button>
   );
 }
