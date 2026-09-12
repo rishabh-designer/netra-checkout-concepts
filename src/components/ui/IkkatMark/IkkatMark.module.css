@@ -1,0 +1,24 @@
+/*
+ * Ikkat marks — see Context/ikkat-divider.md. The SVG carries SHAPE only (as a
+ * mask); the element's background-color carries the color. Height is locked to
+ * the source's 2:1 aspect ratio, so only width is ever set.
+ */
+.mark {
+  --ikkat-color: var(--color-brand-primary);
+  display: inline-block;
+  width: 8px;
+  aspect-ratio: 2 / 1;
+  background-color: var(--ikkat-color);
+  -webkit-mask: no-repeat center / contain;
+  mask: no-repeat center / contain;
+}
+
+.mark[data-pattern="1"] {
+  -webkit-mask-image: url("/ikkat/Ikkat1.svg");
+  mask-image: url("/ikkat/Ikkat1.svg");
+}
+
+.mark[data-pattern="2"] {
+  -webkit-mask-image: url("/ikkat/Ikkat2.svg");
+  mask-image: url("/ikkat/Ikkat2.svg");
+}

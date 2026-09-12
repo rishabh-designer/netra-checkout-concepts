@@ -1,0 +1,26 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-6);
+  border-radius: var(--radius-6);
+  border: var(--border-hairline) solid var(--color-indicator-border);
+  background: var(--color-indicator-bg);
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  /* Complete circle — opt out of the global squircle so it stays round. */
+  corner-shape: round;
+  background: var(--color-indicator);
+}
+
+.label {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-basic);
+}

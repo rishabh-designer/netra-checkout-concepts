@@ -1,0 +1,77 @@
+.fold {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    var(--color-page-top),
+    var(--color-page) 45%,
+    var(--color-card)
+  );
+}
+
+/* Content-height fold: the marquee sits directly after the content (no
+   stretched gap) so the fold hugs the hero. */
+.foreground {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.body {
+  width: 100%;
+  max-width: 1512px;
+  margin: 0 auto;
+  padding: var(--spacing-32) var(--spacing-32) var(--spacing-32);
+}
+
+.breadcrumbRow {
+  display: flex;
+  align-items: center;
+  height: 20px;
+}
+
+.breadcrumbLine {
+  flex: 1;
+  min-width: 0;
+}
+
+.breadcrumbRow > :last-child {
+  flex-shrink: 0;
+  padding: 0 var(--spacing-12);
+}
+
+.columns {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-32);
+  margin-top: var(--spacing-32);
+}
+
+.columns > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  width: 540px;
+  flex-shrink: 0;
+  padding-top: var(--spacing-32);
+}
+
+.ticker {
+  position: relative;
+}
+
+@media (max-width: 1100px) {
+  .columns {
+    flex-direction: column;
+  }
+
+  .rightColumn {
+    width: 100%;
+    max-width: 540px;
+  }
+}

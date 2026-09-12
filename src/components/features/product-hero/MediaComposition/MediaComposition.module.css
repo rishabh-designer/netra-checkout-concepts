@@ -1,0 +1,69 @@
+.frame {
+  position: relative;
+  width: 540px;
+  max-width: 100%;
+  height: 280px;
+  overflow: hidden;
+  border: var(--border-hairline) solid var(--color-card-recessed);
+  border-radius: 2px;
+}
+
+.comp {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Video: exclusion blend at half opacity, bottom-anchored and centered. */
+.video {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 568.888px;
+  height: 320px;
+  max-width: none;
+  object-fit: cover;
+  mix-blend-mode: exclusion;
+  opacity: 0.5;
+}
+
+.still {
+  position: absolute;
+  left: 50%;
+  bottom: -105.08px;
+  transform: translateX(-50%);
+  width: 548.571px;
+  height: 356.281px;
+  max-width: none;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.noiseWrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 645.43px;
+  height: 319.86px;
+  mix-blend-mode: color-burn;
+  overflow: hidden;
+  opacity: 0.7;
+}
+
+.noise {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: rotate(90deg) scale(2.02);
+}
+
+.wash {
+  position: absolute;
+  inset: 0;
+  background: var(--color-brand-primary);
+  mix-blend-mode: lighten;
+}

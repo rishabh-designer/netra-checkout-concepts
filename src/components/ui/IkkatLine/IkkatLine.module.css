@@ -1,0 +1,20 @@
+/*
+ * The rule is a color-filled bar masked by a repeat-x tile that holds both
+ * ikkat patterns (Ikkat1 then Ikkat2) in evenly-spaced cells, so the line reads
+ * as an alternating ◆1 ◆2 ◆1 ◆2 … sequence. See Context/ikkat-divider.md.
+ */
+.line {
+  --ikkat-color: var(--color-brand-primary);
+  height: 4px;
+  background-color: var(--ikkat-color);
+  /* `space` fits only whole tiles and distributes the leftover as gaps, so the
+     last diamond is never clipped — the count adapts as the width changes. */
+  -webkit-mask-image: url("/ikkat/ikkat-line-tile.svg");
+  mask-image: url("/ikkat/ikkat-line-tile.svg");
+  -webkit-mask-position: left center;
+  mask-position: left center;
+  -webkit-mask-size: auto 4px;
+  mask-size: auto 4px;
+  -webkit-mask-repeat: space no-repeat;
+  mask-repeat: space no-repeat;
+}

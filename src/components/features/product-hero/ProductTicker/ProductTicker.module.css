@@ -1,0 +1,51 @@
+.strip {
+  width: 100%;
+  background: var(--color-brand-primary);
+  padding: var(--spacing-2) var(--spacing-12) var(--spacing-4);
+  overflow: hidden;
+}
+
+/*
+ * Seamless right-to-left marquee. Spacing lives on each item as margin (not
+ * flex gap) so the track is an exact `--ticker-repeat` count of identical
+ * periods; translating by one period (100% / repeat) therefore loops with no
+ * visible seam. Linear (constant speed, no easing); the track drifts leftward
+ * one period per cycle — raise the duration to slow it down further.
+ */
+.track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: ticker-scroll 8000ms linear infinite;
+  will-change: transform;
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% / var(--ticker-repeat)));
+  }
+}
+
+.diamond {
+  flex-shrink: 0;
+  margin-right: var(--spacing-12);
+}
+
+.phrase {
+  margin-right: var(--spacing-12);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: 0.12px;
+  line-height: 1.5;
+  color: var(--color-label-inverse);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}

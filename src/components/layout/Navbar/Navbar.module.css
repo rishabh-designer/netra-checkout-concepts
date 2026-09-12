@@ -1,0 +1,97 @@
+.bar {
+  padding: var(--spacing-12) var(--spacing-32);
+  background: var(--color-nav-surface);
+  border-bottom: var(--border-hairline) solid var(--color-border-neutral);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--radius-16);
+  background: var(--color-nav-surface);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-24);
+}
+
+.logo {
+  width: 175.305px;
+  height: 20px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-8);
+}
+
+.navEntry {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.sep {
+  flex-shrink: 0;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.itemLabels {
+  display: flex;
+  flex-direction: column;
+  height: 14px;
+  overflow: hidden;
+}
+
+.itemLabel {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  letter-spacing: 0.14px;
+  line-height: 1;
+  height: 14px;
+  white-space: nowrap;
+  color: var(--color-label-basic);
+  transition: transform 0.25s ease;
+}
+
+.itemLabelHover {
+  color: var(--color-brand-primary);
+}
+
+.item:hover .itemLabel {
+  transform: translateY(-14px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .itemLabel {
+    transition: none;
+  }
+}
+
+.chevron {
+  width: 8px;
+  height: 8px;
+}
+
+.login {
+  padding: var(--spacing-8) var(--spacing-10);
+  border-radius: var(--radius-8);
+  border: var(--border-hairline) solid var(--color-brand-primary);
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}

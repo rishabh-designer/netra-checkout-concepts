@@ -1,0 +1,144 @@
+/*
+ * Design tokens — mapped 1:1 from the BimaNetra Figma variable set.
+ * Components reference these tokens only; no raw hex/px values in components.
+ */
+:root {
+  /* brand */
+  --color-brand-primary: #4100cf;
+  --color-brand-primary-deep: #3101b5;
+  --color-brand-primary-muted: #9082b3;
+  --color-brand-primary-subtle: #f4f1ff;
+  --color-brand-primary-faint: #dbd7ea;
+  --color-brand-secondary: #ff7700;
+
+  /* labels */
+  --color-label-basic: #1c1c1c;
+  --color-label-primary: #1c1d1f;
+  --color-label-tertiary: #a9acb1;
+  --color-label-placeholder: #bec2c6;
+  --color-label-inverse: #ffffff;
+
+  /* semantic */
+  --color-success: #00b200;
+  --color-success-border: #a9eaa2;
+  --color-success-subtle: #ecfbea;
+  --color-indicator: #00ab82;
+  --color-indicator-bg: rgba(0, 171, 130, 0.12);
+  --color-indicator-border: #a3e1d2;
+  --color-special: #39b0b0;
+  --color-special-light: #71c9c9;
+  --color-special-border: #a2dede;
+  --color-special-subtle-bold: #cfefef;
+  --color-info: #1458d2;
+
+  /* surfaces */
+  --color-card: #ffffff;
+  --color-card-recessed: #e6e8ea;
+  --color-page: #fbfaff;
+  --color-page-top: #f5f2ff;
+  --color-nav-surface: rgba(255, 255, 255, 0.5);
+  --color-border-neutral: #dfe0e2;
+  --color-divider: #d2d5d8;
+  --color-input-fill: rgba(65, 0, 207, 0.02);
+  --color-input-stroke: rgba(169, 172, 177, 0.56);
+
+  /* spacing scale */
+  --spacing-2: 2px;
+  --spacing-4: 4px;
+  --spacing-6: 6px;
+  --spacing-8: 8px;
+  --spacing-10: 10px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-48: 48px;
+
+  /* radii */
+  --radius-6: 6px;
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-32: 32px;
+
+  /* type scale */
+  --font-size-50: 10px;
+  --font-size-75: 12px;
+  --font-size-100: 14px;
+  --font-size-200: 16px;
+  --font-size-300: 18px;
+  --font-size-400: 20px;
+  --font-size-heading-lg: 32px;
+  --font-size-display-xs: 48px;
+  --font-size-display-md: 64px;
+
+  /* borders */
+  --border-hairline: 0.5px;
+
+  /*
+   * Corner shape — the whole environment uses superelliptical (squircle)
+   * corners, matching Figma's Corner smoothing at ~60% (the iOS "continuous"
+   * corner). superellipse(2) is identical to the CSS `squircle` keyword.
+   * Tune the exponent here to change the smoothing everywhere at once.
+   */
+  --corner-smoothing: superellipse(2);
+
+  /*
+   * Typefaces — ONLY Anek (all scripts) and Instrument Serif exist here.
+   * The --font-anek-* / --font-instrument-serif vars are injected by
+   * next/font in src/app/layout.tsx.
+   */
+  --font-body: var(--font-anek-latin), var(--font-anek-devanagari),
+    var(--font-anek-bangla), var(--font-anek-gujarati),
+    var(--font-anek-gurmukhi), var(--font-anek-kannada),
+    var(--font-anek-malayalam), var(--font-anek-odia), var(--font-anek-tamil),
+    var(--font-anek-telugu), sans-serif;
+  --font-display: var(--font-instrument-serif), serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Squircle corners, globally. `corner-shape` only affects elements that
+ * already have a border-radius, so square elements are untouched.
+ * COMPLETE CIRCLES are the one exception — they must opt back out with
+ * `corner-shape: round` (a squircle over a 50% radius would distort the
+ * circle). Zero-specificity :where() means any component can override.
+ * Unsupported browsers ignore corner-shape and fall back to plain rounding.
+ */
+:where(*, *::before, *::after) {
+  corner-shape: var(--corner-smoothing);
+}
+
+html,
+body {
+  font-family: var(--font-body);
+  color: var(--color-label-basic);
+  background: var(--color-page);
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}

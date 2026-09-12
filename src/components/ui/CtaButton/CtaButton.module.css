@@ -1,0 +1,47 @@
+.button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: 100%;
+  /* Fixed so the height never collapses while the sentence's reveal loop
+     momentarily unmounts the text (which would otherwise shrink it to 50px). */
+  height: 58px;
+  padding: 0 var(--spacing-16);
+  background: var(--color-brand-secondary);
+  border: 1px solid var(--color-brand-secondary);
+  border-radius: var(--radius-16);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/*
+ * The label fills the row so the chevron stays pinned to the right edge even
+ * while the sentence's reveal loop fades it out (motion's popLayout takes the
+ * text out of flow during exit; this slot holds the space).
+ */
+.labelSlot {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  /* Fixed height + centering so the label never shifts vertically while the
+     reveal loop unmounts/remounts the text (the collapse caused the jitter). */
+  display: flex;
+  align-items: center;
+  height: 24px;
+}
+
+.label {
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1.5;
+  /* <button> defaults to text-align:center; force the sentence left. */
+  text-align: left;
+  color: var(--color-label-inverse);
+  white-space: nowrap;
+}
+
+.chevron {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

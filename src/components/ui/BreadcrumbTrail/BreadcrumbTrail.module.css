@@ -1,0 +1,33 @@
+.trail {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.entry {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.crumb,
+.current {
+  font-size: var(--font-size-50);
+  font-weight: 600;
+  letter-spacing: 0.12px;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.crumb {
+  color: var(--color-label-placeholder);
+}
+
+.current {
+  color: var(--color-label-primary);
+}
+
+.sep {
+  flex-shrink: 0;
+}
