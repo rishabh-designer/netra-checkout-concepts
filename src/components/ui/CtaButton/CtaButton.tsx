@@ -9,10 +9,9 @@ import {
 } from "@/components/icons/ChevronRightIcon";
 import styles from "./CtaButton.module.css";
 
-/** How often the chevron nudge replays (animation ~1s + a short rest). */
-const CHEVRON_LOOP_MS = 1800;
-/** How long the sentence stays revealed / hidden before the reveal loops. */
-const TEXT_LOOP_MS = 2000;
+/** One shared beat: the chevron nudge, the text reveal and the sheen sweep all
+    fire on this tick so they pulse in lockstep (chevron anim ~1s, then a rest). */
+const LOOP_MS = 2000;
 
 export interface CtaButtonProps {
   label?: string;
@@ -40,17 +39,12 @@ export function CtaButton({ label = "Continue", meta, onClick }: CtaButtonProps)
   useEffect(() => {
     if (reduced) return;
     chevronRef.current?.startAnimation();
-    const chevronId = window.setInterval(() => {
+    const id = window.setInterval(() => {
       chevronRef.current?.startAnimation();
-    }, CHEVRON_LOOP_MS);
-    const textId = window.setInterval(() => {
       setRevealed((v) => !v);
       setSheenTick((t) => t + 1);
-    }, TEXT_LOOP_MS);
-    return () => {
-      window.clearInterval(chevronId);
-      window.clearInterval(textId);
-    };
+    }, LOOP_MS);
+    return () => window.clearInterval(id);
   }, [reduced]);
 
   return (
