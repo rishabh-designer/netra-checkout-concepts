@@ -203,6 +203,21 @@
   padding-top: var(--spacing-20);
 }
 
+/* divider — bead — divider (Figma 182:21249): a full-width warm hairline with
+   the solid ikkat bead centred, sitting above the submit button. */
+.rowSep {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+  width: 100%;
+}
+
+.rowSepLine {
+  flex: 1;
+  height: var(--border-hairline);
+  background: color-mix(in srgb, var(--color-brand-secondary) 20%, var(--color-card));
+}
+
 .rowMark {
   --ikkat-color: var(--color-brand-primary);
 }
@@ -210,23 +225,25 @@
 .submit {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: var(--spacing-8);
   width: 100%;
-  padding: var(--spacing-16);
+  padding: var(--spacing-16) var(--spacing-28);
   font-size: var(--font-size-200);
   font-weight: 600;
-  color: var(--color-label-tertiary);
-  background: var(--color-card-recessed);
-  border: 0;
-  border-radius: var(--radius-12);
+  /* disabled = the neutral tertiary at Figma's fill/label/stroke alphas */
+  color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
+  background: color-mix(in srgb, var(--color-label-tertiary) 24%, transparent);
+  border: var(--border-hairline) solid var(--color-input-stroke);
+  border-radius: var(--radius-16);
   cursor: not-allowed;
-  transition: background 0.35s ease, color 0.35s ease;
+  transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
 }
 
 .submitOn {
   color: var(--color-label-inverse);
   background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
   cursor: pointer;
 }
 

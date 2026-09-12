@@ -148,7 +148,11 @@ export function QuoteModal({
               )}
 
               <div className={styles.actionRow}>
-                <IkkatMark pattern={1} width={20} className={styles.rowMark} />
+                <div className={styles.rowSep} aria-hidden>
+                  <span className={styles.rowSepLine} />
+                  <IkkatMark pattern={3} width={12} className={styles.rowMark} />
+                  <span className={styles.rowSepLine} />
+                </div>
                 <button
                   type="button"
                   className={cn(styles.submit, canSubmit && styles.submitOn)}

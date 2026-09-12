@@ -22,3 +22,8 @@
   -webkit-mask-image: url("/ikkat/Ikkat2.svg");
   mask-image: url("/ikkat/Ikkat2.svg");
 }
+
+.mark[data-pattern="3"] {
+  -webkit-mask-image: url("/ikkat/IkkatBead.svg");
+  mask-image: url("/ikkat/IkkatBead.svg");
+}

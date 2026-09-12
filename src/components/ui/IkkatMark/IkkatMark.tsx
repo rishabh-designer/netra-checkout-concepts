@@ -2,8 +2,9 @@ import { cn } from "@/lib/utils";
 import styles from "./IkkatMark.module.css";
 
 export interface IkkatMarkProps {
-  /** Which woven-diamond pattern: 1 = simple diamond, 2 = ornate cluster. */
-  pattern?: 1 | 2;
+  /** Which woven-diamond mark: 1 = outlined diamond, 2 = ornate cluster,
+      3 = solid single bead (the divider mark, Figma 280:19402). */
+  pattern?: 1 | 2 | 3;
   /** Any CSS color; defaults to the brand primary token. */
   color?: string;
   /** Width in px; height is locked to the source SVG's 2:1 aspect ratio. */
