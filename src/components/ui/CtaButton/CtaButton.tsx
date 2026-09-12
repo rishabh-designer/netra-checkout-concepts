@@ -30,9 +30,10 @@ export function CtaButton({ label = "Continue", meta, onClick }: CtaButtonProps)
   const chevronRef = useRef<ChevronRightIconHandle>(null);
   const reduced = useReducedMotion();
   const [revealed, setRevealed] = useState(true);
-  /* Bumped each text-reveal beat; remounts the sheen so its sweep replays in
-     lockstep with the revealing text (see .sheen). */
+  /* Bumped every other beat (4s); remounts the sheen so its slow sweep replays
+     in lockstep with a full text reveal (see .sheen). */
   const [sheenTick, setSheenTick] = useState(0);
+  const beatRef = useRef(0);
 
   const sentence = [label, meta].filter(Boolean).join(" ");
 
@@ -42,7 +43,9 @@ export function CtaButton({ label = "Continue", meta, onClick }: CtaButtonProps)
     const id = window.setInterval(() => {
       chevronRef.current?.startAnimation();
       setRevealed((v) => !v);
-      setSheenTick((t) => t + 1);
+      // sheen sweeps once every two beats (4s) so it can glide slowly
+      beatRef.current += 1;
+      if (beatRef.current % 2 === 0) setSheenTick((t) => t + 1);
     }, LOOP_MS);
     return () => window.clearInterval(id);
   }, [reduced]);
