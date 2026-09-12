@@ -51,9 +51,9 @@
 }
 
 /*
- * Looping sheen: a skewed translucent stripe that glides across on a 1.3s
+ * Looping sheen: a skewed translucent stripe that glides across on a slow 1.9s
  * glide curve. Remounted each text-reveal beat (key={sheenTick}) so the sweep
- * fires in sync with the revealing sentence (kept under the 2s beat so it
+ * fires in sync with the revealing sentence (kept just under the 2s beat so it
  * finishes before it replays). Clipped by the button's rounded overflow;
  * pointer-events off so it never blocks the click.
  */
@@ -78,7 +78,7 @@
     color-mix(in srgb, var(--color-label-inverse) 32%, transparent),
     transparent
   );
-  animation: sheen-sweep 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: sheen-sweep 1.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes sheen-sweep {
