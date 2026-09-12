@@ -31,6 +31,9 @@ export function CtaButton({ label = "Continue", meta, onClick }: CtaButtonProps)
   const chevronRef = useRef<ChevronRightIconHandle>(null);
   const reduced = useReducedMotion();
   const [revealed, setRevealed] = useState(true);
+  /* Bumped each text-reveal beat; remounts the sheen so its sweep replays in
+     lockstep with the revealing text (see .sheen). */
+  const [sheenTick, setSheenTick] = useState(0);
 
   const sentence = [label, meta].filter(Boolean).join(" ");
 
@@ -42,6 +45,7 @@ export function CtaButton({ label = "Continue", meta, onClick }: CtaButtonProps)
     }, CHEVRON_LOOP_MS);
     const textId = window.setInterval(() => {
       setRevealed((v) => !v);
+      setSheenTick((t) => t + 1);
     }, TEXT_LOOP_MS);
     return () => {
       window.clearInterval(chevronId);
@@ -51,6 +55,7 @@ export function CtaButton({ label = "Continue", meta, onClick }: CtaButtonProps)
 
   return (
     <button type="button" className={styles.button} onClick={onClick}>
+      {!reduced && <span key={sheenTick} className={styles.sheen} aria-hidden />}
       <span className={styles.labelSlot}>
         <TextEffect
           per="char"

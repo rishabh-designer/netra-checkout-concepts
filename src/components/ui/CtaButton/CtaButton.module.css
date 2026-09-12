@@ -1,4 +1,5 @@
 .button {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
@@ -21,6 +22,7 @@
  */
 .labelSlot {
   position: relative;
+  z-index: 2;
   flex: 1 1 auto;
   min-width: 0;
   /* Fixed height + centering so the label never shifts vertically while the
@@ -44,4 +46,45 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+/*
+ * Looping sheen: a skewed translucent stripe that glides across on a 0.7s
+ * glide curve. Remounted each text-reveal beat (key={sheenTick}) so the sweep
+ * fires in sync with the revealing sentence. Clipped by the button's rounded
+ * overflow; pointer-events off so it never blocks the click.
+ */
+.sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.sheen::after {
+  content: "";
+  position: absolute;
+  top: -25%;
+  bottom: -25%;
+  left: -60%;
+  width: 35%;
+  transform: skewX(-18deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-label-inverse) 32%, transparent),
+    transparent
+  );
+  animation: sheen-sweep 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes sheen-sweep {
+  from {
+    left: -60%;
+  }
+  to {
+    left: 120%;
+  }
 }
