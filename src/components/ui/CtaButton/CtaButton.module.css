@@ -78,7 +78,7 @@
     color-mix(in srgb, var(--color-label-inverse) 32%, transparent),
     transparent
   );
-  animation: sheen-sweep 1.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: sheen-sweep 1.9s cubic-bezier(1, 0, 0, 1) both;
 }
 
 @keyframes sheen-sweep {
