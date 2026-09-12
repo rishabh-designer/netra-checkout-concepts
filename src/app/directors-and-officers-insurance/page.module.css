@@ -9,12 +9,14 @@
   );
 }
 
-/* Content-height fold: the marquee sits directly after the content (no
-   stretched gap) so the fold hugs the hero. */
+/* Full-viewport fold: fill at least the screen height and pin the marquee to
+   the bottom edge (see .ticker). On tall monitors the slack becomes breathing
+   room between the hero and the marquee — no raw background shows below it. */
 .foreground {
   position: relative;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 .body {
@@ -63,6 +65,8 @@
 
 .ticker {
   position: relative;
+  /* anchor to the bottom of the viewport-filling fold */
+  margin-top: auto;
 }
 
 @media (max-width: 1100px) {
