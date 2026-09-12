@@ -35,8 +35,6 @@ export function CtaButton({ label = "Continue", meta, onClick }: CtaButtonProps)
   const [sheenTick, setSheenTick] = useState(0);
   const beatRef = useRef(0);
 
-  const sentence = [label, meta].filter(Boolean).join(" ");
-
   useEffect(() => {
     if (reduced) return;
     chevronRef.current?.startAnimation();
@@ -54,14 +52,19 @@ export function CtaButton({ label = "Continue", meta, onClick }: CtaButtonProps)
     <button type="button" className={styles.button} onClick={onClick}>
       {!reduced && <span key={sheenTick} className={styles.sheen} aria-hidden />}
       <span className={styles.labelSlot}>
-        <TextEffect
-          per="char"
-          preset="fade"
-          trigger={revealed}
-          className={styles.label}
-        >
-          {sentence}
-        </TextEffect>
+        {/* "Get My Quote" is constant; only the trailing meta reveals per-char. */}
+        <span className={styles.label}>{label}&nbsp;</span>
+        {meta && (
+          <TextEffect
+            per="char"
+            preset="fade"
+            trigger={revealed}
+            as="span"
+            className={styles.label}
+          >
+            {meta}
+          </TextEffect>
+        )}
       </span>
       <ChevronRightIcon
         ref={chevronRef}
