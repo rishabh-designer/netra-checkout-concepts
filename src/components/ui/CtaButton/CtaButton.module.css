@@ -69,7 +69,7 @@
   position: absolute;
   top: -25%;
   bottom: -25%;
-  left: -60%;
+  left: -35%;
   width: 35%;
   transform: skewX(-18deg);
   background: linear-gradient(
@@ -83,9 +83,9 @@
 
 @keyframes sheen-sweep {
   from {
-    left: -60%;
+    left: -35%;
   }
   to {
-    left: 120%;
+    left: 100%;
   }
 }
