@@ -4,7 +4,7 @@
  * travelling light. Radii are concentric (outer = inner + ring) so corners nest.
  */
 .beam {
-  --beam-ring: 1.5px;
+  --beam-ring: 0.5px;
   position: relative;
   width: 100%;
   padding: var(--beam-ring);
