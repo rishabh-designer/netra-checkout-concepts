@@ -123,7 +123,10 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea,
+option {
   font-family: inherit;
 }
 
