@@ -1,4 +1,50 @@
+/*
+ * Animated border beam: a conic-gradient arc spins in the .beam padding ring;
+ * the opaque .button sits above it (z-index) so only the ~1.5px ring shows the
+ * travelling light. Radii are concentric (outer = inner + ring) so corners nest.
+ */
+.beam {
+  --beam-ring: 1.5px;
+  position: relative;
+  width: 100%;
+  padding: var(--beam-ring);
+  border-radius: calc(var(--radius-16) + var(--beam-ring));
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.beam::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  z-index: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 72%,
+    var(--color-brand-secondary) 84%,
+    var(--color-card) 90%,
+    transparent 96%
+  );
+  animation: beam-spin 3s linear infinite;
+}
+
+@keyframes beam-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* Static solid ring for users who opt out of motion. */
+@media (prefers-reduced-motion: reduce) {
+  .beam::before {
+    animation: none;
+    background: var(--color-brand-secondary);
+  }
+}
+
 .button {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
