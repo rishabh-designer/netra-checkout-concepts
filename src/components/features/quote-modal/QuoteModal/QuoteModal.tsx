@@ -161,13 +161,16 @@ export function QuoteModal({
             </div>
 
             <div className={styles.right}>
-              <AnimatePresence>
-                {fetched && (
+              <AnimatePresence mode="wait">
+                {fetched ? (
                   <SearchResult
+                    key="result"
                     search={qc.search}
                     companyName={companyName}
                     reduced={!!reduced}
                   />
+                ) : (
+                  <SearchSkeleton key="skeleton" reduced={!!reduced} />
                 )}
               </AnimatePresence>
             </div>
@@ -355,6 +358,49 @@ function SearchResult({
           <p>{search.emptyNote}</p>
         </motion.div>
       )}
+    </motion.div>
+  );
+}
+
+/* Shimmer placeholder shown in the right panel during the probe. Mirrors the
+   SearchResult layout (search bar → tabs → sentence → heading → list → footer)
+   so the reveal doesn't jump. Crossfades out as the result fades in. */
+function SearchSkeleton({ reduced }: { reduced: boolean }) {
+  return (
+    <motion.div
+      className={styles.skeleton}
+      initial={{ opacity: reduced ? 1 : 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      role="status"
+      aria-label="Searching public records"
+    >
+      <div className={cn(styles.skel, styles.skelSearchBar)} />
+      <div className={styles.skelTabs}>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <span key={i} className={cn(styles.skel, styles.skelTab)} />
+        ))}
+      </div>
+      <div className={styles.skelLines}>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <span key={i} className={cn(styles.skel, styles.skelLine)} />
+        ))}
+      </div>
+      <div className={cn(styles.skel, styles.skelHeading)} />
+      <div className={styles.skelList}>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className={styles.skelRow}>
+            <span className={cn(styles.skel, styles.skelDot)} />
+            <span className={cn(styles.skel, styles.skelLine)} />
+          </div>
+        ))}
+      </div>
+      <div className={styles.skelFooter}>
+        {Array.from({ length: 2 }).map((_, i) => (
+          <span key={i} className={cn(styles.skel, styles.skelFooterLine)} />
+        ))}
+      </div>
     </motion.div>
   );
 }
