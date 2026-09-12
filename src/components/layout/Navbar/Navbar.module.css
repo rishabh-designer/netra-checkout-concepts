@@ -80,7 +80,9 @@
 }
 
 .chevron {
-  width: 8px;
+  /* viewBox is cropped to the glyph (no side padding), so width matches its
+     ~6px horizontal extent to avoid stretch and sit close to the label. */
+  width: 6px;
   height: 8px;
 }
 
