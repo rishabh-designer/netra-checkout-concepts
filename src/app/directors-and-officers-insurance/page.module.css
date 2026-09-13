@@ -94,7 +94,7 @@
 
 /* Tablet (≤1024, e.g. 768): media spans the top full-width, text | form below,
    stats under the text, logos full-width & centred. */
-@media (max-width: 1300px) {
+@media (max-width: 1199px) {
   .columns {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--spacing-24);

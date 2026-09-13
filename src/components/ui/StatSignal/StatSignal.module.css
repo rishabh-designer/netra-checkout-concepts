@@ -22,7 +22,7 @@
 
 /* Stat value scales down with the interface: 48 → 34 (tablet) → 28 (mobile).
    Labels are allowed to wrap so three stats fit the narrower column. */
-@media (max-width: 1300px) {
+@media (max-width: 1199px) {
   .signal {
     white-space: normal;
   }
@@ -44,5 +44,17 @@
 
   .label {
     font-size: var(--font-size-75);
+  }
+}
+
+/* Small-desktop: allow labels to wrap so the shared stat columns don't overflow. */
+@media (min-width: 1200px) and (max-width: 1340px) {
+  .signal {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .label {
+    text-align: center;
   }
 }

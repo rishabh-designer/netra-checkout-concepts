@@ -101,7 +101,7 @@
 
 /* Tablet/mobile: the price headline drops to heading (28) and may wrap so it
    never overflows the narrower form column. */
-@media (max-width: 1300px) {
+@media (max-width: 1199px) {
   .card {
     padding: 0;
   }

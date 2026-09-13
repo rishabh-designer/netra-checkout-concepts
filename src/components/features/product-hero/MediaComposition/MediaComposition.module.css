@@ -14,7 +14,7 @@
   overflow: hidden;
 }
 
-/* Video: exclusion blend at half opacity, bottom-anchored and centered. */
+/* Video: normal blend at half opacity, bottom-anchored and centered. */
 .video {
   position: absolute;
   left: 50%;
@@ -24,7 +24,7 @@
   height: 320px;
   max-width: none;
   object-fit: cover;
-  mix-blend-mode: exclusion;
+  mix-blend-mode: normal;
   opacity: 0.5;
 }
 
@@ -69,17 +69,17 @@
 }
 
 /*
- * Tablet/mobile: the frame goes full-width. The dithered still switches to
- * full-bleed cover so the city fills any width; the webm video keeps its
- * original bottom-anchored geometry so its exclusion blend composites exactly
- * as on desktop (not stretched). Noise/wash already stretch via inset:0.
+ * Tablet/mobile: the frame goes full-width and both the webm video and the
+ * dithered still switch to full-bleed cover so the media contents scale with
+ * the frame at any width. Noise/wash already stretch via inset:0.
  */
-@media (max-width: 1300px) {
+@media (max-width: 1199px) {
   .frame {
     width: 100%;
     height: 392px;
   }
 
+  .video,
   .still {
     inset: 0;
     left: 0;

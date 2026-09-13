@@ -76,7 +76,7 @@
 
 /* Tablet: title drops to display/med (38) & wraps; the stat band tightens to
    the left column (labels wrap, gaps shrink, divider full-width). */
-@media (max-width: 1300px) {
+@media (max-width: 1199px) {
   .title {
     font-size: var(--font-size-display-sm);
     white-space: normal;
@@ -107,6 +107,23 @@
   }
 
   .signalEntry {
+    gap: var(--spacing-12);
+  }
+}
+
+/* Small-desktop (1200–1340): the left column is narrow beside the fixed 540px
+   form, so let the three stats share it evenly (labels wrap) instead of the
+   wide clustered gap-48 band overflowing into the form. */
+@media (min-width: 1200px) and (max-width: 1340px) {
+  .signalStack {
+    justify-content: space-between;
+    gap: var(--spacing-12);
+  }
+
+  .signalEntry {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
     gap: var(--spacing-12);
   }
 }
