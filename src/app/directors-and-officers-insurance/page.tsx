@@ -31,15 +31,17 @@ export default async function DirectorsAndOfficersInsurancePage() {
               subtitle={content.subtitle}
               stats={content.stats}
             />
-            <div className={styles.mediaArea}>
-              <MediaComposition media={content.media} />
-            </div>
-            <LeadFormCard content={content.leadForm} quoteModal={content.quoteModal} />
-            <div className={styles.providersArea}>
-              <p className={styles.providersHeading}>
-                {content.leadForm.providersHeading}
-              </p>
-              <InsurerLogoShowcase slots={content.leadForm.providerShowcase} />
+            <div className={styles.rightCol}>
+              <div className={styles.mediaArea}>
+                <MediaComposition media={content.media} />
+              </div>
+              <LeadFormCard content={content.leadForm} quoteModal={content.quoteModal} />
+              <div className={styles.providersArea}>
+                <p className={styles.providersHeading}>
+                  {content.leadForm.providersHeading}
+                </p>
+                <InsurerLogoShowcase slots={content.leadForm.providerShowcase} />
+              </div>
             </div>
           </div>
         </main>

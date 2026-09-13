@@ -43,24 +43,27 @@
 }
 
 /*
- * Hero grid — five reflowable areas (text, stats, media, form, logos) so each
- * can move independently across the three interfaces (Figma tablet 288:19771,
- * mobile 288:22902). ProductHeroLeft (display:contents) contributes `text` +
- * `stats`; LeadFormCard is `form`; media & logos are page-level siblings.
- *
- * Desktop: text/stats stacked left, media→form→logos stacked right.
+ * Desktop: two INDEPENDENT columns (flex), so each flows on its own — the
+ * stat band sits right under the text regardless of the media's height, and
+ * media→form→logos stack tightly on the right. Below 1200 the whole thing
+ * becomes a five-area grid (see the media queries) where each block reflows
+ * on its own: ProductHeroLeft and .rightCol both go display:contents so their
+ * children (text/stats, media/form/logos) drop into the grid as named areas.
+ * Figma tablet 288:19771, mobile 288:22902.
  */
 .columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 540px;
-  column-gap: var(--spacing-32);
-  row-gap: var(--spacing-12);
-  align-items: start;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-32);
   margin-top: var(--spacing-32);
-  grid-template-areas:
-    "text  media"
-    "stats form"
-    "stats logos";
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  width: 540px;
+  flex-shrink: 0;
 }
 
 .mediaArea {
@@ -96,13 +99,21 @@
    stats under the text, logos full-width & centred. */
 @media (max-width: 1199px) {
   .columns {
+    display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--spacing-24);
+    row-gap: var(--spacing-12);
+    align-items: start;
     grid-template-areas:
       "media media"
       "text  form"
       "stats form"
       "logos logos";
+  }
+
+  /* flatten both wrappers so their children become grid areas */
+  .rightCol {
+    display: contents;
   }
 
   .mediaArea {
