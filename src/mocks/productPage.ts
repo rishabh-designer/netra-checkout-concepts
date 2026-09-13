@@ -1,4 +1,4 @@
-import type { ProductPageContent, QuoteSearchPanel } from "@/types/productPage";
+import type { ProductPageContent, QuoteCase, QuoteSearchPanel } from "@/types/productPage";
 
 const COMPANY_TYPE_OPTIONS = [
   "Private Limited Company",
@@ -77,6 +77,21 @@ const SEARCH_EMPTY: QuoteSearchPanel = {
   body: null,
   emptyNote:
     "We couldn't find public records for this company. Please fill in the details manually to continue.",
+};
+
+/* Profile (step 0) is a data-collection step: the company name is seeded from
+   the typed name; full name / phone / email are entered by the user. Its status
+   reacts to fill (collectMode), so one case serves A/B/C. The engine task for
+   this step carries no search body. */
+const PROFILE_CASE: QuoteCase = {
+  requiresConsent: false,
+  search: SEARCH_MATCHED,
+  fields: [
+    { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "", status: "verified" },
+    { key: "fullName", label: "Your Full Name", mandatory: true, control: "text", value: "", placeholder: "Enter Full Name", status: "empty" },
+    { key: "phone", label: "Your Phone Number", mandatory: true, control: "text", value: "", prefix: "+91", placeholder: "0000 000 000", status: "empty" },
+    { key: "email", label: "Your Email Address", mandatory: true, control: "text", value: "", placeholder: "Enter Email Address", status: "empty" },
+  ],
 };
 
 /** Fixture for the Director's & Officer's Insurance product page (Figma node 179:65816). */
@@ -159,13 +174,35 @@ export const mockProductPageContent: ProductPageContent = {
     ],
   },
   quoteModal: {
-    stepperLabels: ["Business Profile", "Insurance Profile", "Quotes"],
+    stepperLabels: ["Profile", "Business", "Insurance", "Quotes"],
     ctaLabel: "Get Instant Quotes",
+    // Live meter denominator: Company 1 + Profile 3 + Business 3 + Insurance 3 +
+    // Report 2 (Yes/No + its conditional child). CIN is non-mandatory (excluded).
+    totalFlowQuestions: 12,
+    // The persistent left-panel task-runner; one task per form step (index-aligned).
+    engine: {
+      requestLabel: "Personalize My Quote",
+      messageTemplate: "Running 5 Tasks to complete quote Personalisation for {company}",
+      headingLabel: "Getting Started",
+      tasks: [
+        { activeLabel: "Updating your Profile…", readyLabel: "Ready to Confirm Profile", doneLabel: "Profile Confirmed", hasSearch: false },
+        { activeLabel: "Update your Business", doneLabel: "Business Secured", hasSearch: true },
+        { activeLabel: "Confirm your Insurance", doneLabel: "Insurance Confirmed", hasSearch: true },
+      ],
+    },
     emptyNameToast: {
       title: "Company name required",
       description: "Enter your legal company name to get an instant quote.",
     },
     steps: [
+      // ── Step 0: Profile — collect the user's contact details (no branching). ──
+      {
+        key: "profile",
+        title: "Profile",
+        activeTab: "",
+        collectMode: true,
+        cases: { A: PROFILE_CASE, B: PROFILE_CASE, C: PROFILE_CASE },
+      },
       // ── Step 1: Business — the typed name resolves A/B/C. ──────────────
       {
         key: "business",

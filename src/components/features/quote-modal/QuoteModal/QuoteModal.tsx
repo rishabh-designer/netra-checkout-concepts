@@ -2,10 +2,17 @@
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
+import { TextLoader } from "generative-loaders";
+import "generative-loaders/styles.css";
 import { cn } from "@/lib/utils";
 import { IkkatMark } from "@/components/ui/IkkatMark";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
+import { RingSweep } from "@/components/ui/RingSweep";
+import { AITextLoading } from "@/components/ui/AITextLoading";
+import { BorderGlow } from "@/components/ui/BorderGlow";
 import type {
+  EngineTask,
+  IntelligenceEngine as IntelligenceEngineContent,
   QuoteFieldStatus,
   QuoteModalContent,
   QuoteModalField,
@@ -30,10 +37,12 @@ export interface QuoteModalProps {
 
 /**
  * QuoteModal — the lead flow opened from the CTA. It slides up over a blurred
- * overlay, "probes" for `fetchDelay`, then resolves to one of three outcomes:
- * A (confirmed / green), B (fuzzy guess / orange + consent) or C (nothing found
- * / manual). The right panel reveals bottom-up with a staggered blur.
- * Figma: A 241:27879, B 254:3547, C 254:3952, loading 182:21186.
+ * overlay and walks a multi-step form (Profile → Business → Insurance). The
+ * typed name resolves one case — A (confirmed / green), B (fuzzy guess / orange
+ * + consent), C (nothing found / manual) — that themes each step. The left panel
+ * is a persistent "Intelligence Engine": an agentic task-runner whose active
+ * task expands the Netra search viz and whose meter tracks live flow progress.
+ * Figma: Profile 319:25317, Business 320:26136, Insurance 320:26281.
  */
 export function QuoteModal({
   open,
@@ -77,7 +86,8 @@ export function QuoteModal({
       return next;
     });
     setConsent(false);
-    if (reduced || probedRef.current.has(stepIndex)) {
+    // The Profile step collects input directly (no agent probe / skeleton).
+    if (reduced || step.collectMode || probedRef.current.has(stepIndex)) {
       setFetched(true);
       return;
     }
@@ -87,7 +97,7 @@ export function QuoteModal({
       setFetched(true);
     }, fetchDelay);
     return () => window.clearTimeout(id);
-  }, [open, stepIndex, caseId, companyName, reduced, fetchDelay, qc.fields]);
+  }, [open, stepIndex, caseId, companyName, reduced, fetchDelay, qc.fields, step.collectMode]);
 
   useEffect(() => {
     if (!open) return;
@@ -98,14 +108,41 @@ export function QuoteModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  const allMandatoryFilled = (fields: QuoteModalField[]) =>
+    fields.filter((f) => f.mandatory).every((f) => (values[f.key] ?? "").trim() !== "");
+
   const canSubmit = useMemo(() => {
     if (!fetched) return false;
+    // Profile (collect mode) gates on every mandatory field being filled.
+    if (step.collectMode) return allMandatoryFilled(qc.fields);
     if (caseId === "A") return true;
     if (caseId === "B") return consent;
-    return qc.fields
-      .filter((f) => f.mandatory)
-      .every((f) => (values[f.key] ?? "").trim() !== "");
-  }, [fetched, caseId, consent, values, qc.fields]);
+    return allMandatoryFilled(qc.fields);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetched, caseId, consent, values, qc.fields, step.collectMode]);
+
+  /** The distinct mandatory field keys across the whole flow — the meter's
+   *  numerator pool. Depends only on the resolved case, not on typed values, so
+   *  it isn't rebuilt on every keystroke. */
+  const mandatoryKeys = useMemo(() => {
+    const keys = new Set<string>();
+    content.steps.forEach((st) =>
+      st.cases[caseId].fields.forEach((f) => {
+        if (f.mandatory) keys.add(f.key);
+      }),
+    );
+    return [...keys];
+  }, [content.steps, caseId]);
+
+  /** Live progress meter: share of those questions answered so far. Unvisited
+   *  steps' keys aren't seeded yet, so the % climbs as the flow advances;
+   *  `Report` is reserved in `totalFlowQuestions`. */
+  const percent = useMemo(() => {
+    const answered = mandatoryKeys.filter((k) => (values[k] ?? "").trim() !== "").length;
+    return Math.min(100, Math.round((answered / content.totalFlowQuestions) * 100));
+  }, [mandatoryKeys, content.totalFlowQuestions, values]);
+
+  const profileComplete = allMandatoryFilled(content.steps[0].cases[caseId].fields);
 
   /** Advance to the next form step (the probe re-runs for it); last step is
    *  terminal for now (the "Quotes" step has no form yet). */
@@ -175,6 +212,7 @@ export function QuoteModal({
                     <Field
                       field={field}
                       caseId={caseId}
+                      collectMode={!!step.collectMode}
                       fetched={fetched}
                       value={values[field.key] ?? ""}
                       onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
@@ -214,24 +252,32 @@ export function QuoteModal({
               </div>
             </div>
 
-            <div className={styles.right}>
-              <div className={styles.rightScroll}>
-                <AnimatePresence mode="wait">
-                  {fetched ? (
-                    <SearchResult
-                      key="result"
-                      search={qc.search}
-                      activeTab={step.activeTab}
-                      companyName={companyName}
-                      reduced={!!reduced}
-                    />
-                  ) : (
-                    <SearchSkeleton key="skeleton" reduced={!!reduced} />
-                  )}
-                </AnimatePresence>
+            {/* Left visual — the persistent "Intelligence Engine" task-runner,
+                lit by a pointer-tracking edge glow (panel stays light). */}
+            <BorderGlow
+              className={styles.rightGlow}
+              borderRadius={16}
+              edgeSensitivity={30}
+              glowRadius={40}
+              glowIntensity={1}
+            >
+              <div className={styles.right}>
+                <div className={styles.rightScroll}>
+                  <IntelligenceEngine
+                    engine={content.engine}
+                    stepIndex={stepIndex}
+                    companyName={companyName}
+                    percent={percent}
+                    profileComplete={profileComplete}
+                    fetched={fetched}
+                    search={qc.search}
+                    activeTab={step.activeTab}
+                    reduced={!!reduced}
+                  />
+                </div>
+                <PanelStepper steps={content.stepperLabels} active={stepIndex} />
               </div>
-              <PanelStepper steps={content.stepperLabels} active={stepIndex} />
-            </div>
+            </BorderGlow>
           </motion.div>
         </motion.div>
       )}
@@ -239,13 +285,16 @@ export function QuoteModal({
   );
 }
 
-/* ---- per-field display status: name=purple, A=green, B=orange, C=green-when-filled ---- */
+/* ---- per-field display status: name=purple, A=green, B=orange, C/collect=green-when-filled ---- */
 function displayStatus(
   field: QuoteModalField,
   caseId: QuoteCaseId,
   value: string,
+  collectMode: boolean,
 ): QuoteFieldStatus {
   if (field.key === "name") return "verified";
+  // Profile (collect mode): status follows whether the field is filled.
+  if (collectMode) return value.trim() ? "success" : "empty";
   if (caseId === "A") return "success";
   if (caseId === "B") return "fuzzy";
   return value.trim() ? "success" : "empty";
@@ -254,19 +303,21 @@ function displayStatus(
 function Field({
   field,
   caseId,
+  collectMode,
   fetched,
   value,
   onChange,
 }: {
   field: QuoteModalField;
   caseId: QuoteCaseId;
+  collectMode: boolean;
   fetched: boolean;
   value: string;
   onChange: (value: string) => void;
 }) {
   const isName = field.key === "name";
   const fetching = !isName && !fetched;
-  const status = displayStatus(field, caseId, value);
+  const status = displayStatus(field, caseId, value, collectMode);
   const isSelect = field.control === "select";
   const isSearch = field.control === "search";
   // The coverage field reads "Approximating…" while the probe runs (Figma).
@@ -342,13 +393,20 @@ function Field({
         ) : isName ? (
           <span className={styles.value}>{value}</span>
         ) : (
-          <input
-            className={styles.textInput}
-            data-empty={value ? undefined : true}
-            value={value}
-            placeholder={field.placeholder}
-            onChange={(e) => onChange(e.target.value)}
-          />
+          <>
+            {field.prefix && (
+              <span className={styles.fieldPrefix} aria-hidden>
+                {field.prefix}
+              </span>
+            )}
+            <input
+              className={styles.textInput}
+              data-empty={value ? undefined : true}
+              value={value}
+              placeholder={field.placeholder}
+              onChange={(e) => onChange(e.target.value)}
+            />
+          </>
         )}
 
         <div className={styles.suffix}>
@@ -417,12 +475,18 @@ function SearchResult({
   activeTab,
   companyName,
   reduced,
+  fetched,
+  compact = false,
 }: {
   search: QuoteSearchPanel;
   /** Which tab reads active on this step (Business "Netra Mode", Insurance "News"). */
   activeTab: string;
   companyName: string;
   reduced: boolean;
+  /** false = the engine is still probing → result text shows as skeletons. */
+  fetched: boolean;
+  /** true = the smaller variant embedded inside an active engine task. */
+  compact?: boolean;
 }) {
   const body = search.body;
   const query = companyName || search.query;
@@ -432,7 +496,7 @@ function SearchResult({
 
   return (
     <motion.div
-      className={styles.result}
+      className={cn(styles.result, compact && styles.resultCompact)}
       variants={container}
       initial={reduced ? "visible" : "hidden"}
       animate="visible"
@@ -454,34 +518,48 @@ function SearchResult({
 
       {body ? (
         <>
-          {body.cinSentence && (
-            <motion.p variants={item} className={styles.cinSentence}>
-              {before}
-              <mark className={cn(styles.cinMark, body.tentative && styles.cinMarkGuess)}>
-                {highlight}
-              </mark>
-              {after}
-            </motion.p>
+          {/* The engine "results" load as skeletons, then redact-reveal (the
+              detail lines / footer) or blur-in (the highlighted CIN + heading). */}
+          {body.cinSentence &&
+            (fetched ? (
+              <motion.p variants={item} className={styles.cinSentence}>
+                {before}
+                <mark className={cn(styles.cinMark, body.tentative && styles.cinMarkGuess)}>
+                  {highlight}
+                </mark>
+                {after}
+              </motion.p>
+            ) : (
+              <TextLoader text={body.cinSentence} variant="skeleton" className={styles.cinSentence} />
+            ))}
+
+          {fetched ? (
+            <motion.h3
+              variants={item}
+              className={cn(styles.detailsHeading, body.tentative && styles.detailsHeadingGuess)}
+            >
+              {body.detailsHeading}
+            </motion.h3>
+          ) : (
+            <TextLoader text={body.detailsHeading} variant="skeleton" className={styles.detailsHeading} />
           )}
-          <motion.h3
-            variants={item}
-            className={cn(styles.detailsHeading, body.tentative && styles.detailsHeadingGuess)}
-          >
-            {body.detailsHeading}
-          </motion.h3>
+
           <ul className={styles.detailsList}>
             {body.details.map((detail, i) => (
-              <motion.li key={detail} variants={item} className={styles.detailItem}>
-                <span>{detail}</span>
-                {body.founderTag && i === body.details.length - 1 && (
+              <li key={detail} className={styles.detailItem}>
+                <TextLoader text={detail} variant={fetched ? "redact" : "skeleton"} />
+                {fetched && body.founderTag && i === body.details.length - 1 && (
                   <span className={styles.sourceTag}>{body.founderTag}</span>
                 )}
-              </motion.li>
+              </li>
             ))}
           </ul>
-          <motion.p variants={item} className={styles.resultFooter}>
-            {body.footer}
-          </motion.p>
+
+          <TextLoader
+            text={body.footer}
+            variant={fetched ? "redact" : "skeleton"}
+            className={styles.resultFooter}
+          />
         </>
       ) : (
         <motion.div variants={item} className={styles.emptyState}>
@@ -493,46 +571,205 @@ function SearchResult({
   );
 }
 
-/* Shimmer placeholder shown in the right panel during the probe. Mirrors the
-   SearchResult layout (search bar → tabs → sentence → heading → list → footer)
-   so the reveal doesn't jump. Crossfades out as the result fades in. */
-function SearchSkeleton({ reduced }: { reduced: boolean }) {
+/* ---- left "Intelligence Engine" — the persistent agentic task-runner ----
+   A request bubble + the engine's reply (both only on the Profile step, then
+   they slide/blur up and out), a live progress meter, and the 3-task runner.
+   The active task expands: Business/Insurance embed the compact search viz,
+   Profile has no body (it ingests from the form). Figma 319:25317 / 320:26136 /
+   320:26281. */
+function IntelligenceEngine({
+  engine,
+  stepIndex,
+  companyName,
+  percent,
+  profileComplete,
+  fetched,
+  search,
+  activeTab,
+  reduced,
+}: {
+  engine: IntelligenceEngineContent;
+  stepIndex: number;
+  companyName: string;
+  percent: number;
+  profileComplete: boolean;
+  fetched: boolean;
+  search: QuoteSearchPanel;
+  activeTab: string;
+  reduced: boolean;
+}) {
+  const message = engine.messageTemplate.replace("{company}", companyName || "your company");
   return (
     <motion.div
-      className={styles.skeleton}
-      initial={{ opacity: reduced ? 1 : 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      role="status"
-      aria-label="Searching public records"
+      className={styles.engine}
+      variants={container}
+      initial={reduced ? "visible" : "hidden"}
+      animate="visible"
     >
-      <div className={cn(styles.skel, styles.skelSearchBar)} />
-      <div className={styles.skelTabs}>
-        {Array.from({ length: 4 }).map((_, i) => (
-          <span key={i} className={cn(styles.skel, styles.skelTab)} />
-        ))}
-      </div>
-      <div className={styles.skelLines}>
-        {Array.from({ length: 3 }).map((_, i) => (
-          <span key={i} className={cn(styles.skel, styles.skelLine)} />
-        ))}
-      </div>
-      <div className={cn(styles.skel, styles.skelHeading)} />
-      <div className={styles.skelList}>
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className={styles.skelRow}>
-            <span className={cn(styles.skel, styles.skelDot)} />
-            <span className={cn(styles.skel, styles.skelLine)} />
+      <AnimatePresence initial={false}>
+        {stepIndex === 0 && (
+          <motion.div
+            key="intro"
+            className={styles.engineIntro}
+            initial={reduced ? false : { opacity: 0, y: 8, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={
+              reduced
+                ? { opacity: 0 }
+                : { opacity: 0, y: -12, filter: "blur(6px)", height: 0, marginBottom: 0 }
+            }
+            transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <div className={styles.requestBubble}>
+              <span>{engine.requestLabel}</span>
+              <CheckboxTick />
+            </div>
+            <div className={styles.engineMessage}>{message}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div variants={item} className={styles.engineRunner} layout={!reduced}>
+        <div className={styles.meterRow}>
+          <span className={styles.meterHeading}>{engine.headingLabel}</span>
+          <div className={styles.meterRight}>
+            <motion.span
+              key={percent}
+              className={styles.meterPct}
+              initial={reduced ? false : { opacity: 0.4 }}
+              animate={{ opacity: 1 }}
+            >
+              {percent}%
+            </motion.span>
+            <div className={styles.meterTrack}>
+              <motion.div
+                className={styles.meterFill}
+                animate={{ width: `${percent}%` }}
+                transition={{ duration: reduced ? 0 : 0.6, ease: [0.4, 0, 0.2, 1] }}
+              />
+            </div>
           </div>
-        ))}
-      </div>
-      <div className={styles.skelFooter}>
-        {Array.from({ length: 2 }).map((_, i) => (
-          <span key={i} className={cn(styles.skel, styles.skelFooterLine)} />
-        ))}
-      </div>
+        </div>
+
+        <ol className={styles.taskList}>
+          {engine.tasks.map((task, i) => (
+            <TaskRow
+              key={task.doneLabel}
+              task={task}
+              state={i < stepIndex ? "done" : i === stepIndex ? "active" : "pending"}
+              profileComplete={profileComplete}
+              fetched={fetched}
+              search={search}
+              activeTab={activeTab}
+              companyName={companyName}
+              reduced={reduced}
+            />
+          ))}
+        </ol>
+      </motion.div>
     </motion.div>
+  );
+}
+
+function TaskRow({
+  task,
+  state,
+  profileComplete,
+  fetched,
+  search,
+  activeTab,
+  companyName,
+  reduced,
+}: {
+  task: EngineTask;
+  state: "done" | "active" | "pending";
+  profileComplete: boolean;
+  fetched: boolean;
+  search: QuoteSearchPanel;
+  activeTab: string;
+  companyName: string;
+  reduced: boolean;
+}) {
+  if (state === "done") {
+    return (
+      <motion.li layout={!reduced} className={cn(styles.taskRow, styles.taskDone)}>
+        <FilledCheck color="var(--color-brand-primary)" />
+        <span className={styles.taskDoneLabel}>{task.doneLabel}</span>
+      </motion.li>
+    );
+  }
+  if (state === "pending") {
+    return (
+      <motion.li layout={!reduced} className={cn(styles.taskRow, styles.taskPending)}>
+        <RingSweep />
+        <span className={styles.taskPendingLabel}>{task.activeLabel}</span>
+      </motion.li>
+    );
+  }
+
+  // Active: purple pill head with a shimmering label; Business/Insurance expand
+  // the embedded search, Profile swaps its label to "Ready…" once complete.
+  const label =
+    !task.hasSearch && profileComplete ? task.readyLabel ?? task.activeLabel : task.activeLabel;
+  return (
+    <motion.li layout={!reduced} className={cn(styles.taskRow, styles.taskActiveRow)}>
+      <div className={styles.taskHead}>
+        {task.hasSearch ? (
+          <RingSweep />
+        ) : profileComplete ? (
+          <FilledCheck color="var(--color-brand-primary)" />
+        ) : (
+          <MinusMark />
+        )}
+        <AITextLoading text={label} className={styles.taskActiveLabel} />
+        {task.hasSearch && <ChevronDown />}
+      </div>
+      {task.hasSearch && (
+        <motion.div
+          className={styles.taskBody}
+          initial={reduced ? false : { height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        >
+          <SearchResult
+            compact
+            search={search}
+            activeTab={activeTab}
+            companyName={companyName}
+            reduced={reduced}
+            fetched={fetched}
+          />
+        </motion.div>
+      )}
+    </motion.li>
+  );
+}
+
+/* Filled purple roundel with a white tick — the checked "Personalize My Quote"
+   box in the engine's request bubble (Figma 319:25319). */
+function CheckboxTick() {
+  return (
+    <svg viewBox="0 0 18 18" width="18" height="18" fill="none" aria-hidden>
+      <rect width="18" height="18" rx="5" fill="var(--color-brand-primary)" />
+      <path
+        d="m5 9.2 2.4 2.4L13 6"
+        stroke="var(--color-label-inverse)"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/* Minus glyph in a soft box — the collapsed indicator on the Profile task while
+   it is still being filled (Figma 319:25336). */
+function MinusMark() {
+  return (
+    <svg viewBox="0 0 14 14" width="14" height="14" fill="none" aria-hidden>
+      <rect x="0.5" y="0.5" width="13" height="13" rx="4" stroke="var(--color-brand-primary-border)" />
+      <path d="M4 7h6" stroke="var(--color-brand-primary)" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
   );
 }
 

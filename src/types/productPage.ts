@@ -81,6 +81,8 @@ export interface QuoteModalField {
   /** Filled value (A/B) or "" when empty (C). */
   value: string;
   placeholder?: string;
+  /** Fixed, non-editable affix shown before the input (e.g. "+91" on Phone). */
+  prefix?: string;
   /** Options for a `select` control — lets Case C be filled in. */
   options?: string[];
   status: QuoteFieldStatus;
@@ -121,22 +123,56 @@ export interface QuoteCase {
   personalize?: QuotePersonalize;
 }
 
-/** One form step in the modal flow (Business, then Insurance). */
+/** One form step in the modal flow (Profile → Business → Insurance). */
 export interface QuoteStep {
   key: string;
-  /** Header title, e.g. "Business" / "Insurance". */
+  /** Header title, e.g. "Profile" / "Business" / "Insurance". */
   title: string;
   /** Which left-panel search tab reads active on this step (Business = first
-   *  "Netra Mode", Insurance = last "News"). */
+   *  "Netra Mode", Insurance = last "News"; "" when the step has no search). */
   activeTab: string;
+  /** Data-collection step (Profile): field status reacts to whether each field
+   *  is filled, rather than to the resolved A/B/C case. */
+  collectMode?: boolean;
   cases: { A: QuoteCase; B: QuoteCase; C: QuoteCase };
+}
+
+/** One row of the Intelligence Engine task-runner, index-aligned to `steps`. */
+export interface EngineTask {
+  /** Label while the task is running/pending (e.g. "Confirm your Insurance"). */
+  activeLabel: string;
+  /** Optional swap once the step's inputs are complete (Profile only:
+   *  "Ready to Confirm Profile"). */
+  readyLabel?: string;
+  /** Collapsed label once the task is done ("Profile Confirmed"). */
+  doneLabel: string;
+  /** true = the active task expands the Netra search viz (Business/Insurance);
+   *  false = no search body (Profile). */
+  hasSearch: boolean;
+}
+
+/** The persistent left-panel "Intelligence Engine" — a request bubble, the
+ *  engine's reply, a live progress meter and the 3-task runner. */
+export interface IntelligenceEngine {
+  /** The opt-in the user checked on the product page ("Personalize My Quote"). */
+  requestLabel: string;
+  /** Engine reply; `{company}` is replaced with the typed company name. */
+  messageTemplate: string;
+  /** Progress-meter heading ("Getting Started"). */
+  headingLabel: string;
+  tasks: EngineTask[];
 }
 
 export interface QuoteModalContent {
   /** Ordered form steps; `stepIndex` walks these. */
   steps: QuoteStep[];
-  /** Footer-stepper pills (Figma 306:5036) — labels only; the last ("Quotes")
-   *  is a future step with no form. Earlier than the current step = done/green. */
+  /** The left-panel task-runner (index-aligned to `steps`). */
+  engine: IntelligenceEngine;
+  /** Denominator for the live progress meter — total mandatory questions across
+   *  the whole flow (incl. the future Report step). Tune to re-anchor the %. */
+  totalFlowQuestions: number;
+  /** Footer-stepper pills — labels only; the last ("Quotes") is a future step
+   *  with no form. Earlier than the current step = done/green. */
   stepperLabels: string[];
   ctaLabel: string;
   emptyNameToast: { title: string; description: string };

@@ -1,0 +1,9 @@
+.ring {
+  display: inline-block;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 2px solid var(--color-card-recessed);
+  border-top-color: var(--color-brand-primary);
+  border-radius: 50%;
+  corner-shape: round;
+}

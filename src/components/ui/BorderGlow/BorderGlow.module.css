@@ -1,0 +1,31 @@
+.wrap {
+  position: relative;
+}
+
+/* A pointer-following gradient blob masked to the border band only, so the panel
+   interior stays light. Opacity is driven by --bg-glow (edge proximity). */
+.glow {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  padding: var(--bg-border, 1.5px);
+  background: var(--bg-gradient);
+  opacity: var(--bg-glow, 0);
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow {
+    display: none;
+  }
+}
