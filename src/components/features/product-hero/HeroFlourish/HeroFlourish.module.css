@@ -5,9 +5,9 @@
   pointer-events: none;
 }
 
-/* The concentric-ring flourish only appears on the desktop fold (Figma
-   179:65823); the tablet/mobile frames omit it. Hidden below 1200. */
-@media (max-width: 1199px) {
+/* The concentric-ring flourish only appears on the web fold (Figma
+   179:65823); mobile omits it. Hidden below 1000. */
+@media (max-width: 999px) {
   .stage {
     display: none;
   }

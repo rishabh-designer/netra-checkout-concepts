@@ -68,7 +68,7 @@ export interface LeadFormContent {
   providerShowcase: InsurerLogo[][];
 }
 
-export type QuoteFieldControl = "text" | "select";
+export type QuoteFieldControl = "text" | "select" | "toggle" | "search";
 /** verified = Name (purple), success = confirmed (green), fuzzy = guess
  *  (orange), empty = nothing found (grey placeholder). */
 export type QuoteFieldStatus = "verified" | "success" | "fuzzy" | "empty";
@@ -105,22 +105,41 @@ export interface QuoteSearchPanel {
   emptyNote?: string;
 }
 
+/** Auto-personalize badge (Insurance case A): "New · Being Personalized" while
+ *  the probe runs, then "Personalized!" once resolved. */
+export interface QuotePersonalize {
+  pendingLabel: string;
+  doneLabel: string;
+  skipLabel: string;
+}
+
 export interface QuoteCase {
   fields: QuoteModalField[];
   requiresConsent: boolean;
   consentText?: string;
   search: QuoteSearchPanel;
+  personalize?: QuotePersonalize;
+}
+
+/** One form step in the modal flow (Business, then Insurance). */
+export interface QuoteStep {
+  key: string;
+  /** Header title, e.g. "Business" / "Insurance". */
+  title: string;
+  /** Which left-panel search tab reads active on this step (Business = first
+   *  "Netra Mode", Insurance = last "News"). */
+  activeTab: string;
+  cases: { A: QuoteCase; B: QuoteCase; C: QuoteCase };
 }
 
 export interface QuoteModalContent {
-  /** Ordered flow steps for the panel-footer stepper (Figma 306:5036). */
-  steps: string[];
-  /** Index of the current step: earlier = completed (green), later = upcoming (grey). */
-  activeStep: number;
-  title: string;
+  /** Ordered form steps; `stepIndex` walks these. */
+  steps: QuoteStep[];
+  /** Footer-stepper pills (Figma 306:5036) — labels only; the last ("Quotes")
+   *  is a future step with no form. Earlier than the current step = done/green. */
+  stepperLabels: string[];
   ctaLabel: string;
   emptyNameToast: { title: string; description: string };
-  cases: { A: QuoteCase; B: QuoteCase; C: QuoteCase };
 }
 
 export interface ProductPageContent {

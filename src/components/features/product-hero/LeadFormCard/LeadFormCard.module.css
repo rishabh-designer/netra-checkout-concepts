@@ -99,9 +99,9 @@
   max-width: none;
 }
 
-/* Tablet/mobile: the price headline drops to heading (28) and may wrap so it
-   never overflows the narrower form column. */
-@media (max-width: 1199px) {
+/* Below web (<1000): the price headline drops to heading (28) and may wrap so
+   it never overflows the narrower form column. */
+@media (max-width: 999px) {
   .card {
     padding: 0;
   }
@@ -110,9 +110,7 @@
     font-size: var(--font-size-heading-md);
     white-space: normal;
   }
-}
 
-@media (max-width: 640px) {
   .kicker {
     white-space: normal;
   }
@@ -132,23 +130,4 @@
   gap: var(--spacing-24);
 }
 
-/* Tablet: the card flattens so its two halves become the bottom row — price +
-   promo on the left, the ~350px input + CTA right-aligned on the right. */
-@media (min-width: 641px) and (max-width: 1199px) {
-  .card {
-    display: contents;
-  }
-
-  .top {
-    grid-area: price;
-    max-width: 340px;
-  }
-
-  .bottom {
-    grid-area: form;
-    width: 350px;
-    max-width: 100%;
-    justify-self: end;
-  }
-}
 

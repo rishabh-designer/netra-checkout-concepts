@@ -67,7 +67,9 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-48);
-  padding: 0 var(--spacing-12);
+  /* No inset on web so the stats left-align with the title/subtitle above
+     (tablet/mobile already zero this in the max-width:1199 block). */
+  padding: 0;
 }
 
 .signalEntry {
@@ -80,10 +82,10 @@
   flex-shrink: 0;
 }
 
-/* Tablet + mobile: the text box flattens so `.heading` (text) and
-   `.trustSignals` (stats) become independent grid areas. Title → display/med
+/* Below web (<1000): the text box flattens so `.heading` (text) and
+   `.trustSignals` (stats) become independent grid areas. Title → display/sm
    (38) & wraps; stat labels wrap. */
-@media (max-width: 1199px) {
+@media (max-width: 999px) {
   .column {
     display: contents;
   }
@@ -122,35 +124,10 @@
   }
 }
 
-/* Tablet only: the stats sit in row 1 beside the text as a horizontal band —
-   no divider, vertically centred against the text, spread across the right
-   column (widening as the viewport grows). */
-@media (min-width: 641px) and (max-width: 1199px) {
-  .heading {
-    grid-area: text;
-  }
-
-  .trustSignals {
-    grid-area: stats;
-    align-self: center;
-    margin-top: 0;
-    padding: 0;
-  }
-
-  .dividerLine {
-    display: none;
-  }
-
-  .signalStack {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-/* Small-desktop (1200–1340): the left column is narrow beside the fixed 540px
+/* Narrow web (1000–1340): the left column is narrow beside the fixed 540px
    form, so let the three stats share it evenly (labels wrap) instead of the
    wide clustered gap-48 band overflowing into the form. */
-@media (min-width: 1200px) and (max-width: 1340px) {
+@media (min-width: 1000px) and (max-width: 1340px) {
   .signalStack {
     justify-content: space-between;
     gap: var(--spacing-12);
@@ -164,9 +141,8 @@
   }
 }
 
-/* Mobile: split the text box so the stat band detaches and drops below the
-   media; title to display/xsmall (34); the band spans the full width. */
-@media (max-width: 640px) {
+/* Narrow phones: title to display/xsmall (34); tighter stat gaps. */
+@media (max-width: 999px) {
   .title {
     font-size: var(--font-size-display-2xs);
   }

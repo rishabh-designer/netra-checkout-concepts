@@ -95,55 +95,8 @@
   margin-top: auto;
 }
 
-/*
- * Tablet (641–1199, e.g. 768 & 1190 mocks 296:27994 / 296:29906): four rows —
- *   text | stats      (stats spread on the right, widening with the viewport)
- *   media             (full-width, but capped ~733 & centred once wide)
- *   price | form      (price/promo left, the ~350px input+CTA right-aligned)
- *   logos             (full-width, centred)
- * All six blocks are flattened into the grid: .column and .rightCol and the
- * lead-form .card all go display:contents so their children become areas.
- */
-@media (min-width: 641px) and (max-width: 1199px) {
-  .body {
-    padding: var(--spacing-16);
-  }
-
-  .columns {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: var(--spacing-24);
-    row-gap: var(--spacing-24);
-    align-items: start;
-    grid-template-areas:
-      "text   stats"
-      "media  media"
-      "price  form"
-      "logos  logos";
-  }
-
-  .rightCol {
-    display: contents;
-  }
-
-  /* media spans both columns but caps & centres itself (see MediaComposition) */
-  .mediaArea {
-    grid-area: media;
-    padding-top: 0;
-    display: flex;
-    justify-content: center;
-  }
-
-  .providersArea {
-    grid-area: logos;
-    align-items: center;
-    padding-left: 0;
-    margin-top: var(--spacing-8);
-  }
-}
-
-/* Mobile (≤640, e.g. 375): single column — text, form, logos, media, stats. */
-@media (max-width: 640px) {
+/* Below web (<1000): single column — text, form, logos, media, stats. */
+@media (max-width: 999px) {
   .body {
     padding: var(--spacing-16);
   }

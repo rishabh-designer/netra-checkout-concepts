@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { cn } from "@/lib/utils";
 import { IkkatMark } from "@/components/ui/IkkatMark";
+import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import type {
-  QuoteCase,
   QuoteFieldStatus,
   QuoteModalContent,
   QuoteModalField,
+  QuotePersonalize,
   QuoteSearchPanel,
 } from "@/types/productPage";
 import styles from "./QuoteModal.module.css";
@@ -43,28 +44,50 @@ export function QuoteModal({
   fetchDelay = 2000,
 }: QuoteModalProps) {
   const reduced = useReducedMotion();
-  const qc = content.cases[caseId];
+
+  const [stepIndex, setStepIndex] = useState(0);
+  const step = content.steps[stepIndex];
+  const qc = step.cases[caseId];
+  const lastStep = content.steps.length - 1;
 
   const [fetched, setFetched] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
   const [consent, setConsent] = useState(false);
+  /** Steps whose probe has already resolved — revisiting skips the skeleton. */
+  const probedRef = useRef<Set<number>>(new Set());
 
+  // (Re)opening resets the flow to the first step with fresh state.
   useEffect(() => {
     if (!open) return;
-    const init: Record<string, string> = {};
-    qc.fields.forEach((f) => {
-      init[f.key] = f.key === "name" ? companyName : f.value;
+    setStepIndex(0);
+    setValues({});
+    probedRef.current = new Set();
+  }, [open]);
+
+  // Seed the current step's field values — merged, since field keys are unique
+  // per step, so returning to an earlier step keeps its entries — then run the
+  // probe on first visit (a revisited or reduced-motion step resolves at once).
+  useEffect(() => {
+    if (!open) return;
+    setValues((prev) => {
+      const next = { ...prev };
+      qc.fields.forEach((f) => {
+        if (!(f.key in next)) next[f.key] = f.key === "name" ? companyName : f.value;
+      });
+      return next;
     });
-    setValues(init);
     setConsent(false);
-    if (reduced) {
+    if (reduced || probedRef.current.has(stepIndex)) {
       setFetched(true);
       return;
     }
     setFetched(false);
-    const id = window.setTimeout(() => setFetched(true), fetchDelay);
+    const id = window.setTimeout(() => {
+      probedRef.current.add(stepIndex);
+      setFetched(true);
+    }, fetchDelay);
     return () => window.clearTimeout(id);
-  }, [open, caseId, companyName, reduced, fetchDelay, qc.fields]);
+  }, [open, stepIndex, caseId, companyName, reduced, fetchDelay, qc.fields]);
 
   useEffect(() => {
     if (!open) return;
@@ -84,6 +107,15 @@ export function QuoteModal({
       .every((f) => (values[f.key] ?? "").trim() !== "");
   }, [fetched, caseId, consent, values, qc.fields]);
 
+  /** Advance to the next form step (the probe re-runs for it); last step is
+   *  terminal for now (the "Quotes" step has no form yet). */
+  const handleSubmit = () => {
+    if (canSubmit && stepIndex < lastStep) setStepIndex((i) => i + 1);
+  };
+  const handleBack = () => {
+    if (stepIndex > 0) setStepIndex((i) => i - 1);
+  };
+
   return (
     <AnimatePresence>
       {open && (
@@ -99,7 +131,7 @@ export function QuoteModal({
             className={styles.modal}
             role="dialog"
             aria-modal="true"
-            aria-label={`${content.title} profile`}
+            aria-label={`${step.title} profile`}
             onClick={(e) => e.stopPropagation()}
             initial={{ y: reduced ? 0 : 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -111,10 +143,16 @@ export function QuoteModal({
                   lead stack, close control on the right. */}
               <header className={styles.header}>
                 <div className={styles.headerLead}>
-                  <button type="button" className={styles.ctrl} aria-label="Back">
+                  <button
+                    type="button"
+                    className={styles.ctrl}
+                    aria-label="Back"
+                    onClick={handleBack}
+                    disabled={stepIndex === 0}
+                  >
                     <ChevronLeft />
                   </button>
-                  <h2 className={styles.title}>{content.title}</h2>
+                  <h2 className={styles.title}>{step.title}</h2>
                 </div>
                 <button
                   type="button"
@@ -128,14 +166,20 @@ export function QuoteModal({
 
               <div className={styles.fields}>
                 {qc.fields.map((field) => (
-                  <Field
-                    key={field.key}
-                    field={field}
-                    caseId={caseId}
-                    fetched={fetched}
-                    value={values[field.key] ?? ""}
-                    onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
-                  />
+                  <Fragment key={field.key}>
+                    {/* Auto-personalize badge sits between the questions and the
+                        coverage field (Insurance case A only). */}
+                    {field.key === "coverage" && qc.personalize && (
+                      <PersonalizeBadge personalize={qc.personalize} fetched={fetched} />
+                    )}
+                    <Field
+                      field={field}
+                      caseId={caseId}
+                      fetched={fetched}
+                      value={values[field.key] ?? ""}
+                      onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
+                    />
+                  </Fragment>
                 ))}
               </div>
 
@@ -162,6 +206,7 @@ export function QuoteModal({
                   type="button"
                   className={cn(styles.submit, canSubmit && styles.submitOn)}
                   disabled={!canSubmit}
+                  onClick={handleSubmit}
                 >
                   <span>{content.ctaLabel}</span>
                   <Arrow />
@@ -176,6 +221,7 @@ export function QuoteModal({
                     <SearchResult
                       key="result"
                       search={qc.search}
+                      activeTab={step.activeTab}
                       companyName={companyName}
                       reduced={!!reduced}
                     />
@@ -184,7 +230,7 @@ export function QuoteModal({
                   )}
                 </AnimatePresence>
               </div>
-              <PanelStepper steps={content.steps} active={content.activeStep} />
+              <PanelStepper steps={content.stepperLabels} active={stepIndex} />
             </div>
           </motion.div>
         </motion.div>
@@ -222,6 +268,51 @@ function Field({
   const fetching = !isName && !fetched;
   const status = displayStatus(field, caseId, value);
   const isSelect = field.control === "select";
+  const isSearch = field.control === "search";
+  // The coverage field reads "Approximating…" while the probe runs (Figma).
+  const fetchingLabel = field.key === "coverage" ? "Approximating…" : "Fetching…";
+
+  // Toggle — a Yes/No segmented pair (Insurance questions). Themed by status:
+  // success = purple pill + green tick, fuzzy = orange pill + orange tick,
+  // unselected/empty = grey outline dot.
+  if (field.control === "toggle") {
+    const options = field.options ?? ["Yes", "No"];
+    const tone = status === "fuzzy" ? "var(--color-brand-secondary)" : "var(--color-success)";
+    return (
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>
+          {field.label}
+          {field.mandatory && <span className={styles.req}>*</span>}
+        </label>
+        <div className={styles.toggleRow} role="radiogroup" aria-label={field.label}>
+          {options.map((opt) => {
+            const selected = value === opt;
+            return (
+              <button
+                key={opt}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                className={cn(styles.toggleOpt, selected && styles.toggleOptOn)}
+                data-status={selected ? status : undefined}
+                onClick={() => onChange(opt)}
+                disabled={fetching}
+              >
+                <span>{opt}</span>
+                {fetching ? (
+                  <Spinner />
+                ) : selected ? (
+                  <FilledCheck color={tone} />
+                ) : (
+                  <MutedDot />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.field}>
@@ -231,7 +322,7 @@ function Field({
       </label>
       <div className={styles.inputWrap} data-status={fetching ? "fetching" : status}>
         {fetching ? (
-          <span className={cn(styles.value, styles.placeholder)}>Fetching…</span>
+          <span className={cn(styles.value, styles.placeholder)}>{fetchingLabel}</span>
         ) : isSelect ? (
           <select
             className={styles.select}
@@ -262,7 +353,8 @@ function Field({
 
         <div className={styles.suffix}>
           {isSelect && !fetching && <ChevronDown />}
-          {!fetching && !isSelect && value && (
+          {isSearch && !fetching && <SearchIcon />}
+          {!fetching && !isSelect && !isSearch && value && (
             <button
               className={styles.suffixBtn}
               aria-label="Clear"
@@ -276,6 +368,31 @@ function Field({
           {fetching ? <Spinner /> : <StatusIcon status={status} />}
         </div>
       </div>
+    </div>
+  );
+}
+
+/* Personalize badge (Insurance case A): "New" chip + a status line that flips
+   from "…Being Personalized" (pending, purple + Skip) to "Personalized!" (done,
+   orange). Skip is presentational for now. */
+function PersonalizeBadge({
+  personalize,
+  fetched,
+}: {
+  personalize: QuotePersonalize;
+  fetched: boolean;
+}) {
+  return (
+    <div className={cn(styles.personalize, fetched && styles.personalizeDone)}>
+      <IndicatorBadge label="New" />
+      <span className={styles.personalizeLabel}>
+        {fetched ? personalize.doneLabel : personalize.pendingLabel}
+      </span>
+      {!fetched && (
+        <button type="button" className={styles.personalizeSkip}>
+          {personalize.skipLabel}
+        </button>
+      )}
     </div>
   );
 }
@@ -297,10 +414,13 @@ const item: Variants = {
 
 function SearchResult({
   search,
+  activeTab,
   companyName,
   reduced,
 }: {
   search: QuoteSearchPanel;
+  /** Which tab reads active on this step (Business "Netra Mode", Insurance "News"). */
+  activeTab: string;
   companyName: string;
   reduced: boolean;
 }) {
@@ -325,8 +445,8 @@ function SearchResult({
       </motion.div>
 
       <motion.div variants={item} className={styles.tabs}>
-        {search.tabs.map((tab, i) => (
-          <span key={tab} className={cn(styles.tab, i === 0 && styles.tabActive)}>
+        {search.tabs.map((tab) => (
+          <span key={tab} className={cn(styles.tab, tab === activeTab && styles.tabActive)}>
             {tab}
           </span>
         ))}
@@ -495,6 +615,11 @@ function Spinner() {
 
 function Check({ tone }: { tone: "brand" | "success" }) {
   const color = tone === "brand" ? "var(--color-brand-primary)" : "var(--color-success)";
+  return <FilledCheck color={color} />;
+}
+
+/* Filled roundel with a white tick, in an arbitrary colour (toggle selection). */
+function FilledCheck({ color }: { color: string }) {
   return (
     <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="8" fill={color} />

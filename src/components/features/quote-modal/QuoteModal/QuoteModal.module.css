@@ -195,6 +195,83 @@
   }
 }
 
+/* ---- toggle: Yes/No segmented pair (Insurance questions) ---- */
+.toggleRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-12);
+}
+
+.toggleOpt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  color: var(--color-label-tertiary);
+  background: var(--color-input-fill);
+  border: var(--border-hairline) solid var(--color-input-stroke);
+  border-radius: var(--radius-12);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.toggleOpt:disabled {
+  cursor: default;
+}
+
+/* selected: success = purple pill / green tick, fuzzy = orange pill / orange tick */
+.toggleOptOn[data-status="success"] {
+  color: var(--color-label-basic);
+  background: var(--color-brand-primary-subtle);
+  border-color: var(--color-brand-primary-border);
+}
+
+.toggleOptOn[data-status="fuzzy"] {
+  color: var(--color-brand-secondary);
+  background: var(--color-brand-secondary-subtle);
+  border-color: var(--color-brand-secondary-border);
+}
+
+/* ---- personalize badge (Insurance case A): New chip + status line + Skip ---- */
+.personalize {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-12);
+  background: linear-gradient(to right, var(--color-brand-primary-subtle), transparent);
+  border-radius: var(--radius-8);
+}
+
+.personalizeDone {
+  background: linear-gradient(to right, var(--color-brand-secondary-subtle), transparent);
+}
+
+.personalizeLabel {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  color: var(--color-brand-primary);
+}
+
+.personalizeDone .personalizeLabel {
+  color: var(--color-brand-secondary);
+}
+
+.personalizeSkip {
+  flex-shrink: 0;
+  padding: 0;
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  color: var(--color-info);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
 .actionRow {
   display: flex;
   flex-direction: column;

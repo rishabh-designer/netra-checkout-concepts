@@ -69,11 +69,11 @@
 }
 
 /*
- * Tablet/mobile: the frame goes full-width and both the webm video and the
+ * Below web (<1000): the frame goes full-width and both the webm video and the
  * dithered still switch to full-bleed cover so the media contents scale with
  * the frame at any width. Noise/wash already stretch via inset:0.
  */
-@media (max-width: 1199px) {
+@media (max-width: 999px) {
   .frame {
     width: 100%;
     height: 392px;
@@ -96,17 +96,7 @@
   }
 }
 
-/* Tablet: the banner caps at ~733px and centres itself once the viewport grows
-   past that (full-width below it); shorter than the desktop frame. */
-@media (min-width: 641px) and (max-width: 1199px) {
-  .frame {
-    max-width: 733px;
-    margin-inline: auto;
-    height: 290px;
-  }
-}
-
-@media (max-width: 640px) {
+@media (max-width: 999px) {
   .frame {
     height: 220px;
   }
