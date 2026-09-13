@@ -80,9 +80,14 @@
   flex-shrink: 0;
 }
 
-/* Tablet: title drops to display/med (38) & wraps; the stat band tightens to
-   the left column (labels wrap, gaps shrink, divider full-width). */
+/* Tablet + mobile: the text box flattens so `.heading` (text) and
+   `.trustSignals` (stats) become independent grid areas. Title → display/med
+   (38) & wraps; stat labels wrap. */
 @media (max-width: 1199px) {
+  .column {
+    display: contents;
+  }
+
   .title {
     font-size: var(--font-size-display-sm);
     white-space: normal;
@@ -117,6 +122,31 @@
   }
 }
 
+/* Tablet only: the stats sit in row 1 beside the text as a horizontal band —
+   no divider, vertically centred against the text, spread across the right
+   column (widening as the viewport grows). */
+@media (min-width: 641px) and (max-width: 1199px) {
+  .heading {
+    grid-area: text;
+  }
+
+  .trustSignals {
+    grid-area: stats;
+    align-self: center;
+    margin-top: 0;
+    padding: 0;
+  }
+
+  .dividerLine {
+    display: none;
+  }
+
+  .signalStack {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
 /* Small-desktop (1200–1340): the left column is narrow beside the fixed 540px
    form, so let the three stats share it evenly (labels wrap) instead of the
    wide clustered gap-48 band overflowing into the form. */
@@ -137,10 +167,6 @@
 /* Mobile: split the text box so the stat band detaches and drops below the
    media; title to display/xsmall (34); the band spans the full width. */
 @media (max-width: 640px) {
-  .column {
-    display: contents;
-  }
-
   .title {
     font-size: var(--font-size-display-2xs);
   }

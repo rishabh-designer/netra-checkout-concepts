@@ -95,38 +95,50 @@
   margin-top: auto;
 }
 
-/* Tablet (641–1199, e.g. 768): media spans the top full-width; below it two
-   bottom-aligned boxes — the left is the whole text+stats column, the right is
-   the lead-form card; then the full-width logos row. */
-@media (max-width: 1199px) {
+/*
+ * Tablet (641–1199, e.g. 768 & 1190 mocks 296:27994 / 296:29906): four rows —
+ *   text | stats      (stats spread on the right, widening with the viewport)
+ *   media             (full-width, but capped ~733 & centred once wide)
+ *   price | form      (price/promo left, the ~350px input+CTA right-aligned)
+ *   logos             (full-width, centred)
+ * All six blocks are flattened into the grid: .column and .rightCol and the
+ * lead-form .card all go display:contents so their children become areas.
+ */
+@media (min-width: 641px) and (max-width: 1199px) {
+  .body {
+    padding: var(--spacing-16);
+  }
+
   .columns {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--spacing-24);
-    row-gap: var(--spacing-12);
-    align-items: end;
+    row-gap: var(--spacing-24);
+    align-items: start;
     grid-template-areas:
-      "media media"
-      "text  form"
-      "logos logos";
+      "text   stats"
+      "media  media"
+      "price  form"
+      "logos  logos";
   }
 
-  /* flatten the right wrapper so media/form/logos become grid areas; the left
-     column stays a single box (text + stats) placed in the `text` area. */
   .rightCol {
     display: contents;
   }
 
-  /* breathing room under the media before the two boxes (tablet only) */
+  /* media spans both columns but caps & centres itself (see MediaComposition) */
   .mediaArea {
+    grid-area: media;
     padding-top: 0;
-    margin-bottom: var(--spacing-24);
+    display: flex;
+    justify-content: center;
   }
 
   .providersArea {
+    grid-area: logos;
     align-items: center;
     padding-left: 0;
-    margin-top: var(--spacing-16);
+    margin-top: var(--spacing-8);
   }
 }
 
@@ -137,6 +149,7 @@
   }
 
   .columns {
+    display: grid;
     grid-template-columns: minmax(0, 1fr);
     row-gap: var(--spacing-20);
     align-items: stretch;
@@ -148,13 +161,19 @@
       "stats";
   }
 
-  /* stats detach from the text box and drop below the media on mobile */
+  .rightCol {
+    display: contents;
+  }
+
   .mediaArea {
-    margin-bottom: 0;
+    grid-area: media;
+    padding-top: 0;
   }
 
   .providersArea {
+    grid-area: logos;
     align-items: flex-start;
+    padding-left: 0;
     margin-top: 0;
   }
 }

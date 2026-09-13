@@ -96,6 +96,16 @@
   }
 }
 
+/* Tablet: the banner caps at ~733px and centres itself once the viewport grows
+   past that (full-width below it); shorter than the desktop frame. */
+@media (min-width: 641px) and (max-width: 1199px) {
+  .frame {
+    max-width: 733px;
+    margin-inline: auto;
+    height: 290px;
+  }
+}
+
 @media (max-width: 640px) {
   .frame {
     height: 220px;
