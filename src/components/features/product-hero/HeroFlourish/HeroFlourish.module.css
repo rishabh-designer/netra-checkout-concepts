@@ -5,6 +5,14 @@
   pointer-events: none;
 }
 
+/* The concentric-ring flourish only appears on the desktop fold (Figma
+   179:65823); the tablet/mobile frames omit it. Hidden below 1200. */
+@media (max-width: 1199px) {
+  .stage {
+    display: none;
+  }
+}
+
 .rings {
   position: absolute;
   left: -695.6px;
