@@ -332,7 +332,6 @@ function SearchResult({
         <span className={styles.searchQuery}>{query}</span>
         <div className={styles.searchIcons}>
           <SearchIcon />
-          <Close />
         </div>
       </motion.div>
 
@@ -529,15 +528,6 @@ function ChevronLeft() {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-    </svg>
-  );
-}
-
-/* Right-panel search-bar close (unboxed, larger). */
-function Close() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden>
-      <path d="m7 7 10 10M17 7 7 17" stroke="var(--color-label-basic)" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
