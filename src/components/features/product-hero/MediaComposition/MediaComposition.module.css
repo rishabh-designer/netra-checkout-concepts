@@ -74,7 +74,7 @@
  * original bottom-anchored geometry so its exclusion blend composites exactly
  * as on desktop (not stretched). Noise/wash already stretch via inset:0.
  */
-@media (max-width: 1024px) {
+@media (max-width: 1300px) {
   .frame {
     width: 100%;
     height: 392px;
