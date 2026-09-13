@@ -86,6 +86,17 @@
   height: 8px;
 }
 
+/* Mobile: collapse the primary nav — logo + Login only (Figma 288:22902). */
+@media (max-width: 640px) {
+  .bar {
+    padding: var(--spacing-12) var(--spacing-16);
+  }
+
+  .nav {
+    display: none;
+  }
+}
+
 .login {
   padding: var(--spacing-8) var(--spacing-10);
   border-radius: var(--radius-12);

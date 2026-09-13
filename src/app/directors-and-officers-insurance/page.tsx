@@ -5,6 +5,7 @@ import { IkkatLine } from "@/components/ui/IkkatLine";
 import { ProductHeroLeft } from "@/components/features/product-hero/ProductHeroLeft";
 import { MediaComposition } from "@/components/features/product-hero/MediaComposition";
 import { LeadFormCard } from "@/components/features/product-hero/LeadFormCard";
+import { InsurerLogoShowcase } from "@/components/ui/InsurerLogoShowcase";
 import { ProductTicker } from "@/components/features/product-hero/ProductTicker";
 import { HeroFlourish } from "@/components/features/product-hero/HeroFlourish";
 import styles from "./page.module.css";
@@ -30,9 +31,15 @@ export default async function DirectorsAndOfficersInsurancePage() {
               subtitle={content.subtitle}
               stats={content.stats}
             />
-            <div className={styles.rightColumn}>
+            <div className={styles.mediaArea}>
               <MediaComposition media={content.media} />
-              <LeadFormCard content={content.leadForm} quoteModal={content.quoteModal} />
+            </div>
+            <LeadFormCard content={content.leadForm} quoteModal={content.quoteModal} />
+            <div className={styles.providersArea}>
+              <p className={styles.providersHeading}>
+                {content.leadForm.providersHeading}
+              </p>
+              <InsurerLogoShowcase slots={content.leadForm.providerShowcase} />
             </div>
           </div>
         </main>

@@ -5,7 +5,6 @@ import type { LeadFormContent, QuoteModalContent } from "@/types/productPage";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { TextInputField } from "@/components/ui/TextInputField";
 import { CtaButton } from "@/components/ui/CtaButton";
-import { InsurerLogoShowcase } from "@/components/ui/InsurerLogoShowcase";
 import { Toast } from "@/components/ui/Toast";
 import {
   QuoteModal,
@@ -89,10 +88,6 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
             meta={content.ctaMeta}
             onClick={handleSubmit}
           />
-          <div className={styles.providers}>
-            <p className={styles.providersHeading}>{content.providersHeading}</p>
-            <InsurerLogoShowcase slots={content.providerShowcase} />
-          </div>
         </div>
       </div>
       <QuoteModal

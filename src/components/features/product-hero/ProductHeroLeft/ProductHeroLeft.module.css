@@ -1,9 +1,11 @@
+/* display:contents so `.heading` (text) and `.trustSignals` (stats) drop into
+   the page hero grid as independent, reorderable areas. */
 .column {
-  display: flex;
-  flex-direction: column;
+  display: contents;
 }
 
 .heading {
+  grid-area: text;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -35,6 +37,7 @@
 }
 
 .trustSignals {
+  grid-area: stats;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-48);
@@ -67,4 +70,56 @@
 
 .signalSep {
   flex-shrink: 0;
+}
+
+/* Tablet: title drops to display/med (38) & wraps; the stat band tightens to
+   the left column (labels wrap, gaps shrink, divider full-width). */
+@media (max-width: 1024px) {
+  .title {
+    font-size: var(--font-size-display-sm);
+    white-space: normal;
+  }
+
+  .subtitle {
+    font-size: var(--font-size-200);
+  }
+
+  .heading {
+    padding: 0;
+  }
+
+  .trustSignals {
+    margin-top: var(--spacing-24);
+    padding: var(--spacing-24) 0;
+  }
+
+  .dividerLine {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .signalStack {
+    gap: var(--spacing-12);
+    justify-content: space-between;
+    padding: 0;
+  }
+
+  .signalEntry {
+    gap: var(--spacing-12);
+  }
+}
+
+/* Mobile: title to display/xsmall (34); the band spans the full width. */
+@media (max-width: 640px) {
+  .title {
+    font-size: var(--font-size-display-2xs);
+  }
+
+  .signalStack {
+    gap: var(--spacing-4);
+  }
+
+  .signalEntry {
+    gap: var(--spacing-4);
+  }
 }

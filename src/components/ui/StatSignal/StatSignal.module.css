@@ -19,3 +19,30 @@
   line-height: 1;
   color: var(--color-brand-primary-muted);
 }
+
+/* Stat value scales down with the interface: 48 → 34 (tablet) → 28 (mobile).
+   Labels are allowed to wrap so three stats fit the narrower column. */
+@media (max-width: 1024px) {
+  .signal {
+    white-space: normal;
+  }
+
+  .value {
+    font-size: var(--font-size-display-2xs);
+  }
+
+  .label {
+    font-size: var(--font-size-100);
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .value {
+    font-size: var(--font-size-heading-md);
+  }
+
+  .label {
+    font-size: var(--font-size-75);
+  }
+}

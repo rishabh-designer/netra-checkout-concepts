@@ -42,25 +42,48 @@
   padding: 0 var(--spacing-12);
 }
 
+/*
+ * Hero grid — five reflowable areas (text, stats, media, form, logos) so each
+ * can move independently across the three interfaces (Figma tablet 288:19771,
+ * mobile 288:22902). ProductHeroLeft (display:contents) contributes `text` +
+ * `stats`; LeadFormCard is `form`; media & logos are page-level siblings.
+ *
+ * Desktop: text/stats stacked left, media→form→logos stacked right.
+ */
 .columns {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--spacing-32);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 540px;
+  column-gap: var(--spacing-32);
+  row-gap: var(--spacing-12);
+  align-items: start;
   margin-top: var(--spacing-32);
+  grid-template-areas:
+    "text  media"
+    "stats form"
+    "stats logos";
 }
 
-.columns > :first-child {
-  flex: 1;
-  min-width: 0;
+.mediaArea {
+  grid-area: media;
+  /* matches the old right-column top offset so media sits just below the text */
+  padding-top: var(--spacing-32);
 }
 
-.rightColumn {
+.providersArea {
+  grid-area: logos;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
-  width: 540px;
-  flex-shrink: 0;
-  padding-top: var(--spacing-32);
+  padding-left: var(--spacing-12);
+  overflow: hidden;
+}
+
+.providersHeading {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-basic);
+  white-space: nowrap;
 }
 
 .ticker {
@@ -69,13 +92,49 @@
   margin-top: auto;
 }
 
-@media (max-width: 1100px) {
+/* Tablet (≤1024, e.g. 768): media spans the top full-width, text | form below,
+   stats under the text, logos full-width & centred. */
+@media (max-width: 1024px) {
   .columns {
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--spacing-24);
+    grid-template-areas:
+      "media media"
+      "text  form"
+      "stats form"
+      "logos logos";
   }
 
-  .rightColumn {
-    width: 100%;
-    max-width: 540px;
+  .mediaArea {
+    padding-top: 0;
+  }
+
+  .providersArea {
+    align-items: center;
+    padding-left: 0;
+    margin-top: var(--spacing-8);
+  }
+}
+
+/* Mobile (≤640, e.g. 375): single column — text, form, logos, media, stats. */
+@media (max-width: 640px) {
+  .body {
+    padding: var(--spacing-16);
+  }
+
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--spacing-20);
+    grid-template-areas:
+      "text"
+      "form"
+      "logos"
+      "media"
+      "stats";
+  }
+
+  .providersArea {
+    align-items: flex-start;
+    margin-top: 0;
   }
 }

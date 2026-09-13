@@ -1,4 +1,5 @@
 .card {
+  grid-area: form;
   display: flex;
   flex-direction: column;
   /* Content-height with a controlled gap (was 458px + space-between, which
@@ -98,6 +99,25 @@
   max-width: none;
 }
 
+/* Tablet/mobile: the price headline drops to heading (28) and may wrap so it
+   never overflows the narrower form column. */
+@media (max-width: 1024px) {
+  .card {
+    padding: 0;
+  }
+
+  .headline {
+    font-size: var(--font-size-heading-md);
+    white-space: normal;
+  }
+}
+
+@media (max-width: 640px) {
+  .kicker {
+    white-space: normal;
+  }
+}
+
 .bottom {
   display: flex;
   flex-direction: column;
@@ -112,19 +132,3 @@
   gap: var(--spacing-24);
 }
 
-.providers {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--spacing-12);
-  padding-left: var(--spacing-12);
-  overflow: hidden;
-}
-
-.providersHeading {
-  font-size: var(--font-size-100);
-  font-weight: 500;
-  line-height: 1.5;
-  color: var(--color-label-basic);
-  white-space: nowrap;
-}
