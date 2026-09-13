@@ -95,35 +95,38 @@
   margin-top: auto;
 }
 
-/* Tablet (≤1024, e.g. 768): media spans the top full-width, text | form below,
-   stats under the text, logos full-width & centred. */
+/* Tablet (641–1199, e.g. 768): media spans the top full-width; below it two
+   bottom-aligned boxes — the left is the whole text+stats column, the right is
+   the lead-form card; then the full-width logos row. */
 @media (max-width: 1199px) {
   .columns {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--spacing-24);
     row-gap: var(--spacing-12);
-    align-items: start;
+    align-items: end;
     grid-template-areas:
       "media media"
       "text  form"
-      "stats form"
       "logos logos";
   }
 
-  /* flatten both wrappers so their children become grid areas */
+  /* flatten the right wrapper so media/form/logos become grid areas; the left
+     column stays a single box (text + stats) placed in the `text` area. */
   .rightCol {
     display: contents;
   }
 
+  /* breathing room under the media before the two boxes (tablet only) */
   .mediaArea {
     padding-top: 0;
+    margin-bottom: var(--spacing-24);
   }
 
   .providersArea {
     align-items: center;
     padding-left: 0;
-    margin-top: var(--spacing-8);
+    margin-top: var(--spacing-16);
   }
 }
 
@@ -136,12 +139,18 @@
   .columns {
     grid-template-columns: minmax(0, 1fr);
     row-gap: var(--spacing-20);
+    align-items: stretch;
     grid-template-areas:
       "text"
       "form"
       "logos"
       "media"
       "stats";
+  }
+
+  /* stats detach from the text box and drop below the media on mobile */
+  .mediaArea {
+    margin-bottom: 0;
   }
 
   .providersArea {

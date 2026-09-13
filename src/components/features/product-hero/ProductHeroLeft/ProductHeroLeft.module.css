@@ -1,8 +1,9 @@
-/* Desktop: a real flex column so the text and stat band flow together (stats
-   sit right under the text). Below 1200 it becomes display:contents so
-   `.heading` (text) and `.trustSignals` (stats) drop into the page hero grid
-   as independent, reorderable areas (see the ≤1199 block). */
+/* Desktop & tablet: a real flex column so text + stat band form one box (the
+   left box, `text` grid area on tablet). Only on mobile (≤640) does it become
+   display:contents so `.heading` (text) and `.trustSignals` (stats) split into
+   separate grid areas and the stats drop below the media. */
 .column {
+  grid-area: text;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -82,10 +83,6 @@
 /* Tablet: title drops to display/med (38) & wraps; the stat band tightens to
    the left column (labels wrap, gaps shrink, divider full-width). */
 @media (max-width: 1199px) {
-  .column {
-    display: contents;
-  }
-
   .title {
     font-size: var(--font-size-display-sm);
     white-space: normal;
@@ -137,8 +134,13 @@
   }
 }
 
-/* Mobile: title to display/xsmall (34); the band spans the full width. */
+/* Mobile: split the text box so the stat band detaches and drops below the
+   media; title to display/xsmall (34); the band spans the full width. */
 @media (max-width: 640px) {
+  .column {
+    display: contents;
+  }
+
   .title {
     font-size: var(--font-size-display-2xs);
   }
