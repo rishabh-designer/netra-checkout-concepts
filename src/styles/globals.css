@@ -35,6 +35,7 @@
 
   /* surfaces */
   --color-card: #ffffff;
+  --color-card-sunken: #f4f5f6;
   --color-card-recessed: #e6e8ea;
   --color-page: #fbfaff;
   --color-page-top: #f5f2ff;
@@ -75,6 +76,7 @@
   --font-size-400: 20px;
   --font-size-heading-md: 28px;
   --font-size-heading-lg: 32px;
+  --font-size-heading-xl: 40px;
   --font-size-display-2xs: 34px;
   --font-size-display-sm: 38px;
   --font-size-display-xs: 48px;

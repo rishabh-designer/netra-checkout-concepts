@@ -113,7 +113,10 @@ export interface QuoteCase {
 }
 
 export interface QuoteModalContent {
-  stepLabel: string;
+  /** Ordered flow steps for the panel-footer stepper (Figma 306:5036). */
+  steps: string[];
+  /** Index of the current step: earlier = completed (green), later = upcoming (grey). */
+  activeStep: number;
   title: string;
   ctaLabel: string;
   emptyNameToast: { title: string; description: string };

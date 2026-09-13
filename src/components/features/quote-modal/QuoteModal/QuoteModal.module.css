@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-24);
+  padding: var(--spacing-12);
   /* A9ACB1 @ 80% + blur (design node 249:3516). */
   background: rgba(169, 172, 177, 0.8);
   -webkit-backdrop-filter: blur(6px);
@@ -17,15 +17,19 @@
   gap: var(--spacing-20);
   width: min(1160px, 94vw);
   max-height: 90vh;
-  padding: var(--spacing-20);
+  padding: var(--spacing-12);
   background: #fdf4ea;
   border-radius: var(--radius-32);
   box-shadow: 0 24px 80px rgba(28, 28, 28, 0.24);
   overflow: hidden;
 }
 
-/* ---- left form panel ---- */
+/* ---- form panel ----
+ * Visually sits on the RIGHT (order:2) so the search visualization leads on the
+ * left; kept first in the DOM so keyboard/AT focus still hits the form first.
+ */
 .left {
+  order: 2;
   display: flex;
   flex-direction: column;
   flex: 0 0 48%;
@@ -42,19 +46,20 @@
   margin-bottom: var(--spacing-16);
 }
 
-.headerRight {
+/* lead stack: back-chevron + title share one horizontal group (Figma 306:5068) */
+.headerLead {
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
 }
 
-/* white boxed 18px icon control — back-chevron & close (Figma 182:21193/21220) */
+/* white boxed 24px icon control — back-chevron & close (Figma 306:5068) */
 .ctrl {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   background: var(--color-card);
   border: var(--border-hairline) solid var(--color-card-recessed);
@@ -62,53 +67,13 @@
   cursor: pointer;
 }
 
-/* current-step pill: green success gradient + border, check badge + label */
-.stepPill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--spacing-6) var(--spacing-8);
-  font-size: var(--font-size-100);
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  color: var(--color-label-secondary);
-  white-space: nowrap;
-  background: linear-gradient(to bottom, var(--color-card), var(--color-success-subtle));
-  border: var(--border-hairline) solid var(--color-success-border);
-  border-radius: 1000px;
-  corner-shape: round;
-}
-
-.stepCheck {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 12px;
-  height: 12px;
-  border: var(--border-hairline) solid var(--color-success-border);
-  border-radius: var(--radius-6);
-}
-
-/* next-step indicator: 26px brand-subtle gradient circle holding the dot */
-.stepDotCtrl {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-primary-subtle));
-  border: var(--border-hairline) solid var(--color-brand-primary-border);
-  border-radius: 50%;
-  corner-shape: round;
-}
-
 .title {
-  margin-bottom: var(--spacing-16);
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
   font-style: italic;
   font-weight: 400;
-  font-size: var(--font-size-heading-lg);
+  font-size: var(--font-size-heading-xl);
+  line-height: 1;
   color: var(--color-brand-primary);
 }
 
@@ -289,8 +254,9 @@
   gap: var(--spacing-8);
   margin-top: var(--spacing-20);
   font-size: var(--font-size-75);
+  font-weight: 500;
   line-height: 1.45;
-  color: var(--color-brand-secondary);
+  color: var(--color-brand-primary);
   cursor: pointer;
 }
 
@@ -303,15 +269,97 @@
   cursor: pointer;
 }
 
-/* ---- right search-result panel ---- */
+/* ---- search-result / visualization panel ----
+ * Visually leads on the LEFT (order:1); see .left for the swap rationale.
+ */
 .right {
+  order: 1;
+  display: flex;
+  flex-direction: column;
   flex: 1 1 52%;
   min-width: 0;
-  overflow: hidden auto;
   padding: var(--spacing-24);
   background: #fffaf3;
   border: 1px dashed var(--color-brand-primary-faint);
   border-radius: var(--radius-16);
+}
+
+/* result scrolls; the stepper stays pinned to the panel's bottom edge */
+.rightScroll {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+/* ---- panel-footer stepper (Figma 306:5036) ---- */
+.panelStepper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  margin-top: var(--spacing-24);
+}
+
+.stepperDivider {
+  width: 100%;
+  height: var(--border-hairline);
+  background: var(--color-divider);
+  opacity: 0.5;
+}
+
+.stepRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  list-style: none;
+}
+
+.stepPill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6) var(--spacing-8);
+  border: var(--border-hairline) solid transparent;
+  border-radius: 1000px;
+  corner-shape: round;
+  white-space: nowrap;
+}
+
+.stepLabel {
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* current = purple/brand-subtle, 14px dark label */
+.stepCurrent {
+  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-primary-subtle));
+  border-color: var(--color-brand-primary-border);
+}
+.stepCurrent .stepLabel {
+  font-size: var(--font-size-100);
+  letter-spacing: -0.14px;
+  color: var(--color-label-basic);
+}
+
+/* done = green-subtle, 14px dark label (a used step turns from purple to green) */
+.stepDone {
+  background: linear-gradient(to bottom, var(--color-card), var(--color-success-subtle));
+  border-color: var(--color-success-border);
+}
+.stepDone .stepLabel {
+  font-size: var(--font-size-100);
+  letter-spacing: -0.14px;
+  color: var(--color-label-basic);
+}
+
+/* todo = sunken grey, 12px faded label */
+.stepTodo {
+  background: linear-gradient(to bottom, var(--color-card-sunken), var(--color-card-recessed));
+  border-color: var(--color-divider);
+}
+.stepTodo .stepLabel {
+  font-size: var(--font-size-75);
+  letter-spacing: -0.12px;
+  color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
 }
 
 .result {
@@ -332,6 +380,7 @@
 
 .searchQuery {
   font-size: var(--font-size-100);
+  font-weight: 500;
   color: var(--color-label-basic);
 }
 
@@ -362,6 +411,7 @@
 
 .cinSentence {
   font-size: var(--font-size-100);
+  font-weight: 500;
   line-height: 1.6;
   color: var(--color-label-basic);
 }
@@ -387,7 +437,6 @@
 }
 
 .detailsHeadingGuess {
-  font-style: italic;
   font-weight: 500;
 }
 
@@ -401,6 +450,7 @@
 
 .detailItem {
   font-size: var(--font-size-100);
+  font-weight: 500;
   line-height: 1.5;
   color: var(--color-label-basic);
 }
@@ -419,6 +469,7 @@
 
 .resultFooter {
   font-size: var(--font-size-100);
+  font-weight: 500;
   line-height: 1.6;
   color: var(--color-label-tertiary);
 }
@@ -431,6 +482,7 @@
   padding: var(--spacing-48) var(--spacing-24);
   text-align: center;
   font-size: var(--font-size-100);
+  font-weight: 500;
   line-height: 1.55;
   color: var(--color-label-tertiary);
 }
@@ -577,6 +629,7 @@
   }
   .left,
   .right {
+    order: 0;
     flex: none;
     width: 100%;
   }

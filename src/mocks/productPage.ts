@@ -102,7 +102,8 @@ export const mockProductPageContent: ProductPageContent = {
     ],
   },
   quoteModal: {
-    stepLabel: "Business Profile",
+    steps: ["Business Profile", "Insurance Profile", "Quotes"],
+    activeStep: 0,
     title: "Business",
     ctaLabel: "Get Instant Quotes",
     emptyNameToast: {
@@ -160,7 +161,7 @@ export const mockProductPageContent: ProductPageContent = {
             cinSentence:
               "We couldn't verify an exact record for “Rambo Underwear”. The closest match from a web search suggests a CIN of U11324VX0132UCW9129176 — please double-check.",
             cinHighlight: "U11324VX0132UCW9129176",
-            detailsHeading: "Best guess · unverified",
+            detailsHeading: "BimaNetra's Guess",
             details: [
               "Likely company type: Public Listed Company",
               "Possible line of business: IT & Digital Businesses",

@@ -107,38 +107,24 @@ export function QuoteModal({
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className={styles.left}>
+              {/* No-stepper header (Figma 306:5068): back-chevron + title in one
+                  lead stack, close control on the right. */}
               <header className={styles.header}>
-                <button type="button" className={styles.ctrl} aria-label="Back">
-                  <ChevronLeft />
-                </button>
-                <div className={styles.headerRight}>
-                  <span className={styles.stepPill}>
-                    <span className={styles.stepCheck}>
-                      <TickerCheck />
-                    </span>
-                    {content.stepLabel}
-                  </span>
-                  <IkkatMark
-                    pattern={3}
-                    width={12}
-                    color="var(--color-brand-secondary)"
-                    className={styles.headBead}
-                  />
-                  <span className={styles.stepDotCtrl} aria-hidden>
-                    <StepDot />
-                  </span>
-                  <button
-                    type="button"
-                    className={styles.ctrl}
-                    aria-label="Close"
-                    onClick={onClose}
-                  >
-                    <HeaderClose />
+                <div className={styles.headerLead}>
+                  <button type="button" className={styles.ctrl} aria-label="Back">
+                    <ChevronLeft />
                   </button>
+                  <h2 className={styles.title}>{content.title}</h2>
                 </div>
+                <button
+                  type="button"
+                  className={styles.ctrl}
+                  aria-label="Close"
+                  onClick={onClose}
+                >
+                  <HeaderClose />
+                </button>
               </header>
-
-              <h2 className={styles.title}>{content.title}</h2>
 
               <div className={styles.fields}>
                 {qc.fields.map((field) => (
@@ -184,18 +170,21 @@ export function QuoteModal({
             </div>
 
             <div className={styles.right}>
-              <AnimatePresence mode="wait">
-                {fetched ? (
-                  <SearchResult
-                    key="result"
-                    search={qc.search}
-                    companyName={companyName}
-                    reduced={!!reduced}
-                  />
-                ) : (
-                  <SearchSkeleton key="skeleton" reduced={!!reduced} />
-                )}
-              </AnimatePresence>
+              <div className={styles.rightScroll}>
+                <AnimatePresence mode="wait">
+                  {fetched ? (
+                    <SearchResult
+                      key="result"
+                      search={qc.search}
+                      companyName={companyName}
+                      reduced={!!reduced}
+                    />
+                  ) : (
+                    <SearchSkeleton key="skeleton" reduced={!!reduced} />
+                  )}
+                </AnimatePresence>
+              </div>
+              <PanelStepper steps={content.steps} active={content.activeStep} />
             </div>
           </motion.div>
         </motion.div>
@@ -427,6 +416,53 @@ function SearchSkeleton({ reduced }: { reduced: boolean }) {
   );
 }
 
+/* ---- panel-footer stepper (Figma 306:5036, pinned to the bottom of the
+   result panel) — divider line then the flow steps. Steps before `active` read
+   as completed (green), `active` is current (purple), the rest upcoming (grey).
+   Labels come from content, never hard-coded. */
+function PanelStepper({ steps, active }: { steps: string[]; active: number }) {
+  return (
+    <div className={styles.panelStepper}>
+      <span className={styles.stepperDivider} aria-hidden />
+      <ol className={styles.stepRow}>
+        {steps.map((label, i) => {
+          const state = i < active ? "done" : i === active ? "current" : "todo";
+          return (
+            <li
+              key={label}
+              className={cn(
+                styles.stepPill,
+                state === "current" && styles.stepCurrent,
+                state === "done" && styles.stepDone,
+                state === "todo" && styles.stepTodo,
+              )}
+              aria-current={state === "current" ? "step" : undefined}
+            >
+              <StepBullet state={state} />
+              <span className={styles.stepLabel}>{label}</span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+/* 12px status dot: purple (current), green (done), muted grey (upcoming). */
+function StepBullet({ state }: { state: "done" | "current" | "todo" }) {
+  const fill =
+    state === "current"
+      ? "var(--color-brand-primary)"
+      : state === "done"
+        ? "var(--color-success)"
+        : "var(--color-label-tertiary)";
+  return (
+    <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
+      <circle cx="6" cy="6" r="4" fill={fill} />
+    </svg>
+  );
+}
+
 function splitHighlight(sentence: string, highlight: string): [string, string, string] {
   if (!highlight) return [sentence, "", ""];
   const i = sentence.indexOf(highlight);
@@ -517,10 +553,10 @@ function ChevronDown() {
   );
 }
 
-/* Header back-chevron (Figma 12px, neutral-secondary grey). */
+/* Header back-chevron (Figma 306:5068, 16px in a 24px box, hint grey #6f7378). */
 function ChevronLeft() {
   return (
-    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
       <path
         d="M10.5 13 5.5 8l5-5"
         stroke="var(--color-label-secondary)"
@@ -532,43 +568,11 @@ function ChevronLeft() {
   );
 }
 
-/* Header close X (Figma 12px, neutral-secondary grey). */
+/* Header close X (Figma 306:5068, 16px in a 24px box, hint grey #6f7378). */
 function HeaderClose() {
   return (
-    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
       <path d="M4 4l8 8M12 4l-8 8" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-/* Green success check (Figma icon/ticker): filled roundel with a cut-out tick. */
-function TickerCheck() {
-  return (
-    <svg viewBox="0 0 10 10" width="10" height="10" fill="none" aria-hidden>
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M0 5a5 5 0 1 1 10 0A5 5 0 0 1 0 5Zm7.4-1.236a.3.3 0 0 0-.482-.482L4.205 5.995 3.082 4.873a.3.3 0 0 0-.482.482l1.363 1.363a.3.3 0 0 0 .482 0L7.4 3.764Z"
-        fill="var(--color-success)"
-      />
-    </svg>
-  );
-}
-
-/* Next-step indicator dot (Figma: brand dot inside a faint brand ring). */
-function StepDot() {
-  return (
-    <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-      <rect
-        x="0.267"
-        y="0.267"
-        width="11.467"
-        height="11.467"
-        rx="5.733"
-        stroke="var(--color-brand-primary-border)"
-        strokeWidth="0.533"
-      />
-      <circle cx="6" cy="6" r="5" fill="var(--color-brand-primary)" />
     </svg>
   );
 }
