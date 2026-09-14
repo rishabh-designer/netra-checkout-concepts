@@ -1,0 +1,10 @@
+.spinner {
+  display: inline-flex;
+  animation: field-spin 0.9s linear infinite;
+}
+
+@keyframes field-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

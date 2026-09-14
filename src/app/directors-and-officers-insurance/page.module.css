@@ -1,11 +1,12 @@
 .fold {
   position: relative;
   overflow: hidden;
+  /* fold-hero fill (Figma 348:27405): lavender resolves to white by ~39%, on a
+     subtle ~4.35° tilt — the rest of the fold is card white. */
   background: linear-gradient(
-    to bottom,
-    var(--color-page-top),
-    var(--color-page) 45%,
-    var(--color-card)
+    184.35deg,
+    var(--color-brand-primary-subtle) 3.2%,
+    var(--color-card) 39.37%
   );
 }
 

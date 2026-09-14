@@ -23,7 +23,10 @@ const TURNOVER_OPTIONS = [
 ];
 const COVERAGE_OPTIONS = ["₹ 1Cr.", "₹ 5Cr.", "₹ 10Cr.", "₹ 25Cr.", "₹ 50Cr."];
 
-const TABS = ["Netra Mode", "All", "Images", "Videos", "News"];
+const TABS = ["BimaNetra", "All", "Images", "Videos", "News"];
+
+// Shown in the reserved help row under web-guessed (fuzzy) fields.
+const FETCH_DISCLAIMER = "Fetched from publicly available sources. BimaNetra can make mistakes.";
 
 /** Shared broker-liability consent (Fuzzy / Case B, both steps). */
 const CONSENT_TEXT =
@@ -94,6 +97,18 @@ const PROFILE_CASE: QuoteCase = {
   ],
 };
 
+/* Report step (step 3, "Before you Insure"): one Yes/No question. "Yes" reveals a
+   mandatory CIN child (the CIN that was non-mandatory earlier). One case for A/B/C;
+   the report layout is driven by the step's `report` block, not the case. */
+const REPORT_CASE: QuoteCase = {
+  requiresConsent: false,
+  search: SEARCH_MATCHED,
+  fields: [
+    { key: "reportInterest", label: "", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
+    { key: "reportCin", label: "Enter Company CIN", mandatory: true, control: "text", value: "", placeholder: "Enter Company CIN", status: "empty" },
+  ],
+};
+
 /** Fixture for the Director's & Officer's Insurance product page (Figma node 179:65816). */
 export const mockProductPageContent: ProductPageContent = {
   nav: {
@@ -122,13 +137,9 @@ export const mockProductPageContent: ProductPageContent = {
     { value: "98%", label: "Client Retention" },
   ],
   media: {
-    videoSources: [
-      { src: "/media/media-do.webm", type: "video/webm" },
-      { src: "/media/media-do.mp4", type: "video/mp4" },
-    ],
+    videoSources: [{ src: "/media/media-do.webm", type: "video/webm" }],
     stillSrc: "/media/media-do.webp",
-    stillAlt: "Mumbai skyline rendered in a dithered halftone style",
-    noiseSrc: "/figma/noise-texture.png",
+    stillAlt: "Dithered halftone artwork for Directors & Officers insurance",
   },
   leadForm: {
     priceKicker: "Get ₹25 Lakh Cover",
@@ -136,7 +147,7 @@ export const mockProductPageContent: ProductPageContent = {
     promoBadge: "New",
     promoLabel: "Personalize My Quote",
     promoLinkLabel: "Know More",
-    inputPlaceholder: "Enter your Legal Company Name",
+    inputPlaceholder: "Enter Company Name",
     ctaLabel: "Get My Quote",
     ctaMeta: "In 2 Minutes",
     providersHeading: "Policy Provided By",
@@ -194,6 +205,10 @@ export const mockProductPageContent: ProductPageContent = {
       title: "Company name required",
       description: "Enter your legal company name to get an instant quote.",
     },
+    completeToast: {
+      title: "Preparing your quotes",
+      description: "We're putting together your personalized D&O quotes from our insurers.",
+    },
     steps: [
       // ── Step 0: Profile — collect the user's contact details (no branching). ──
       {
@@ -207,7 +222,7 @@ export const mockProductPageContent: ProductPageContent = {
       {
         key: "business",
         title: "Business",
-        activeTab: "Netra Mode",
+        activeTab: "BimaNetra",
         cases: {
           // A — probe confirmed the record: filled, green, CIN second.
           A: {
@@ -227,10 +242,10 @@ export const mockProductPageContent: ProductPageContent = {
             consentText: CONSENT_TEXT,
             fields: [
               { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "Rambo Underwear", status: "verified" },
-              { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Public Listed Company", options: COMPANY_TYPE_OPTIONS, status: "fuzzy" },
-              { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "IT & Digital Businesses", options: BUSINESS_OPTIONS, status: "fuzzy" },
-              { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "₹ 0Cr – 5 Cr", options: TURNOVER_OPTIONS, status: "fuzzy" },
-              { key: "cin", label: "Enter Company CIN", control: "text", value: "U11324VX0132UCW9129176", placeholder: "Enter Company CIN", status: "fuzzy" },
+              { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Public Listed Company", options: COMPANY_TYPE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
+              { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "IT & Digital Businesses", options: BUSINESS_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
+              { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "₹ 0Cr – 5 Cr", options: TURNOVER_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
+              { key: "cin", label: "Enter Company CIN", control: "text", value: "U11324VX0132UCW9129176", placeholder: "Enter Company CIN", status: "fuzzy", helpText: FETCH_DISCLAIMER },
             ],
             search: SEARCH_FUZZY,
           },
@@ -265,7 +280,7 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "existingPolicy", label: "Does Your Business Have An Existing Directors and Officers Policy?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
-              { key: "coverage", label: "Required Coverage", mandatory: true, control: "text", value: "₹ 1Cr.", status: "success" },
+              { key: "coverage", label: "Required Coverage", mandatory: true, control: "text", value: "₹ 1Cr.", status: "success", helpText: "This is the Required Coverage that's perfect for your Business Profile", helpTone: "success" },
             ],
             search: SEARCH_MATCHED,
           },
@@ -276,7 +291,7 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "existingPolicy", label: "Does Your Business Have An Existing Directors and Officers Policy?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "fuzzy" },
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "fuzzy" },
-              { key: "coverage", label: "Required Coverage", mandatory: true, control: "select", value: "₹ 1Cr.", options: COVERAGE_OPTIONS, status: "fuzzy" },
+              { key: "coverage", label: "Required Coverage", mandatory: true, control: "select", value: "₹ 1Cr.", options: COVERAGE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
             ],
             search: SEARCH_FUZZY,
           },
@@ -291,6 +306,21 @@ export const mockProductPageContent: ProductPageContent = {
             search: SEARCH_EMPTY,
           },
         },
+      },
+      // ── Step 3: Report — "Before you Insure" (skippable Risk Report offer). ─
+      {
+        key: "report",
+        title: "Before you Insure",
+        activeTab: "",
+        collectMode: true,
+        ctaLabel: "Go to Quotes",
+        report: {
+          question: "Are you interested in a free customized Risk Report?",
+          yesInfo: "By helping us verify your CIN, we can send an official Risk Report straight to your inbox.",
+          visualSrc: "/Form/risk.report.svg",
+          visualAlt: "BimaNetra Security Risk Report preview",
+        },
+        cases: { A: REPORT_CASE, B: REPORT_CASE, C: REPORT_CASE },
       },
     ],
   },

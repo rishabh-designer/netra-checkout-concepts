@@ -1,0 +1,95 @@
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8);
+}
+
+.label {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-basic);
+}
+
+.req {
+  color: var(--color-error);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-12);
+}
+
+/* option pill — more corner radius than before (squircle, not fully circular) */
+.opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  color: var(--color-label-tertiary);
+  background: var(--color-input-fill);
+  border: var(--border-hairline) solid var(--color-input-stroke);
+  border-radius: var(--radius-16);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* hover an unselected pill → purple outline + darker text + hint dot */
+.opt:hover:not(:disabled):not(.optOn) {
+  border-color: var(--color-brand-primary);
+  color: var(--color-label-basic);
+  --dot-ink: var(--color-label-secondary);
+}
+
+.opt:disabled {
+  cursor: default;
+}
+
+/* selected: success/verified = purple pill + green tick, fuzzy = orange */
+.optOn[data-status="success"],
+.optOn[data-status="verified"],
+.optOn[data-status="empty"] {
+  color: var(--color-label-basic);
+  background: var(--color-brand-primary-subtle);
+  border-color: var(--color-brand-primary-border);
+}
+
+.optOn[data-status="fuzzy"] {
+  color: var(--color-brand-secondary);
+  background: var(--color-brand-secondary-subtle);
+  border-color: var(--color-brand-secondary-border);
+}
+
+.help {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  padding: var(--spacing-8);
+}
+
+.helpText {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.12px;
+  color: var(--color-label-tertiary);
+}
+
+.help[data-tone="error"] .helpText {
+  color: var(--color-error);
+}
+
+.help[data-tone="success"] .helpText {
+  color: var(--color-success);
+}

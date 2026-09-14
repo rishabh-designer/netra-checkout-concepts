@@ -1,0 +1,178 @@
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* label row (8px padding around 14px text — Figma) */
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 2px);
+  padding: var(--spacing-8);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-basic);
+}
+
+.req {
+  color: var(--color-error);
+}
+
+/* field wrapper — status-themed fill + bottom stroke (~42px) */
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
+  border-bottom: 1px solid var(--color-input-stroke);
+  border-radius: var(--radius-6) var(--radius-6) 0 0;
+  background: var(--color-card);
+  --field-ink: var(--color-label-basic);
+  --check-ink: var(--color-input-stroke);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+/* interaction on a neutral field only (scoped to [data-status="empty"] so it
+   outranks the empty status rule below, but never overrides a resolved status
+   accent like success/fuzzy/error): hover darkens stroke + check → hint;
+   focus = active/typing (purple stroke + lavender fill + caret). */
+.wrapper[data-status="empty"]:hover {
+  border-bottom-color: var(--color-label-secondary);
+  --check-ink: var(--color-label-secondary);
+}
+.wrapper[data-status="empty"]:focus-within {
+  border-bottom-color: var(--color-brand-primary);
+  background: var(--color-input-fill);
+  --field-ink: var(--color-brand-primary);
+}
+
+/* persistent "typing" look (lavender fill + brand bottom-stroke + brand ink),
+   regardless of focus — for a field the user is meant to type into immediately
+   (e.g. the hero lead field). The muted check stays until a status resolves. */
+.wrapper[data-active="true"][data-status="empty"] {
+  border-bottom-color: var(--color-brand-primary);
+  background: var(--color-input-fill);
+  --field-ink: var(--color-brand-primary);
+}
+
+/* status theming (data-driven accents) */
+.wrapper[data-status="verified"],
+.wrapper[data-status="success"] {
+  border-bottom-color: var(--color-brand-primary);
+  background: var(--color-input-fill);
+  --field-ink: var(--color-brand-primary);
+}
+.wrapper[data-status="userFilled"] {
+  background: var(--color-input-fill);
+}
+.wrapper[data-status="fuzzy"] {
+  border-bottom-color: var(--color-brand-secondary);
+  background: rgba(255, 119, 0, 0.05);
+  --field-ink: var(--color-brand-secondary);
+}
+.wrapper[data-status="error"] {
+  border-bottom-color: var(--color-error);
+  background: var(--color-error-subtle);
+  --field-ink: var(--color-error);
+}
+.wrapper[data-status="loading"] {
+  background: var(--color-card-recessed);
+}
+
+/* prefix — always label-disabled grey + right divider */
+.prefix {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding-right: var(--spacing-8);
+  border-right: 1px solid var(--color-input-stroke);
+  font-size: var(--font-size-300);
+  font-weight: 500;
+  color: var(--color-label-tertiary);
+}
+
+.value,
+.input,
+.select {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-300);
+  font-weight: 500;
+  color: var(--field-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.input,
+.select {
+  border: 0;
+  background: none;
+  outline: none;
+  cursor: text;
+}
+
+.select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* placeholder / empty-value = A9ACB1 @ 48% */
+.input[data-empty],
+.select[data-empty] {
+  color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
+  font-weight: 400;
+}
+
+.input::placeholder {
+  color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
+  opacity: 1; /* Firefox lowers placeholder opacity by default */
+  font-weight: 400;
+}
+
+.suffix {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  flex-shrink: 0;
+}
+
+.clearBtn {
+  display: inline-flex;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.divider {
+  width: 1px;
+  height: 16px;
+  background: var(--color-input-stroke);
+}
+
+/* help row — height reserved; text toggles, container never shifts (~28px) */
+.help {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  padding: var(--spacing-8);
+}
+
+.helpText {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.12px;
+  color: var(--color-label-tertiary);
+}
+
+.help[data-tone="error"] .helpText {
+  color: var(--color-error);
+}
+
+.help[data-tone="success"] .helpText {
+  color: var(--color-success);
+}

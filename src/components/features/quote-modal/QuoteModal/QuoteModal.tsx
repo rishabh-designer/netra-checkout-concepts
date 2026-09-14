@@ -10,14 +10,19 @@ import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { RingSweep } from "@/components/ui/RingSweep";
 import { AITextLoading } from "@/components/ui/AITextLoading";
 import { BorderGlow } from "@/components/ui/BorderGlow";
+import { InteractiveInput, type FieldStatus } from "@/components/ui/InteractiveInput";
+import { SegmentedField } from "@/components/ui/SegmentedField";
+import { FilledCheck, ChevronDown, SearchIcon } from "@/components/ui/InteractiveInput/icons";
 import type {
   EngineTask,
   IntelligenceEngine as IntelligenceEngineContent,
+  QuoteCase,
   QuoteFieldStatus,
   QuoteModalContent,
   QuoteModalField,
   QuotePersonalize,
   QuoteSearchPanel,
+  QuoteStep,
 } from "@/types/productPage";
 import styles from "./QuoteModal.module.css";
 
@@ -33,6 +38,9 @@ export interface QuoteModalProps {
   companyName: string;
   /** ms the agent "probes" before resolving. */
   fetchDelay?: number;
+  /** Fired when the terminal CTA ("Go to Quotes") is submitted on the last step —
+   *  the Quotes results page isn't built yet, so the caller confirms via a toast. */
+  onComplete?: () => void;
 }
 
 /**
@@ -51,6 +59,7 @@ export function QuoteModal({
   caseId,
   companyName,
   fetchDelay = 2000,
+  onComplete,
 }: QuoteModalProps) {
   const reduced = useReducedMotion();
 
@@ -113,13 +122,20 @@ export function QuoteModal({
 
   const canSubmit = useMemo(() => {
     if (!fetched) return false;
+    // Report ("Before you Insure"): "No" is skippable; "Yes" needs the CIN.
+    if (step.report) {
+      const interest = values["reportInterest"] ?? "";
+      if (interest === "No") return true;
+      if (interest === "Yes") return (values["reportCin"] ?? "").trim() !== "";
+      return false;
+    }
     // Profile (collect mode) gates on every mandatory field being filled.
     if (step.collectMode) return allMandatoryFilled(qc.fields);
     if (caseId === "A") return true;
     if (caseId === "B") return consent;
     return allMandatoryFilled(qc.fields);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetched, caseId, consent, values, qc.fields, step.collectMode]);
+  }, [fetched, caseId, consent, values, qc.fields, step.collectMode, step.report]);
 
   /** The distinct mandatory field keys across the whole flow — the meter's
    *  numerator pool. Depends only on the resolved case, not on typed values, so
@@ -144,10 +160,13 @@ export function QuoteModal({
 
   const profileComplete = allMandatoryFilled(content.steps[0].cases[caseId].fields);
 
-  /** Advance to the next form step (the probe re-runs for it); last step is
-   *  terminal for now (the "Quotes" step has no form yet). */
+  /** Advance to the next form step (the probe re-runs for it). On the last step
+   *  the CTA is terminal — the Quotes results page isn't built, so we hand off to
+   *  `onComplete` (a confirmation toast) rather than doing nothing. */
   const handleSubmit = () => {
-    if (canSubmit && stepIndex < lastStep) setStepIndex((i) => i + 1);
+    if (!canSubmit) return;
+    if (stepIndex < lastStep) setStepIndex((i) => i + 1);
+    else onComplete?.();
   };
   const handleBack = () => {
     if (stepIndex > 0) setStepIndex((i) => i - 1);
@@ -166,15 +185,32 @@ export function QuoteModal({
         >
           <motion.div
             className={styles.modal}
+            data-layout={step.report ? "report" : undefined}
             role="dialog"
             aria-modal="true"
-            aria-label={`${step.title} profile`}
+            aria-label={step.title}
             onClick={(e) => e.stopPropagation()}
             initial={{ y: reduced ? 0 : 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: reduced ? 0 : 80, opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
+            {step.report ? (
+              <ReportStep
+                step={step}
+                qc={qc}
+                values={values}
+                onChange={(k, v) => setValues((s) => ({ ...s, [k]: v }))}
+                stepIndex={stepIndex}
+                stepperLabels={content.stepperLabels}
+                ctaLabel={step.ctaLabel ?? content.ctaLabel}
+                canSubmit={canSubmit}
+                onBack={handleBack}
+                onClose={onClose}
+                onSubmit={handleSubmit}
+              />
+            ) : (
+            <>
             <div className={styles.left}>
               {/* No-stepper header (Figma 306:5068): back-chevron + title in one
                   lead stack, close control on the right. */}
@@ -213,6 +249,7 @@ export function QuoteModal({
                       field={field}
                       caseId={caseId}
                       collectMode={!!step.collectMode}
+                      consent={consent}
                       fetched={fetched}
                       value={values[field.key] ?? ""}
                       onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
@@ -278,6 +315,8 @@ export function QuoteModal({
                 <PanelStepper steps={content.stepperLabels} active={stepIndex} />
               </div>
             </BorderGlow>
+            </>
+            )}
           </motion.div>
         </motion.div>
       )}
@@ -285,18 +324,128 @@ export function QuoteModal({
   );
 }
 
-/* ---- per-field display status: name=purple, A=green, B=orange, C/collect=green-when-filled ---- */
+/* ---- Report step ("Before you Insure") — a distinct full-width layout: header,
+   a two-column body (risk-report mockup + one Yes/No question that reveals a CIN
+   child on "Yes"), and a full-width footer (stepper + orange "Go to Quotes").
+   Figma 307:5612 (No) / 307:24769 (Yes) / 308:26514 (Yes + CIN). */
+function ReportStep({
+  step,
+  qc,
+  values,
+  onChange,
+  stepIndex,
+  stepperLabels,
+  ctaLabel,
+  canSubmit,
+  onBack,
+  onClose,
+  onSubmit,
+}: {
+  step: QuoteStep;
+  qc: QuoteCase;
+  values: Record<string, string>;
+  onChange: (key: string, value: string) => void;
+  stepIndex: number;
+  stepperLabels: string[];
+  ctaLabel: string;
+  canSubmit: boolean;
+  onBack: () => void;
+  onClose: () => void;
+  onSubmit: () => void;
+}) {
+  const report = step.report!;
+  const interest = values["reportInterest"] ?? "";
+  const interestField = qc.fields.find((f) => f.key === "reportInterest")!;
+  const cinField = qc.fields.find((f) => f.key === "reportCin")!;
+
+  return (
+    <div className={styles.report}>
+      <header className={styles.header}>
+        <div className={styles.headerLead}>
+          <button type="button" className={styles.ctrl} aria-label="Back" onClick={onBack}>
+            <ChevronLeft />
+          </button>
+          <h2 className={styles.title}>{step.title}</h2>
+        </div>
+        <button type="button" className={styles.ctrl} aria-label="Close" onClick={onClose}>
+          <HeaderClose />
+        </button>
+      </header>
+
+      <div className={styles.reportBody}>
+        <div className={styles.reportVisual}>
+          {/* The SVG bakes in the stacked report cards + their shadow (Figma
+              307:24541 is a transparent container), so no wrapper chrome here. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={report.visualSrc} alt={report.visualAlt} className={styles.reportImg} />
+        </div>
+
+        <div className={styles.reportForm}>
+          <p className={styles.reportQuestion}>{report.question}</p>
+          <Field
+            field={interestField}
+            caseId="A"
+            collectMode
+            consent={false}
+            fetched
+            value={interest}
+            onChange={(v) => onChange("reportInterest", v)}
+          />
+          {interest === "Yes" && (
+            <>
+              <p className={styles.reportInfo}>{report.yesInfo}</p>
+              <Field
+                field={cinField}
+                caseId="A"
+                collectMode
+                consent={false}
+                fetched
+                value={values["reportCin"] ?? ""}
+                onChange={(v) => onChange("reportCin", v)}
+              />
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.reportFooter}>
+        <PanelStepper steps={stepperLabels} active={stepIndex} />
+        <button
+          type="button"
+          className={cn(styles.submit, styles.submitQuotes, canSubmit && styles.submitOn)}
+          disabled={!canSubmit}
+          onClick={onSubmit}
+        >
+          <span>{ctaLabel}</span>
+          <Arrow />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ---- per-field display status: name=userFilled (recalled from what the user
+   typed before the modal), A=green, B=orange, C/collect=green-when-filled ---- */
 function displayStatus(
   field: QuoteModalField,
   caseId: QuoteCaseId,
   value: string,
   collectMode: boolean,
+  consent: boolean,
 ): QuoteFieldStatus {
-  if (field.key === "name") return "verified";
+  // The company name was supplied by the user in the hero field — we're recalling
+  // their own data, so it reads as "prefilled by user", not system-verified.
+  if (field.key === "name") return "userFilled";
   // Profile (collect mode): status follows whether the field is filled.
   if (collectMode) return value.trim() ? "success" : "empty";
   if (caseId === "A") return "success";
-  if (caseId === "B") return "fuzzy";
+  if (caseId === "B") {
+    // A web-guessed (fuzzy) value the user has edited — or attested as factual by
+    // ticking the consent box — is cross-verified → success. Cleared → empty.
+    if (!value.trim()) return "empty";
+    if (consent || value !== field.value) return "success";
+    return "fuzzy";
+  }
   return value.trim() ? "success" : "empty";
 }
 
@@ -304,6 +453,7 @@ function Field({
   field,
   caseId,
   collectMode,
+  consent,
   fetched,
   value,
   onChange,
@@ -311,122 +461,74 @@ function Field({
   field: QuoteModalField;
   caseId: QuoteCaseId;
   collectMode: boolean;
+  consent: boolean;
   fetched: boolean;
   value: string;
   onChange: (value: string) => void;
 }) {
   const isName = field.key === "name";
   const fetching = !isName && !fetched;
-  const status = displayStatus(field, caseId, value, collectMode);
-  const isSelect = field.control === "select";
-  const isSearch = field.control === "search";
+  const status = displayStatus(field, caseId, value, collectMode, consent);
+  const uiStatus: FieldStatus = fetching ? "loading" : status;
   // The coverage field reads "Approximating…" while the probe runs (Figma).
   const fetchingLabel = field.key === "coverage" ? "Approximating…" : "Fetching…";
+  // The neutral "Fetched from…" disclaimer shows only while the field is still a
+  // guess (fuzzy); it disappears once the user corrects it to success. A
+  // success-tone help line shows only on success. Row stays reserved regardless.
+  const visibleHelp =
+    field.helpText &&
+    (field.helpTone === "success" ? uiStatus === "success" : uiStatus === "fuzzy")
+      ? field.helpText
+      : undefined;
 
-  // Toggle — a Yes/No segmented pair (Insurance questions). Themed by status:
-  // success = purple pill + green tick, fuzzy = orange pill + orange tick,
-  // unselected/empty = grey outline dot.
+  // Binary Yes/No → the DSL SegmentedField (Insurance questions).
   if (field.control === "toggle") {
-    const options = field.options ?? ["Yes", "No"];
-    const tone = status === "fuzzy" ? "var(--color-brand-secondary)" : "var(--color-success)";
     return (
-      <div className={styles.field}>
-        <label className={styles.fieldLabel}>
-          {field.label}
-          {field.mandatory && <span className={styles.req}>*</span>}
-        </label>
-        <div className={styles.toggleRow} role="radiogroup" aria-label={field.label}>
-          {options.map((opt) => {
-            const selected = value === opt;
-            return (
-              <button
-                key={opt}
-                type="button"
-                role="radio"
-                aria-checked={selected}
-                className={cn(styles.toggleOpt, selected && styles.toggleOptOn)}
-                data-status={selected ? status : undefined}
-                onClick={() => onChange(opt)}
-                disabled={fetching}
-              >
-                <span>{opt}</span>
-                {fetching ? (
-                  <Spinner />
-                ) : selected ? (
-                  <FilledCheck color={tone} />
-                ) : (
-                  <MutedDot />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <SegmentedField
+        label={field.label || undefined}
+        showLabel={!!field.label}
+        mandatory={field.mandatory}
+        options={field.options ?? ["Yes", "No"]}
+        value={value}
+        onChange={onChange}
+        status={uiStatus}
+        helpText={visibleHelp}
+        helpTone={field.helpTone}
+        showHelp
+      />
     );
   }
 
-  return (
-    <div className={styles.field}>
-      <label className={styles.fieldLabel}>
-        {field.label}
-        {field.mandatory && <span className={styles.req}>*</span>}
-      </label>
-      <div className={styles.inputWrap} data-status={fetching ? "fetching" : status}>
-        {fetching ? (
-          <span className={cn(styles.value, styles.placeholder)}>{fetchingLabel}</span>
-        ) : isSelect ? (
-          <select
-            className={styles.select}
-            data-empty={value ? undefined : true}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-          >
-            <option value="" disabled>
-              {field.placeholder ?? "Select…"}
-            </option>
-            {field.options?.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        ) : isName ? (
-          <span className={styles.value}>{value}</span>
-        ) : (
-          <>
-            {field.prefix && (
-              <span className={styles.fieldPrefix} aria-hidden>
-                {field.prefix}
-              </span>
-            )}
-            <input
-              className={styles.textInput}
-              data-empty={value ? undefined : true}
-              value={value}
-              placeholder={field.placeholder}
-              onChange={(e) => onChange(e.target.value)}
-            />
-          </>
-        )}
+  // Phone: show an error help line until 10 digits are entered.
+  const validate =
+    field.key === "phone"
+      ? (v: string) => {
+          const digits = v.replace(/\D/g, "");
+          return digits.length > 0 && digits.length < 10 ? "Enter a valid 10-digit number" : null;
+        }
+      : undefined;
 
-        <div className={styles.suffix}>
-          {isSelect && !fetching && <ChevronDown />}
-          {isSearch && !fetching && <SearchIcon />}
-          {!fetching && !isSelect && !isSearch && value && (
-            <button
-              className={styles.suffixBtn}
-              aria-label="Clear"
-              onClick={() => !isName && onChange("")}
-            >
-              <Clear />
-            </button>
-          )}
-          <Info />
-          <span className={styles.suffixDivider} />
-          {fetching ? <Spinner /> : <StatusIcon status={status} />}
-        </div>
-      </div>
-    </div>
+  const control =
+    field.control === "select" ? "select" : field.control === "search" ? "search" : "text";
+
+  return (
+    <InteractiveInput
+      label={field.label}
+      mandatory={field.mandatory}
+      control={control}
+      options={field.options}
+      value={fetching ? "" : value}
+      onChange={onChange}
+      readOnly={isName}
+      clearable={!isName}
+      prefix={field.prefix}
+      placeholder={fetching ? fetchingLabel : field.placeholder}
+      status={uiStatus}
+      validate={validate}
+      helpText={visibleHelp}
+      helpTone={field.helpTone}
+      showHelp
+    />
   );
 }
 
@@ -690,6 +792,10 @@ function TaskRow({
   companyName: string;
   reduced: boolean;
 }) {
+  // Active task with an embedded search is a real accordion — open by default,
+  // collapsible via its head. Hook stays above the done/pending early returns.
+  const [expanded, setExpanded] = useState(true);
+
   if (state === "done") {
     return (
       <motion.li layout={!reduced} className={cn(styles.taskRow, styles.taskDone)}>
@@ -701,7 +807,7 @@ function TaskRow({
   if (state === "pending") {
     return (
       <motion.li layout={!reduced} className={cn(styles.taskRow, styles.taskPending)}>
-        <RingSweep />
+        <RingSweep spin={false} muted />
         <span className={styles.taskPendingLabel}>{task.activeLabel}</span>
       </motion.li>
     );
@@ -713,33 +819,51 @@ function TaskRow({
     !task.hasSearch && profileComplete ? task.readyLabel ?? task.activeLabel : task.activeLabel;
   return (
     <motion.li layout={!reduced} className={cn(styles.taskRow, styles.taskActiveRow)}>
-      <div className={styles.taskHead}>
-        {task.hasSearch ? (
-          <RingSweep />
-        ) : profileComplete ? (
-          <FilledCheck color="var(--color-brand-primary)" />
-        ) : (
-          <MinusMark />
-        )}
-        <AITextLoading text={label} className={styles.taskActiveLabel} />
-        {task.hasSearch && <ChevronDown />}
-      </div>
-      {task.hasSearch && (
-        <motion.div
-          className={styles.taskBody}
-          initial={reduced ? false : { height: 0, opacity: 0 }}
-          animate={{ height: "auto", opacity: 1 }}
-          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+      {task.hasSearch ? (
+        <button
+          type="button"
+          className={cn(styles.taskHead, styles.taskHeadButton)}
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
         >
-          <SearchResult
-            compact
-            search={search}
-            activeTab={activeTab}
-            companyName={companyName}
-            reduced={reduced}
-            fetched={fetched}
-          />
-        </motion.div>
+          <RingSweep />
+          <AITextLoading text={label} className={styles.taskActiveLabel} />
+          <motion.span
+            className={styles.taskChevron}
+            animate={{ rotate: expanded ? 0 : 180 }}
+            transition={{ duration: reduced ? 0 : 0.3, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <ChevronDown />
+          </motion.span>
+        </button>
+      ) : (
+        <div className={styles.taskHead}>
+          {profileComplete ? <FilledCheck color="var(--color-brand-primary)" /> : <MinusMark />}
+          <AITextLoading text={label} className={styles.taskActiveLabel} />
+        </div>
+      )}
+      {task.hasSearch && (
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.div
+              key="body"
+              className={styles.taskBody}
+              initial={reduced ? false : { height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
+              transition={{ duration: reduced ? 0 : 0.4, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <SearchResult
+                compact
+                search={search}
+                activeTab={activeTab}
+                companyName={companyName}
+                reduced={reduced}
+                fetched={fetched}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
     </motion.li>
   );
@@ -827,93 +951,8 @@ function splitHighlight(sentence: string, highlight: string): [string, string, s
   return [sentence.slice(0, i), highlight, sentence.slice(i + highlight.length)];
 }
 
-/* ---- inline icons ---- */
-function StatusIcon({ status }: { status: QuoteFieldStatus }) {
-  if (status === "fuzzy") return <Alert />;
-  if (status === "empty") return <MutedDot />;
-  return <Check tone={status === "verified" ? "brand" : "success"} />;
-}
-
-function Spinner() {
-  return (
-    <span className={styles.spinner} role="status" aria-label="Fetching">
-      <svg viewBox="0 0 16 16" width="16" height="16" fill="none">
-        <circle cx="8" cy="8" r="6.5" stroke="var(--color-input-stroke)" strokeWidth="2" />
-        <path
-          d="M8 1.5a6.5 6.5 0 0 1 6.5 6.5"
-          stroke="var(--color-brand-primary)"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
-    </span>
-  );
-}
-
-function Check({ tone }: { tone: "brand" | "success" }) {
-  const color = tone === "brand" ? "var(--color-brand-primary)" : "var(--color-success)";
-  return <FilledCheck color={color} />;
-}
-
-/* Filled roundel with a white tick, in an arbitrary colour (toggle selection). */
-function FilledCheck({ color }: { color: string }) {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <circle cx="8" cy="8" r="8" fill={color} />
-      <path
-        d="m4.8 8.2 2 2 4-4.4"
-        stroke="var(--color-label-inverse)"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function Alert() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <circle cx="8" cy="8" r="8" fill="var(--color-brand-secondary)" />
-      <path d="M8 4.2v4.4" stroke="var(--color-label-inverse)" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="8" cy="11.2" r="0.95" fill="var(--color-label-inverse)" />
-    </svg>
-  );
-}
-
-function MutedDot() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <circle cx="8" cy="8" r="7" stroke="var(--color-input-stroke)" strokeWidth="1.4" />
-    </svg>
-  );
-}
-
-function Info() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <circle cx="8" cy="8" r="7" stroke="var(--color-info)" strokeWidth="1.3" />
-      <circle cx="8" cy="5" r="0.9" fill="var(--color-info)" />
-      <path d="M8 7.5v4" stroke="var(--color-info)" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function Clear() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <path d="m4.5 4.5 7 7m0-7-7 7" stroke="var(--color-label-basic)" strokeWidth="1.4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function ChevronDown() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <path d="m4 6 4 4 4-4" stroke="var(--color-label-tertiary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
+/* ---- inline icons ---- (status roundels/affordances now live in
+   ui/InteractiveInput/icons; FilledCheck, ChevronDown, SearchIcon imported above) */
 
 /* Header back-chevron (Figma 306:5068, 16px in a 24px box, hint grey #6f7378). */
 function ChevronLeft() {
@@ -935,15 +974,6 @@ function HeaderClose() {
   return (
     <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
       <path d="M4 4l8 8M12 4l-8 8" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <circle cx="7" cy="7" r="5" stroke="var(--color-label-tertiary)" strokeWidth="1.5" />
-      <path d="m11 11 3 3" stroke="var(--color-label-tertiary)" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }

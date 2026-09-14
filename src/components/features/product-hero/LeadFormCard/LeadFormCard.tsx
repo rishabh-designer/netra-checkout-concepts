@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { LeadFormContent, QuoteModalContent } from "@/types/productPage";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
-import { TextInputField } from "@/components/ui/TextInputField";
+import { InteractiveInput } from "@/components/ui/InteractiveInput";
 import { CtaButton } from "@/components/ui/CtaButton";
 import { Toast } from "@/components/ui/Toast";
 import {
@@ -37,6 +37,7 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [caseId, setCaseId] = useState<QuoteCaseId>("C");
   const [toastOpen, setToastOpen] = useState(false);
+  const [doneOpen, setDoneOpen] = useState(false);
 
   const handleSubmit = () => {
     if (!companyName.trim()) {
@@ -47,6 +48,14 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
     }
     setCaseId(resolveCase(companyName));
     setModalOpen(true);
+  };
+
+  // Terminal "Go to Quotes" — the Quotes results page isn't built yet, so close
+  // the flow and confirm with a toast (rather than a silent dead-end).
+  const handleComplete = () => {
+    setModalOpen(false);
+    setDoneOpen(false);
+    requestAnimationFrame(() => setDoneOpen(true));
   };
 
   return (
@@ -76,11 +85,16 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
         </div>
       </div>
       <div className={styles.bottom}>
-        <TextInputField
+        <InteractiveInput
           placeholder={content.inputPlaceholder}
           name="legal-company-name"
           value={companyName}
-          onValueChange={setCompanyName}
+          onChange={setCompanyName}
+          status={companyName.trim().length >= 4 ? "success" : "empty"}
+          clearable
+          active
+          autoFocusDesktop
+          onSubmit={handleSubmit}
         />
         <div className={styles.actions}>
           <CtaButton
@@ -96,12 +110,19 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
         content={quoteModal}
         caseId={caseId}
         companyName={companyName}
+        onComplete={handleComplete}
       />
       <Toast
         open={toastOpen}
         title={quoteModal.emptyNameToast.title}
         description={quoteModal.emptyNameToast.description}
         onClose={() => setToastOpen(false)}
+      />
+      <Toast
+        open={doneOpen}
+        title={quoteModal.completeToast.title}
+        description={quoteModal.completeToast.description}
+        onClose={() => setDoneOpen(false)}
       />
     </div>
   );

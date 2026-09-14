@@ -7,3 +7,9 @@
   border-radius: 50%;
   corner-shape: round;
 }
+
+/* pending/queued: a uniform grey ring (no purple accent), matching the pending
+   label tone — reads as "waiting", distinct from the spinning active ring. */
+.ringMuted {
+  border-color: var(--color-label-tertiary);
+}

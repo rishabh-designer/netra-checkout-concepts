@@ -1,8 +1,9 @@
+/* 540×320 frame that scales in locked aspect ratio (Figma node 358:28511). */
 .frame {
   position: relative;
   width: 540px;
   max-width: 100%;
-  height: 280px;
+  aspect-ratio: 540 / 320;
   overflow: hidden;
   border: var(--border-hairline) solid var(--color-card-recessed);
   border-radius: 2px;
@@ -12,92 +13,47 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
+  /* brand-purple base the blend layers build on */
+  background: var(--color-brand-primary);
 }
 
-/* Video: normal blend at half opacity, bottom-anchored and centered. */
+/* Bottom layer: solid brand-purple on Color Dodge (Figma "Filter", 358:28513). */
+.filter {
+  position: absolute;
+  inset: 0;
+  background: var(--color-brand-primary);
+  mix-blend-mode: color-dodge;
+}
+
+/* Video: intentionally larger than the frame, bleeding up/left, on Lighten
+   (358:28514 — 684.94×385.88 at −74.91,−32.94 over 540×320, as % so it scales). */
 .video {
   position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: 568.888px;
-  height: 320px;
+  left: -13.87%;
+  top: -10.29%;
+  width: 126.84%;
+  height: 120.59%;
   max-width: none;
   object-fit: cover;
-  mix-blend-mode: normal;
-  opacity: 0.5;
+  mix-blend-mode: lighten;
 }
 
+/* Still: pixel-mapped to the frame, bottom-anchored, top layer; its alpha
+   reveals the video/filter below (358:28515). */
 .still {
-  position: absolute;
-  left: 50%;
-  bottom: -105.08px;
-  transform: translateX(-50%);
-  width: 548.571px;
-  height: 356.281px;
-  max-width: none;
-  object-fit: cover;
-  object-position: top center;
-}
-
-.noiseWrap {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 645.43px;
-  height: 319.86px;
-  mix-blend-mode: color-burn;
-  overflow: hidden;
-  opacity: 0.7;
-}
-
-.noise {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  max-width: none;
   object-fit: cover;
-  transform: rotate(90deg) scale(2.02);
+  object-position: center bottom;
+  pointer-events: none;
 }
 
-.wash {
-  position: absolute;
-  inset: 0;
-  background: var(--color-brand-primary);
-  mix-blend-mode: lighten;
-}
-
-/*
- * Below web (<1000): the frame goes full-width and both the webm video and the
- * dithered still switch to full-bleed cover so the media contents scale with
- * the frame at any width. Noise/wash already stretch via inset:0.
- */
+/* Below web (<1000): frame goes full-width; aspect-ratio keeps the 27:16 lock. */
 @media (max-width: 999px) {
   .frame {
     width: 100%;
-    height: 392px;
-  }
-
-  .video,
-  .still {
-    inset: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    transform: none;
-    object-position: center bottom;
-  }
-
-  .noiseWrap {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-@media (max-width: 999px) {
-  .frame {
-    height: 220px;
   }
 }

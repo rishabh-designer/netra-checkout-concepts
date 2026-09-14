@@ -48,7 +48,6 @@ export interface MediaContent {
   videoSources: VideoSource[];
   stillSrc: string;
   stillAlt: string;
-  noiseSrc: string;
 }
 
 export interface LeadFormContent {
@@ -69,9 +68,18 @@ export interface LeadFormContent {
 }
 
 export type QuoteFieldControl = "text" | "select" | "toggle" | "search";
-/** verified = Name (purple), success = confirmed (green), fuzzy = guess
- *  (orange), empty = nothing found (grey placeholder). */
-export type QuoteFieldStatus = "verified" | "success" | "fuzzy" | "empty";
+/** verified = Name (purple), success = confirmed/match (green), userFilled =
+ *  user-supplied under review (purple, basic ink), fuzzy = web guess (orange),
+ *  empty = nothing found (grey placeholder), error = invalid (red). */
+export type QuoteFieldStatus =
+  | "verified"
+  | "success"
+  | "userFilled"
+  | "fuzzy"
+  | "empty"
+  | "error";
+
+export type QuoteFieldHelpTone = "neutral" | "error" | "success";
 
 export interface QuoteModalField {
   key: string;
@@ -86,6 +94,9 @@ export interface QuoteModalField {
   /** Options for a `select` control — lets Case C be filled in. */
   options?: string[];
   status: QuoteFieldStatus;
+  /** Contextual help/disclaimer shown in the reserved help row (see helpTone). */
+  helpText?: string;
+  helpTone?: QuoteFieldHelpTone;
 }
 
 export interface QuoteSearchBody {
@@ -123,17 +134,34 @@ export interface QuoteCase {
   personalize?: QuotePersonalize;
 }
 
-/** One form step in the modal flow (Profile → Business → Insurance). */
+/** The "Before you Insure" step — a skippable Risk-Report offer. When present on
+ *  a step, the modal renders the report layout (document mockup + one Yes/No
+ *  question) instead of the Intelligence Engine split. */
+export interface QuoteReport {
+  /** The single question, e.g. "Are you interested in a free customized Risk Report?" */
+  question: string;
+  /** Blue helper line shown once the user answers "Yes". */
+  yesInfo: string;
+  /** The document-mockup asset shown on the left (public/Form/risk.report.svg). */
+  visualSrc: string;
+  visualAlt: string;
+}
+
+/** One form step in the modal flow (Profile → Business → Insurance → Report). */
 export interface QuoteStep {
   key: string;
-  /** Header title, e.g. "Profile" / "Business" / "Insurance". */
+  /** Header title, e.g. "Profile" / "Business" / "Before you Insure". */
   title: string;
   /** Which left-panel search tab reads active on this step (Business = first
    *  "Netra Mode", Insurance = last "News"; "" when the step has no search). */
   activeTab: string;
-  /** Data-collection step (Profile): field status reacts to whether each field
-   *  is filled, rather than to the resolved A/B/C case. */
+  /** Data-collection step (Profile / Report): field status reacts to whether each
+   *  field is filled, rather than to the resolved A/B/C case. */
   collectMode?: boolean;
+  /** Present on the Report step — switches the modal to the report layout. */
+  report?: QuoteReport;
+  /** Per-step CTA override (Report = "Go to Quotes"); falls back to content.ctaLabel. */
+  ctaLabel?: string;
   cases: { A: QuoteCase; B: QuoteCase; C: QuoteCase };
 }
 
@@ -176,6 +204,8 @@ export interface QuoteModalContent {
   stepperLabels: string[];
   ctaLabel: string;
   emptyNameToast: { title: string; description: string };
+  /** Shown when the terminal "Go to Quotes" CTA is pressed (Quotes page pending). */
+  completeToast: { title: string; description: string };
 }
 
 export interface ProductPageContent {
