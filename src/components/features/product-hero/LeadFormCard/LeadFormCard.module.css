@@ -45,9 +45,10 @@
   width: 100%;
   padding: var(--spacing-12) var(--spacing-16);
   border-radius: var(--radius-12);
+  /* Green "personalized" wash, echoing the modal's Case-A personalize badge. */
   background: linear-gradient(
     to right,
-    var(--color-brand-primary-subtle),
+    var(--color-success-subtle),
     var(--color-card)
   );
 }
@@ -62,7 +63,7 @@
   font-size: var(--font-size-100);
   font-weight: 500;
   line-height: 1;
-  color: var(--color-brand-primary);
+  color: var(--color-success);
   white-space: nowrap;
 }
 
@@ -81,6 +82,12 @@
   text-decoration: underline;
   text-underline-position: from-font;
   white-space: nowrap;
+}
+
+/* Soft info-blue glow echoing the original checkbox asset's drop shadow. */
+.squareCheck {
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--color-info) 40%, transparent));
 }
 
 /* Below web (<1000): the price headline drops to heading (28) and may wrap so

@@ -4,7 +4,6 @@ import { useState } from "react";
 import type { LeadFormContent, QuoteModalContent } from "@/types/productPage";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { InteractiveInput } from "@/components/ui/InteractiveInput";
-import { Info, FilledCheck } from "@/components/ui/InteractiveInput/icons";
 import { CtaButton } from "@/components/ui/CtaButton";
 import { Toast } from "@/components/ui/Toast";
 import {
@@ -75,10 +74,7 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
             <a href="#" className={styles.promoLink}>
               {content.promoLinkLabel}
             </a>
-            {/* Know More's info affordance (blue) + a green "selected" check,
-                mirroring the quote-modal field suffix ((i) then the roundel). */}
-            <Info />
-            <FilledCheck color="var(--color-success)" />
+            <SquareCheck />
           </div>
         </div>
       </div>
@@ -123,5 +119,30 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
         onClose={() => setDoneOpen(false)}
       />
     </div>
+  );
+}
+
+/* Square "selected" check for the promo banner — the info blue (matches the
+   "Know More" link), echoing /figma/checkbox-checked.svg but token-driven so it
+   recolours with the theme. */
+function SquareCheck() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width="16"
+      height="16"
+      fill="none"
+      aria-hidden
+      className={styles.squareCheck}
+    >
+      <rect width="16" height="16" rx="4" fill="var(--color-info)" />
+      <path
+        d="m4.8 8.2 2 2 4-4.4"
+        stroke="var(--color-label-inverse)"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
