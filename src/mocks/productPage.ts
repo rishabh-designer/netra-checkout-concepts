@@ -193,12 +193,12 @@ export const mockProductPageContent: ProductPageContent = {
     // The persistent left-panel task-runner; one task per form step (index-aligned).
     engine: {
       requestLabel: "Personalize My Quote",
-      messageTemplate: "Running 5 Tasks to complete quote Personalisation for {company}",
+      messageTemplate: "Running 3 Tasks to complete quote Personalisation for {company}",
       headingLabel: "Getting Started",
       tasks: [
-        { activeLabel: "Updating your Profile…", readyLabel: "Ready to Confirm Profile", doneLabel: "Profile Confirmed", hasSearch: false },
-        { activeLabel: "Update your Business", doneLabel: "Business Secured", hasSearch: true },
-        { activeLabel: "Confirm your Insurance", doneLabel: "Insurance Confirmed", hasSearch: true },
+        { activeLabel: "Assessing Profile", readyLabel: "Ready to Confirm Profile", doneLabel: "Profile Confirmed", hasSearch: false },
+        { activeLabel: "Assessing Business", doneLabel: "Business Secured", hasSearch: true },
+        { activeLabel: "Assessing Risk", doneLabel: "Insurance Confirmed", hasSearch: true },
       ],
     },
     emptyNameToast: {
