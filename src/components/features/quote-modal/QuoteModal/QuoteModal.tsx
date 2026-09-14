@@ -838,7 +838,9 @@ function TaskRow({
         </button>
       ) : (
         <div className={styles.taskHead}>
-          {profileComplete ? <FilledCheck color="var(--color-brand-primary)" /> : <MinusMark />}
+          {/* Active Profile task: a purple sweeping ring while the user is still
+              filling it in, resolving to the purple filled check once complete. */}
+          {profileComplete ? <FilledCheck color="var(--color-brand-primary)" /> : <RingSweep />}
           <AITextLoading text={label} className={styles.taskActiveLabel} />
         </div>
       )}
@@ -882,17 +884,6 @@ function CheckboxTick() {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-    </svg>
-  );
-}
-
-/* Minus glyph in a soft box — the collapsed indicator on the Profile task while
-   it is still being filled (Figma 319:25336). */
-function MinusMark() {
-  return (
-    <svg viewBox="0 0 14 14" width="14" height="14" fill="none" aria-hidden>
-      <rect x="0.5" y="0.5" width="13" height="13" rx="4" stroke="var(--color-brand-primary-border)" />
-      <path d="M4 7h6" stroke="var(--color-brand-primary)" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
