@@ -193,7 +193,7 @@ export const mockProductPageContent: ProductPageContent = {
     // The persistent left-panel task-runner; one task per form step (index-aligned).
     engine: {
       requestLabel: "Personalize My Quote",
-      messageTemplate: "Running 3 Tasks to complete quote Personalisation for {company}",
+      messageTemplate: "Running 3 Tasks to complete Quote Personalisation for {company}",
       headingLabel: "Getting Started",
       tasks: [
         { activeLabel: "Assessing Profile", readyLabel: "Ready to Confirm Profile", doneLabel: "Profile Confirmed", hasSearch: false },
@@ -280,7 +280,7 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "existingPolicy", label: "Does Your Business Have An Existing Directors and Officers Policy?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
-              { key: "coverage", label: "Required Coverage", mandatory: true, control: "text", value: "₹ 1Cr.", status: "success", helpText: "This is the Required Coverage that's perfect for your Business Profile", helpTone: "success" },
+              { key: "coverage", label: "Required Coverage", mandatory: true, control: "text", value: "₹ 1Cr.", status: "success", helpText: "This is the Required Coverage that's perfect for you", helpTone: "success" },
             ],
             search: SEARCH_MATCHED,
           },
