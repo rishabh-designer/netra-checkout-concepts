@@ -920,7 +920,7 @@ function PanelStepper({ steps, active }: { steps: string[]; active: number }) {
   );
 }
 
-/* 12px status dot: purple (current), green (done), muted grey (upcoming). */
+/* 4px status dot in a 4px box: purple (current), green (done), muted grey (upcoming). */
 function StepBullet({ state }: { state: "done" | "current" | "todo" }) {
   const fill =
     state === "current"
@@ -929,8 +929,8 @@ function StepBullet({ state }: { state: "done" | "current" | "todo" }) {
         ? "var(--color-success)"
         : "var(--color-label-tertiary)";
   return (
-    <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-      <circle cx="6" cy="6" r="4" fill={fill} />
+    <svg viewBox="0 0 4 4" width="4" height="4" fill="none" aria-hidden>
+      <circle cx="2" cy="2" r="2" fill={fill} />
     </svg>
   );
 }
