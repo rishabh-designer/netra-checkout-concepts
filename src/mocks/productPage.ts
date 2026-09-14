@@ -101,8 +101,7 @@ const RISK_NEWS_A: QuoteSearchPanel = {
       "MoneyControl — MCA lists one registered charge; no litigation on record",
     ],
     founderTag: "ET Retail +3",
-    footer:
-      "Would you like BimaNetra to factor these signals into your risk score and coverage recommendation?",
+    footer: "Would you like BimaNetra to find other additional information?",
   },
 };
 

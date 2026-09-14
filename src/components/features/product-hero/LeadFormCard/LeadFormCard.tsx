@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { LeadFormContent, QuoteModalContent } from "@/types/productPage";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { InteractiveInput } from "@/components/ui/InteractiveInput";
+import { Info, FilledCheck } from "@/components/ui/InteractiveInput/icons";
 import { CtaButton } from "@/components/ui/CtaButton";
 import { Toast } from "@/components/ui/Toast";
 import {
@@ -74,13 +75,10 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
             <a href="#" className={styles.promoLink}>
               {content.promoLinkLabel}
             </a>
-            <span className={styles.checkbox}>
-              {/* The asset is a 32px canvas with the 16px box centred (outer
-                  ring is drop-shadow padding); render it natural size inside a
-                  16px slot so the box itself reads a true 16px. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/figma/checkbox-checked.svg" alt="Selected" />
-            </span>
+            {/* Know More's info affordance (blue) + a green "selected" check,
+                mirroring the quote-modal field suffix ((i) then the roundel). */}
+            <Info />
+            <FilledCheck color="var(--color-success)" />
           </div>
         </div>
       </div>

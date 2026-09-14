@@ -83,22 +83,6 @@
   white-space: nowrap;
 }
 
-.checkbox {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  overflow: visible;
-}
-
-.checkbox img {
-  width: 32px;
-  height: 32px;
-  max-width: none;
-}
-
 /* Below web (<1000): the price headline drops to heading (28) and may wrap so
    it never overflows the narrower form column. */
 @media (max-width: 999px) {
