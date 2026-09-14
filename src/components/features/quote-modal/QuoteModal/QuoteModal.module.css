@@ -125,7 +125,7 @@
 }
 
 .personalizeDone {
-  background: linear-gradient(to right, var(--color-brand-secondary-subtle), transparent);
+  background: linear-gradient(to right, var(--color-success-subtle), transparent);
 }
 
 .personalizeLabel {
@@ -137,7 +137,7 @@
 }
 
 .personalizeDone .personalizeLabel {
-  color: var(--color-brand-secondary);
+  color: var(--color-success);
 }
 
 .personalizeSkip {

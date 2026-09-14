@@ -173,8 +173,6 @@
   color: var(--color-error);
 }
 
-/* Success-tone help reads in brand purple (primary 500) — an affirming
-   "this is right for you" line, not a green validation pass. */
 .help[data-tone="success"] .helpText {
-  color: var(--color-brand-primary);
+  color: var(--color-success);
 }
