@@ -1,0 +1,39 @@
+.box {
+  display: inline-flex;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+/* tone → fill / ring (extend with more tones as the DSL needs them) */
+.box[data-tone="info"] {
+  --sqc-fill: var(--color-info-fill);
+  --sqc-ring: var(--color-info-ring);
+}
+
+/* same-tone glow, only on the filled states (echoes the Figma drop shadow) */
+.filled {
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--sqc-fill) 45%, transparent));
+}
+
+/* base square: empty card box by default (unchecked = outlined) */
+.square {
+  fill: var(--color-card);
+}
+.filled .square {
+  fill: var(--sqc-fill);
+}
+
+/* ring: the tone outline when unchecked, the light inner ring when filled */
+.ring {
+  fill: none;
+  stroke: var(--sqc-fill);
+  stroke-width: 1;
+}
+.filled .ring {
+  stroke: var(--sqc-ring);
+  stroke-width: 0.5;
+}
+
+.mark {
+  stroke: var(--color-label-inverse);
+}

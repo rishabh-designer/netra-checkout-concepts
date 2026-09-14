@@ -35,6 +35,8 @@
   --color-special-border: #a2dede;
   --color-special-subtle-bold: #cfefef;
   --color-info: #1458d2;
+  --color-info-fill: #1869f4; /* Figma background/semantic/info — filled controls */
+  --color-info-ring: #dde8ff; /* Figma button/primary/stroke/info/clicked — inner ring */
   --color-error: #f10000;
   --color-error-subtle: rgba(241, 0, 0, 0.05);
 
