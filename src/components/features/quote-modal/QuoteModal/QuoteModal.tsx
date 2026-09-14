@@ -12,6 +12,7 @@ import { AITextLoading } from "@/components/ui/AITextLoading";
 import { BorderGlow } from "@/components/ui/BorderGlow";
 import { InteractiveInput, type FieldStatus } from "@/components/ui/InteractiveInput";
 import { SegmentedField } from "@/components/ui/SegmentedField";
+import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { FilledCheck, ChevronDown, SearchIcon } from "@/components/ui/InteractiveInput/icons";
 import type {
   EngineTask,
@@ -241,9 +242,13 @@ export function QuoteModal({
                 {qc.fields.map((field) => (
                   <Fragment key={field.key}>
                     {/* Auto-personalize badge sits between the questions and the
-                        coverage field (Insurance case A only). */}
+                        coverage field (Insurance case A only), preceded by a
+                        woven ikkat rule that closes off the binary questions. */}
                     {field.key === "coverage" && qc.personalize && (
-                      <PersonalizeBadge personalize={qc.personalize} fetched={fetched} />
+                      <>
+                        <IkkatDivider className={styles.fieldsDivider} />
+                        <PersonalizeBadge personalize={qc.personalize} fetched={fetched} />
+                      </>
                     )}
                     <Field
                       field={field}

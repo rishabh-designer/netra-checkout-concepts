@@ -104,6 +104,13 @@
 /* Field / toggle / spinner styling now lives in ui/InteractiveInput and
    ui/SegmentedField (the modal's Field delegates to them). */
 
+/* Woven ikkat rule closing off the binary questions before the personalize
+   badge. The preceding question's reserved 28px help row is the space above;
+   an 8px margin gives it a little breathing room before the badge. */
+.fieldsDivider {
+  margin-bottom: var(--spacing-8);
+}
+
 /* ---- personalize badge (Insurance case A): New chip + status line + Skip ---- */
 .personalize {
   display: flex;

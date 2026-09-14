@@ -1,0 +1,8 @@
+/* Woven-diamond rule: marks spread edge-to-edge across the padded width. */
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 var(--spacing-8);
+}
