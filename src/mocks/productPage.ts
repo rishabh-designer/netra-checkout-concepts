@@ -82,6 +82,58 @@ const SEARCH_EMPTY: QuoteSearchPanel = {
     "We couldn't find public records for this company. Please fill in the details manually to continue.",
 };
 
+/* Risk step (step 2) — the active task surfaces the "News" tab, so its panels
+   read as a live press search on the company rather than the CIN/registry view.
+   Each is a realistic MIXED feed: some reassuring coverage, some cautionary,
+   some neutral — the kind of signal an underwriter would actually weigh. */
+const RISK_NEWS_A: QuoteSearchPanel = {
+  query: "Rambo Undergarments",
+  tabs: TABS,
+  body: {
+    cinSentence:
+      "Recent press on Rambo Undergarments is mixed: strong FY24 growth headlines sit alongside a vendor-payment complaint and a routine compliance query.",
+    cinHighlight: "mixed",
+    detailsHeading: "Recent Coverage",
+    details: [
+      "Business Standard — Rambo Undergarments posts 18% YoY revenue growth in FY24",
+      "ET Retail — Innerwear maker Rambo opens 12 new outlets across Maharashtra",
+      "The Morning Context — Vendor alleges ₹42L payment delay by apparel maker Rambo",
+      "MoneyControl — MCA lists one registered charge; no litigation on record",
+    ],
+    founderTag: "ET Retail +3",
+    footer:
+      "Would you like BimaNetra to factor these signals into your risk score and coverage recommendation?",
+  },
+};
+
+const RISK_NEWS_B: QuoteSearchPanel = {
+  query: "Rambo Underwear",
+  tabs: TABS,
+  body: {
+    tentative: true,
+    cinSentence:
+      "We couldn't tie this coverage to a verified entity for “Rambo Underwear” — the results below are unconfirmed and may blend more than one business.",
+    cinHighlight: "unconfirmed",
+    detailsHeading: "Unverified Coverage",
+    details: [
+      "Trade blog — “Rambo Underwear” linked to a GST notice (entity not corroborated)",
+      "LinkedIn — a page by this name lists a Delhi address; unverified",
+      "Regional daily — factory expansion reported, no official filing found",
+    ],
+    founderTag: "2 low-confidence sources",
+    footer:
+      "Confirm the company details so BimaNetra can pull verified coverage before scoring risk.",
+  },
+};
+
+const RISK_NEWS_C: QuoteSearchPanel = {
+  query: "",
+  tabs: TABS,
+  body: null,
+  emptyNote:
+    "No news coverage found for this business yet. Fill in the details manually and BimaNetra will keep scanning for relevant press.",
+};
+
 /* Profile (step 0) is a data-collection step: the company name is seeded from
    the typed name; full name / phone / email are entered by the user. Its status
    reacts to fill (collectMode), so one case serves A/B/C. The engine task for
@@ -282,7 +334,7 @@ export const mockProductPageContent: ProductPageContent = {
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
               { key: "coverage", label: "Required Coverage", mandatory: true, control: "text", value: "₹ 1Cr.", status: "success", helpText: "This is the Required Coverage that's perfect for you", helpTone: "success" },
             ],
-            search: SEARCH_MATCHED,
+            search: RISK_NEWS_A,
           },
           // B (Fuzzy) — guessed: toggles orange, coverage dropdown, consent gate.
           B: {
@@ -293,7 +345,7 @@ export const mockProductPageContent: ProductPageContent = {
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "fuzzy" },
               { key: "coverage", label: "Required Coverage", mandatory: true, control: "select", value: "₹ 1Cr.", options: COVERAGE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
             ],
-            search: SEARCH_FUZZY,
+            search: RISK_NEWS_B,
           },
           // C (No Data) — nothing found: toggles empty + mandatory, coverage search.
           C: {
@@ -303,7 +355,7 @@ export const mockProductPageContent: ProductPageContent = {
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
               { key: "coverage", label: "Required Coverage", mandatory: true, control: "search", value: "", placeholder: "Search Your Required Coverage", status: "empty" },
             ],
-            search: SEARCH_EMPTY,
+            search: RISK_NEWS_C,
           },
         },
       },
