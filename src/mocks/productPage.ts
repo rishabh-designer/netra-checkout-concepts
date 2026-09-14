@@ -185,7 +185,7 @@ export const mockProductPageContent: ProductPageContent = {
     ],
   },
   quoteModal: {
-    stepperLabels: ["Profile", "Business", "Insurance", "Quotes"],
+    stepperLabels: ["Profile", "Business", "Risk", "Quotes"],
     ctaLabel: "Get Instant Quotes",
     // Live meter denominator: Company 1 + Profile 3 + Business 3 + Insurance 3 +
     // Report 2 (Yes/No + its conditional child). CIN is non-mandatory (excluded).
@@ -263,10 +263,10 @@ export const mockProductPageContent: ProductPageContent = {
           },
         },
       },
-      // ── Step 2: Insurance — same resolved case, DO questions + coverage. ─
+      // ── Step 2: Risk — same resolved case, DO questions + coverage. ─
       {
         key: "insurance",
-        title: "Insurance",
+        title: "Risk",
         activeTab: "News",
         cases: {
           // A (Matched) — auto-personalized: toggles answered No/No, coverage set, green.
