@@ -870,24 +870,42 @@ function TaskRow({
         </div>
       )}
       {task.hasSearch && (
-        <AnimatePresence initial={false}>
+        <AnimatePresence>
           {expanded && (
             <motion.div
               key="body"
               className={styles.taskBody}
-              initial={reduced ? false : { height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
-              transition={{ duration: reduced ? 0 : 0.4, ease: [0.4, 0, 0.2, 1] }}
+              initial={reduced ? false : { height: 0 }}
+              animate={{
+                height: "auto",
+                transition: { duration: reduced ? 0 : 0.4, ease: [0.4, 0, 0.2, 1] },
+              }}
+              exit={
+                reduced
+                  ? { height: 0 }
+                  : { height: 0, transition: { duration: 0.35, delay: 0.1, ease: [0.4, 0, 0.2, 1] } }
+              }
             >
-              <SearchResult
-                compact
-                search={search}
-                activeTab={activeTab}
-                companyName={companyName}
-                reduced={reduced}
-                fetched={fetched}
-              />
+              {/* content crossfade, decoupled from the height so the box change
+                  reads soft: fades in just after the box opens, out just before
+                  it closes (no clip-while-fading). */}
+              <motion.div
+                initial={reduced ? false : { opacity: 0 }}
+                animate={{
+                  opacity: 1,
+                  transition: { duration: reduced ? 0 : 0.28, delay: reduced ? 0 : 0.12, ease: [0.4, 0, 0.2, 1] },
+                }}
+                exit={reduced ? { opacity: 0 } : { opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 0.2, 1] } }}
+              >
+                <SearchResult
+                  compact
+                  search={search}
+                  activeTab={activeTab}
+                  companyName={companyName}
+                  reduced={reduced}
+                  fetched={fetched}
+                />
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
