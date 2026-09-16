@@ -736,7 +736,7 @@ function IntelligenceEngine({
         )}
       </AnimatePresence>
 
-      <motion.div variants={item} className={styles.engineRunner} layout={!reduced}>
+      <motion.div variants={item} className={styles.engineRunner} layout={reduced ? false : "position"}>
         <div className={styles.meterRow}>
           <span className={styles.meterHeading}>{engine.headingLabel}</span>
           <div className={styles.meterRight}>
@@ -801,9 +801,21 @@ function TaskRow({
   // collapsible via its head. Hook stays above the done/pending early returns.
   const [expanded, setExpanded] = useState(true);
 
+  // Position-only layout: rows slide to their new spot without Motion scaling
+  // them (full `layout` scale-warps the label and lurches the column). The one
+  // thing that changes height is the accordion body below, on a matched ease.
+  const layoutMode = reduced ? false : "position";
+  const layoutTransition = {
+    layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
+  };
+
   if (state === "done") {
     return (
-      <motion.li layout={!reduced} className={cn(styles.taskRow, styles.taskDone)}>
+      <motion.li
+        layout={layoutMode}
+        transition={layoutTransition}
+        className={cn(styles.taskRow, styles.taskDone)}
+      >
         <FilledCheck color="var(--color-brand-primary)" />
         <span className={styles.taskDoneLabel}>{task.doneLabel}</span>
       </motion.li>
@@ -811,7 +823,11 @@ function TaskRow({
   }
   if (state === "pending") {
     return (
-      <motion.li layout={!reduced} className={cn(styles.taskRow, styles.taskPending)}>
+      <motion.li
+        layout={layoutMode}
+        transition={layoutTransition}
+        className={cn(styles.taskRow, styles.taskPending)}
+      >
         <RingSweep spin={false} muted />
         <span className={styles.taskPendingLabel}>{task.activeLabel}</span>
       </motion.li>
@@ -823,7 +839,11 @@ function TaskRow({
   const label =
     !task.hasSearch && profileComplete ? task.readyLabel ?? task.activeLabel : task.activeLabel;
   return (
-    <motion.li layout={!reduced} className={cn(styles.taskRow, styles.taskActiveRow)}>
+    <motion.li
+      layout={layoutMode}
+      transition={layoutTransition}
+      className={cn(styles.taskRow, styles.taskActiveRow)}
+    >
       {task.hasSearch ? (
         <button
           type="button"
