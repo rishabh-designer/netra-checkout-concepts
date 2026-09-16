@@ -57,6 +57,8 @@ export interface LeadFormContent {
   promoLabel: string;
   promoLinkLabel: string;
   inputPlaceholder: string;
+  /** Body copy for the company-name field's info-icon tooltip. */
+  inputTooltip: string;
   ctaLabel: string;
   ctaMeta: string;
   providersHeading: string;

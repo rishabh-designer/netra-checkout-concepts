@@ -198,7 +198,9 @@ export const mockProductPageContent: ProductPageContent = {
     promoBadge: "New",
     promoLabel: "Personalize My Quote",
     promoLinkLabel: "Know More",
-    inputPlaceholder: "Enter Company Name",
+    inputPlaceholder: "Start with your Company's Legal Name",
+    inputTooltip:
+      "To verify you're running a registered business, we need the legal entity name registered from your CIN.",
     ctaLabel: "Get My Quote",
     ctaMeta: "In 2 Minutes",
     providersHeading: "Policy Provided By",

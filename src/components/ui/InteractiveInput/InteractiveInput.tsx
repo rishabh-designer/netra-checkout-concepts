@@ -44,6 +44,9 @@ export interface InteractiveInputProps {
   active?: boolean;
   /** Called when Enter is pressed in the input (e.g. submit the hero field). */
   onSubmit?: () => void;
+  /** When set, the suffix info icon becomes a button that reveals this tooltip
+   *  on hover/focus (Peetal DSL tooltip, Figma 3437:64324). */
+  infoTooltip?: string;
   name?: string;
   ariaLabel?: string;
 }
@@ -78,6 +81,7 @@ export function InteractiveInput({
   autoFocusDesktop = false,
   active = false,
   onSubmit,
+  infoTooltip,
   name,
   ariaLabel,
 }: InteractiveInputProps) {
@@ -85,6 +89,7 @@ export function InteractiveInput({
   const uid = useId();
   const inputId = name ?? uid;
   const helpId = `${uid}-help`;
+  const tipId = `${uid}-tip`;
 
   // Desktop-only autofocus: skip coarse/touch pointers so mobile keyboards
   // don't pop on load. Guarded — matchMedia can throw in odd contexts.
@@ -183,7 +188,23 @@ export function InteractiveInput({
               <Clear />
             </button>
           )}
-          <Info />
+          {infoTooltip ? (
+            <span className={styles.infoWrap}>
+              <button
+                type="button"
+                className={styles.infoBtn}
+                aria-label="More information"
+                aria-describedby={tipId}
+              >
+                <Info />
+              </button>
+              <span role="tooltip" id={tipId} className={styles.tooltip}>
+                {infoTooltip}
+              </span>
+            </span>
+          ) : (
+            <Info />
+          )}
           <span className={styles.divider} />
           <StatusIcon status={effectiveStatus} />
         </div>

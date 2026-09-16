@@ -87,8 +87,7 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
           onChange={setCompanyName}
           status={companyName.trim().length >= 4 ? "success" : "empty"}
           clearable
-          active
-          autoFocusDesktop
+          infoTooltip={content.inputTooltip}
           onSubmit={handleSubmit}
         />
         <div className={styles.actions}>
