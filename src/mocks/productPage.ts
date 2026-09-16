@@ -282,7 +282,7 @@ export const mockProductPageContent: ProductPageContent = {
             requiresConsent: false,
             fields: [
               { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "Rambo Undergarments", status: "verified" },
-              { key: "cin", label: "Enter Company CIN", mandatory: true, control: "text", value: "U10304MH2024PTC421686", status: "success" },
+              { key: "cin", label: "Enter Company CIN", control: "text", value: "U10304MH2024PTC421686", status: "success" },
               { key: "type", label: "Enter Company Type", mandatory: true, control: "text", value: "Private Limited Company", status: "success" },
               { key: "business", label: "Type of Business", mandatory: true, control: "text", value: "Retail & Wholesale", status: "success" },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "text", value: "₹ 5Cr - 15 Cr", status: "success" },

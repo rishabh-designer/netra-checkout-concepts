@@ -91,7 +91,16 @@ export function QuoteModal({
     setValues((prev) => {
       const next = { ...prev };
       qc.fields.forEach((f) => {
-        if (!(f.key in next)) next[f.key] = f.key === "name" ? companyName : f.value;
+        if (f.key in next) return;
+        // Name = the typed company name. reportCin resurfaces the CIN the user
+        // already approved in Business (perfect or fuzzy, both consented final);
+        // everything else takes its mock default.
+        next[f.key] =
+          f.key === "name"
+            ? companyName
+            : f.key === "reportCin"
+              ? next["cin"] ?? f.value
+              : f.value;
       });
       return next;
     });
@@ -441,6 +450,10 @@ function displayStatus(
   // The company name was supplied by the user in the hero field — we're recalling
   // their own data, so it reads as "prefilled by user", not system-verified.
   if (field.key === "name") return "userFilled";
+  // The Risk-Report CIN is the CIN the user already approved in Business (perfect
+  // or fuzzy — both consented as final), resurfaced pre-selected, so it also reads
+  // as "prefilled by user" whenever it carries a value.
+  if (field.key === "reportCin") return value.trim() ? "userFilled" : "empty";
   // Profile (collect mode): status follows whether the field is filled.
   if (collectMode) return value.trim() ? "success" : "empty";
   if (caseId === "A") return "success";
