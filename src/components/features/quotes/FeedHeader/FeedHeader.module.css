@@ -1,0 +1,104 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+}
+
+.lead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-8);
+  background: linear-gradient(140deg, var(--color-brand-secondary), var(--color-brand-primary));
+}
+
+.title {
+  font-size: var(--font-size-heading-lg);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-label-basic);
+}
+
+/* Need Help banner */
+.needHelp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  width: 320px;
+  flex-shrink: 0;
+  padding: var(--spacing-16);
+  border: var(--border-hairline) solid var(--color-brand-secondary-border);
+  border-radius: var(--radius-16);
+  background: var(--color-brand-secondary-subtle);
+}
+
+.needTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+
+.needText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.needTitle {
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  color: var(--color-label-basic);
+}
+
+.needSub {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  color: var(--color-label-secondary);
+}
+
+.avatars {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  corner-shape: round;
+  border: 2px solid var(--color-card);
+  background: linear-gradient(140deg, var(--color-brand-primary-muted), var(--color-brand-secondary));
+  margin-left: -8px;
+}
+
+.avatar:first-child {
+  margin-left: 0;
+}
+
+.phone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-neutral);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  color: var(--color-label-basic);
+}

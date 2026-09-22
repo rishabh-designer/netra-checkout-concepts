@@ -1,0 +1,83 @@
+import type { QuoteCardData } from "@/types/quotesPage";
+import { TagPill } from "@/components/ui/TagPill";
+import styles from "./QuoteCard.module.css";
+
+export interface QuoteCardLabels {
+  sumInsured: string;
+  getQuote: string;
+  viewFeatures: string;
+  compare: string;
+  comparisonUnavailable: string;
+  immediatePurchase: string;
+}
+
+export interface QuoteCardProps {
+  quote: QuoteCardData;
+  labels: QuoteCardLabels;
+}
+
+/**
+ * QuoteCard — one insurer quote: logo header (+ immediate-purchase badge), name,
+ * sum insured with a price pill or "Get Quote", an optional "X% Match" bar, and a
+ * footer (View All Features + Add-to-Compare / Comparison Unavailable). All
+ * actions are presentational this pass. Usage: <QuoteCard quote={q} labels={…} />
+ */
+export function QuoteCard({ quote, labels }: QuoteCardProps) {
+  const match = typeof quote.matchPercent === "number" ? Math.max(0, Math.min(100, quote.matchPercent)) : null;
+  return (
+    <article className={styles.card}>
+      <div className={styles.logoBar}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={quote.logoSrc} alt={quote.insurer} className={styles.logo} />
+        {quote.immediate && <TagPill variant="success" label={labels.immediatePurchase} />}
+      </div>
+
+      <div className={styles.body}>
+        <h3 className={styles.insurer}>{quote.insurer}</h3>
+
+        <div className={styles.sumRow}>
+          <div className={styles.sum}>
+            <span className={styles.sumLabel}>{labels.sumInsured}</span>
+            <span className={styles.sumValue}>{quote.sumInsured}</span>
+          </div>
+          {quote.price ? (
+            <span className={styles.price}>{quote.price}</span>
+          ) : (
+            <button type="button" className={styles.getQuote}>
+              {labels.getQuote}
+            </button>
+          )}
+        </div>
+
+        {match !== null && (
+          <div className={styles.matchRow}>
+            <span className={styles.matchLabel}>{match}% Match</span>
+            <div className={styles.matchTrack}>
+              <div className={styles.matchFill} style={{ width: `${match}%` }} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.footer}>
+        <button type="button" className={styles.viewFeatures}>
+          {labels.viewFeatures}
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
+            <path d="m6 4 4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        {quote.comparable ? (
+          <span className={styles.compare}>
+            {labels.compare}
+            <span className={styles.checkbox} aria-hidden />
+          </span>
+        ) : (
+          <span className={styles.compareOff}>
+            {labels.comparisonUnavailable}
+            <span className={styles.checkboxOff} aria-hidden />
+          </span>
+        )}
+      </div>
+    </article>
+  );
+}

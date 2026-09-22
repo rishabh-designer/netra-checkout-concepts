@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { LeadFormContent, QuoteModalContent } from "@/types/productPage";
+import { useQuoteFlow } from "@/lib/quote-flow";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { InteractiveInput } from "@/components/ui/InteractiveInput";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
@@ -34,11 +36,25 @@ function resolveCase(name: string): QuoteCaseId {
  * Usage: <LeadFormCard content={leadForm} quoteModal={quoteModal} />
  */
 export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
+  const router = useRouter();
+  const { result, setResult } = useQuoteFlow();
   const [companyName, setCompanyName] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [caseId, setCaseId] = useState<QuoteCaseId>("C");
   const [toastOpen, setToastOpen] = useState(false);
-  const [doneOpen, setDoneOpen] = useState(false);
+
+  // Returning from the Quotes page via "Edit Details" (?edit=1) reopens the flow
+  // with the previously resolved case/name. Read from window (no Suspense needed).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("edit") === "1" && result) {
+      setCompanyName(result.companyName);
+      setCaseId(result.caseId);
+      setModalOpen(true);
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [result]);
 
   const handleSubmit = () => {
     if (!companyName.trim()) {
@@ -51,12 +67,17 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
     setModalOpen(true);
   };
 
-  // Terminal "Go to Quotes" — the Quotes results page isn't built yet, so close
-  // the flow and confirm with a toast (rather than a silent dead-end).
-  const handleComplete = () => {
+  // Terminal "Go to Quotes" — stash the completed flow (name, case, entered
+  // values, Yes/No answer) in the shared store and navigate to the Quotes page.
+  const handleComplete = (values: Record<string, string>) => {
+    setResult({
+      companyName,
+      caseId,
+      values,
+      reportInterest: values["reportInterest"] ?? "",
+    });
     setModalOpen(false);
-    setDoneOpen(false);
-    requestAnimationFrame(() => setDoneOpen(true));
+    router.push("/directors-and-officers-insurance/quotes");
   };
 
   return (
@@ -111,12 +132,6 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
         title={quoteModal.emptyNameToast.title}
         description={quoteModal.emptyNameToast.description}
         onClose={() => setToastOpen(false)}
-      />
-      <Toast
-        open={doneOpen}
-        title={quoteModal.completeToast.title}
-        description={quoteModal.completeToast.description}
-        onClose={() => setDoneOpen(false)}
       />
     </div>
   );

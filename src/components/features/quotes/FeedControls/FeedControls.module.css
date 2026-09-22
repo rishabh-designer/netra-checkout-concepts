@@ -1,0 +1,43 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  flex-wrap: wrap;
+}
+
+.chips {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-neutral);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.chip:hover {
+  background: var(--color-card-sunken);
+}
+
+.chipLabel {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  color: var(--color-label-basic);
+  white-space: nowrap;
+}
+
+.chipDivider {
+  width: 1px;
+  height: 16px;
+  background: var(--color-divider);
+}

@@ -39,9 +39,10 @@ export interface QuoteModalProps {
   companyName: string;
   /** ms the agent "probes" before resolving. */
   fetchDelay?: number;
-  /** Fired when the terminal CTA ("Go to Quotes") is submitted on the last step —
-   *  the Quotes results page isn't built yet, so the caller confirms via a toast. */
-  onComplete?: () => void;
+  /** Fired when the terminal CTA ("Go to Quotes") is submitted on the last step;
+   *  receives the collected field values so the caller can carry them to the
+   *  Quotes page. */
+  onComplete?: (values: Record<string, string>) => void;
 }
 
 /**
@@ -171,12 +172,12 @@ export function QuoteModal({
   const profileComplete = allMandatoryFilled(content.steps[0].cases[caseId].fields);
 
   /** Advance to the next form step (the probe re-runs for it). On the last step
-   *  the CTA is terminal — the Quotes results page isn't built, so we hand off to
-   *  `onComplete` (a confirmation toast) rather than doing nothing. */
+   *  the CTA is terminal — hand the collected values to `onComplete`, which
+   *  carries them to the Quotes results page. */
   const handleSubmit = () => {
     if (!canSubmit) return;
     if (stepIndex < lastStep) setStepIndex((i) => i + 1);
-    else onComplete?.();
+    else onComplete?.(values);
   };
   const handleBack = () => {
     if (stepIndex > 0) setStepIndex((i) => i - 1);

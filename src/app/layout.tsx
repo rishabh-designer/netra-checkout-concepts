@@ -13,6 +13,7 @@ import {
   Instrument_Serif,
 } from "next/font/google";
 import "@/styles/globals.css";
+import { QuoteFlowProvider } from "@/lib/quote-flow";
 
 /*
  * Typography mandate: only Anek (every script it ships) and Instrument Serif
@@ -61,7 +62,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={fontVariables}>
-      <body>{children}</body>
+      <body>
+        <QuoteFlowProvider>{children}</QuoteFlowProvider>
+      </body>
     </html>
   );
 }
