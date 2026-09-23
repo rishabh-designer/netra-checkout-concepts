@@ -67,6 +67,10 @@
   --spacing-32: 32px;
   --spacing-48: 48px;
 
+  /* shadows */
+  --shadow-raised: 0 0 12px rgba(169, 172, 177, 0.24);
+  --shadow-ghost-glow: inset 0 0 24px rgba(255, 119, 0, 0.08);
+
   /* radii */
   --radius-6: 6px;
   --radius-8: 8px;

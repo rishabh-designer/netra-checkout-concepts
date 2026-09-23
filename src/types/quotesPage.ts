@@ -54,6 +54,8 @@ export interface QuoteCardData {
   matchPercent?: number;
   /** true → "Add to Compare" checkbox; false/undefined → "Comparison Unavailable". */
   comparable?: boolean;
+  /** true → a locked "ghost" card whose only action is "Reveal Quote" (fuzzy match). */
+  ghost?: boolean;
 }
 
 /** The risk-report banner (item 9 left). Copy flips on the carried Yes/No answer. */
@@ -92,6 +94,7 @@ export interface QuotesFeedContent {
   getQuoteLabel: string;
   sumInsuredLabel: string;
   immediatePurchaseLabel: string;
+  revealQuoteLabel: string;
   riskReport: RiskReportBannerContent;
   testimonial: TestimonialContent;
 }

@@ -73,6 +73,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     getQuoteLabel: "Get Quote",
     sumInsuredLabel: "Sum Insured",
     immediatePurchaseLabel: "Immediate Purchase",
+    revealQuoteLabel: "Reveal Quote",
     riskReport: {
       question: "Are you Interested in a customized Risk Report?",
       emphasis: "customized Risk Report?",

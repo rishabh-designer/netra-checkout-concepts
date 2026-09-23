@@ -25,6 +25,7 @@ export function QuotesView({ content }: QuotesViewProps) {
   const { result } = useQuoteFlow();
   const values = result?.values;
   const reportInterest = result?.reportInterest ?? values?.["reportInterest"] ?? "";
+  const isFuzzy = result?.caseId === "B";
   const [detailsCollapsed, setDetailsCollapsed] = useState(false);
 
   const handleEdit = () => {
@@ -42,7 +43,12 @@ export function QuotesView({ content }: QuotesViewProps) {
           collapsed={detailsCollapsed}
           onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
         />
-        <QuotesFeed content={content.feed} reportInterest={reportInterest} collapsed={detailsCollapsed} />
+        <QuotesFeed
+          content={content.feed}
+          reportInterest={reportInterest}
+          collapsed={detailsCollapsed}
+          ghostFirst={isFuzzy}
+        />
       </main>
     </div>
   );

@@ -13,22 +13,40 @@ export interface QuoteCardLabels {
   compare: string;
   comparisonUnavailable: string;
   immediatePurchase: string;
+  revealQuote: string;
 }
 
 export interface QuoteCardProps {
   quote: QuoteCardData;
   labels: QuoteCardLabels;
+  /** Ghost card only — fired by "Reveal Quote" (unwired this pass). */
+  onReveal?: () => void;
 }
 
 /**
  * QuoteCard — one insurer quote: logo header (+ immediate-purchase badge), name,
  * sum insured with a price pill or "Get Quote", an optional "X% Match" bar, and a
  * footer (View All Features + Add-to-Compare / Comparison Unavailable). All
- * actions are presentational this pass. Usage: <QuoteCard quote={q} labels={…} />
+ * actions are presentational this pass. A ghost card (fuzzy match) shows only a
+ * centered "Reveal Quote" button. Usage: <QuoteCard quote={q} labels={…} />
  */
-export function QuoteCard({ quote, labels }: QuoteCardProps) {
+export function QuoteCard({ quote, labels, onReveal }: QuoteCardProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const match = typeof quote.matchPercent === "number" ? Math.max(0, Math.min(100, quote.matchPercent)) : null;
+
+  // Ghost / locked card — the golden quote is hidden until the user reveals it.
+  if (quote.ghost) {
+    return (
+      <article className={styles.ghostCard}>
+        <button type="button" className={styles.reveal} onClick={onReveal}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/media/chat-with-us.svg" alt="" className={styles.revealIcon} aria-hidden />
+          {labels.revealQuote}
+        </button>
+      </article>
+    );
+  }
+
   return (
     <article className={styles.card}>
       <div className={styles.logoBar}>
