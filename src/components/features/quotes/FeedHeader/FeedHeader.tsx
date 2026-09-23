@@ -19,7 +19,12 @@ export function FeedHeader({ content }: FeedHeaderProps) {
       <div className={styles.lead}>
         <BreadcrumbTrail items={content.breadcrumb} />
         <div className={styles.titleRow}>
-          <span className={styles.icon} aria-hidden />
+          {content.iconSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={content.iconSrc} alt="" className={styles.icon} />
+          ) : (
+            <span className={styles.icon} aria-hidden />
+          )}
           <h1 className={styles.title}>{content.title}</h1>
         </div>
       </div>

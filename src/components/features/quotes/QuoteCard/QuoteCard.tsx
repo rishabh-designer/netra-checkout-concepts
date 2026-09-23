@@ -1,5 +1,9 @@
+"use client";
+
+import { useRef } from "react";
 import type { QuoteCardData } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
+import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
 import styles from "./QuoteCard.module.css";
 
 export interface QuoteCardLabels {
@@ -23,13 +27,22 @@ export interface QuoteCardProps {
  * actions are presentational this pass. Usage: <QuoteCard quote={q} labels={…} />
  */
 export function QuoteCard({ quote, labels }: QuoteCardProps) {
+  const bagRef = useRef<ShoppingBagIconHandle>(null);
   const match = typeof quote.matchPercent === "number" ? Math.max(0, Math.min(100, quote.matchPercent)) : null;
   return (
     <article className={styles.card}>
       <div className={styles.logoBar}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={quote.logoSrc} alt={quote.insurer} className={styles.logo} />
-        {quote.immediate && <TagPill variant="success" label={labels.immediatePurchase} />}
+        {quote.immediate && (
+          <TagPill
+            variant="success"
+            label={labels.immediatePurchase}
+            icon={<ShoppingBagIcon ref={bagRef} size={12} color="var(--color-success)" />}
+            onMouseEnter={() => bagRef.current?.startAnimation()}
+            onMouseLeave={() => bagRef.current?.stopAnimation()}
+          />
+        )}
       </div>
 
       <div className={styles.body}>
@@ -63,7 +76,7 @@ export function QuoteCard({ quote, labels }: QuoteCardProps) {
         <button type="button" className={styles.viewFeatures}>
           {labels.viewFeatures}
           <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
-            <path d="m6 4 4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="m6 4 4 4-4 4" stroke="var(--color-brand-secondary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
         {quote.comparable ? (

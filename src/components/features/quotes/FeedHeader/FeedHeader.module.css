@@ -18,11 +18,10 @@
 }
 
 .icon {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-  border-radius: var(--radius-8);
-  background: linear-gradient(140deg, var(--color-brand-secondary), var(--color-brand-primary));
+  object-fit: contain;
 }
 
 .title {

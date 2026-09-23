@@ -66,9 +66,9 @@
 }
 
 .cta {
-  padding: var(--spacing-8) var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-16);
   border: var(--border-hairline) solid var(--color-border-neutral);
-  border-radius: var(--radius-8);
+  border-radius: var(--radius-12);
   background: var(--color-card);
   color: var(--color-label-basic);
   font-size: var(--font-size-75);

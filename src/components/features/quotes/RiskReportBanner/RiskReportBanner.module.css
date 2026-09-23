@@ -39,7 +39,7 @@
   align-self: flex-start;
   padding: var(--spacing-10) var(--spacing-16);
   border: 0;
-  border-radius: var(--radius-8);
+  border-radius: var(--radius-12);
   background: var(--color-brand-primary);
   color: var(--color-label-inverse);
   font-size: var(--font-size-100);
