@@ -22,6 +22,7 @@
 .heading {
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
+  font-weight: 400;
   font-size: var(--font-size-display-sm);
   line-height: 1.08;
   color: var(--color-label-basic);

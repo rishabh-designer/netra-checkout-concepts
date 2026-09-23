@@ -41,7 +41,7 @@
   padding: var(--spacing-16);
   border: var(--border-hairline) solid var(--color-brand-secondary-border);
   border-radius: var(--radius-24);
-  background: var(--color-brand-secondary-subtle);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-secondary-subtle));
 }
 
 .needTop {
