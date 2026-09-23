@@ -19,7 +19,7 @@
   gap: var(--spacing-8);
   padding: var(--spacing-8) var(--spacing-12);
   border: var(--border-hairline) solid var(--color-border-neutral);
-  border-radius: var(--radius-12);
+  border-radius: var(--radius-16);
   background: var(--color-card);
   cursor: pointer;
   transition: background 0.15s ease;

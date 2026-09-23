@@ -26,6 +26,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     logoSrc: "/figma/logotype.svg",
     logoAlt: "BimaKavach",
     ctaLabel: "Chat with Us",
+    ctaIconSrc: "/media/chat-with-us.svg",
   },
   detailsPanel: {
     title: "Your Details",

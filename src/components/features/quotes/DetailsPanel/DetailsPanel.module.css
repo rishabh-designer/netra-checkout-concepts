@@ -7,7 +7,7 @@
   flex-shrink: 0;
   padding: var(--spacing-16);
   border: var(--border-hairline) solid var(--color-border-neutral);
-  border-radius: var(--radius-16);
+  border-radius: var(--radius-24);
   background: linear-gradient(to bottom, var(--color-page-top), var(--color-card) 30%);
 }
 

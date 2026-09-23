@@ -19,9 +19,8 @@ export function QuotesHeader({ content }: QuotesHeaderProps) {
       </a>
       <button type="button" className={styles.cta}>
         <span>{content.ctaLabel}</span>
-        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-          <path d="M8 3.5v9M3.5 8h9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-        </svg>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={content.ctaIconSrc} alt="" className={styles.ctaIcon} />
       </button>
     </header>
   );

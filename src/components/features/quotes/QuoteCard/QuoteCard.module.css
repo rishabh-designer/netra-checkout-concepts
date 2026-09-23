@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   border: var(--border-hairline) solid var(--color-border-neutral);
-  border-radius: var(--radius-16);
+  border-radius: var(--radius-24);
   background: var(--color-card);
   overflow: hidden;
 }
@@ -68,7 +68,7 @@
   display: inline-flex;
   align-items: center;
   padding: var(--spacing-10) var(--spacing-16);
-  border-radius: var(--radius-12);
+  border-radius: var(--radius-16);
   background: var(--color-brand-primary);
   color: var(--color-label-inverse);
   font-size: var(--font-size-200);
@@ -78,7 +78,7 @@
 .getQuote {
   padding: var(--spacing-10) var(--spacing-16);
   border: var(--border-hairline) solid var(--color-brand-primary-border);
-  border-radius: var(--radius-12);
+  border-radius: var(--radius-16);
   background: var(--color-card);
   color: var(--color-brand-primary);
   font-size: var(--font-size-100);

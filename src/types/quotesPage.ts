@@ -5,6 +5,7 @@ export interface QuotesHeaderContent {
   logoSrc: string;
   logoAlt: string;
   ctaLabel: string;
+  ctaIconSrc: string;
 }
 
 /** One "Your Details" row. `key` (a flow field key) overrides `value` with the
