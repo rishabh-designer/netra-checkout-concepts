@@ -1,20 +1,21 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-20);
+  gap: var(--spacing-24);
   width: 322px;
   max-width: 100%;
   flex-shrink: 0;
-  padding: var(--spacing-16);
-  border: var(--border-hairline) solid var(--color-border-neutral);
+  padding: var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
   border-radius: var(--radius-24);
-  background: linear-gradient(to bottom, var(--color-page-top), var(--color-card) 30%);
+  background: linear-gradient(to bottom, var(--color-brand-primary-subtle), var(--color-card) 50%);
 }
 
 .head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: var(--spacing-8);
 }
 
 .title {
@@ -31,7 +32,7 @@
 
 .edit {
   padding: var(--spacing-6) var(--spacing-12);
-  border: 0;
+  border: var(--border-hairline) solid var(--color-brand-primary-subtle-bold);
   border-radius: var(--radius-8);
   background: var(--color-brand-primary-subtle);
   color: var(--color-brand-primary);
@@ -49,16 +50,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-6);
-  border: var(--border-hairline) solid var(--color-border-neutral);
+  color: var(--color-label-secondary);
 }
 
 .rows {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-16);
+  padding: 0 var(--spacing-12);
 }
 
 .row {

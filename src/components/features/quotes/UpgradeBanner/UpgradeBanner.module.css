@@ -70,7 +70,7 @@
   border: var(--border-hairline) solid var(--color-border-neutral);
   border-radius: var(--radius-16);
   background: var(--color-card);
-  color: var(--color-label-basic);
+  color: var(--color-brand-primary);
   font-size: var(--font-size-75);
   font-weight: 600;
   cursor: pointer;
