@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { QuotesPageContent } from "@/types/quotesPage";
 import { useQuoteFlow } from "@/lib/quote-flow";
@@ -24,6 +25,7 @@ export function QuotesView({ content }: QuotesViewProps) {
   const { result } = useQuoteFlow();
   const values = result?.values;
   const reportInterest = result?.reportInterest ?? values?.["reportInterest"] ?? "";
+  const [detailsCollapsed, setDetailsCollapsed] = useState(false);
 
   const handleEdit = () => {
     router.push("/directors-and-officers-insurance?edit=1");
@@ -33,8 +35,14 @@ export function QuotesView({ content }: QuotesViewProps) {
     <div className={styles.page}>
       <QuotesHeader content={content.header} />
       <main className={styles.body}>
-        <DetailsPanel content={content.detailsPanel} values={values} onEdit={handleEdit} />
-        <QuotesFeed content={content.feed} reportInterest={reportInterest} />
+        <DetailsPanel
+          content={content.detailsPanel}
+          values={values}
+          onEdit={handleEdit}
+          collapsed={detailsCollapsed}
+          onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
+        />
+        <QuotesFeed content={content.feed} reportInterest={reportInterest} collapsed={detailsCollapsed} />
       </main>
     </div>
   );

@@ -12,6 +12,14 @@
   gap: var(--spacing-16);
 }
 
+/* Details rail collapsed → the feed widens, so fit a 4th card per row.
+   Desktop only; the narrow-width rules below keep 2/1 columns regardless. */
+@media (min-width: 1101px) {
+  .grid[data-collapsed] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .secondary {
   display: flex;
   gap: var(--spacing-16);
