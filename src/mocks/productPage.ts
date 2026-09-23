@@ -39,8 +39,8 @@ const SEARCH_MATCHED: QuoteSearchPanel = {
   tabs: TABS,
   body: {
     cinSentence:
-      "The Corporate Identification Number (CIN) for Rambo Undergarments is U10304MH2024PTC421686.",
-    cinHighlight: "U10304MH2024PTC421686.",
+      "The Permanent Account Number (PAN) for Rambo Undergarments is AABCR1325P.",
+    cinHighlight: "AABCR1325P.",
     detailsHeading: "Company Details",
     details: [
       "Date of Incorporation: March 18, 2024",
@@ -60,8 +60,8 @@ const SEARCH_FUZZY: QuoteSearchPanel = {
   body: {
     tentative: true,
     cinSentence:
-      "We couldn't verify an exact record for “Rambo Underwear”. The closest match from a web search suggests a CIN of U11324VX0132UCW9129176 — please double-check.",
-    cinHighlight: "U11324VX0132UCW9129176",
+      "We couldn't verify an exact record for “Rambo Underwear”. The closest match from a web search suggests a PAN of AAECR8842Q — please double-check.",
+    cinHighlight: "AAECR8842Q",
     detailsHeading: "BimaNetra's Guess",
     details: [
       "Likely company type: Public Listed Company",
@@ -156,7 +156,7 @@ const REPORT_CASE: QuoteCase = {
   search: SEARCH_MATCHED,
   fields: [
     { key: "reportInterest", label: "", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
-    { key: "reportCin", label: "Enter Company CIN", mandatory: true, control: "text", value: "", placeholder: "Enter Company CIN", status: "empty" },
+    { key: "reportCin", label: "Enter Company PAN Number", mandatory: true, control: "text", value: "", placeholder: "Enter Company PAN Number", status: "empty" },
   ],
 };
 
@@ -200,7 +200,7 @@ export const mockProductPageContent: ProductPageContent = {
     promoLinkLabel: "Know More",
     inputPlaceholder: "Start with your Company's Legal Name",
     inputTooltip:
-      "To verify you're running a registered business, we need the legal entity name registered from your CIN.",
+      "To verify you're running a registered business, we need the legal entity name registered against your PAN.",
     ctaLabel: "Get My Quote",
     ctaMeta: "In 2 Minutes",
     providersHeading: "Policy Provided By",
@@ -282,7 +282,7 @@ export const mockProductPageContent: ProductPageContent = {
             requiresConsent: false,
             fields: [
               { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "Rambo Undergarments", status: "verified" },
-              { key: "cin", label: "Enter Company CIN", control: "text", value: "U10304MH2024PTC421686", status: "success" },
+              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AABCR1325P", status: "success" },
               { key: "type", label: "Enter Company Type", mandatory: true, control: "text", value: "Private Limited Company", status: "success" },
               { key: "business", label: "Type of Business", mandatory: true, control: "text", value: "Retail & Wholesale", status: "success" },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "text", value: "₹ 5Cr - 15 Cr", status: "success" },
@@ -298,7 +298,7 @@ export const mockProductPageContent: ProductPageContent = {
               { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Public Listed Company", options: COMPANY_TYPE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "IT & Digital Businesses", options: BUSINESS_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "₹ 0Cr – 5 Cr", options: TURNOVER_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
-              { key: "cin", label: "Enter Company CIN", control: "text", value: "U11324VX0132UCW9129176", placeholder: "Enter Company CIN", status: "fuzzy", helpText: FETCH_DISCLAIMER },
+              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AAECR8842Q", placeholder: "Enter Company PAN Number", status: "fuzzy", helpText: FETCH_DISCLAIMER },
             ],
             search: SEARCH_FUZZY,
           },
@@ -310,7 +310,7 @@ export const mockProductPageContent: ProductPageContent = {
               { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "", placeholder: "Select Company Type", options: COMPANY_TYPE_OPTIONS, status: "empty" },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "", placeholder: "Select Type of Business", options: BUSINESS_OPTIONS, status: "empty" },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "", placeholder: "Select Annual Turnover", options: TURNOVER_OPTIONS, status: "empty" },
-              { key: "cin", label: "Enter Company CIN", control: "text", value: "", placeholder: "Enter Company CIN", status: "empty" },
+              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "", placeholder: "Enter Company PAN Number", status: "empty" },
             ],
             search: SEARCH_EMPTY,
           },
@@ -369,7 +369,7 @@ export const mockProductPageContent: ProductPageContent = {
         ctaLabel: "Go to Quotes",
         report: {
           question: "Are you interested in a free customized Risk Report?",
-          yesInfo: "By helping us verify your CIN, we can send an official Risk Report straight to your inbox.",
+          yesInfo: "By helping us verify your PAN, we can send an official Risk Report straight to your inbox.",
           visualSrc: "/Form/risk.report.svg",
           visualAlt: "BimaNetra Security Risk Report preview",
         },
