@@ -89,6 +89,7 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
       </div>
       <div className={styles.bottom}>
         <InteractiveInput
+          size="lg"
           placeholder={content.inputPlaceholder}
           name="legal-company-name"
           value={companyName}

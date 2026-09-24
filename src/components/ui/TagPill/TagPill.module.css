@@ -2,8 +2,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2);
-  padding: var(--spacing-8) var(--spacing-10);
+  /* 12px label: 6/8 padding → 24px tall; 4px icon↔label gap */
+  gap: var(--spacing-4);
+  padding: var(--spacing-6) var(--spacing-8);
   /* Fully circular pill; round (not squircle) so the ends are true semicircles. */
   border-radius: 1000px;
   corner-shape: round;
@@ -54,9 +55,9 @@
 }
 
 .label {
-  font-size: var(--font-size-100);
+  font-size: var(--font-size-75);
   font-weight: 500;
-  letter-spacing: -0.14px;
+  letter-spacing: -0.12px;
   line-height: 1;
   white-space: nowrap;
 }

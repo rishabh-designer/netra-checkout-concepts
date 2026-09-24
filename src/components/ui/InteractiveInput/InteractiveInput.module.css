@@ -3,13 +3,13 @@
   flex-direction: column;
 }
 
-/* label row (8px padding around 14px text — Figma) */
+/* label row (8px/12px padding around 12px text — Figma 503:14272) */
 .label {
   display: flex;
   align-items: center;
   gap: var(--spacing-2, 2px);
-  padding: var(--spacing-8);
-  font-size: var(--font-size-100);
+  padding: var(--spacing-12) var(--spacing-8);
+  font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1;
   color: var(--color-label-basic);
@@ -87,7 +87,7 @@
   flex-shrink: 0;
   padding-right: var(--spacing-8);
   border-right: 1px solid var(--color-input-stroke);
-  font-size: var(--font-size-300);
+  font-size: var(--font-size-200);
   font-weight: 500;
   color: var(--color-label-tertiary);
 }
@@ -97,7 +97,8 @@
 .select {
   flex: 1;
   min-width: 0;
-  font-size: var(--font-size-300);
+  /* 16px value (Figma 503:14272); the hero field opts up to 18px via size="lg" */
+  font-size: var(--font-size-200);
   font-weight: 500;
   color: var(--field-ink);
   white-space: nowrap;
@@ -120,6 +121,13 @@
 }
 
 /* placeholder / empty-value = A9ACB1 @ 48% */
+.field[data-size="lg"] .prefix,
+.field[data-size="lg"] .value,
+.field[data-size="lg"] .input,
+.field[data-size="lg"] .select {
+  font-size: var(--font-size-300);
+}
+
 .input[data-empty],
 .select[data-empty] {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
@@ -212,17 +220,24 @@
 }
 
 /* help row — height reserved; text toggles, container never shifts (~28px) */
+/* Reserved help row (Figma label.help.text: 28 tall, 8px padding, 12px text).
+   Fixed height so toggling the text never nudges the fields below. */
 .help {
   display: flex;
   align-items: center;
-  min-height: 28px;
-  padding: var(--spacing-8);
+  height: 28px;
+  padding: 0 var(--spacing-8);
 }
 
 .helpText {
+  min-width: 0;
   font-size: var(--font-size-75);
   font-weight: 500;
+  /* one line, vertically centred in the fixed row; ellipsis if it's too long */
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   letter-spacing: 0.12px;
   color: var(--color-label-tertiary);
 }

@@ -4,7 +4,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { TextLoader } from "generative-loaders";
 import "generative-loaders/styles.css";
-import { cn } from "@/lib/utils";
+import { cn, formatPhone } from "@/lib/utils";
 import { IkkatMark } from "@/components/ui/IkkatMark";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { RingSweep } from "@/components/ui/RingSweep";
@@ -26,6 +26,13 @@ import type {
 import styles from "./QuoteModal.module.css";
 
 export type QuoteCaseId = "A" | "B" | "C";
+
+/* Drawer scrim — mirrors .overlay's A9ACB1 @ 80% + 6px blur (design node
+   249:3516), as animatable start/end states. */
+const DRAWER_SCRIM = {
+  hidden: { backgroundColor: "rgba(169, 172, 177, 0)", backdropFilter: "blur(0px)" },
+  shown: { backgroundColor: "rgba(169, 172, 177, 0.8)", backdropFilter: "blur(6px)" },
+};
 
 export interface QuoteModalProps {
   open: boolean;
@@ -133,13 +140,12 @@ export function QuoteModal({
 
   const canSubmit = useMemo(() => {
     if (!fetched) return false;
-    // Profile (collect mode) gates on every mandatory field being filled.
-    if (step.collectMode) return allMandatoryFilled(qc.fields);
-    if (caseId === "A") return true;
-    if (caseId === "B") return consent;
-    return allMandatoryFilled(qc.fields);
+    // Every step gates on its mandatory fields; consent steps (case B) also
+    // need the attestation ticked.
+    if (!allMandatoryFilled(qc.fields)) return false;
+    return qc.requiresConsent ? consent : true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetched, caseId, consent, values, qc.fields, step.collectMode]);
+  }, [fetched, consent, values, qc.fields, qc.requiresConsent]);
 
   /** The distinct mandatory field keys across the whole flow — the meter's
    *  numerator pool. Depends only on the resolved case, not on typed values, so
@@ -179,12 +185,23 @@ export function QuoteModal({
     <AnimatePresence>
       {open && (
         <motion.div
-          className={styles.overlay}
+          className={cn(styles.overlay, formOnly && styles.overlayDrawer)}
           onClick={onClose}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          // Drawer (Edit Details): the scrim tints and blurs in as the panel
+          // slides; the centred modal keeps its plain overlay fade.
+          {...(formOnly
+            ? {
+                initial: DRAWER_SCRIM.hidden,
+                animate: DRAWER_SCRIM.shown,
+                exit: DRAWER_SCRIM.hidden,
+                transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] },
+              }
+            : {
+                initial: { opacity: 0 },
+                animate: { opacity: 1 },
+                exit: { opacity: 0 },
+                transition: { duration: 0.3 },
+              })}
         >
           <motion.div
             className={cn(styles.modal, formOnly && styles.modalFormOnly)}
@@ -192,81 +209,96 @@ export function QuoteModal({
             aria-modal="true"
             aria-label={step.title}
             onClick={(e) => e.stopPropagation()}
-            initial={{ y: reduced ? 0 : 80, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: reduced ? 0 : 80, opacity: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            // Drawer slides in from the left edge past its 32px gutter
+            // (Figma 514:19015); the centred modal rises and fades.
+            {...(formOnly
+              ? {
+                  initial: { x: reduced ? 0 : "calc(-100% - 32px)" },
+                  animate: { x: 0 },
+                  exit: { x: reduced ? 0 : "calc(-100% - 32px)" },
+                  transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
+                }
+              : {
+                  initial: { y: reduced ? 0 : 80, opacity: 0 },
+                  animate: { y: 0, opacity: 1 },
+                  exit: { y: reduced ? 0 : 80, opacity: 0 },
+                  transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+                })}
           >
             <div className={styles.left}>
-              {/* No-stepper header (Figma 306:5068): back-chevron + title in one
-                  lead stack, close control on the right. */}
-              <header className={styles.header}>
-                <div className={styles.headerLead}>
+              {/* Title/nav + fields stack (Figma 503:14942) fills the height; only
+                  the fields scroll, so the footer below never leaves the screen. */}
+              <div className={styles.formStack}>
+                {/* No-stepper header (Figma 306:5068): back-chevron + title in one
+                    lead stack, close control on the right. */}
+                <header className={styles.header}>
+                  <div className={styles.headerLead}>
+                    <button
+                      type="button"
+                      className={styles.ctrl}
+                      aria-label="Back"
+                      onClick={handleBack}
+                      disabled={stepIndex === 0}
+                    >
+                      <ChevronLeft />
+                    </button>
+                    <h2 className={styles.title}>{step.title}</h2>
+                  </div>
                   <button
                     type="button"
                     className={styles.ctrl}
-                    aria-label="Back"
-                    onClick={handleBack}
-                    disabled={stepIndex === 0}
+                    aria-label="Close"
+                    onClick={onClose}
                   >
-                    <ChevronLeft />
+                    <HeaderClose />
                   </button>
-                  <h2 className={styles.title}>{step.title}</h2>
-                </div>
-                <button
-                  type="button"
-                  className={styles.ctrl}
-                  aria-label="Close"
-                  onClick={onClose}
-                >
-                  <HeaderClose />
-                </button>
-              </header>
+                </header>
 
-              <div className={styles.fields}>
-                {qc.fields.map((field) => (
-                  <Fragment key={field.key}>
-                    {/* Auto-personalize badge sits between the questions and the
-                        coverage field (Insurance case A only), preceded by a
-                        woven ikkat rule that closes off the binary questions. */}
-                    {field.key === "coverage" && qc.personalize && (
-                      <>
-                        <IkkatDivider className={styles.fieldsDivider} />
-                        <PersonalizeBadge personalize={qc.personalize} fetched={fetched} />
-                      </>
-                    )}
-                    <Field
-                      field={field}
-                      caseId={caseId}
-                      collectMode={!!step.collectMode}
-                      consent={consent}
-                      fetched={fetched}
-                      value={values[field.key] ?? ""}
-                      onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
-                    />
-                  </Fragment>
-                ))}
+                <div className={styles.fields}>
+                  {qc.fields.map((field) => (
+                    <Fragment key={field.key}>
+                      {/* Auto-personalize badge sits between the questions and the
+                          coverage field (Insurance case A only), preceded by a
+                          woven ikkat rule that closes off the binary questions. */}
+                      {field.key === "coverage" && qc.personalize && (
+                        <>
+                          <IkkatDivider className={styles.fieldsDivider} />
+                          <PersonalizeBadge personalize={qc.personalize} fetched={fetched} />
+                        </>
+                      )}
+                      <Field
+                        field={field}
+                        caseId={caseId}
+                        collectMode={!!step.collectMode}
+                        consent={consent}
+                        fetched={fetched}
+                        value={values[field.key] ?? ""}
+                        onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
+                      />
+                    </Fragment>
+                  ))}
+                </div>
               </div>
 
-              {qc.requiresConsent && (
-                <label className={styles.consent}>
-                  <input
-                    type="checkbox"
-                    className={styles.consentBox}
-                    checked={consent}
-                    onChange={(e) => setConsent(e.target.checked)}
-                    disabled={!fetched}
-                  />
-                  <span>{qc.consentText}</span>
-                </label>
-              )}
-
+              {/* Pinned footer (Figma 503:15072): divider → consent → CTA. */}
               <div className={styles.actionRow}>
                 <div className={styles.rowSep} aria-hidden>
                   <span className={styles.rowSepLine} />
                   <IkkatMark pattern={3} width={12} className={styles.rowMark} />
                   <span className={styles.rowSepLine} />
                 </div>
+                {qc.requiresConsent && (
+                  <label className={styles.consent}>
+                    <input
+                      type="checkbox"
+                      className={styles.consentBox}
+                      checked={consent}
+                      onChange={(e) => setConsent(e.target.checked)}
+                      disabled={!fetched}
+                    />
+                    <span>{qc.consentText}</span>
+                  </label>
+                )}
                 <button
                   type="button"
                   className={cn(styles.submit, canSubmit && styles.submitOn)}
@@ -285,7 +317,7 @@ export function QuoteModal({
             {!formOnly && (
               <BorderGlow
                 className={styles.rightGlow}
-                borderRadius={16}
+                borderRadius={0}
                 edgeSensitivity={30}
                 glowRadius={40}
                 glowIntensity={1}
@@ -404,6 +436,9 @@ function Field({
 
   const control =
     field.control === "select" ? "select" : field.control === "search" ? "search" : "text";
+  // Phone reads "xxxx xxx xxx" as it's typed (and for prefilled values).
+  const isPhone = field.key === "phone";
+  const shown = isPhone ? formatPhone(value) : value;
 
   return (
     <InteractiveInput
@@ -411,8 +446,8 @@ function Field({
       mandatory={field.mandatory}
       control={control}
       options={field.options}
-      value={fetching ? "" : value}
-      onChange={onChange}
+      value={fetching ? "" : shown}
+      onChange={isPhone ? (v) => onChange(formatPhone(v)) : onChange}
       readOnly={isName}
       clearable={!isName}
       prefix={field.prefix}
@@ -602,28 +637,14 @@ function IntelligenceEngine({
       initial={reduced ? "visible" : "hidden"}
       animate="visible"
     >
-      <AnimatePresence initial={false}>
-        {stepIndex === 0 && (
-          <motion.div
-            key="intro"
-            className={styles.engineIntro}
-            initial={reduced ? false : { opacity: 0, y: 8, filter: "blur(6px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={
-              reduced
-                ? { opacity: 0 }
-                : { opacity: 0, y: -12, filter: "blur(6px)", height: 0, marginBottom: 0 }
-            }
-            transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-          >
-            <div className={styles.requestBubble}>
-              <span>{engine.requestLabel}</span>
-              <CheckboxTick />
-            </div>
-            <div className={styles.engineMessage}>{message}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Request bubble + engine reply persist on every step (Figma 503:14900). */}
+      <motion.div variants={item} className={styles.engineIntro}>
+        <div className={styles.requestBubble}>
+          <span>{engine.requestLabel}</span>
+          <CheckboxTick />
+        </div>
+        <div className={styles.engineMessage}>{message}</div>
+      </motion.div>
 
       <motion.div variants={item} className={styles.engineRunner} layout={reduced ? false : "position"}>
         <div className={styles.meterRow}>
@@ -731,7 +752,7 @@ function TaskRow({
     <motion.li
       layout={layoutMode}
       transition={layoutTransition}
-      className={cn(styles.taskRow, styles.taskActiveRow)}
+      className={cn(styles.taskRow, styles.taskActiveRow, task.hasSearch && !expanded && styles.taskActiveCollapsed)}
     >
       {task.hasSearch ? (
         <button
@@ -764,21 +785,15 @@ function TaskRow({
             <motion.div
               key="body"
               className={styles.taskBody}
-              initial={reduced ? false : { height: 0 }}
-              animate={{
-                height: "auto",
-                transition: { duration: reduced ? 0 : 0.4, ease: [0.4, 0, 0.2, 1] },
-              }}
-              exit={
-                reduced
-                  ? { height: 0 }
-                  : { height: 0, transition: { duration: 0.35, delay: 0.1, ease: [0.4, 0, 0.2, 1] } }
-              }
+              initial={reduced ? false : { opacity: 0 }}
+              animate={{ opacity: 1, transition: { duration: reduced ? 0 : 0.2 } }}
+              exit={{ opacity: 0, transition: { duration: reduced ? 0 : 0.2 } }}
             >
-              {/* content crossfade, decoupled from the height so the box change
-                  reads soft: fades in just after the box opens, out just before
-                  it closes (no clip-while-fading). */}
+              {/* The body's height is layout-driven (it fills the active row, Figma
+                  503:13700), so the reveal is a content fade rather than a height
+                  tween: fades in just after the row opens, out as it closes. */}
               <motion.div
+                className={styles.taskBodyInner}
                 initial={reduced ? false : { opacity: 0 }}
                 animate={{
                   opacity: 1,
@@ -803,14 +818,14 @@ function TaskRow({
   );
 }
 
-/* Filled purple roundel with a white tick — the checked "Personalize My Quote"
-   box in the engine's request bubble (Figma 319:25319). */
+/* Orange (Secondary) checked box with a white tick — the "Personalize My
+   Quote" box in the engine's request bubble (Figma 503:14905, 16px r4). */
 function CheckboxTick() {
   return (
-    <svg viewBox="0 0 18 18" width="18" height="18" fill="none" aria-hidden>
-      <rect width="18" height="18" rx="5" fill="var(--color-brand-primary)" />
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+      <rect width="16" height="16" rx="4" fill="var(--color-brand-secondary)" />
       <path
-        d="m5 9.2 2.4 2.4L13 6"
+        d="m4.4 8.2 2.2 2.2 5-5.2"
         stroke="var(--color-label-inverse)"
         strokeWidth="1.7"
         strokeLinecap="round"

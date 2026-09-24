@@ -235,7 +235,7 @@ export const mockProductPageContent: ProductPageContent = {
     // The persistent left-panel task-runner; one task per form step (index-aligned).
     engine: {
       requestLabel: "Personalize My Quote",
-      messageTemplate: "Running 3 Tasks to complete Quote Personalisation for {company}",
+      messageTemplate: "BimaNetra is running 3 Tasks to complete quote Personalization for {company}",
       headingLabel: "Getting Started",
       tasks: [
         { activeLabel: "Assessing Profile", readyLabel: "Ready to Confirm Profile", doneLabel: "Profile Confirmed", hasSearch: false },
@@ -266,15 +266,14 @@ export const mockProductPageContent: ProductPageContent = {
         title: "Business",
         activeTab: "BimaNetra",
         cases: {
-          // A — probe confirmed the record: filled, green, CIN second.
+          // A — probe confirmed the record: filled, green, PAN last.
           A: {
             requiresConsent: false,
             fields: [
-              { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "Rambo Undergarments", status: "verified" },
-              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AABCR1325P", status: "success" },
               { key: "type", label: "Enter Company Type", mandatory: true, control: "text", value: "Private Limited Company", status: "success" },
               { key: "business", label: "Type of Business", mandatory: true, control: "text", value: "Retail & Wholesale", status: "success" },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "text", value: "₹ 5Cr - 15 Cr", status: "success" },
+              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AABCR1325P", status: "success" },
             ],
             search: SEARCH_MATCHED,
           },
@@ -284,7 +283,6 @@ export const mockProductPageContent: ProductPageContent = {
             requiresConsent: true,
             consentText: CONSENT_TEXT,
             fields: [
-              { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "Sabyasachi Calcutta LLP", status: "verified" },
               { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Limited Liability Partnership", options: COMPANY_TYPE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "Unclassified / Miscellaneous", options: BUSINESS_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "", options: TURNOVER_OPTIONS, status: "empty" },
@@ -296,7 +294,6 @@ export const mockProductPageContent: ProductPageContent = {
           C: {
             requiresConsent: false,
             fields: [
-              { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "", status: "verified" },
               { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "", placeholder: "Select Company Type", options: COMPANY_TYPE_OPTIONS, status: "empty" },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "", placeholder: "Select Type of Business", options: BUSINESS_OPTIONS, status: "empty" },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "", placeholder: "Select Annual Turnover", options: TURNOVER_OPTIONS, status: "empty" },

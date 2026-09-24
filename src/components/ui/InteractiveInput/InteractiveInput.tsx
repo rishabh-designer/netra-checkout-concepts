@@ -49,6 +49,9 @@ export interface InteractiveInputProps {
   infoTooltip?: string;
   name?: string;
   ariaLabel?: string;
+  /** Value type size: "md" = 16px (DSL default, Figma 503:14272); "lg" = 18px
+   *  (the hero lead field). Labels are always 12px. */
+  size?: "md" | "lg";
 }
 
 /**
@@ -59,6 +62,7 @@ export interface InteractiveInputProps {
  * typing) are CSS-driven; `status` drives the data/validation accent + icon.
  * Shared by the hero lead field and the quote modal.
  * Usage: <InteractiveInput value={v} onChange={setV} status="empty" />
+ *        <InteractiveInput size="lg" … />  // 18px value (hero field)
  */
 export function InteractiveInput({
   label,
@@ -84,6 +88,7 @@ export function InteractiveInput({
   infoTooltip,
   name,
   ariaLabel,
+  size = "md",
 }: InteractiveInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const uid = useId();
@@ -115,7 +120,7 @@ export function InteractiveInput({
   const isEmpty = !value;
 
   return (
-    <div className={styles.field}>
+    <div className={styles.field} data-size={size}>
       {showLabel && (
         <label className={styles.label} htmlFor={inputId}>
           {label}

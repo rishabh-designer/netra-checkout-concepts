@@ -11,6 +11,7 @@
   --color-brand-primary-subtle-bold: #e8e2ff;
   --color-brand-secondary-subtle: #fff6ed;
   --color-brand-secondary-border: #ffd2a8;
+  --color-brand-secondary-subtle-bold: #ffe9d3;
   --color-label-placeholder: #bec2c6;
   --color-brand-primary-faint: #dbd7ea;
   --color-brand-primary-border: #d1c6ff;
@@ -66,6 +67,7 @@
   --spacing-28: 28px;
   --spacing-32: 32px;
   --spacing-48: 48px;
+  --spacing-64: 64px;
 
   /* shadows */
   --shadow-raised: 0 0 12px rgba(169, 172, 177, 0.24);

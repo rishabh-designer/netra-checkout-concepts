@@ -5,7 +5,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-12);
+  /* The modal sits 32px from the viewport's top and bottom (Figma 503:11040). */
+  padding: var(--spacing-32) var(--spacing-16);
   /* A9ACB1 @ 80% + blur (design node 249:3516). */
   background: rgba(169, 172, 177, 0.8);
   -webkit-backdrop-filter: blur(6px);
@@ -14,30 +15,30 @@
 
 .modal {
   display: flex;
-  gap: var(--spacing-16);
-  width: min(888px, 94vw);
-  max-height: 90vh;
-  padding: var(--spacing-12);
-  background: #fdf4ea;
-  border-radius: var(--radius-32);
+  /* Full viewport height less the overlay's 32px top/bottom; width hugs the two
+     fixed panels (500 + 581 = 1081, Figma 503:14898). No frame — the panels
+     meet edge to edge and the 12px radius clips them. */
+  height: 100%;
+  width: max-content;
+  max-width: 100%;
+  border-radius: var(--radius-12);
   box-shadow: 0 24px 80px rgba(28, 28, 28, 0.24);
   overflow: hidden;
 }
 
-/* Engine layout keeps the design's fixed modal height (Figma 182:21186 = 888×730,
-   both panels 706): the modal never resizes when the task accordion opens/closes —
-   the engine panel just gains/loses empty space and scrolls via .rightScroll if
-   content exceeds. max-height:90vh still caps short viewports. */
-.modal {
-  height: 730px;
-}
+/* Form-only drawer (Edit Details on the Quotes page, Figma 508:16691 /
+   514:19015): the same full-height shell with the engine panel omitted — the
+   form panel alone (581 wide) hugs it, fields scroll, footer pinned. */
 
-/* Form-only lightbox (Edit Details on the Quotes page): single narrow column,
-   content-height (the engine panel isn't rendered). */
-.modalFormOnly {
-  width: min(520px, 94vw);
-  height: auto;
-  gap: 0;
+/* Drawer overlay: docked left with a 32px gutter all round. The scrim colour and
+   blur are animated by QuoteModal.tsx (DRAWER_SCRIM) so they ease in with the
+   slide, rather than snapping on from CSS. */
+.overlayDrawer {
+  justify-content: flex-start;
+  padding: var(--spacing-32);
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 /* ---- form panel ----
@@ -48,24 +49,34 @@
   order: 2;
   display: flex;
   flex-direction: column;
-  /* New geometry (Figma modal 888): form is the wider panel now — viz 398 / form
-     450. Grow factors hold the ratio at any modal width. */
-  flex: 450 1 0;
+  /* Figma 503:14941: fixed 581 wide, full modal height. The panel itself never
+     scrolls — only .fields does — so the footer CTA stays on screen at any
+     viewport height. */
+  /* explicit width (not flex-basis) so the modal's max-content hug sees it */
+  flex: 0 1 auto;
+  width: 581px;
   min-width: 0;
-  /* On a short viewport the fixed modal height is clamped by max-height:90vh;
-     let the form scroll rather than clip (the engine scrolls via .rightScroll). */
   min-height: 0;
-  overflow-y: auto;
-  padding: var(--spacing-12) var(--spacing-12) var(--spacing-16);
+  height: 100%;
+  overflow: hidden;
+  padding: var(--spacing-12) var(--spacing-24) var(--spacing-24);
   background: var(--color-card);
-  border-radius: var(--radius-16);
+}
+
+/* title/nav + fields stack (Figma 503:14942): fills the space above the footer */
+.formStack {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
+  padding: var(--spacing-12) 0;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-16);
 }
 
 /* lead stack: back-chevron + title share one horizontal group (Figma 306:5068) */
@@ -94,18 +105,22 @@
   font-feature-settings: var(--font-display-features);
   font-style: italic;
   font-weight: 400;
-  font-size: var(--font-size-heading-md);
+  font-size: var(--font-size-heading-lg);
   line-height: 1;
-  color: var(--color-brand-primary);
+  color: var(--color-label-primary);
 }
 
 .fields {
   display: flex;
   flex-direction: column;
   /* No gap: each field's reserved 28px help row is the natural inter-field
-     spacing; fields without one fall back to the label's 8px padding. */
+     spacing; fields without one fall back to the label's padding. */
   gap: 0;
-  padding: var(--spacing-12);
+  /* Figma 503:14953: full height, and the only scroll area in the form. */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* Field / toggle / spinner styling now lives in ui/InteractiveInput and
@@ -158,13 +173,13 @@
   cursor: pointer;
 }
 
+/* Pinned form footer (Figma 503:15072): divider, consent (case B), CTA. */
 .actionRow {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-16);
-  margin-top: auto;
-  padding-top: var(--spacing-20);
+  align-items: stretch;
+  gap: var(--spacing-24);
+  flex-shrink: 0;
 }
 
 /* divider — bead — divider (Figma 182:21249): a full-width warm hairline with
@@ -215,11 +230,11 @@
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-8);
-  margin-top: var(--spacing-20);
-  font-size: var(--font-size-75);
+  /* Figma 503:13915: 14px Medium, label-primary */
+  font-size: var(--font-size-100);
   font-weight: 500;
-  line-height: 1.45;
-  color: var(--color-brand-primary);
+  line-height: 1.5;
+  color: var(--color-label-primary);
   cursor: pointer;
 }
 
@@ -227,7 +242,7 @@
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  margin-top: 1px;
+  margin-top: var(--spacing-4);
   accent-color: var(--color-brand-primary);
   cursor: pointer;
 }
@@ -239,27 +254,33 @@
  */
 .rightGlow {
   order: 1;
-  flex: 398 1 0;
+  flex: 0 1 auto;
+  width: 500px;
   min-width: 0;
+  min-height: 0;
   display: flex;
 }
 
+/* Figma 503:14899: 500 wide, full height, 64 top / 24 sides+bottom, warm
+   gradient with a dashed peach edge. */
 .right {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  padding: var(--spacing-24) var(--spacing-20) var(--spacing-20);
-  background: #fffaf3;
-  border: 1px dashed var(--color-brand-primary-faint);
-  border-radius: var(--radius-16);
+  min-height: 0;
+  padding: var(--spacing-64) var(--spacing-24) var(--spacing-24);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-secondary-subtle) 82.567%);
+  border: 1px dashed var(--color-brand-secondary-border);
 }
 
-/* result scrolls; the stepper stays pinned to the panel's bottom edge */
+/* engine fills the panel; the stepper stays pinned to its bottom edge */
 .rightScroll {
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow: hidden auto;
 }
 
@@ -469,33 +490,36 @@
 
 /* ---- Intelligence Engine (left panel feed) ---- */
 .engine {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-16);
+  gap: var(--spacing-24);
 }
 
 /* request bubble + engine reply — only on the Profile step, then they blur up. */
 .engineIntro {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-12);
-  overflow: hidden;
+  gap: var(--spacing-24);
 }
 
 .requestBubble {
   align-self: flex-end;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-8);
+  /* Figma 503:14902: 42 tall, peach-bold fill, black 14px label + orange box */
+  gap: var(--spacing-4);
+  min-height: 42px;
   padding: var(--spacing-8) var(--spacing-12);
-  background: var(--color-brand-secondary-subtle);
+  background: var(--color-brand-secondary-subtle-bold);
   border-radius: var(--radius-12);
 }
 
 .requestBubble span {
   font-size: var(--font-size-100);
-  font-weight: 600;
-  color: var(--color-brand-primary);
+  font-weight: 500;
+  color: var(--color-label-primary);
   white-space: nowrap;
 }
 
@@ -509,11 +533,14 @@
   color: var(--color-label-basic);
 }
 
+/* Body (Figma 503:14912): meter + tasks; the active task takes the leftover height */
 .engineRunner {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-16);
-  padding-top: var(--spacing-8);
+  gap: var(--spacing-8);
+  padding: var(--spacing-24) 0;
 }
 
 /* "Getting Started" + live meter */
@@ -583,6 +610,8 @@
 
 /* task runner */
 .taskList {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
@@ -612,6 +641,8 @@
 }
 
 .taskActiveRow {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-8);
@@ -661,12 +692,31 @@
   font-weight: 500;
 }
 
+/* collapsed accordion: the row shrinks back to its head */
+.taskActiveCollapsed {
+  flex: 0 0 auto;
+}
+
 .taskBody {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+}
+
+.taskBodyInner {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---- compact search (embedded inside an active task) ---- */
 .resultCompact {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   gap: var(--spacing-12);
 }
 
@@ -697,15 +747,31 @@
   font-size: var(--font-size-100);
 }
 
+/* Narrow: stack, but never scroll the whole modal (that would push the CTA
+   off-screen). The form takes the height and scrolls its fields; the engine
+   is capped below it and scrolls internally. */
 @media (max-width: 900px) {
+  .overlay,
+  .overlayDrawer {
+    padding: var(--spacing-16);
+  }
   .modal {
     flex-direction: column;
-    overflow: hidden auto;
-  }
-  .left,
-  .rightGlow {
-    order: 0;
-    flex: none;
     width: 100%;
+  }
+  .left {
+    order: 1;
+    flex: 1 1 auto;
+    width: 100%;
+    height: auto;
+  }
+  .rightGlow {
+    order: 2;
+    flex: 0 1 auto;
+    max-height: 30%;
+    width: 100%;
+  }
+  .right {
+    padding-top: var(--spacing-24);
   }
 }
