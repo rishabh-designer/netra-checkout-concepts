@@ -786,3 +786,8 @@
     padding-top: var(--spacing-24);
   }
 }
+
+/* Title doubles as a demo autofill trigger when the case carries `demoFill`. */
+.titleFill {
+  cursor: pointer;
+}

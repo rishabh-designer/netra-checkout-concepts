@@ -134,6 +134,8 @@ export interface QuoteCase {
   consentText?: string;
   search: QuoteSearchPanel;
   personalize?: QuotePersonalize;
+  /** Demo shortcut: clicking the step title fills these values (by field key). */
+  demoFill?: Record<string, string>;
 }
 
 /** One form step in the modal flow (Profile → Business → Risk). */

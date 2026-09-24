@@ -149,6 +149,13 @@ const PROFILE_CASE: QuoteCase = {
   ],
 };
 
+/* Case B (fuzzy — "Sabyasachi Calcutta") Profile: clicking the "Profile" title
+   fills the contact details for the demo. */
+const PROFILE_CASE_B: QuoteCase = {
+  ...PROFILE_CASE,
+  demoFill: { fullName: "Sabyasachi Mukherjee", phone: "9007296854", email: "ceo@sabyasachi.in" },
+};
+
 /** Fixture for the Director's & Officer's Insurance product page (Figma node 179:65816). */
 export const mockProductPageContent: ProductPageContent = {
   nav: {
@@ -258,7 +265,7 @@ export const mockProductPageContent: ProductPageContent = {
         title: "Profile",
         activeTab: "",
         collectMode: true,
-        cases: { A: PROFILE_CASE, B: PROFILE_CASE, C: PROFILE_CASE },
+        cases: { A: PROFILE_CASE, B: PROFILE_CASE_B, C: PROFILE_CASE },
       },
       // ── Step 1: Business — the typed name resolves A/B/C. ──────────────
       {

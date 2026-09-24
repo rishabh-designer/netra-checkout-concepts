@@ -242,7 +242,18 @@ export function QuoteModal({
                     >
                       <ChevronLeft />
                     </button>
-                    <h2 className={styles.title}>{step.title}</h2>
+                    {/* Demo shortcut: a case with `demoFill` fills its fields
+                        when the title is clicked. */}
+                    <h2
+                      className={cn(styles.title, qc.demoFill && styles.titleFill)}
+                      onClick={
+                        qc.demoFill
+                          ? () => setValues((s) => ({ ...s, ...qc.demoFill }))
+                          : undefined
+                      }
+                    >
+                      {step.title}
+                    </h2>
                   </div>
                   <button
                     type="button"
