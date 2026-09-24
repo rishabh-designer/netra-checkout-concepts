@@ -17,13 +17,11 @@ import { FilledCheck, ChevronDown, SearchIcon } from "@/components/ui/Interactiv
 import type {
   EngineTask,
   IntelligenceEngine as IntelligenceEngineContent,
-  QuoteCase,
   QuoteFieldStatus,
   QuoteModalContent,
   QuoteModalField,
   QuotePersonalize,
   QuoteSearchPanel,
-  QuoteStep,
 } from "@/types/productPage";
 import styles from "./QuoteModal.module.css";
 
@@ -93,15 +91,8 @@ export function QuoteModal({
       const next = { ...prev };
       qc.fields.forEach((f) => {
         if (f.key in next) return;
-        // Name = the typed company name. reportCin resurfaces the CIN the user
-        // already approved in Business (perfect or fuzzy, both consented final);
-        // everything else takes its mock default.
-        next[f.key] =
-          f.key === "name"
-            ? companyName
-            : f.key === "reportCin"
-              ? next["cin"] ?? f.value
-              : f.value;
+        // Name = the typed company name; everything else takes its mock default.
+        next[f.key] = f.key === "name" ? companyName : f.value;
       });
       return next;
     });
@@ -133,20 +124,13 @@ export function QuoteModal({
 
   const canSubmit = useMemo(() => {
     if (!fetched) return false;
-    // Report ("Before you Insure"): "No" is skippable; "Yes" needs the CIN.
-    if (step.report) {
-      const interest = values["reportInterest"] ?? "";
-      if (interest === "No") return true;
-      if (interest === "Yes") return (values["reportCin"] ?? "").trim() !== "";
-      return false;
-    }
     // Profile (collect mode) gates on every mandatory field being filled.
     if (step.collectMode) return allMandatoryFilled(qc.fields);
     if (caseId === "A") return true;
     if (caseId === "B") return consent;
     return allMandatoryFilled(qc.fields);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetched, caseId, consent, values, qc.fields, step.collectMode, step.report]);
+  }, [fetched, caseId, consent, values, qc.fields, step.collectMode]);
 
   /** The distinct mandatory field keys across the whole flow — the meter's
    *  numerator pool. Depends only on the resolved case, not on typed values, so
@@ -162,8 +146,7 @@ export function QuoteModal({
   }, [content.steps, caseId]);
 
   /** Live progress meter: share of those questions answered so far. Unvisited
-   *  steps' keys aren't seeded yet, so the % climbs as the flow advances;
-   *  `Report` is reserved in `totalFlowQuestions`. */
+   *  steps' keys aren't seeded yet, so the % climbs as the flow advances. */
   const percent = useMemo(() => {
     const answered = mandatoryKeys.filter((k) => (values[k] ?? "").trim() !== "").length;
     return Math.min(100, Math.round((answered / content.totalFlowQuestions) * 100));
@@ -196,7 +179,6 @@ export function QuoteModal({
         >
           <motion.div
             className={styles.modal}
-            data-layout={step.report ? "report" : undefined}
             role="dialog"
             aria-modal="true"
             aria-label={step.title}
@@ -206,22 +188,6 @@ export function QuoteModal({
             exit={{ y: reduced ? 0 : 80, opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
-            {step.report ? (
-              <ReportStep
-                step={step}
-                qc={qc}
-                values={values}
-                onChange={(k, v) => setValues((s) => ({ ...s, [k]: v }))}
-                stepIndex={stepIndex}
-                stepperLabels={content.stepperLabels}
-                ctaLabel={step.ctaLabel ?? content.ctaLabel}
-                canSubmit={canSubmit}
-                onBack={handleBack}
-                onClose={onClose}
-                onSubmit={handleSubmit}
-              />
-            ) : (
-            <>
             <div className={styles.left}>
               {/* No-stepper header (Figma 306:5068): back-chevron + title in one
                   lead stack, close control on the right. */}
@@ -330,112 +296,10 @@ export function QuoteModal({
                 <PanelStepper steps={content.stepperLabels} active={stepIndex} />
               </div>
             </BorderGlow>
-            </>
-            )}
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-/* ---- Report step ("Before you Insure") — a distinct full-width layout: header,
-   a two-column body (risk-report mockup + one Yes/No question that reveals a CIN
-   child on "Yes"), and a full-width footer (stepper + orange "Go to Quotes").
-   Figma 307:5612 (No) / 307:24769 (Yes) / 308:26514 (Yes + CIN). */
-function ReportStep({
-  step,
-  qc,
-  values,
-  onChange,
-  stepIndex,
-  stepperLabels,
-  ctaLabel,
-  canSubmit,
-  onBack,
-  onClose,
-  onSubmit,
-}: {
-  step: QuoteStep;
-  qc: QuoteCase;
-  values: Record<string, string>;
-  onChange: (key: string, value: string) => void;
-  stepIndex: number;
-  stepperLabels: string[];
-  ctaLabel: string;
-  canSubmit: boolean;
-  onBack: () => void;
-  onClose: () => void;
-  onSubmit: () => void;
-}) {
-  const report = step.report!;
-  const interest = values["reportInterest"] ?? "";
-  const interestField = qc.fields.find((f) => f.key === "reportInterest")!;
-  const cinField = qc.fields.find((f) => f.key === "reportCin")!;
-
-  return (
-    <div className={styles.report}>
-      <header className={styles.header}>
-        <div className={styles.headerLead}>
-          <button type="button" className={styles.ctrl} aria-label="Back" onClick={onBack}>
-            <ChevronLeft />
-          </button>
-          <h2 className={styles.title}>{step.title}</h2>
-        </div>
-        <button type="button" className={styles.ctrl} aria-label="Close" onClick={onClose}>
-          <HeaderClose />
-        </button>
-      </header>
-
-      <div className={styles.reportBody}>
-        <div className={styles.reportVisual}>
-          {/* The SVG bakes in the stacked report cards + their shadow (Figma
-              307:24541 is a transparent container), so no wrapper chrome here. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={report.visualSrc} alt={report.visualAlt} className={styles.reportImg} />
-        </div>
-
-        <div className={styles.reportForm}>
-          <p className={styles.reportQuestion}>{report.question}</p>
-          <Field
-            field={interestField}
-            caseId="A"
-            collectMode
-            consent={false}
-            fetched
-            value={interest}
-            onChange={(v) => onChange("reportInterest", v)}
-          />
-          {interest === "Yes" && (
-            <>
-              <p className={styles.reportInfo}>{report.yesInfo}</p>
-              <Field
-                field={cinField}
-                caseId="A"
-                collectMode
-                consent={false}
-                fetched
-                value={values["reportCin"] ?? ""}
-                onChange={(v) => onChange("reportCin", v)}
-              />
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.reportFooter}>
-        <PanelStepper steps={stepperLabels} active={stepIndex} />
-        <button
-          type="button"
-          className={cn(styles.submit, styles.submitQuotes, canSubmit && styles.submitOn)}
-          disabled={!canSubmit}
-          onClick={onSubmit}
-        >
-          <span>{ctaLabel}</span>
-          <Arrow />
-        </button>
-      </div>
-    </div>
   );
 }
 
@@ -451,10 +315,6 @@ function displayStatus(
   // The company name was supplied by the user in the hero field — we're recalling
   // their own data, so it reads as "prefilled by user", not system-verified.
   if (field.key === "name") return "userFilled";
-  // The Risk-Report CIN is the CIN the user already approved in Business (perfect
-  // or fuzzy — both consented as final), resurfaced pre-selected, so it also reads
-  // as "prefilled by user" whenever it carries a value.
-  if (field.key === "reportCin") return value.trim() ? "userFilled" : "empty";
   // Profile (collect mode): status follows whether the field is filled.
   if (collectMode) return value.trim() ? "success" : "empty";
   if (caseId === "A") return "success";
@@ -462,6 +322,9 @@ function displayStatus(
     // A web-guessed (fuzzy) value the user has edited — or attested as factual by
     // ticking the consent box — is cross-verified → success. Cleared → empty.
     if (!value.trim()) return "empty";
+    // A field the source already confirmed (e.g. an MCA-verified PAN) reads green
+    // from the start, even while sibling fields remain fuzzy guesses.
+    if (field.status === "success") return "success";
     if (consent || value !== field.value) return "success";
     return "fuzzy";
   }

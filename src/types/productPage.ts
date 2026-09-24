@@ -136,34 +136,17 @@ export interface QuoteCase {
   personalize?: QuotePersonalize;
 }
 
-/** The "Before you Insure" step — a skippable Risk-Report offer. When present on
- *  a step, the modal renders the report layout (document mockup + one Yes/No
- *  question) instead of the Intelligence Engine split. */
-export interface QuoteReport {
-  /** The single question, e.g. "Are you interested in a free customized Risk Report?" */
-  question: string;
-  /** Blue helper line shown once the user answers "Yes". */
-  yesInfo: string;
-  /** The document-mockup asset shown on the left (public/Form/risk.report.svg). */
-  visualSrc: string;
-  visualAlt: string;
-}
-
-/** One form step in the modal flow (Profile → Business → Insurance → Report). */
+/** One form step in the modal flow (Profile → Business → Risk). */
 export interface QuoteStep {
   key: string;
-  /** Header title, e.g. "Profile" / "Business" / "Before you Insure". */
+  /** Header title, e.g. "Profile" / "Business" / "Risk". */
   title: string;
   /** Which left-panel search tab reads active on this step (Business = first
    *  "Netra Mode", Insurance = last "News"; "" when the step has no search). */
   activeTab: string;
-  /** Data-collection step (Profile / Report): field status reacts to whether each
-   *  field is filled, rather than to the resolved A/B/C case. */
+  /** Data-collection step (Profile): field status reacts to whether each field is
+   *  filled, rather than to the resolved A/B/C case. */
   collectMode?: boolean;
-  /** Present on the Report step — switches the modal to the report layout. */
-  report?: QuoteReport;
-  /** Per-step CTA override (Report = "Go to Quotes"); falls back to content.ctaLabel. */
-  ctaLabel?: string;
   cases: { A: QuoteCase; B: QuoteCase; C: QuoteCase };
 }
 

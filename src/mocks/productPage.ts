@@ -13,6 +13,7 @@ const BUSINESS_OPTIONS = [
   "Manufacturing",
   "Professional Services",
   "Hospitality",
+  "Unclassified / Miscellaneous",
 ];
 const TURNOVER_OPTIONS = [
   "₹ 0Cr – 5 Cr",
@@ -55,22 +56,22 @@ const SEARCH_MATCHED: QuoteSearchPanel = {
 };
 
 const SEARCH_FUZZY: QuoteSearchPanel = {
-  query: "Rambo Underwear",
+  query: "Sabyasachi Calcutta LLP",
   tabs: TABS,
   body: {
     tentative: true,
     cinSentence:
-      "We couldn't verify an exact record for “Rambo Underwear”. The closest match from a web search suggests a PAN of AAECR8842Q — please double-check.",
-    cinHighlight: "AAECR8842Q",
-    detailsHeading: "BimaNetra's Guess",
+      "MCA filings confirm the PAN for Sabyasachi Calcutta LLP is AATFS4271L; its business classification is still unverified.",
+    cinHighlight: "AATFS4271L",
+    detailsHeading: "MCA Records",
     details: [
-      "Likely company type: Public Listed Company",
-      "Possible line of business: IT & Digital Businesses",
-      "Estimated annual turnover: ₹0Cr – 5Cr",
-      "Founders: could not be confirmed",
+      "Directors (6): Sabyasachi Mukherjee, Sukumar Mukherjee, Ashish Dikshit, Sunny Kumar Jain, Jagdish Bajaj, Sunita Bangard",
+      "Incorporated: Feb 2021 (via MCA)",
+      "Business: NIC code 99 (unclassified / misc.)",
     ],
+    founderTag: "MCA DATA · SABYA…",
     footer:
-      "These are best-effort guesses pulled from public sources, not a confirmed record. Review and correct each field, then tick the box to confirm before continuing.",
+      "The PAN is confirmed from MCA filings; company type and line of business are best-effort guesses. Review each field, then tick the box to confirm before continuing.",
   },
 };
 
@@ -106,18 +107,18 @@ const RISK_NEWS_A: QuoteSearchPanel = {
 };
 
 const RISK_NEWS_B: QuoteSearchPanel = {
-  query: "Rambo Underwear",
+  query: "Sabyasachi Calcutta LLP",
   tabs: TABS,
   body: {
     tentative: true,
     cinSentence:
-      "We couldn't tie this coverage to a verified entity for “Rambo Underwear” — the results below are unconfirmed and may blend more than one business.",
+      "We couldn't tie this coverage to a verified entity for “Sabyasachi Calcutta LLP” — the results below are unconfirmed and may blend more than one business.",
     cinHighlight: "unconfirmed",
     detailsHeading: "Unverified Coverage",
     details: [
-      "Trade blog — “Rambo Underwear” linked to a GST notice (entity not corroborated)",
-      "LinkedIn — a page by this name lists a Delhi address; unverified",
-      "Regional daily — factory expansion reported, no official filing found",
+      "Trade blog — “Sabyasachi Calcutta” linked to a GST notice (entity not corroborated)",
+      "LinkedIn — a page by this name lists a Kolkata address; unverified",
+      "Regional daily — studio expansion reported, no official filing found",
     ],
     founderTag: "2 low-confidence sources",
     footer:
@@ -145,18 +146,6 @@ const PROFILE_CASE: QuoteCase = {
     { key: "fullName", label: "Your Full Name", mandatory: true, control: "text", value: "", placeholder: "Enter Full Name", status: "empty" },
     { key: "phone", label: "Your Phone Number", mandatory: true, control: "text", value: "", prefix: "+91", placeholder: "0000 000 000", status: "empty" },
     { key: "email", label: "Your Email Address", mandatory: true, control: "text", value: "", placeholder: "Enter Email Address", status: "empty" },
-  ],
-};
-
-/* Report step (step 3, "Before you Insure"): one Yes/No question. "Yes" reveals a
-   mandatory CIN child (the CIN that was non-mandatory earlier). One case for A/B/C;
-   the report layout is driven by the step's `report` block, not the case. */
-const REPORT_CASE: QuoteCase = {
-  requiresConsent: false,
-  search: SEARCH_MATCHED,
-  fields: [
-    { key: "reportInterest", label: "", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
-    { key: "reportCin", label: "Enter Company PAN Number", mandatory: true, control: "text", value: "", placeholder: "Enter Company PAN Number", status: "empty" },
   ],
 };
 
@@ -238,11 +227,11 @@ export const mockProductPageContent: ProductPageContent = {
     ],
   },
   quoteModal: {
-    stepperLabels: ["Profile", "Business", "Risk", "Quotes"],
+    stepperLabels: ["Profile", "Business", "Risk"],
     ctaLabel: "Get Instant Quotes",
-    // Live meter denominator: Company 1 + Profile 3 + Business 3 + Insurance 3 +
-    // Report 2 (Yes/No + its conditional child). CIN is non-mandatory (excluded).
-    totalFlowQuestions: 12,
+    // Live meter denominator: Company 1 + Profile 3 + Business 3 + Insurance 3.
+    // CIN is non-mandatory (excluded).
+    totalFlowQuestions: 10,
     // The persistent left-panel task-runner; one task per form step (index-aligned).
     engine: {
       requestLabel: "Personalize My Quote",
@@ -289,16 +278,17 @@ export const mockProductPageContent: ProductPageContent = {
             ],
             search: SEARCH_MATCHED,
           },
-          // B — probe missed, agent guessed from the web: orange, dropdowns, CIN last, consent.
+          // B — MCA confirmed the PAN, but classification is a web guess: PAN green,
+          // type/business orange, turnover blank, consent required.
           B: {
             requiresConsent: true,
             consentText: CONSENT_TEXT,
             fields: [
-              { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "Rambo Underwear", status: "verified" },
-              { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Public Listed Company", options: COMPANY_TYPE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
-              { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "IT & Digital Businesses", options: BUSINESS_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
-              { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "₹ 0Cr – 5 Cr", options: TURNOVER_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
-              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AAECR8842Q", placeholder: "Enter Company PAN Number", status: "fuzzy", helpText: FETCH_DISCLAIMER },
+              { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "Sabyasachi Calcutta LLP", status: "verified" },
+              { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Limited Liability Partnership", options: COMPANY_TYPE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
+              { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "Unclassified / Miscellaneous", options: BUSINESS_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
+              { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "", options: TURNOVER_OPTIONS, status: "empty" },
+              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AATFS4271L", placeholder: "Enter Company PAN Number", status: "success" },
             ],
             search: SEARCH_FUZZY,
           },
@@ -359,21 +349,6 @@ export const mockProductPageContent: ProductPageContent = {
             search: RISK_NEWS_C,
           },
         },
-      },
-      // ── Step 3: Report — "Before you Insure" (skippable Risk Report offer). ─
-      {
-        key: "report",
-        title: "Before you Insure",
-        activeTab: "",
-        collectMode: true,
-        ctaLabel: "Go to Quotes",
-        report: {
-          question: "Are you interested in a free customized Risk Report?",
-          yesInfo: "By helping us verify your PAN, we can send an official Risk Report straight to your inbox.",
-          visualSrc: "/Form/risk.report.svg",
-          visualAlt: "BimaNetra Security Risk Report preview",
-        },
-        cases: { A: REPORT_CASE, B: REPORT_CASE, C: REPORT_CASE },
       },
     ],
   },

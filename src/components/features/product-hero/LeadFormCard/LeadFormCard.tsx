@@ -24,7 +24,7 @@ export interface LeadFormCardProps {
 function resolveCase(name: string): QuoteCaseId {
   const n = name.trim().toLowerCase();
   if (n === "rambo undergarments") return "A";
-  if (n === "rambo underwear") return "B";
+  if (n === "sabyasachi calcutta llp" || n === "sabyasachi calcutta") return "B";
   return "C";
 }
 
