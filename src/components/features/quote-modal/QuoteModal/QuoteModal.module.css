@@ -17,11 +17,11 @@
   display: flex;
   /* Full viewport height less the overlay's 32px top/bottom; width hugs the two
      fixed panels (500 + 581 = 1081, Figma 503:14898). No frame — the panels
-     meet edge to edge and the 12px radius clips them. */
+     meet edge to edge and the 24px radius clips them. */
   height: 100%;
   width: max-content;
   max-width: 100%;
-  border-radius: var(--radius-12);
+  border-radius: var(--radius-24);
   box-shadow: 0 24px 80px rgba(28, 28, 28, 0.24);
   overflow: hidden;
 }
@@ -61,6 +61,13 @@
   overflow: hidden;
   padding: var(--spacing-12) var(--spacing-24) var(--spacing-24);
   background: var(--color-card);
+}
+
+/* Edit Details drawer: 480 wide — a standard drawer width that keeps the 16px
+   field values comfortable without the full 581 of the two-panel modal. */
+.modalFormOnly .left {
+  width: 480px;
+  max-width: 100%;
 }
 
 /* title/nav + fields stack (Figma 503:14942): fills the space above the footer */
@@ -758,6 +765,10 @@
   .modal {
     flex-direction: column;
     width: 100%;
+  }
+  /* the drawer keeps hugging its 320 form panel on narrow screens */
+  .modalFormOnly {
+    width: max-content;
   }
   .left {
     order: 1;

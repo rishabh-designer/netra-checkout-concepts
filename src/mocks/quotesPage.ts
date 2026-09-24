@@ -18,7 +18,7 @@ const QUOTES: QuoteCardData[] = [
   { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", comparable: false },
   { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", comparable: true },
   { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", comparable: false },
-  { insurer: "Future Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, matchPercent: 32, comparable: true },
+  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, matchPercent: 32, comparable: true },
   { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", matchPercent: 12, comparable: true },
   { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", matchPercent: 43, comparable: false },
 ];
@@ -28,12 +28,12 @@ const QUOTES: QuoteCardData[] = [
    The feed interleaves the divider + secondary stack after the first 5 (see
    secondaryAfterByCase), so ICICI lands below the risk-report banner. */
 const FUZZY_QUOTES: QuoteCardData[] = [
-  { insurer: "HDFC Ergo", logoSrc: HDFC, sumInsured: "₹5 Crore", immediate: true, price: "₹7,000", comparable: true },
-  { insurer: "Future Generali", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, price: "₹8,000", comparable: true },
-  { insurer: "Royal Sundaram", logoSrc: ROYAL, sumInsured: "₹5 Crore", price: "₹12,000", comparable: true },
-  { insurer: "Bajaj", logoSrc: BAJAJ, sumInsured: "₹5 Crore", comparable: false },
-  { insurer: "SBI General", logoSrc: SBI, sumInsured: "₹5 Crore", comparable: false },
-  { insurer: "ICICI Lombard General Insurance Company Limited", logoSrc: ICICI, sumInsured: "₹5 Crore", comparable: false },
+  { insurer: "HDFC ERGO General Insurance", logoSrc: HDFC, sumInsured: "₹5 Crore", immediate: true, price: "₹7,000", comparable: true },
+  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, price: "₹8,000", comparable: true },
+  { insurer: "Royal Sundaram General Insurance", logoSrc: ROYAL, sumInsured: "₹5 Crore", price: "₹12,000", comparable: true },
+  { insurer: "Bajaj General Insurance", logoSrc: BAJAJ, sumInsured: "₹5 Crore", comparable: false },
+  { insurer: "SBI General Insurance", logoSrc: SBI, sumInsured: "₹5 Crore", comparable: false },
+  { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", comparable: false },
 ];
 
 /** Fixture for the Quotes results page (Figma node 309:33542). The detailsPanel
@@ -86,8 +86,8 @@ export const mockQuotesPageContent: QuotesPageContent = {
     quotes: QUOTES,
     quotesByCase: { B: FUZZY_QUOTES },
     viewFeaturesLabel: "View All Features",
-    compareLabel: "Add to Compare",
-    comparisonUnavailableLabel: "Comparison Unavailable",
+    compareLabel: "Add To Compare",
+    comparisonUnavailableLabel: "Unavailable",
     getQuoteLabel: "Get Quote",
     sumInsuredLabel: "Sum Insured",
     immediatePurchaseLabel: "Immediate Purchase",

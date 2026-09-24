@@ -6,6 +6,7 @@
   /* brand */
   --color-brand-primary: #4100cf;
   --color-brand-primary-deep: #3101b5;
+  --color-brand-primary-hover: #3800b4;
   --color-brand-primary-muted: #9082b3;
   --color-brand-primary-subtle: #f4f1ff;
   --color-brand-primary-subtle-bold: #e8e2ff;
@@ -24,6 +25,8 @@
   --color-label-tertiary: #a9acb1;
   --color-label-placeholder: #bec2c6;
   --color-label-inverse: #ffffff;
+  --color-label-subtle-primary: #7b8bb3;
+  --color-label-disabled: rgba(169, 172, 177, 0.48);
 
   /* semantic */
   --color-success: #00b200;
@@ -51,6 +54,7 @@
   --color-nav-surface: rgba(255, 255, 255, 0.5);
   --color-border-neutral: #dfe0e2;
   --color-divider: #d2d5d8;
+  --color-border-subtle: #e6e8ea;
   --color-input-fill: rgba(65, 0, 207, 0.02);
   --color-input-stroke: rgba(169, 172, 177, 0.56);
 
@@ -72,6 +76,8 @@
   /* shadows */
   --shadow-raised: 0 0 12px rgba(169, 172, 177, 0.24);
   --shadow-ghost-glow: inset 0 0 24px rgba(255, 119, 0, 0.08);
+  --shadow-card-hover: 0 0 12px rgba(169, 172, 177, 0.6);
+  --shadow-button-primary-hover: 0 0 16px rgba(65, 0, 207, 0.48);
 
   /* radii */
   --radius-6: 6px;

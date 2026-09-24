@@ -1,10 +1,254 @@
+/*
+ * Quote card (Figma 523:24496 / 523:24828 / 523:25002, hover 523:24653).
+ * The three types share one layout; `data-tone` only swaps the gradient's
+ * top-right corner (green / purple / grey).
+ */
 .card {
+  --tone-top: var(--color-success-subtle);
+  position: relative;
   display: flex;
   flex-direction: column;
-  border: var(--border-hairline) solid var(--color-border-neutral);
-  border-radius: var(--radius-24);
-  background: var(--color-card);
+  padding: 0 var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-16);
+  background: linear-gradient(
+    200.3deg,
+    var(--tone-top) 2.92%,
+    var(--color-card) 25.302%,
+    var(--color-card) 78.268%,
+    var(--color-brand-primary-subtle) 82.243%
+  );
   overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card[data-tone="priced"] {
+  --tone-top: var(--color-brand-primary-subtle);
+}
+
+.card[data-tone="quote"] {
+  --tone-top: var(--color-card-sunken);
+}
+
+.card:hover {
+  border-color: var(--color-card);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* product.icon/final — sits behind the content, pinned bottom-right. */
+.watermark {
+  position: absolute;
+  right: -0.5px;
+  bottom: 23px;
+  width: 139px;
+  height: 139px;
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding: var(--spacing-8) 0;
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.logoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: 0 var(--spacing-2);
+}
+
+.logo {
+  height: 32px;
+  width: auto;
+  max-width: 60%;
+  object-fit: contain;
+}
+
+.divider {
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+/* Always two lines (Figma breaks every name in two): QuoteCard splits the name
+   at the most balanced word boundary; each line stays on one row and ellipsizes
+   if the column is too narrow, so every card's title block is 2 lines tall. */
+.insurer {
+  display: flex;
+  flex-direction: column;
+  height: 2em;
+  padding: 0 var(--spacing-4);
+  font-size: var(--font-size-400);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-label-basic);
+}
+
+.insurerLine {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  height: 38px;
+  padding: 0 var(--spacing-8) 0 var(--spacing-12);
+}
+
+.compare,
+.compareOff {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.12px;
+  /* Narrow grid columns: the label wraps to two lines instead of pushing the
+     button out of the card (the button never shrinks). */
+  min-width: 0;
+}
+
+.compare {
+  color: var(--color-info);
+}
+
+.compareOff {
+  color: var(--color-label-disabled);
+}
+
+.checkbox,
+.checkboxOff {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 0.75px solid var(--color-info-fill);
+  background: var(--color-card);
+}
+
+.checkboxOff {
+  border-color: var(--color-input-stroke);
+}
+
+/* button/primary.fill — filled (price) and outlined (Get Quote). */
+.price,
+.getQuote {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-12);
+  flex-shrink: 0;
+  padding: var(--spacing-12) var(--spacing-20);
+  border: var(--border-hairline) solid var(--color-brand-primary);
+  /* one step rounder than Figma's r12, per design review */
+  border-radius: var(--radius-16);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.price {
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+}
+
+.getQuote {
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+}
+
+.card:hover .price {
+  background: var(--color-brand-primary-hover);
+  border-color: var(--color-brand-primary-subtle);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.card:hover .getQuote {
+  background: var(--color-brand-primary-subtle);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.arrow {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.bottomStack {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-card);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-primary-subtle);
+}
+
+.viewFeatures {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6) var(--spacing-10) var(--spacing-6) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-brand-secondary-border);
+  border-radius: 1000px;
+  corner-shape: round;
+  background: linear-gradient(
+    254.5deg,
+    var(--color-card) 51.898%,
+    var(--color-brand-secondary-subtle) 95.253%
+  );
+  color: var(--color-brand-secondary);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -0.12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sum {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-2);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sumLabel {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-subtle-primary);
+}
+
+.sumValue {
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-brand-primary);
 }
 
 /* Ghost / locked card (fuzzy match) — mostly empty, centered "Reveal Quote". */
@@ -14,7 +258,7 @@
   justify-content: center;
   padding: var(--spacing-16);
   border: var(--border-hairline) solid var(--color-brand-secondary-border);
-  border-radius: var(--radius-24);
+  border-radius: var(--radius-16);
   background: var(--color-card);
   box-shadow: var(--shadow-raised), var(--shadow-ghost-glow);
   overflow: hidden;
@@ -43,183 +287,4 @@
   width: 12px;
   height: 12px;
   object-fit: contain;
-}
-
-.logoBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-8);
-  padding: var(--spacing-12) var(--spacing-16);
-  background: var(--color-brand-primary-subtle);
-  min-height: 56px;
-}
-
-.logo {
-  height: 28px;
-  width: auto;
-  max-width: 60%;
-  object-fit: contain;
-}
-
-.body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-16);
-  padding: var(--spacing-16);
-  flex: 1;
-}
-
-.insurer {
-  font-size: var(--font-size-300);
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--color-label-basic);
-}
-
-.sumRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-12);
-}
-
-.sum {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.sumLabel {
-  font-size: var(--font-size-75);
-  font-weight: 500;
-  color: var(--color-label-tertiary);
-}
-
-.sumValue {
-  font-size: var(--font-size-200);
-  font-weight: 600;
-  color: var(--color-label-basic);
-}
-
-.price {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-6);
-  padding: var(--spacing-10) var(--spacing-16);
-  border-radius: var(--radius-16);
-  background: var(--color-brand-primary);
-  color: var(--color-label-inverse);
-  font-size: var(--font-size-200);
-  font-weight: 600;
-}
-
-.getQuote {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-6);
-  padding: var(--spacing-10) var(--spacing-16);
-  border: var(--border-hairline) solid var(--color-brand-primary-border);
-  border-radius: var(--radius-16);
-  background: var(--color-card);
-  color: var(--color-brand-primary);
-  font-size: var(--font-size-100);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.chevron {
-  flex-shrink: 0;
-}
-
-.getQuote:hover {
-  background: var(--color-brand-primary-subtle);
-}
-
-.matchRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-6);
-}
-
-.matchLabel {
-  font-size: var(--font-size-75);
-  font-weight: 600;
-  color: var(--color-brand-primary);
-}
-
-.matchTrack {
-  height: 4px;
-  border-radius: 1000px;
-  corner-shape: round;
-  background: var(--color-brand-primary-faint);
-  overflow: hidden;
-}
-
-.matchFill {
-  height: 100%;
-  border-radius: 1000px;
-  corner-shape: round;
-  background: var(--color-brand-primary);
-}
-
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-12);
-  padding: var(--spacing-12) var(--spacing-16);
-  border-top: var(--border-hairline) solid var(--color-border-neutral);
-  background: var(--color-card-sunken);
-}
-
-.viewFeatures {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-6);
-  padding: var(--spacing-8) var(--spacing-16);
-  border: var(--border-hairline) solid var(--color-border-neutral);
-  border-radius: 1000px;
-  corner-shape: round;
-  background: var(--color-card);
-  color: var(--color-brand-primary);
-  font-size: var(--font-size-100);
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.viewFeatures:hover {
-  background: var(--color-brand-primary-subtle);
-}
-
-.compare,
-.compareOff {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-8);
-  font-size: var(--font-size-75);
-  font-weight: 600;
-}
-
-.compare {
-  color: var(--color-brand-primary);
-}
-
-.compareOff {
-  color: var(--color-label-tertiary);
-}
-
-.checkbox,
-.checkboxOff {
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-6);
-  border: 1.4px solid var(--color-input-stroke);
-}
-
-.checkbox {
-  border-color: var(--color-brand-primary-border);
 }
