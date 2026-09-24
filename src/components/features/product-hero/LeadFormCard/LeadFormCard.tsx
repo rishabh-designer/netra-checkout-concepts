@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { LeadFormContent, QuoteModalContent } from "@/types/productPage";
 import { useQuoteFlow } from "@/lib/quote-flow";
@@ -37,24 +37,11 @@ function resolveCase(name: string): QuoteCaseId {
  */
 export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
   const router = useRouter();
-  const { result, setResult } = useQuoteFlow();
+  const { setResult } = useQuoteFlow();
   const [companyName, setCompanyName] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [caseId, setCaseId] = useState<QuoteCaseId>("C");
   const [toastOpen, setToastOpen] = useState(false);
-
-  // Returning from the Quotes page via "Edit Details" (?edit=1) reopens the flow
-  // with the previously resolved case/name. Read from window (no Suspense needed).
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("edit") === "1" && result) {
-      setCompanyName(result.companyName);
-      setCaseId(result.caseId);
-      setModalOpen(true);
-      window.history.replaceState(null, "", window.location.pathname);
-    }
-  }, [result]);
 
   const handleSubmit = () => {
     if (!companyName.trim()) {

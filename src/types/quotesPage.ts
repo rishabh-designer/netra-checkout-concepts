@@ -1,4 +1,5 @@
 import type { BreadcrumbItem } from "./productPage";
+import type { QuoteCaseId } from "@/lib/quote-flow";
 
 /** Minimal page header: logotype + a single right-side CTA ("Chat with Us"). */
 export interface QuotesHeaderContent {
@@ -88,6 +89,11 @@ export interface QuotesFeedContent {
   sortOptions: string[];
   switchLabel: string;
   quotes: QuoteCardData[];
+  /** Per-case quote list override (e.g. fuzzy B). Falls back to `quotes`. */
+  quotesByCase?: Partial<Record<QuoteCaseId, QuoteCardData[]>>;
+  /** Per-case: render the divider + secondary stack after this many real cards
+   *  (interleaved into the grid), with the remaining cards below. */
+  secondaryAfterByCase?: Partial<Record<QuoteCaseId, number>>;
   viewFeaturesLabel: string;
   compareLabel: string;
   comparisonUnavailableLabel: string;

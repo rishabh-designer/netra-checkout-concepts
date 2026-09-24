@@ -37,6 +37,12 @@ export interface QuoteModalProps {
   companyName: string;
   /** ms the agent "probes" before resolving. */
   fetchDelay?: number;
+  /** Form-only lightbox (Edit Details on the Quotes page): hides the left
+   *  Intelligence-Engine / AI-search column and skips the probe skeleton. */
+  formOnly?: boolean;
+  /** Prefill field values (by field key) — used by Edit Details to seed the
+   *  user's already-entered answers instead of the mock case defaults. */
+  initialValues?: Record<string, string>;
   /** Fired when the terminal CTA ("Go to Quotes") is submitted on the last step;
    *  receives the collected field values so the caller can carry them to the
    *  Quotes page. */
@@ -59,6 +65,8 @@ export function QuoteModal({
   caseId,
   companyName,
   fetchDelay = 2000,
+  formOnly = false,
+  initialValues,
   onComplete,
 }: QuoteModalProps) {
   const reduced = useReducedMotion();
@@ -91,14 +99,15 @@ export function QuoteModal({
       const next = { ...prev };
       qc.fields.forEach((f) => {
         if (f.key in next) return;
-        // Name = the typed company name; everything else takes its mock default.
-        next[f.key] = f.key === "name" ? companyName : f.value;
+        // Prefill (edit mode) wins; else Name = the typed company name and
+        // everything else takes its mock default.
+        next[f.key] = initialValues?.[f.key] ?? (f.key === "name" ? companyName : f.value);
       });
       return next;
     });
     setConsent(false);
-    // The Profile step collects input directly (no agent probe / skeleton).
-    if (reduced || step.collectMode || probedRef.current.has(stepIndex)) {
+    // Form-only (edit) and Profile (collect mode) show fields at once — no probe.
+    if (formOnly || reduced || step.collectMode || probedRef.current.has(stepIndex)) {
       setFetched(true);
       return;
     }
@@ -108,7 +117,7 @@ export function QuoteModal({
       setFetched(true);
     }, fetchDelay);
     return () => window.clearTimeout(id);
-  }, [open, stepIndex, caseId, companyName, reduced, fetchDelay, qc.fields, step.collectMode]);
+  }, [open, stepIndex, caseId, companyName, reduced, fetchDelay, qc.fields, step.collectMode, formOnly, initialValues]);
 
   useEffect(() => {
     if (!open) return;
@@ -178,7 +187,7 @@ export function QuoteModal({
           transition={{ duration: 0.3 }}
         >
           <motion.div
-            className={styles.modal}
+            className={cn(styles.modal, formOnly && styles.modalFormOnly)}
             role="dialog"
             aria-modal="true"
             aria-label={step.title}
@@ -271,31 +280,34 @@ export function QuoteModal({
             </div>
 
             {/* Left visual — the persistent "Intelligence Engine" task-runner,
-                lit by a pointer-tracking edge glow (panel stays light). */}
-            <BorderGlow
-              className={styles.rightGlow}
-              borderRadius={16}
-              edgeSensitivity={30}
-              glowRadius={40}
-              glowIntensity={1}
-            >
-              <div className={styles.right}>
-                <div className={styles.rightScroll}>
-                  <IntelligenceEngine
-                    engine={content.engine}
-                    stepIndex={stepIndex}
-                    companyName={companyName}
-                    percent={percent}
-                    profileComplete={profileComplete}
-                    fetched={fetched}
-                    search={qc.search}
-                    activeTab={step.activeTab}
-                    reduced={!!reduced}
-                  />
+                lit by a pointer-tracking edge glow (panel stays light). Hidden in
+                form-only (Edit Details) mode. */}
+            {!formOnly && (
+              <BorderGlow
+                className={styles.rightGlow}
+                borderRadius={16}
+                edgeSensitivity={30}
+                glowRadius={40}
+                glowIntensity={1}
+              >
+                <div className={styles.right}>
+                  <div className={styles.rightScroll}>
+                    <IntelligenceEngine
+                      engine={content.engine}
+                      stepIndex={stepIndex}
+                      companyName={companyName}
+                      percent={percent}
+                      profileComplete={profileComplete}
+                      fetched={fetched}
+                      search={qc.search}
+                      activeTab={step.activeTab}
+                      reduced={!!reduced}
+                    />
+                  </div>
+                  <PanelStepper steps={content.stepperLabels} active={stepIndex} />
                 </div>
-                <PanelStepper steps={content.stepperLabels} active={stepIndex} />
-              </div>
-            </BorderGlow>
+              </BorderGlow>
+            )}
           </motion.div>
         </motion.div>
       )}

@@ -3,6 +3,10 @@ import type { QuotesPageContent, QuoteCardData } from "@/types/quotesPage";
 const ICICI = "/Insurance.Comp/ICICI.webp";
 const NATIONAL = "/Insurance.Comp/National.webp";
 const GENERALI = "/Insurance.Comp/Generali.webp";
+const HDFC = "/Insurance.Comp/HDFC.webp";
+const ROYAL = "/Insurance.Comp/Royal.webp";
+const BAJAJ = "/Insurance.Comp/Bajaj.webp";
+const SBI = "/Insurance.Comp/SBI.webp";
 
 /* Nine mock quotes mirroring the Figma grid states: immediate-purchase carry a
    price pill + are comparable; some show an "X% Match" bar; non-comparable ones
@@ -17,6 +21,19 @@ const QUOTES: QuoteCardData[] = [
   { insurer: "Future Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, matchPercent: 32, comparable: true },
   { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", matchPercent: 12, comparable: true },
   { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", matchPercent: 43, comparable: false },
+];
+
+/* Fuzzy case (B): HDFC/Generali lead as immediate purchases; Royal is priced but
+   not immediate (same purple price pill); Bajaj/SBI/ICICI are unpriced "Get Quote".
+   The feed interleaves the divider + secondary stack after the first 5 (see
+   secondaryAfterByCase), so ICICI lands below the risk-report banner. */
+const FUZZY_QUOTES: QuoteCardData[] = [
+  { insurer: "HDFC Ergo", logoSrc: HDFC, sumInsured: "₹5 Crore", immediate: true, price: "₹7,000", comparable: true },
+  { insurer: "Future Generali", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, price: "₹8,000", comparable: true },
+  { insurer: "Royal Sundaram", logoSrc: ROYAL, sumInsured: "₹5 Crore", price: "₹12,000", comparable: true },
+  { insurer: "Bajaj", logoSrc: BAJAJ, sumInsured: "₹5 Crore", comparable: false },
+  { insurer: "SBI General", logoSrc: SBI, sumInsured: "₹5 Crore", comparable: false },
+  { insurer: "ICICI Lombard General Insurance Company Limited", logoSrc: ICICI, sumInsured: "₹5 Crore", comparable: false },
 ];
 
 /** Fixture for the Quotes results page (Figma node 309:33542). The detailsPanel
@@ -67,6 +84,8 @@ export const mockQuotesPageContent: QuotesPageContent = {
     sortOptions: ["Match", "Premium: Low to High", "Sum Insured: High to Low"],
     switchLabel: "Immediate Purchase Only",
     quotes: QUOTES,
+    quotesByCase: { B: FUZZY_QUOTES },
+    secondaryAfterByCase: { B: 5 },
     viewFeaturesLabel: "View All Features",
     compareLabel: "Add to Compare",
     comparisonUnavailableLabel: "Comparison Unavailable",

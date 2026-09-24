@@ -32,6 +32,14 @@
   height: 730px;
 }
 
+/* Form-only lightbox (Edit Details on the Quotes page): single narrow column,
+   content-height (the engine panel isn't rendered). */
+.modalFormOnly {
+  width: min(520px, 94vw);
+  height: auto;
+  gap: 0;
+}
+
 /* ---- form panel ----
  * Visually sits on the RIGHT (order:2) so the search visualization leads on the
  * left; kept first in the DOM so keyboard/AT focus still hits the form first.
