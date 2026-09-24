@@ -85,7 +85,6 @@ export const mockQuotesPageContent: QuotesPageContent = {
     switchLabel: "Immediate Purchase Only",
     quotes: QUOTES,
     quotesByCase: { B: FUZZY_QUOTES },
-    secondaryAfterByCase: { B: 5 },
     viewFeaturesLabel: "View All Features",
     compareLabel: "Add to Compare",
     comparisonUnavailableLabel: "Comparison Unavailable",

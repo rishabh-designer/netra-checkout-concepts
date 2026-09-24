@@ -6,6 +6,15 @@ import { TagPill } from "@/components/ui/TagPill";
 import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
 import styles from "./QuoteCard.module.css";
 
+/** lucide chevron-right; inherits the button's text colour via currentColor. */
+function ChevronRight() {
+  return (
+    <svg className={styles.chevron} viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden>
+      <path d="m9 18 6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export interface QuoteCardLabels {
   sumInsured: string;
   getQuote: string;
@@ -72,10 +81,14 @@ export function QuoteCard({ quote, labels, onReveal }: QuoteCardProps) {
             <span className={styles.sumValue}>{quote.sumInsured}</span>
           </div>
           {quote.price ? (
-            <span className={styles.price}>{quote.price}</span>
+            <span className={styles.price}>
+              {quote.price}
+              <ChevronRight />
+            </span>
           ) : (
             <button type="button" className={styles.getQuote}>
               {labels.getQuote}
+              <ChevronRight />
             </button>
           )}
         </div>

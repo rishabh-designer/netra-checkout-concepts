@@ -105,6 +105,7 @@
 .price {
   display: inline-flex;
   align-items: center;
+  gap: var(--spacing-6);
   padding: var(--spacing-10) var(--spacing-16);
   border-radius: var(--radius-16);
   background: var(--color-brand-primary);
@@ -114,6 +115,9 @@
 }
 
 .getQuote {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-6);
   padding: var(--spacing-10) var(--spacing-16);
   border: var(--border-hairline) solid var(--color-brand-primary-border);
   border-radius: var(--radius-16);
@@ -123,6 +127,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
+}
+
+.chevron {
+  flex-shrink: 0;
 }
 
 .getQuote:hover {
