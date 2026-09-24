@@ -95,7 +95,7 @@ export function QuoteCard({ quote, labels, onReveal }: QuoteCardProps) {
       onMouseLeave={() => arrowRef.current?.stopAnimation()}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/media/quote-card-watermark.svg" alt="" aria-hidden className={styles.watermark} />
+      <img src="/media/quote-card-watermark.webp" alt="" aria-hidden className={styles.watermark} />
 
       <div className={styles.inner}>
         <div className={styles.top}>

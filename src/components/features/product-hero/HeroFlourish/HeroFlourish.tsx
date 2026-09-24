@@ -7,9 +7,9 @@ export interface HeroFlourishProps {
 /**
  * HeroFlourish — the concentric-ring D&O logo artwork anchored off the
  * bottom-left of the fold, with a white fade toward the page bottom.
- * Usage: <HeroFlourish src="/media/do-logo.svg" />
+ * Usage: <HeroFlourish src="/media/do-logo.webp" />
  */
-export function HeroFlourish({ src = "/media/do-logo.svg" }: HeroFlourishProps) {
+export function HeroFlourish({ src = "/media/do-logo.webp" }: HeroFlourishProps) {
   return (
     <div className={styles.stage} aria-hidden>
       {/* eslint-disable-next-line @next/next/no-img-element */}

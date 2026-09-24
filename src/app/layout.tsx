@@ -18,18 +18,20 @@ import { QuoteFlowProvider } from "@/lib/quote-flow";
 /*
  * Typography mandate: only Anek (every script it ships) and Instrument Serif
  * may render text anywhere in this app. The full multiscript Anek chain is
- * loaded so any supported script falls through to its Anek variant.
+ * loaded so any supported script falls through to its Anek variant. Only Latin
+ * (and Instrument Serif) are preloaded; the other scripts are fetched on demand
+ * via unicode-range, so they don't cost ~1MB on every page load.
  */
 const anekLatin = Anek_Latin({ subsets: ["latin"], variable: "--font-anek-latin" });
-const anekDevanagari = Anek_Devanagari({ subsets: ["devanagari"], variable: "--font-anek-devanagari" });
-const anekBangla = Anek_Bangla({ subsets: ["bengali"], variable: "--font-anek-bangla" });
-const anekGujarati = Anek_Gujarati({ subsets: ["gujarati"], variable: "--font-anek-gujarati" });
-const anekGurmukhi = Anek_Gurmukhi({ subsets: ["gurmukhi"], variable: "--font-anek-gurmukhi" });
-const anekKannada = Anek_Kannada({ subsets: ["kannada"], variable: "--font-anek-kannada" });
-const anekMalayalam = Anek_Malayalam({ subsets: ["malayalam"], variable: "--font-anek-malayalam" });
-const anekOdia = Anek_Odia({ subsets: ["oriya"], variable: "--font-anek-odia" });
-const anekTamil = Anek_Tamil({ subsets: ["tamil"], variable: "--font-anek-tamil" });
-const anekTelugu = Anek_Telugu({ subsets: ["telugu"], variable: "--font-anek-telugu" });
+const anekDevanagari = Anek_Devanagari({ subsets: ["devanagari"], preload: false, variable: "--font-anek-devanagari" });
+const anekBangla = Anek_Bangla({ subsets: ["bengali"], preload: false, variable: "--font-anek-bangla" });
+const anekGujarati = Anek_Gujarati({ subsets: ["gujarati"], preload: false, variable: "--font-anek-gujarati" });
+const anekGurmukhi = Anek_Gurmukhi({ subsets: ["gurmukhi"], preload: false, variable: "--font-anek-gurmukhi" });
+const anekKannada = Anek_Kannada({ subsets: ["kannada"], preload: false, variable: "--font-anek-kannada" });
+const anekMalayalam = Anek_Malayalam({ subsets: ["malayalam"], preload: false, variable: "--font-anek-malayalam" });
+const anekOdia = Anek_Odia({ subsets: ["oriya"], preload: false, variable: "--font-anek-odia" });
+const anekTamil = Anek_Tamil({ subsets: ["tamil"], preload: false, variable: "--font-anek-tamil" });
+const anekTelugu = Anek_Telugu({ subsets: ["telugu"], preload: false, variable: "--font-anek-telugu" });
 const instrumentSerif = Instrument_Serif({
   weight: "400",
   subsets: ["latin"],

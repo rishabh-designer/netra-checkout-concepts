@@ -357,5 +357,5 @@ export const mockProductPageContent: ProductPageContent = {
     ],
   },
   tickerPhrases: ["quotes in seconds", "coverage in minutes"],
-  flourishSrc: "/media/do-logo.svg",
+  flourishSrc: "/media/do-logo.webp",
 };

@@ -71,7 +71,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
       { label: "LIVE QUOTES" },
     ],
     title: "Director’s & Officer’s Insurance Quotes",
-    iconSrc: "/media/do-icon.svg",
+    iconSrc: "/media/do-icon.webp",
     needHelp: {
       title: "Need Help?",
       subtitle: "Contact our IRDAI-certified Bima experts",
