@@ -140,6 +140,64 @@
   font-size: var(--font-size-300);
 }
 
+/* Large (checkout) fields carry a 14px label (Figma 484:26443). */
+.field[data-size="lg"] .label {
+  font-size: var(--font-size-100);
+}
+
+/* Boxed variant (checkout Billing, 484:25880): hairline all round, r12, white. */
+.field[data-variant="boxed"] .wrapper {
+  border: var(--border-hairline) solid var(--color-divider);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+}
+
+.field[data-variant="boxed"] .wrapper[data-status="verified"],
+.field[data-variant="boxed"] .wrapper[data-status="success"] {
+  border-color: var(--color-divider);
+  background: var(--color-card);
+  --field-ink: var(--color-label-primary);
+}
+
+.field[data-variant="boxed"] .wrapper:focus-within {
+  border-color: var(--color-brand-primary);
+}
+
+/* Multi-line (address): text wraps at 1.5, icons pin to the top, vertical resize. */
+.wrapper[data-multiline] {
+  align-items: flex-start;
+}
+
+.wrapper[data-multiline] .suffix {
+  padding-top: 3px;
+}
+
+.textarea {
+  flex: 1;
+  min-width: 0;
+  min-height: 54px;
+  padding: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  resize: vertical;
+  font: inherit;
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--field-ink);
+}
+
+.field[data-size="lg"] .textarea {
+  font-size: var(--font-size-300);
+}
+
+.textarea::placeholder {
+  color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
+  opacity: 1;
+  font-weight: 400;
+}
+
 .input[data-empty],
 .select[data-empty] {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);

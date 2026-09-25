@@ -37,6 +37,11 @@
   --color-success-border: #a9eaa2;
   --color-success-subtle: #ecfbea;
   --color-success-tint: rgba(0, 178, 0, 0.08); /* button/primary/fill/success/clicked */
+  --color-success-deep: #007b00; /* label/semantic/success-bold: upload success title */
+  --color-error-deep: #cf0000; /* label/semantic/error-bold: upload failure title */
+  --color-error-tint: #ffecec; /* background/semantic/error-subtle: upload failure fill */
+  --color-caution-label: #b38f0a; /* label/semantic/caution: checkout banners + consent */
+  --color-label-hint: #7e838b; /* label/neutral/hint: locked (greyed) review values */
   --color-caution: #ffcf0e; /* Gold Quote stroke */
   --color-caution-subtle: #fff9e6;
   --color-caution-border: #ffe890;

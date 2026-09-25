@@ -1,0 +1,166 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Label row: 12/8, 14px Medium secondary + red mark (Figma 484:26960). */
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-12) var(--spacing-8);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-secondary);
+}
+
+.req {
+  color: var(--color-error);
+}
+
+.wrap {
+  position: relative;
+  padding: var(--spacing-12) 0;
+}
+
+/* Drop zone: 200 tall, r24, 12/24, white → state tint (DSL 3316:81232). */
+.zone {
+  --zone-ink: var(--color-info-fill);
+  --zone-tint: var(--color-info-subtle);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  height: 200px;
+  padding: var(--spacing-12) var(--spacing-24);
+  border: 1px dashed var(--zone-ink);
+  border-radius: var(--radius-24);
+  background: linear-gradient(to bottom, var(--color-card), var(--zone-tint));
+  text-align: center;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.zone[data-state="default"] {
+  cursor: pointer;
+}
+
+.zone[data-state="default"]:hover,
+.zone[data-state="default"]:focus-visible,
+.zone[data-dragging] {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--color-info-ring);
+}
+
+.zone[data-state="success"] {
+  --zone-ink: var(--color-success);
+  --zone-tint: var(--color-success-subtle);
+  border-style: solid;
+}
+
+.zone[data-state="failure"] {
+  --zone-ink: var(--color-error);
+  --zone-tint: var(--color-error-tint);
+  border-style: solid;
+}
+
+.zone[data-state="disabled"] {
+  --zone-ink: var(--color-input-stroke);
+  --zone-tint: var(--color-card-sunken);
+  cursor: not-allowed;
+}
+
+.art {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--color-info-fill);
+}
+
+.zone[data-state="success"] .title {
+  color: var(--color-success-deep);
+}
+
+.zone[data-state="failure"] .title {
+  color: var(--color-error-deep);
+}
+
+.zone[data-state="disabled"] .title,
+.zone[data-state="disabled"] .sub {
+  color: var(--color-label-disabled);
+}
+
+.glyph {
+  width: 16px;
+  height: 16px;
+}
+
+.sub {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.12px;
+  color: var(--color-label-primary);
+}
+
+.fileOk {
+  color: var(--color-brand-primary);
+  font-weight: 600;
+}
+
+.fileBad {
+  color: var(--color-label-placeholder);
+  font-weight: 600;
+}
+
+/* Secondary button: white, neutral stroke, 12/16 (r12 → 16, house rule). */
+.again {
+  padding: var(--spacing-12) var(--spacing-16);
+  border: 1px solid var(--color-border-neutral);
+  border-radius: var(--radius-16);
+  background: var(--color-card);
+  color: var(--color-label-basic);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.again:hover {
+  border-color: var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+}
+
+/* The real file input stays in the DOM (label target) but out of sight. */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}

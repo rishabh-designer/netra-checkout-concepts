@@ -27,7 +27,8 @@ export interface InteractiveInputProps {
   helpTone?: HelpTone;
   /** Reserve the help row (28px). Its text toggles, but the row never shifts height. */
   showHelp?: boolean;
-  control?: "text" | "select" | "search";
+  /** "textarea" = multi-line (e.g. an address); icons pin to the top. */
+  control?: "text" | "select" | "search" | "textarea";
   options?: string[];
   value: string;
   onChange?: (value: string) => void;
@@ -55,6 +56,12 @@ export interface InteractiveInputProps {
   /** Value type size: "md" = 16px (DSL default, Figma 503:14272); "lg" = 18px
    *  (the hero lead field). Labels are always 12px. */
   size?: "md" | "lg";
+  /** "boxed" = hairline border on all sides, r12, white (checkout Billing,
+   *  Figma 484:25880). Default is the DSL's bottom-stroke field. */
+  variant?: "underline" | "boxed";
+  /** HTML input type / inputmode hint for text controls. */
+  inputMode?: "text" | "numeric" | "email" | "tel";
+  maxLength?: number;
 }
 
 /**
@@ -93,8 +100,11 @@ export function InteractiveInput({
   name,
   ariaLabel,
   size = "md",
+  variant = "underline",
+  inputMode,
+  maxLength,
 }: InteractiveInputProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const uid = useId();
   const inputId = name ?? uid;
   const helpId = `${uid}-help`;
@@ -122,10 +132,11 @@ export function InteractiveInput({
   const loading = effectiveStatus === "loading";
   const isSelect = control === "select";
   const isSearch = control === "search";
+  const isTextarea = control === "textarea";
   const isEmpty = !value;
 
   return (
-    <div className={styles.field} data-size={size}>
+    <div className={styles.field} data-size={size} data-variant={variant}>
       {showLabel && (
         <label className={styles.label} htmlFor={inputId}>
           {label}
@@ -138,6 +149,7 @@ export function InteractiveInput({
         data-status={effectiveStatus}
         data-active={active || undefined}
         data-open={(isSelect && menuOpen) || undefined}
+        data-multiline={isTextarea || undefined}
       >
         {prefix && (
           <span className={styles.prefix} aria-hidden>
@@ -158,6 +170,22 @@ export function InteractiveInput({
             ariaLabel={ariaLabel ?? label}
             onOpenChange={setMenuOpen}
           />
+        ) : isTextarea ? (
+          <textarea
+            id={inputId}
+            ref={inputRef}
+            rows={2}
+            className={styles.textarea}
+            name={name}
+            aria-label={ariaLabel ?? label ?? placeholder}
+            aria-invalid={effectiveStatus === "error" || undefined}
+            data-empty={isEmpty ? true : undefined}
+            placeholder={placeholder}
+            value={value}
+            disabled={loading}
+            maxLength={maxLength}
+            onChange={(e) => onChange?.(e.target.value)}
+          />
         ) : (
           <input
             id={inputId}
@@ -172,6 +200,8 @@ export function InteractiveInput({
             placeholder={placeholder}
             value={value}
             disabled={loading}
+            inputMode={inputMode === "text" ? undefined : inputMode}
+            maxLength={maxLength}
             onChange={(e) => onChange?.(e.target.value)}
             onKeyDown={onSubmit ? (e) => e.key === "Enter" && onSubmit() : undefined}
           />

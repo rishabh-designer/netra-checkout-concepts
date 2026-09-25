@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useQuoteFlow } from "@/lib/quote-flow";
 import { motion, useReducedMotion } from "motion/react";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { BreadcrumbTrail } from "@/components/ui/BreadcrumbTrail";
@@ -61,6 +63,19 @@ export function QuotesFeed({ content, caseId, sumInsured }: QuotesFeedProps) {
   const [featuresQuote, setFeaturesQuote] = useState<QuoteCardData | null>(null);
   const [featuresOpen, setFeaturesOpen] = useState(false);
   const closeFeatures = useCallback(() => setFeaturesOpen(false), []);
+
+  // Immediate-purchase and priced quotes open checkout (the "additional
+  // questions" drawer never applies in our flows). Gold / Get Quote stay put.
+  const router = useRouter();
+  const { setSelectedQuote, setCheckout } = useQuoteFlow();
+  const checkoutFor = (q: QuoteCardData) =>
+    q.price && !q.gold
+      ? () => {
+          setSelectedQuote(q);
+          setCheckout({});
+          router.push(content.checkoutHref);
+        }
+      : undefined;
   const available = content.availableLabel.replace("{count}", String(quotes.length));
   // Cards rise in one after another as the results reveal (after the skeleton).
   const reveal = (i: number) =>
@@ -111,6 +126,7 @@ export function QuotesFeed({ content, caseId, sumInsured }: QuotesFeedProps) {
                     setFeaturesQuote(quote);
                     setFeaturesOpen(true);
                   }}
+                  onSelect={checkoutFor(quote)}
                 />
               </motion.div>
             ))}
@@ -125,6 +141,7 @@ export function QuotesFeed({ content, caseId, sumInsured }: QuotesFeedProps) {
         quote={featuresQuote}
         tone={featuresQuote ? toneOf(featuresQuote) : "quote"}
         labels={{ sumInsured: content.sumInsuredLabel, getQuote: content.getQuoteLabel }}
+        onSelect={featuresQuote ? checkoutFor(featuresQuote) : undefined}
       />
     </div>
   );

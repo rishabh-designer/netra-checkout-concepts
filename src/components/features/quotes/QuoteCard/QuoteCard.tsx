@@ -8,6 +8,7 @@ import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
 import { EyeIcon, type EyeIconHandle } from "@/components/icons/EyeIcon";
+import { splitName } from "@/lib/utils";
 import styles from "./QuoteCard.module.css";
 
 /** Figma interface-icon/icons (587:62128) — 12px chevron, success green. */
@@ -17,24 +18,6 @@ function FeaturesChevron() {
       <path d="M4.125 2.25 7.875 6 4.125 9.75" stroke="var(--color-success)" strokeWidth="1.23539" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-}
-
-/** Splits a name into two lines at the word boundary that best balances their
- *  lengths ("Royal Sundaram General Insurance" → "Royal Sundaram" / "General
- *  Insurance"). A single word stays on the first line. */
-function splitName(name: string): [string, string] {
-  const words = name.trim().split(/\s+/);
-  if (words.length < 2) return [name, ""];
-  let best = 1;
-  let bestDiff = Infinity;
-  for (let i = 1; i < words.length; i++) {
-    const diff = Math.abs(words.slice(0, i).join(" ").length - words.slice(i).join(" ").length);
-    if (diff < bestDiff) {
-      bestDiff = diff;
-      best = i;
-    }
-  }
-  return [words.slice(0, best).join(" "), words.slice(best).join(" ")];
 }
 
 /** Top ikkat divider colour per card tone (Figma 553:29607 / 29205 / 28954 / 29978). */
@@ -73,6 +56,8 @@ export interface QuoteCardProps {
   onReveal?: () => void;
   /** "View All Features" — opens the features drawer for this quote. */
   onViewFeatures?: () => void;
+  /** Price button — starts checkout (immediate + priced quotes only). */
+  onSelect?: () => void;
 }
 
 /**
@@ -87,7 +72,7 @@ export interface QuoteCardProps {
  * (fuzzy match) shows only a centred "Reveal Quote" button.
  * Usage: <QuoteCard quote={q} labels={…} />
  */
-export function QuoteCard({ quote, labels, onReveal, onViewFeatures }: QuoteCardProps) {
+export function QuoteCard({ quote, labels, onReveal, onViewFeatures, onSelect }: QuoteCardProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<EyeIconHandle>(null);
   const arrowRef = useRef<MoveRightIconHandle>(null);
@@ -200,7 +185,7 @@ export function QuoteCard({ quote, labels, onReveal, onViewFeatures }: QuoteCard
                 <span className={styles.sumLabel}>{labels.sumInsured}</span>
                 <span className={styles.sumValue}>{quote.sumInsured}</span>
               </div>
-              <button type="button" className={filled ? styles.buttonFilled : styles.buttonOutline}>
+              <button type="button" className={filled ? styles.buttonFilled : styles.buttonOutline} onClick={onSelect}>
                 {quote.price ?? labels.getQuote}
                 <MoveRightIcon ref={arrowRef} size={12} loop className={styles.arrow} />
               </button>

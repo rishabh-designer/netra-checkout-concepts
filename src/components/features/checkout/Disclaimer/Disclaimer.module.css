@@ -1,0 +1,60 @@
+/* 613:67716: 12 above the rule row, 24 to the body, 32 below. */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-12) 0 var(--spacing-32);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-8) 0;
+  border-bottom: var(--border-hairline) solid rgba(14, 43, 114, 0.16);
+}
+
+.title {
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-brand-primary-muted);
+}
+
+/* 28px boxed chevron (r8 → 12, house rule). */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--color-brand-primary-border);
+  border-radius: var(--radius-12);
+  background: var(--color-card-sunken);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.toggle:hover {
+  background: var(--color-brand-primary-subtle);
+}
+
+.toggle svg {
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease;
+}
+
+.toggle svg[data-open] {
+  transform: none;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding-top: var(--spacing-24);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-brand-primary-muted);
+}

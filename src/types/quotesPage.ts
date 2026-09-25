@@ -128,6 +128,8 @@ export interface TestimonialContent {
 }
 
 export interface QuotesFeedContent {
+  /** Where a quote's price button leads (checkout, first step). */
+  checkoutHref: string;
   /** Right of the breadcrumb (601:65040); `{count}` is the number of quotes. */
   availableLabel: string;
   breadcrumb: BreadcrumbItem[];

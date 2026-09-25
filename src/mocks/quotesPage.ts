@@ -156,6 +156,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     },
   },
   feed: {
+    checkoutHref: "/directors-and-officers-insurance/checkout/billing",
     availableLabel: "{count} Quotes Available",
     breadcrumb: [
       { label: "HOME", href: "/directors-and-officers-insurance" },

@@ -1,0 +1,74 @@
+/* White card: 1px subtle stroke, r24, p24, 24 gap. */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding: var(--spacing-24);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-24);
+  background: var(--color-card);
+}
+
+/* Caution banner: r8, p8, 20px icon + 16px copy (compact: 16 + 12). */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-caution-border);
+  border-radius: var(--radius-8);
+  background: var(--color-caution-subtle);
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-caution-label);
+}
+
+.bannerIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.banner[data-compact] {
+  font-size: var(--font-size-75);
+}
+
+.banner[data-compact] .bannerIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  min-height: 32px;
+}
+
+.sectionTitle {
+  font-size: var(--font-size-300);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-brand-primary-muted);
+}
+
+/* "Buy in Another Person's Name" chip: white, 0.5 neutral stroke, r12, 8/12. */
+.chip {
+  display: inline-flex;
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-hairline) solid rgba(169, 172, 177, 0.6);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  letter-spacing: -0.14px;
+  color: var(--color-label-basic);
+}
+
+.chip[data-faded] {
+  opacity: 0.35;
+  pointer-events: none;
+}

@@ -15,3 +15,21 @@ export function formatPhone(value: string): string {
   d = d.slice(0, 10);
   return [d.slice(0, 4), d.slice(4, 7), d.slice(7)].filter(Boolean).join(" ");
 }
+
+/** Splits a name into two lines at the word boundary that best balances their
+ *  lengths ("Royal Sundaram General Insurance" → "Royal Sundaram" / "General
+ *  Insurance"). A single word stays on the first line. */
+export function splitName(name: string): [string, string] {
+  const words = name.trim().split(/\s+/);
+  if (words.length < 2) return [name, ""];
+  let best = 1;
+  let bestDiff = Infinity;
+  for (let i = 1; i < words.length; i++) {
+    const diff = Math.abs(words.slice(0, i).join(" ").length - words.slice(i).join(" ").length);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = i;
+    }
+  }
+  return [words.slice(0, best).join(" "), words.slice(best).join(" ")];
+}

@@ -1,0 +1,37 @@
+/* Fields scroll under the pinned Save button. */
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: var(--spacing-4);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-primary-subtle-bold) transparent;
+}
+
+/* Save Changes: the summary CTA at drawer scale (r16 → 24, house rule). */
+.save {
+  flex-shrink: 0;
+  width: 100%;
+  padding: var(--spacing-16) 28px;
+  border: var(--border-hairline) solid var(--color-brand-primary);
+  border-radius: var(--radius-24);
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.save:hover:not(:disabled) {
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.save:disabled {
+  border-color: var(--color-input-stroke);
+  background: var(--color-fill-disabled);
+  color: var(--color-label-disabled);
+  cursor: not-allowed;
+}

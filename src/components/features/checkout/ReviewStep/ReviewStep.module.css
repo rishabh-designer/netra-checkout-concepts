@@ -1,0 +1,98 @@
+/* 484:28949: sections 32 apart; each strip then rows, 24 apart. */
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+/* Header strip: lilac, 0.5 lilac stroke, r12, 8/12. */
+.strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-primary-subtle);
+}
+
+.stripTitle {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-heading-md);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--color-brand-primary);
+}
+
+/* Edit Details: white, 0.5 subtle stroke, 8/10, r8 → 12 (house rule). */
+.edit {
+  padding: var(--spacing-8) var(--spacing-10);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.edit:hover:not(:disabled) {
+  border-color: var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+}
+
+.edit:disabled {
+  background: var(--color-fill-disabled);
+  color: var(--color-label-disabled);
+  cursor: not-allowed;
+}
+
+/* Label/value grid: cells flow in a row, 64 apart; Address spans the row. */
+.rows {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--spacing-64);
+  row-gap: var(--spacing-12);
+  margin: 0;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 132px;
+}
+
+.cell[data-wide] {
+  flex-basis: 100%;
+}
+
+.cell dt {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(169, 172, 177, 0.6);
+}
+
+.cell dd {
+  margin: 0;
+  font-size: var(--font-size-300);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-primary);
+}
+
+/* Locked Billing reads greyed. */
+.section[data-locked] .cell dd {
+  color: var(--color-label-hint);
+}

@@ -1,0 +1,37 @@
+.billing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+/* Company: 2 × 434.5 with a 16 gap; KYC: 2 × 430.5 with a 24 gap. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--spacing-16);
+}
+
+.grid[data-kyc] {
+  column-gap: var(--spacing-24);
+}
+
+.grid[data-stacked] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.kycColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

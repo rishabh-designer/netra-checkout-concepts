@@ -1,0 +1,168 @@
+/* Two columns (1512 frame): left 997 scrolls over a lavender wash; right 515
+   stays put on white. */
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 515px;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--color-card);
+}
+
+.left {
+  position: relative;
+  min-height: 0;
+  overflow-y: auto;
+  background: linear-gradient(to bottom, var(--color-brand-primary-subtle) 0%, var(--color-card) 100%);
+  isolation: isolate;
+}
+
+/* Kolam line art behind the card, centred. */
+.watermark {
+  position: absolute;
+  top: 118px;
+  left: 50%;
+  z-index: -1;
+  width: 734px;
+  max-width: 90%;
+  height: auto;
+  transform: translateX(-50%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* White logo bar: 12 from the top, 28 from the left, flush into the right column. */
+.logoBar {
+  display: flex;
+  align-items: center;
+  margin: var(--spacing-12) 0 0 28px;
+  padding: var(--spacing-12) var(--spacing-24);
+  min-height: 62px;
+  border-radius: var(--radius-24) 0 0 var(--radius-24);
+  background: var(--color-card);
+}
+
+.logo {
+  display: block;
+  height: 20px;
+  width: auto;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  max-width: 997px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-32);
+}
+
+/* Title row (484:25864): back chip + serif title left, stepper right. */
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  padding-top: var(--spacing-24);
+}
+
+.titleLead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-12);
+}
+
+/* Back chip: 0.5 lilac stroke, 8/10, r8 → 12 (house rule). */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-10);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-12);
+  color: var(--color-brand-primary-muted);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.back:hover {
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+}
+
+/* Instrument Serif italic 64 / 1.2, brand purple. */
+.title {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-display-md);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.28px;
+  color: var(--color-brand-primary);
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-24);
+  min-height: 0;
+  padding: 25px var(--spacing-32) var(--spacing-24);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.right::-webkit-scrollbar {
+  display: none;
+}
+
+/* Contact Support: brand fill, 12/20, r12 → 16 (house rule), headset after. */
+.support {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  margin-right: -12px;
+  padding: var(--spacing-12) var(--spacing-20);
+  border: var(--border-hairline) solid var(--color-brand-primary);
+  border-radius: var(--radius-16);
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.support:hover {
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.supportIcon {
+  width: 12px;
+  height: 12px;
+}
+
+@media (max-width: 1100px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    overflow: visible;
+  }
+  .left {
+    overflow: visible;
+  }
+  .right {
+    overflow: visible;
+  }
+  .logoBar {
+    margin-right: 28px;
+    border-radius: var(--radius-24);
+  }
+}

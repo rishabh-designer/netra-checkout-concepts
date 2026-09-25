@@ -1,80 +1,3 @@
-/* Overlay: docked right with a 32px gutter all round (587:63725 sits 32 from
-   the frame's top, bottom and right). Scrim colour/blur animate in the TSX. */
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: flex-end;
-  padding: var(--spacing-32);
-}
-
-/* Drawer (587:63839): 624 wide, white, 12/24/24 padding; the body grows and
-   scrolls, the footer stays pinned. Shadow matches the Edit Details drawer
-   (QuoteModal .modal); radius one step rounder (32) per design review. */
-.drawer {
-  display: flex;
-  flex-direction: column;
-  width: 624px;
-  max-width: 100%;
-  height: 100%;
-  padding: var(--spacing-12) var(--spacing-24) var(--spacing-24);
-  border-radius: var(--radius-32);
-  background: var(--color-card);
-  box-shadow: 0 24px 80px rgba(28, 28, 28, 0.24);
-  overflow: hidden;
-}
-
-/* 587:63840 — header, then tabs + content, 32 apart. */
-.body {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-32);
-  padding: var(--spacing-12) 0;
-}
-
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 32px;
-}
-
-/* Instrument Serif italic 32 — the drawer's only display type. */
-.title {
-  font-family: var(--font-display);
-  font-feature-settings: var(--font-display-features);
-  font-size: var(--font-size-heading-lg);
-  font-style: italic;
-  font-weight: 400;
-  line-height: 1;
-  color: var(--color-label-primary);
-  white-space: nowrap;
-}
-
-/* Same boxed 24px control as the Edit Details drawer (QuoteModal .ctrl). */
-.close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: var(--border-hairline) solid var(--color-card-recessed);
-  border-radius: var(--radius-6);
-  background: var(--color-card);
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.close:hover {
-  background: var(--color-brand-primary-subtle);
-  border-color: var(--color-brand-primary-border);
-}
-
 /* 587:64680 — tabs over content, 12 apart. */
 .panel {
   flex: 1;
@@ -209,11 +132,11 @@
   background: var(--color-brand-primary-subtle);
 }
 
-.drawer[data-tone="gold"] .footer {
+.footer[data-tone="gold"] {
   background: var(--color-brand-secondary-subtle);
 }
 
-.drawer[data-tone="quote"] .footer {
+.footer[data-tone="quote"] {
   background: var(--color-card-sunken);
 }
 
@@ -269,11 +192,11 @@
   box-shadow: var(--shadow-button-primary-hover);
 }
 
-.drawer[data-tone="gold"] .buttonFilled {
+.footer[data-tone="gold"] .buttonFilled {
   --btn: var(--color-brand-secondary);
 }
 
-.drawer[data-tone="gold"] .buttonFilled:hover {
+.footer[data-tone="gold"] .buttonFilled:hover {
   background: var(--color-brand-secondary);
   border-color: var(--color-brand-secondary-subtle-bold);
   box-shadow: var(--shadow-button-secondary-hover);
@@ -296,11 +219,3 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 700px) {
-  .overlay {
-    padding: var(--spacing-16);
-  }
-  .drawer {
-    padding: var(--spacing-8) var(--spacing-16) var(--spacing-16);
-  }
-}
