@@ -1,0 +1,144 @@
+/* Mirrors QuotesView .body + DetailsPanel + QuotesFeed geometry so the reveal
+   lands without a layout jump. */
+.body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-24);
+  width: 100%;
+}
+
+/* Your Details rail — same shell as DetailsPanel .panel */
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  width: 280px;
+  max-width: 100%;
+  min-height: 631px;
+  flex-shrink: 0;
+  padding: var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-24);
+  background: linear-gradient(to bottom, var(--color-brand-primary-subtle), var(--color-card) 50%);
+}
+
+.rail[data-collapsed] {
+  width: 70px;
+}
+
+.railHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-8);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding: 0 var(--spacing-12);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.upgrade {
+  width: 100%;
+}
+
+/* Feed column — same gaps as QuotesFeed .feed */
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  flex: 1;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  min-height: 129px;
+}
+
+.lead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.titleLines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.needHelp {
+  border-radius: var(--radius-24);
+}
+
+.rule {
+  width: 100%;
+  border-radius: var(--radius-6);
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+}
+
+/* Card shell — same radius/border/padding rhythm as QuoteCard */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  min-height: 245px;
+  padding: var(--spacing-16) var(--spacing-16) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-16);
+  background: var(--color-card);
+}
+
+.divider {
+  width: 100%;
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+
+@media (max-width: 900px) {
+  .body {
+    flex-direction: column;
+  }
+  .rail {
+    width: 100%;
+    min-height: 0;
+  }
+  .needHelp {
+    display: none;
+  }
+}

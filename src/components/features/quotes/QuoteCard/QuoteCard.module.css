@@ -35,6 +35,12 @@
   box-shadow: var(--shadow-card-hover);
 }
 
+/* Immediate Purchase pill sits on the card's green-tinted corner — white fill
+   (the landing-page pill keeps its gradient). */
+.logoRow .pill {
+  background: var(--color-card);
+}
+
 /* product.icon/final — sits behind the content, pinned bottom-right. */
 .watermark {
   position: absolute;

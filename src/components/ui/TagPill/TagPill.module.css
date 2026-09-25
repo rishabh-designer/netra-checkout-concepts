@@ -39,6 +39,20 @@
   color: var(--color-special);
 }
 
+/* Brand-secondary (orange) — "Powered by BimaNetra" (Figma 348:27531) */
+.secondary {
+  border-color: var(--color-brand-secondary-border);
+  background: linear-gradient(
+    to bottom,
+    var(--color-card) 50%,
+    var(--color-brand-secondary-subtle)
+  );
+}
+
+.secondary .label {
+  color: var(--color-brand-secondary);
+}
+
 .iconSlot {
   display: inline-flex;
   align-items: center;

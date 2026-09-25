@@ -4,7 +4,7 @@ import styles from "./TagPill.module.css";
 export interface TagPillProps {
   label?: string;
   /** success = green "Immediate Purchase" style; special = teal gradient style. */
-  variant?: "success" | "special";
+  variant?: "success" | "special" | "secondary";
   /** Icon slot (12px). Omit to render the design's grey placeholder square. */
   icon?: React.ReactNode;
   onMouseEnter?: React.MouseEventHandler<HTMLDivElement>;

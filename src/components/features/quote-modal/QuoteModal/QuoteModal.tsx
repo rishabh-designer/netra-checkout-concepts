@@ -269,7 +269,7 @@ export function QuoteModal({
                   {qc.fields.map((field) => (
                     <Fragment key={field.key}>
                       {/* Auto-personalize badge sits between the questions and the
-                          coverage field (Insurance case A only), preceded by a
+                          coverage field (Insurance cases A + B), preceded by a
                           woven ikkat rule that closes off the binary questions. */}
                       {field.key === "coverage" && qc.personalize && (
                         <>
@@ -411,10 +411,11 @@ function Field({
   const fetchingLabel = field.key === "coverage" ? "Approximating…" : "Fetching…";
   // The neutral "Fetched from…" disclaimer shows only while the field is still a
   // guess (fuzzy); it disappears once the user corrects it to success. A
-  // success-tone help line shows only on success. Row stays reserved regardless.
+  // success- or basic-tone help line shows only on success. Row stays reserved regardless.
+  const onResolved = field.helpTone === "success" || field.helpTone === "basic";
   const visibleHelp =
     field.helpText &&
-    (field.helpTone === "success" ? uiStatus === "success" : uiStatus === "fuzzy")
+    (onResolved ? uiStatus === "success" : uiStatus === "fuzzy")
       ? field.helpText
       : undefined;
 
@@ -467,12 +468,13 @@ function Field({
       validate={validate}
       helpText={visibleHelp}
       helpTone={field.helpTone}
+      infoTooltip={field.infoTooltip}
       showHelp
     />
   );
 }
 
-/* Personalize badge (Insurance case A): "New" chip + a status line that flips
+/* Personalize badge (Insurance cases A + B): "New" chip + a status line that flips
    from "…Being Personalized" (pending, purple + Skip) to "Personalized!" (done,
    orange). Skip is presentational for now. */
 function PersonalizeBadge({

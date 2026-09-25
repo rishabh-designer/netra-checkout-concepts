@@ -35,6 +35,8 @@ interface MoveRightIconProps extends Omit<
   duration?: number;
   isAnimated?: boolean;
   color?: string;
+  /** Repeat the nudge until stopAnimation() / mouse leave, instead of once. */
+  loop?: boolean;
 }
 
 const MoveRightIcon = forwardRef<MoveRightIconHandle, MoveRightIconProps>(
@@ -47,6 +49,7 @@ const MoveRightIcon = forwardRef<MoveRightIconHandle, MoveRightIconProps>(
       duration = 1,
       isAnimated = true,
       color,
+      loop = false,
       ...props
     },
     ref,
@@ -89,6 +92,7 @@ const MoveRightIcon = forwardRef<MoveRightIconHandle, MoveRightIconProps>(
           duration: 1 * duration,
           ease: "easeInOut",
           times: [0, 0.25, 0.6, 1],
+          ...(loop && { repeat: Infinity }),
         },
       },
     };

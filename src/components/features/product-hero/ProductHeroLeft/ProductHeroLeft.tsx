@@ -57,7 +57,7 @@ export function ProductHeroLeft({ tags, title, subtitle, stats }: ProductHeroLef
                     <EyeIcon
                       ref={eyeRef}
                       size={12}
-                      color="var(--color-special)"
+                      color="var(--color-brand-secondary)"
                     />
                   ) : undefined
                 }

@@ -20,6 +20,17 @@
   }
 }
 
+/* Grid cell wrapper (reveal animation) — the card fills it edge to edge. */
+.cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cell > * {
+  flex: 1;
+}
+
 .secondary {
   display: flex;
   gap: var(--spacing-16);

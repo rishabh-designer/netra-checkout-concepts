@@ -31,6 +31,18 @@
   --field-ink: var(--color-label-basic);
   --check-ink: var(--color-input-stroke);
   transition: border-color 0.15s ease, background 0.15s ease;
+  /* anchors the SelectMenu option list under the field */
+  position: relative;
+}
+
+/* select chevron flips while the option list is open */
+.chevron {
+  display: inline-flex;
+  transition: transform 0.2s ease;
+}
+
+.wrapper[data-open] .chevron {
+  transform: rotate(180deg);
 }
 
 /* interaction on a neutral field only (scoped to [data-status="empty"] so it
@@ -248,4 +260,9 @@
 
 .help[data-tone="success"] .helpText {
   color: var(--color-success);
+}
+
+/* black help line on a resolved field (e.g. Case B's suggested sum insured) */
+.help[data-tone="basic"] .helpText {
+  color: var(--color-label-basic);
 }

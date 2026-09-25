@@ -21,7 +21,7 @@ export interface BreadcrumbItem {
 
 export interface ProductTag {
   label: string;
-  variant: "success" | "special";
+  variant: "success" | "special" | "secondary";
   /** Which animated icon fills the tag's icon slot; "placeholder" keeps the grey square. */
   icon: "placeholder" | "shoppingBag" | "eye";
 }
@@ -81,7 +81,7 @@ export type QuoteFieldStatus =
   | "empty"
   | "error";
 
-export type QuoteFieldHelpTone = "neutral" | "error" | "success";
+export type QuoteFieldHelpTone = "neutral" | "error" | "success" | "basic";
 
 export interface QuoteModalField {
   key: string;
@@ -99,6 +99,8 @@ export interface QuoteModalField {
   /** Contextual help/disclaimer shown in the reserved help row (see helpTone). */
   helpText?: string;
   helpTone?: QuoteFieldHelpTone;
+  /** Hover tooltip on the field's info (i) icon. */
+  infoTooltip?: string;
 }
 
 export interface QuoteSearchBody {

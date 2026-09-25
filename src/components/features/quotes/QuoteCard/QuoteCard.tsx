@@ -65,7 +65,7 @@ export interface QuoteCardProps {
  * ikkat divider, the insurer name, Add-To-Compare beside the price / Get Quote
  * button, and a purple stack with View All Features + Sum Insured. The tone
  * (gradient corner + divider colour) follows the quote type; the button arrow
- * animates only while the card is hovered. A ghost card (fuzzy match) shows
+ * loops only while the card is hovered. A ghost card (fuzzy match) shows
  * only a centered "Reveal Quote" button. Usage: <QuoteCard quote={q} labels={…} />
  */
 export function QuoteCard({ quote, labels, onReveal }: QuoteCardProps) {
@@ -105,6 +105,7 @@ export function QuoteCard({ quote, labels, onReveal }: QuoteCardProps) {
             {quote.immediate && (
               <TagPill
                 variant="success"
+                className={styles.pill}
                 label={labels.immediatePurchase}
                 icon={<ShoppingBagIcon ref={bagRef} size={12} color="var(--color-success)" />}
                 onMouseEnter={() => bagRef.current?.startAnimation()}
@@ -136,7 +137,7 @@ export function QuoteCard({ quote, labels, onReveal }: QuoteCardProps) {
             )}
             <button type="button" className={quote.price ? styles.price : styles.getQuote}>
               {quote.price ?? labels.getQuote}
-              <MoveRightIcon ref={arrowRef} size={12} className={styles.arrow} />
+              <MoveRightIcon ref={arrowRef} size={12} loop className={styles.arrow} />
             </button>
           </div>
 

@@ -15,8 +15,19 @@
   padding: var(--spacing-24) var(--spacing-32);
 }
 
+/* Skeleton ↔ content swap layer: carries the body's row layout so the
+   crossfade wrapper is transparent to it. */
+.swap {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-24);
+  width: 100%;
+  min-width: 0;
+}
+
 @media (max-width: 900px) {
-  .body {
+  .body,
+  .swap {
     flex-direction: column;
   }
 }

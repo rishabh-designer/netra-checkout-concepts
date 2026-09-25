@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { SelectMenu } from "@/components/ui/SelectMenu";
 import styles from "./InteractiveInput.module.css";
 import {
   ChevronDown,
@@ -12,7 +13,7 @@ import {
 } from "./icons";
 
 export type { FieldStatus };
-export type HelpTone = "neutral" | "error" | "success";
+export type HelpTone = "neutral" | "error" | "success" | "basic";
 
 export interface InteractiveInputProps {
   label?: string;
@@ -95,6 +96,7 @@ export function InteractiveInput({
   const inputId = name ?? uid;
   const helpId = `${uid}-help`;
   const tipId = `${uid}-tip`;
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Desktop-only autofocus: skip coarse/touch pointers so mobile keyboards
   // don't pop on load. Guarded — matchMedia can throw in odd contexts.
@@ -128,7 +130,12 @@ export function InteractiveInput({
         </label>
       )}
 
-      <div className={styles.wrapper} data-status={effectiveStatus} data-active={active || undefined}>
+      <div
+        className={styles.wrapper}
+        data-status={effectiveStatus}
+        data-active={active || undefined}
+        data-open={(isSelect && menuOpen) || undefined}
+      >
         {prefix && (
           <span className={styles.prefix} aria-hidden>
             {prefix}
@@ -138,25 +145,16 @@ export function InteractiveInput({
         {readOnly ? (
           <span className={styles.value}>{value}</span>
         ) : isSelect ? (
-          <select
+          <SelectMenu
             id={inputId}
-            className={styles.select}
-            name={name}
-            aria-label={ariaLabel ?? label}
-            data-empty={isEmpty ? true : undefined}
             value={value}
+            options={options ?? []}
+            placeholder={placeholder}
+            onChange={onChange}
             disabled={loading}
-            onChange={(e) => onChange?.(e.target.value)}
-          >
-            <option value="" disabled>
-              {placeholder ?? "Select…"}
-            </option>
-            {options?.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
+            ariaLabel={ariaLabel ?? label}
+            onOpenChange={setMenuOpen}
+          />
         ) : (
           <input
             id={inputId}
@@ -177,7 +175,11 @@ export function InteractiveInput({
         )}
 
         <div className={styles.suffix}>
-          {isSelect && !loading && <ChevronDown />}
+          {isSelect && !loading && (
+            <span className={styles.chevron}>
+              <ChevronDown />
+            </span>
+          )}
           {isSearch && !loading && <SearchIcon />}
           {clearable && !loading && !isSelect && !isSearch && value && (
             <button

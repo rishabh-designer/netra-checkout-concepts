@@ -1,0 +1,79 @@
+/* Static root: the list anchors to the host field wrapper (position: relative),
+   so it spans the whole field, not just the value text. */
+.root {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+/* Trigger reads exactly like the field's value text (16px / 500 / field ink). */
+.trigger {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  text-align: left;
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  color: var(--field-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.trigger:disabled {
+  cursor: default;
+}
+
+/* placeholder = A9ACB1 @ 48%, regular — same as the text input's */
+.trigger[data-empty] {
+  color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
+  font-weight: 400;
+}
+
+/* Floating option card under the field */
+.list {
+  position: absolute;
+  top: calc(100% + var(--spacing-4));
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-4);
+  list-style: none;
+  background: var(--color-card);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-12);
+  box-shadow: var(--shadow-raised);
+}
+
+/* Row: grey label left, round tick right (grey; green when selected) */
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  height: 40px;
+  padding: 0 var(--spacing-12);
+  border-radius: var(--radius-8);
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  color: var(--color-label-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.option[data-active] {
+  background: var(--color-card-sunken);
+}
+
+.label {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

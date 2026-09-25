@@ -16,13 +16,23 @@ const BUSINESS_OPTIONS = [
   "Unclassified / Miscellaneous",
 ];
 const TURNOVER_OPTIONS = [
-  "₹ 0Cr – 5 Cr",
-  "₹ 5Cr - 15 Cr",
-  "₹ 15Cr - 50 Cr",
-  "₹ 50Cr - 100 Cr",
-  "₹ 100Cr+",
+  "Up to ₹1 Cr",
+  "₹1 Cr to ₹5 Cr",
+  "₹5 Cr to ₹50 Cr",
+  "₹50 Cr to ₹250 Cr",
+  "₹250 Cr to ₹500 Cr",
+  "₹500 Cr to ₹700 Cr",
+  "₹700 Cr and Above",
 ];
-const COVERAGE_OPTIONS = ["₹ 1Cr.", "₹ 5Cr.", "₹ 10Cr.", "₹ 25Cr.", "₹ 50Cr."];
+const COVERAGE_OPTIONS = [
+  "₹25 Lacs", "₹50 Lacs", "₹1 Cr", "₹2 Cr", "₹3 Cr", "₹4 Cr", "₹5 Cr", "₹7.5 Cr", "₹8 Cr", "₹9 Cr",
+  "₹10 Cr", "₹12 Cr", "₹15 Cr", "₹16 Cr", "₹18 Cr", "₹20 Cr", "₹21 Cr", "₹24 Cr", "₹25 Cr",
+];
+
+// Sum Insured (was "Required Coverage") — label + info tooltip, shared by all cases.
+const SUM_INSURED_LABEL = "Sum Insured";
+const SUM_INSURED_TOOLTIP =
+  "\"Sum insured\" represents the absolute financial ceiling that an insurance company will pay out in the event of a valid claim.";
 
 const TABS = ["BimaNetra", "All", "Images", "Videos", "News"];
 
@@ -149,6 +159,13 @@ const PROFILE_CASE: QuoteCase = {
   ],
 };
 
+/* Case A (confirmed — "Rambo Undergarments") Profile: clicking the "Profile"
+   title fills the contact details for the demo. */
+const PROFILE_CASE_A: QuoteCase = {
+  ...PROFILE_CASE,
+  demoFill: { fullName: "Rambo D'Souza", phone: "9007296854", email: "ceo@rambo.in" },
+};
+
 /* Case B (fuzzy — "Sabyasachi Calcutta") Profile: clicking the "Profile" title
    fills the contact details for the demo. */
 const PROFILE_CASE_B: QuoteCase = {
@@ -174,7 +191,7 @@ export const mockProductPageContent: ProductPageContent = {
   ],
   tags: [
     { label: "Immediate Purchase", variant: "success", icon: "shoppingBag" },
-    { label: "Powered by BimaNetra", variant: "special", icon: "eye" },
+    { label: "Powered by BimaNetra", variant: "secondary", icon: "eye" },
   ],
   title: "Director’s & Officer’s Insurance",
   subtitle: "Protects executives when business decisions lead to lawsuits",
@@ -265,7 +282,7 @@ export const mockProductPageContent: ProductPageContent = {
         title: "Profile",
         activeTab: "",
         collectMode: true,
-        cases: { A: PROFILE_CASE, B: PROFILE_CASE_B, C: PROFILE_CASE },
+        cases: { A: PROFILE_CASE_A, B: PROFILE_CASE_B, C: PROFILE_CASE },
       },
       // ── Step 1: Business — the typed name resolves A/B/C. ──────────────
       {
@@ -279,7 +296,7 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "type", label: "Enter Company Type", mandatory: true, control: "text", value: "Private Limited Company", status: "success" },
               { key: "business", label: "Type of Business", mandatory: true, control: "text", value: "Retail & Wholesale", status: "success" },
-              { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "text", value: "₹ 5Cr - 15 Cr", status: "success" },
+              { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "₹50 Cr to ₹250 Cr", options: TURNOVER_OPTIONS, status: "success" },
               { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AABCR1325P", status: "success" },
             ],
             search: SEARCH_MATCHED,
@@ -292,7 +309,7 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Limited Liability Partnership", options: COMPANY_TYPE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "Unclassified / Miscellaneous", options: BUSINESS_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
-              { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "", options: TURNOVER_OPTIONS, status: "empty" },
+              { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "", placeholder: "Select Annual Turnover", options: TURNOVER_OPTIONS, status: "empty" },
               { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AATFS4271L", placeholder: "Enter Company PAN Number", status: "success" },
             ],
             search: SEARCH_FUZZY,
@@ -327,18 +344,25 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "existingPolicy", label: "Does Your Business Have An Existing Directors and Officers Policy?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
-              { key: "coverage", label: "Required Coverage", mandatory: true, control: "text", value: "₹ 1Cr.", status: "success", helpText: "This is the Required Coverage that's perfect for you", helpTone: "success" },
+              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "₹10 Cr", options: COVERAGE_OPTIONS, status: "success", helpText: "This is the Sum Insured that's perfect for you", helpTone: "success" },
             ],
             search: RISK_NEWS_A,
           },
-          // B (Fuzzy) — guessed: toggles orange, coverage dropdown, consent gate.
+          // B (Fuzzy) — guessed: toggles orange, the same auto-personalize badge as
+          // A (loading → green "Personalized!", Skip goes away), sum insured
+          // in A's purple filled state with a black suggestion line, consent gate.
           B: {
             requiresConsent: true,
             consentText: CONSENT_TEXT,
+            personalize: {
+              pendingLabel: "Your Quote is Being Personalized",
+              doneLabel: "Your Quote is Personalized!",
+              skipLabel: "Skip",
+            },
             fields: [
               { key: "existingPolicy", label: "Does Your Business Have An Existing Directors and Officers Policy?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "fuzzy" },
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "fuzzy" },
-              { key: "coverage", label: "Required Coverage", mandatory: true, control: "select", value: "₹ 1Cr.", options: COVERAGE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
+              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "₹10 Cr", options: COVERAGE_OPTIONS, status: "success", helpText: "This is how much coverage we think you need", helpTone: "basic" },
             ],
             search: RISK_NEWS_B,
           },
@@ -348,7 +372,7 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "existingPolicy", label: "Does Your Business Have An Existing Directors and Officers Policy?", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
-              { key: "coverage", label: "Required Coverage", mandatory: true, control: "search", value: "", placeholder: "Search Your Required Coverage", status: "empty" },
+              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "search", value: "", placeholder: "Search Your Sum Insured", status: "empty" },
             ],
             search: RISK_NEWS_C,
           },

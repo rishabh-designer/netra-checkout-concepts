@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import type { QuotesPageContent } from "@/types/quotesPage";
 import type { QuoteModalContent } from "@/types/productPage";
 import { useQuoteFlow } from "@/lib/quote-flow";
@@ -8,6 +9,7 @@ import { QuoteModal } from "@/components/features/quote-modal/QuoteModal";
 import { QuotesHeader } from "../QuotesHeader";
 import { DetailsPanel } from "../DetailsPanel";
 import { QuotesFeed } from "../QuotesFeed";
+import { QuotesSkeleton } from "../QuotesSkeleton";
 import styles from "./QuotesView.module.css";
 
 export interface QuotesViewProps {
@@ -22,8 +24,13 @@ export interface QuotesViewProps {
  * shows live entries and the risk-report banner reflects the Yes/No answer; falls
  * back to the mock when visited off-flow. Edit Details opens the quote form as a
  * form-only lightbox on this page (no navigation) and saves back to the store.
+ * Results "load" behind a staggered skeleton for LOAD_MS — on arrival and again
+ * after every Edit Details save.
  * Usage: <QuotesView content={content} quoteModal={quoteModal} />
  */
+/** How long the results skeleton shows before the quotes reveal. */
+const LOAD_MS = 1500;
+
 export function QuotesView({ content, quoteModal }: QuotesViewProps) {
   const { result, setResult } = useQuoteFlow();
   const values = result?.values;
@@ -31,24 +38,64 @@ export function QuotesView({ content, quoteModal }: QuotesViewProps) {
   const caseId = result?.caseId;
   const [detailsCollapsed, setDetailsCollapsed] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  // Bumped on each Edit Details save → re-runs the loading skeleton.
+  const [loadKey, setLoadKey] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    const id = window.setTimeout(() => setLoading(false), LOAD_MS);
+    return () => window.clearTimeout(id);
+  }, [loadKey]);
+
+  const feedQuotes = (caseId && content.feed.quotesByCase?.[caseId]) ?? content.feed.quotes;
+  const cardCount = feedQuotes.length + (caseId === "B" ? 1 : 0);
 
   return (
     <div className={styles.page}>
       <QuotesHeader content={content.header} />
       <main className={styles.body}>
-        <DetailsPanel
-          content={content.detailsPanel}
-          values={values}
-          onEdit={() => setEditOpen(true)}
-          collapsed={detailsCollapsed}
-          onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
-        />
-        <QuotesFeed
-          content={content.feed}
-          reportInterest={reportInterest}
-          collapsed={detailsCollapsed}
-          caseId={caseId}
-        />
+        <AnimatePresence mode="wait" initial={false}>
+          {loading ? (
+            <motion.div
+              key="skeleton"
+              className={styles.swap}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <QuotesSkeleton
+                cardCount={cardCount}
+                collapsed={detailsCollapsed}
+                rowCount={content.detailsPanel.rows.length}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="content"
+              className={styles.swap}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <DetailsPanel
+                content={content.detailsPanel}
+                values={values}
+                onEdit={() => setEditOpen(true)}
+                collapsed={detailsCollapsed}
+                onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
+              />
+              <QuotesFeed
+                content={content.feed}
+                reportInterest={reportInterest}
+                collapsed={detailsCollapsed}
+                caseId={caseId}
+                sumInsured={values?.["coverage"] || undefined}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Edit Details — the quote form only (no AI-search column), prefilled. */}
@@ -68,6 +115,7 @@ export function QuotesView({ content, quoteModal }: QuotesViewProps) {
             reportInterest: next["reportInterest"] ?? "",
           });
           setEditOpen(false);
+          setLoadKey((k) => k + 1);
         }}
       />
     </div>

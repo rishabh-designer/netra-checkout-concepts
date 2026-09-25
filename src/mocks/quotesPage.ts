@@ -51,10 +51,11 @@ export const mockQuotesPageContent: QuotesPageContent = {
     rows: [
       { label: "Enter Company Type", value: "Private Limited Company", key: "type" },
       { label: "Type of Business", value: "IT & Digital Businesses", key: "business" },
-      { label: "Company's Annual Turnover", value: "₹ 0Cr – 5 Cr", key: "turnover" },
+      { label: "Company's Annual Turnover", value: "₹50 Cr to ₹250 Cr", key: "turnover" },
       { label: "Company PAN", value: "—", key: "cin" },
       { label: "Existing Directors and Officers Policy", value: "No", key: "existingPolicy" },
       { label: "Claims or Incidents in the Last 5 Years", value: "No", key: "claims5y" },
+      { label: "Sum Insured", value: "₹5 Crore", key: "coverage" },
     ],
     upgrade: {
       title: "Ready to Upgrade?",

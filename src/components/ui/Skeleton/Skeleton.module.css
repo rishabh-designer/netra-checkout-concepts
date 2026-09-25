@@ -1,0 +1,76 @@
+/* Base block: sunken fill that fades + rises in after its stagger delay, with a
+   highlight wave (::after) sweeping across on a matching delay. */
+.skeleton {
+  --sk-delay: 0ms;
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  overflow: hidden;
+  /* between sunken and recessed — reads clearly on white cards */
+  background: color-mix(in srgb, var(--color-card-recessed) 70%, var(--color-card-sunken));
+  opacity: 0;
+  animation: sk-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) var(--sk-delay) forwards;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.75) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  animation: sk-wave 1.6s ease-in-out calc(var(--sk-delay) + 0.2s) infinite;
+}
+
+.text {
+  height: 1em;
+  border-radius: var(--radius-6);
+}
+
+.rectangular {
+  border-radius: 0;
+}
+
+.rounded {
+  border-radius: var(--radius-12);
+}
+
+.circular {
+  border-radius: 50%;
+  corner-shape: round;
+}
+
+@keyframes sk-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sk-wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    opacity: 1;
+    animation: none;
+  }
+  .skeleton::after {
+    display: none;
+  }
+}
