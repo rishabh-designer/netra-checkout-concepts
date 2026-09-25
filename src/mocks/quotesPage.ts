@@ -1,7 +1,6 @@
 import type { FeaturesDrawerContent, QuotesPageContent, QuoteCardData } from "@/types/quotesPage";
 
 const ICICI = "/Insurance.Comp/ICICI.webp";
-const NATIONAL = "/Insurance.Comp/National.webp";
 const GENERALI = "/Insurance.Comp/Generali.webp";
 const HDFC = "/Insurance.Comp/HDFC.webp";
 const ROYAL = "/Insurance.Comp/Royal.webp";
@@ -17,21 +16,6 @@ const EMERGENCY = "Emergency Costs";
 const CRISIS = "Crisis Management";
 const EXTRADITION = "Extradition Costs";
 
-/* Default list (Cases A/C): immediate-purchase quotes carry a price and are
-   comparable; unpriced "Get Quote" ones have no coverage chips and read
-   "Unavailable" for compare. */
-const QUOTES: QuoteCardData[] = [
-  { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, coverages: [DEFENCE, EPL, REGULATORY] },
-  { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", comparable: false },
-  { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", comparable: false },
-  { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", comparable: false },
-  { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", comparable: true },
-  { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", comparable: false },
-  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, matchPercent: 32, comparable: true, coverages: [DEFENCE, ASSETS, CRISIS] },
-  { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", matchPercent: 12, comparable: true },
-  { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", matchPercent: 43, comparable: false },
-];
-
 /* Exact match (A): the Gold Quote is revealed on arrival and leads the stack. */
 const GOLD_QUOTE: QuoteCardData = {
   insurer: "Your Personalized Insurance Quote",
@@ -40,6 +24,13 @@ const GOLD_QUOTE: QuoteCardData = {
   gold: true,
   comparable: true,
   coverages: [DEFENCE, EPL, REGULATORY, ASSETS],
+};
+
+/* Case C premiums at its lower ₹5 Cr Sum Insured. */
+const CASE_C_PRICES: Record<string, string> = {
+  "Generali Central Insurance": "₹6,000",
+  "HDFC ERGO General Insurance": "₹6,000",
+  "Royal Sundaram General Insurance": "₹7,500",
 };
 
 /* Cases A and B share this sequence (Figma 571 stack): two immediate
@@ -53,6 +44,13 @@ const MATCHED_QUOTES: QuoteCardData[] = [
   { insurer: "SBI General Insurance", logoSrc: SBI, sumInsured: "₹5 Crore", comparable: false },
   { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", comparable: false },
 ];
+
+/* Case C (no data, also the fallback for any unmatched name): the same six
+   insurers as B, minus the locked card. Its Sum Insured is lower (₹5 Cr vs
+   ₹10 Cr), so the priced quotes come in cheaper. */
+const QUOTES: QuoteCardData[] = MATCHED_QUOTES.map((q) =>
+  q.price ? { ...q, price: CASE_C_PRICES[q.insurer] ?? q.price } : q,
+);
 
 /** "View All Features" drawer copy (Figma 587:63725): standard Indian D&O
  *  cover in plain language, shared by every quote in this mock. */
