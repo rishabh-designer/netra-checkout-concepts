@@ -1,65 +1,77 @@
+/* page.break (584:44155): peach-to-white, peach hairline, r16, 12 padding,
+   everything centred 12 apart. */
 .banner {
-  position: relative;
-  flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  min-height: 240px;
-  padding: var(--spacing-32);
+  gap: var(--spacing-12);
+  width: 100%;
+  padding: var(--spacing-12);
   border: var(--border-hairline) solid var(--color-brand-secondary-border);
-  border-radius: var(--radius-24);
-  background: linear-gradient(120deg, var(--color-brand-secondary-subtle), var(--color-card) 70%);
+  border-radius: var(--radius-16);
+  background: linear-gradient(to bottom, var(--color-brand-secondary-subtle) 9.06%, var(--color-card) 60.57%);
   overflow: hidden;
 }
 
-.text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-24);
-  max-width: 58%;
-  z-index: 1;
-}
-
+/* Instrument Serif 20 / 1.2, centred; the emphasis sits on its own line. */
 .heading {
+  width: 100%;
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-400);
   font-weight: 400;
-  font-size: var(--font-size-display-sm);
-  line-height: 1.08;
-  color: var(--color-label-basic);
+  line-height: 1.2;
+  text-align: center;
+  color: var(--color-label-primary);
 }
 
 .em {
-  color: var(--color-brand-primary);
+  display: block;
   font-style: italic;
+  color: var(--color-brand-primary);
 }
 
+/* Sent state reads as one sentence, emphasis inline. */
+.banner[data-sent] .em {
+  display: inline;
+}
+
+/* Cropped report preview (584:44157): 250 × 154.8. */
+.visual {
+  display: block;
+  width: 250px;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 250 / 154.8;
+}
+
+/* button/primary.fill: 10/14, 12px SemiBold, arrow trailing. */
 .cta {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-8);
-  align-self: flex-start;
-  padding: var(--spacing-10) var(--spacing-16);
-  border: 0;
-  border-radius: var(--radius-16);
+  padding: var(--spacing-10) 14px;
+  border: var(--border-hairline) solid var(--color-brand-primary);
+  border-radius: var(--radius-12); /* one step rounder than Figma's r10 (house rule) */
   background: var(--color-brand-primary);
   color: var(--color-label-inverse);
-  font-size: var(--font-size-100);
+  font-size: var(--font-size-75);
   font-weight: 600;
+  line-height: 1;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .cta:hover {
-  background: var(--color-brand-primary-deep);
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-button-primary-hover);
 }
 
-.visual {
-  position: absolute;
-  right: var(--spacing-24);
-  bottom: 0;
-  width: 46%;
-  max-width: 420px;
-  height: auto;
-  object-fit: contain;
-  pointer-events: none;
+.cta svg {
+  transition: transform 0.2s ease;
+}
+
+.cta:hover svg {
+  transform: translateX(2px);
 }

@@ -52,7 +52,10 @@ export function QuotesSkeleton({ cardCount, collapsed = false, rowCount = 7 }: Q
       {/* Feed: fixed top + vertical stack */}
       <div className={styles.feed}>
         <div className={styles.top}>
-          <Skeleton width={330} height={12} delay={d(1)} />
+          <div className={styles.crumbRow}>
+            <Skeleton width={330} height={12} delay={d(1)} />
+            <Skeleton width={170} height={24} delay={d(2)} />
+          </div>
           <div className={styles.controls}>
             <Skeleton variant="rounded" width={226} height={32} delay={d(2)} />
             <Skeleton variant="rounded" width={226} height={32} delay={d(3)} />
@@ -84,7 +87,12 @@ export function QuotesSkeleton({ cardCount, collapsed = false, rowCount = 7 }: Q
 
       {/* Help desk */}
       <aside className={styles.help}>
-        <Skeleton variant="rounded" height={104} delay={d(3)} className={styles.full} />
+        <div className={styles.helpStack}>
+          <Skeleton variant="rounded" height={104} delay={d(3)} className={styles.full} />
+          <Skeleton variant="rounded" height={196} delay={d(5)} className={styles.full} />
+          <Skeleton variant="rounded" height={290} delay={d(7)} className={styles.full} />
+        </div>
+        <Skeleton variant="rounded" height={50} delay={d(12)} className={styles.full} />
       </aside>
     </div>
   );

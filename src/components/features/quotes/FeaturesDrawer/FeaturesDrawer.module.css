@@ -1,0 +1,306 @@
+/* Overlay: docked right with a 32px gutter all round (587:63725 sits 32 from
+   the frame's top, bottom and right). Scrim colour/blur animate in the TSX. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--spacing-32);
+}
+
+/* Drawer (587:63839): 624 wide, white, 12/24/24 padding; the body grows and
+   scrolls, the footer stays pinned. Shadow matches the Edit Details drawer
+   (QuoteModal .modal); radius one step rounder (32) per design review. */
+.drawer {
+  display: flex;
+  flex-direction: column;
+  width: 624px;
+  max-width: 100%;
+  height: 100%;
+  padding: var(--spacing-12) var(--spacing-24) var(--spacing-24);
+  border-radius: var(--radius-32);
+  background: var(--color-card);
+  box-shadow: 0 24px 80px rgba(28, 28, 28, 0.24);
+  overflow: hidden;
+}
+
+/* 587:63840 — header, then tabs + content, 32 apart. */
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
+  padding: var(--spacing-12) 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+}
+
+/* Instrument Serif italic 32 — the drawer's only display type. */
+.title {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-heading-lg);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--color-label-primary);
+  white-space: nowrap;
+}
+
+/* Same boxed 24px control as the Edit Details drawer (QuoteModal .ctrl). */
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: var(--border-hairline) solid var(--color-card-recessed);
+  border-radius: var(--radius-6);
+  background: var(--color-card);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.close:hover {
+  background: var(--color-brand-primary-subtle);
+  border-color: var(--color-brand-primary-border);
+}
+
+/* 587:64680 — tabs over content, 12 apart. */
+.panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+/* Tab row (587:64696): edge to edge over a 0.5px lilac baseline. */
+.tabs {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: var(--border-hairline) solid var(--color-brand-primary-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex-shrink: 0;
+  margin-bottom: calc(-1 * var(--border-hairline));
+  padding: 8.25px var(--spacing-12);
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-brand-primary-muted);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  font-feature-settings: "zero" 1, "dlig" 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--color-brand-primary);
+}
+
+/* Active: tinted fill, 1px purple underline. */
+.tab[aria-selected="true"] {
+  background: var(--color-brand-primary-tint);
+  border-bottom-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}
+
+/* Content (587:63851): scrolls; slim lilac scrollbar (587:64671). */
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-primary-subtle-bold) var(--color-brand-primary-subtle);
+  outline: none;
+}
+
+.content:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--color-brand-primary-border);
+  border-radius: var(--radius-8);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding: var(--spacing-8) var(--spacing-12);
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.itemTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  min-height: 24px;
+  padding: 0 var(--spacing-2);
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-success);
+}
+
+.itemTitle[data-tone="excluded"] {
+  color: var(--color-error);
+}
+
+.itemTitle[data-tone="info"] {
+  color: var(--color-brand-primary);
+}
+
+.marker {
+  flex-shrink: 0;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin: 0 3px;
+  border-radius: 50%;
+  corner-shape: round;
+  background: var(--color-brand-primary);
+}
+
+.itemBody {
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-label-primary);
+}
+
+/* Footer (587:64768): the card's bar at drawer scale — Sum Insured left,
+   the same price / Get Quote button right. */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  flex-shrink: 0;
+  padding: var(--spacing-12);
+  border-radius: var(--radius-16);
+  background: var(--color-brand-primary-subtle);
+}
+
+.drawer[data-tone="gold"] .footer {
+  background: var(--color-brand-secondary-subtle);
+}
+
+.drawer[data-tone="quote"] .footer {
+  background: var(--color-card-sunken);
+}
+
+.sum {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  white-space: nowrap;
+}
+
+.sumLabel {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-subtle-primary);
+}
+
+.sumValue {
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-brand-primary);
+}
+
+/* button/primary.fill at 16/28, r16, 16px label + 16px arrow. */
+.buttonFilled,
+.buttonOutline {
+  --btn: var(--color-brand-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-16);
+  flex-shrink: 0;
+  padding: var(--spacing-16) 28px;
+  border: var(--border-hairline) solid var(--btn);
+  border-radius: var(--radius-24); /* one step rounder than Figma's r16 (house rule) */
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.buttonFilled {
+  background: var(--btn);
+  color: var(--color-label-inverse);
+}
+
+.buttonFilled:hover {
+  background: var(--color-brand-primary-hover);
+  border-color: var(--color-brand-primary-subtle);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.drawer[data-tone="gold"] .buttonFilled {
+  --btn: var(--color-brand-secondary);
+}
+
+.drawer[data-tone="gold"] .buttonFilled:hover {
+  background: var(--color-brand-secondary);
+  border-color: var(--color-brand-secondary-subtle-bold);
+  box-shadow: var(--shadow-button-secondary-hover);
+}
+
+.buttonOutline {
+  border-color: var(--color-border-subtle);
+  background: var(--color-card);
+  color: var(--btn);
+}
+
+.buttonOutline:hover {
+  background: var(--color-brand-primary-subtle);
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.arrow {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  .overlay {
+    padding: var(--spacing-16);
+  }
+  .drawer {
+    padding: var(--spacing-8) var(--spacing-16) var(--spacing-16);
+  }
+}

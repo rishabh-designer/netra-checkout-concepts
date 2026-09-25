@@ -1,6 +1,6 @@
 /*
- * Quote card (Figma 571:40935 gold / 571:38844 immediate / 571:39032 priced /
- * 571:41141 get-quote). One layout; each `data-tone` has its own diagonal
+ * Quote card (Figma 584:42982 gold / 584:43148 immediate / 584:43524 priced /
+ * 584:43660 get-quote). One layout; each `data-tone` has its own diagonal
  * gradient, bottom-bar fill and button. Gold also swaps the stroke and adds an
  * outer orange glow; Get Quote goes neutral grey with a dark title.
  */
@@ -13,38 +13,38 @@
   padding: 0 var(--spacing-8);
   border: var(--border-hairline) solid var(--color-border-subtle);
   border-radius: var(--radius-16);
-  /* immediate (571:38844) */
+  /* immediate (584:43148) */
   background: linear-gradient(
-    205.66deg,
-    var(--color-success-subtle) 5.7472%,
-    var(--color-card) 15.199%,
-    var(--color-card) 58.958%,
-    var(--color-brand-primary-subtle) 80.277%
+    176.03deg,
+    var(--color-success-subtle) 1.491%,
+    var(--color-card) 13.152%,
+    var(--color-card) 67.144%,
+    var(--color-brand-primary-subtle) 93.448%
   );
   overflow: hidden;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* priced (571:39032) */
+/* priced (584:43524) */
 .card[data-tone="priced"] {
   background: linear-gradient(
-    204.06deg,
-    var(--color-brand-primary-subtle) 5.7472%,
-    var(--color-card) 15.199%,
-    var(--color-card) 58.958%,
-    var(--color-brand-primary-subtle) 80.277%
+    176.31deg,
+    var(--color-brand-primary-subtle) 1.491%,
+    var(--color-card) 13.152%,
+    var(--color-card) 67.144%,
+    var(--color-brand-primary-subtle) 93.448%
   );
 }
 
-/* get quote (571:41141 / 577:42637 / 571:39168): neutral grey */
+/* get quote (584:43660): neutral grey */
 .card[data-tone="quote"] {
   --bar-fill: var(--color-card-sunken);
   background: linear-gradient(
-    201.62deg,
-    var(--color-card-sunken) 5.7472%,
-    var(--color-card) 9.4737%,
-    var(--color-card) 58.958%,
-    var(--color-card-sunken) 80.277%
+    176.71deg,
+    var(--color-card-sunken) 1.491%,
+    var(--color-card) 13.152%,
+    var(--color-card) 67.144%,
+    var(--color-card-sunken) 93.448%
   );
 }
 
@@ -53,7 +53,7 @@
   border-color: var(--color-caution);
   box-shadow: var(--shadow-gold-glow);
   background: linear-gradient(
-    202.6deg,
+    202.89deg, /* 584:42982 */
     var(--color-caution-subtle) 3.175%,
     var(--color-card) 25.236%,
     var(--color-card) 77.441%,
@@ -207,6 +207,12 @@
   padding: 0 var(--spacing-2);
 }
 
+/* Pill (if any) left, insurer logo right (584:42986). */
+.logo,
+.logoSlot {
+  margin-left: auto;
+}
+
 .logo {
   height: 32px;
   width: auto;
@@ -314,30 +320,45 @@
   flex-shrink: 0;
 }
 
-.coverage .divider {
+/* Plain 0.5px rule (587:62035) between the chips and View All Features. */
+.rule {
   align-self: stretch;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
 }
 
+/* View All Features pill (587:62126): success tint, r6, 12px SemiBold green. */
 .viewFeatures {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4);
-  padding: var(--spacing-6) var(--spacing-10) var(--spacing-6) var(--spacing-12);
-  border: var(--border-hairline) solid var(--color-brand-secondary-border);
-  border-radius: 1000px;
-  corner-shape: round;
-  background: linear-gradient(
-    254.5deg,
-    var(--color-card) 51.898%,
-    var(--color-brand-secondary-subtle) 95.253%
-  );
-  color: var(--color-label-primary);
+  padding: 4.5px 6.5px;
+  border: var(--border-hairline) solid var(--color-success-border);
+  border-radius: var(--radius-8); /* one step rounder than Figma's r6 (house rule) */
+  background: var(--color-success-tint);
+  color: var(--color-success);
   font-size: var(--font-size-75);
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1;
   letter-spacing: -0.12px;
   white-space: nowrap;
   cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.viewFeatures:hover {
+  background: var(--color-success-subtle);
+  border-color: var(--color-success);
+}
+
+.viewFeatures svg {
+  transition: transform 0.2s ease;
+}
+
+.viewFeatures:hover svg {
+  transform: translateX(2px);
 }
 
 /* Bottom bar: compare left; Sum Insured + button right. */
@@ -500,7 +521,7 @@
   gap: var(--spacing-8);
   padding: var(--spacing-12) var(--spacing-20);
   border: 0;
-  border-radius: var(--radius-12);
+  border-radius: var(--radius-16); /* one step rounder than Figma's r12 (house rule) */
   background: var(--color-brand-secondary);
   color: var(--color-label-inverse);
   font-size: var(--font-size-100);

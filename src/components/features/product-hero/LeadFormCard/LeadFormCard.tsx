@@ -55,6 +55,16 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
   // The name carried into the modal / Quotes page (canonical when matched).
   const [resolvedName, setResolvedName] = useState("");
   const [toastOpen, setToastOpen] = useState(false);
+  // Hidden demo shortcut: the info icon cycles the demo names (A → B → C → A);
+  // clearing the field starts the cycle over.
+  const [demoIndex, setDemoIndex] = useState(-1);
+  const cycleDemoName = () => {
+    const names = content.demoNames;
+    if (!names?.length) return;
+    const next = (demoIndex + 1) % names.length;
+    setDemoIndex(next);
+    setCompanyName(names[next]);
+  };
 
   const handleSubmit = () => {
     if (!companyName.trim()) {
@@ -113,7 +123,9 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
           onChange={setCompanyName}
           status={companyName.trim().length >= 4 ? "success" : "empty"}
           clearable
+          onClear={() => setDemoIndex(-1)}
           infoTooltip={content.inputTooltip}
+          onInfoClick={cycleDemoName}
           onSubmit={handleSubmit}
         />
         <div className={styles.actions}>
@@ -124,13 +136,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
           />
         </div>
         {focus && (
-          <p className={styles.privacy}>
-            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
-              <rect x="3.5" y="7" width="9" height="6.5" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-              <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" strokeWidth="1.2" />
-            </svg>
-            {focus.privacyLine}
-          </p>
+          <p className={styles.privacy}>{focus.privacyLine}</p>
         )}
       </div>
       <QuoteModal

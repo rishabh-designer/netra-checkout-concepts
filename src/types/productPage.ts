@@ -12,8 +12,6 @@ export interface NavContent {
   logoAlt: string;
   items: NavItem[];
   loginLabel: string;
-  /** "Talk to an Expert" — shown in the Focus landing concept only. */
-  expertLabel?: string;
 }
 
 export interface BreadcrumbItem {
@@ -61,6 +59,9 @@ export interface LeadFormContent {
   inputPlaceholder: string;
   /** Body copy for the company-name field's info-icon tooltip. */
   inputTooltip: string;
+  /** Demo shortcut: clicking the input's info icon cycles through these
+   *  company names (one per case); clearing the field resets the cycle. */
+  demoNames?: string[];
   ctaLabel: string;
   ctaMeta: string;
   providersHeading: string;

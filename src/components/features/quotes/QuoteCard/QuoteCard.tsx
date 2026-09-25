@@ -10,11 +10,11 @@ import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/Move
 import { EyeIcon, type EyeIconHandle } from "@/components/icons/EyeIcon";
 import styles from "./QuoteCard.module.css";
 
-/** Figma interface-icon/icons (553:29735) — 12px chevron, label ink. */
+/** Figma interface-icon/icons (587:62128) — 12px chevron, success green. */
 function FeaturesChevron() {
   return (
     <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-      <path d="M4.125 2.25 7.875 6 4.125 9.75" stroke="var(--color-label-primary)" strokeWidth="1.23539" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4.125 2.25 7.875 6 4.125 9.75" stroke="var(--color-success)" strokeWidth="1.23539" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -71,20 +71,23 @@ export interface QuoteCardProps {
   labels: QuoteCardLabels;
   /** Ghost card only — fired by "Reveal Quote" (unwired this pass). */
   onReveal?: () => void;
+  /** "View All Features" — opens the features drawer for this quote. */
+  onViewFeatures?: () => void;
 }
 
 /**
  * QuoteCard — one insurer quote in the vertical feed (Figma 553:29607 immediate
- * / 553:29205 priced / 553:28954 get-quote / 553:29978 gold). Logo + pill, an
- * ikkat rule, the two-line insurer name, a "Top Coverages" box (chips, rule,
- * View All Features), and a bottom bar with Add-To-Compare, Sum Insured and the
+ * / 553:29205 priced / 553:28954 get-quote / 553:29978 gold; 584:* refresh).
+ * Pill left + insurer logo right, an ikkat rule, the two-line insurer name, a
+ * "Top Coverages" box (rating, chips, a plain rule, View All Features → the
+ * features drawer), and a bottom bar with Add-To-Compare, Sum Insured and the
  * price / Get Quote button. `data-tone` swaps the gradient, rule colour, bar
  * fill and button; the arrow loops while the card is hovered. The Gold card is
  * wrapped in a golden "border beam" that circles its edge to draw the eye. A ghost card
  * (fuzzy match) shows only a centred "Reveal Quote" button.
  * Usage: <QuoteCard quote={q} labels={…} />
  */
-export function QuoteCard({ quote, labels, onReveal }: QuoteCardProps) {
+export function QuoteCard({ quote, labels, onReveal, onViewFeatures }: QuoteCardProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<EyeIconHandle>(null);
   const arrowRef = useRef<MoveRightIconHandle>(null);
@@ -118,12 +121,6 @@ export function QuoteCard({ quote, labels, onReveal }: QuoteCardProps) {
       <div className={styles.inner}>
         <div className={styles.top}>
           <div className={styles.logoRow}>
-            {quote.logoSrc ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={quote.logoSrc} alt={quote.insurer} className={styles.logo} />
-            ) : (
-              <span className={styles.logoSlot} aria-hidden />
-            )}
             {tone === "gold" && (
               <TagPill
                 variant="secondary"
@@ -143,6 +140,12 @@ export function QuoteCard({ quote, labels, onReveal }: QuoteCardProps) {
                 onMouseEnter={() => bagRef.current?.startAnimation()}
                 onMouseLeave={() => bagRef.current?.stopAnimation()}
               />
+            )}
+            {quote.logoSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={quote.logoSrc} alt={quote.insurer} className={styles.logo} />
+            ) : (
+              <span className={styles.logoSlot} aria-hidden />
             )}
           </div>
           <IkkatDivider height={2} unit={19} color={DIVIDER_COLOR[tone]} className={styles.divider} />
@@ -173,8 +176,8 @@ export function QuoteCard({ quote, labels, onReveal }: QuoteCardProps) {
                 ))}
               </ul>
             )}
-            <IkkatDivider height={2} unit={18} color="var(--color-success)" className={styles.divider} />
-            <button type="button" className={styles.viewFeatures}>
+            <hr className={styles.rule} />
+            <button type="button" className={styles.viewFeatures} onClick={onViewFeatures} aria-haspopup="dialog">
               {labels.viewFeatures}
               <FeaturesChevron />
             </button>

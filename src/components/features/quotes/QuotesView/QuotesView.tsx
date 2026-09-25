@@ -92,11 +92,15 @@ export function QuotesView({ content, quoteModal }: QuotesViewProps) {
               />
               <QuotesFeed
                 content={content.feed}
-                reportInterest={reportInterest}
                 caseId={caseId}
                 sumInsured={values?.["coverage"] || undefined}
               />
-              <HelpDesk content={content.feed.needHelp} />
+              <HelpDesk
+                content={content.feed.needHelp}
+                testimonial={content.feed.testimonial}
+                riskReport={content.feed.riskReport}
+                reportInterest={reportInterest}
+              />
             </motion.div>
           )}
         </AnimatePresence>

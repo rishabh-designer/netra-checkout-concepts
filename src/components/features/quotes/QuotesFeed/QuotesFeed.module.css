@@ -23,6 +23,26 @@
   flex-shrink: 0;
 }
 
+/* Breadcrumb left-aligned, "7 Quotes Available" right (601:65042). */
+.crumbRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  width: 100%;
+}
+
+.available {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-heading-sm);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--color-label-primary);
+  white-space: nowrap;
+}
+
 /* Page-width rule: 8×4 marks, 8/12 padding (564:36087). */
 .rule {
   width: 100%;
@@ -49,7 +69,7 @@
   display: none;
 }
 
-/* 480-wide centred stack (564:32996): cards → rule → misc, 32 apart. */
+/* 480-wide centred stack (564:32996). */
 .column {
   display: flex;
   flex-direction: column;
@@ -72,21 +92,8 @@
   min-width: 0;
 }
 
-.stackRule {
-  width: 100%;
-  padding: var(--spacing-8) 0;
-}
 
-.misc {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-}
 
-/* Stacked vertically now, so each misc card spans the 480 column. */
-.column .misc > * {
-  width: 100%;
-}
 
 /* Below the 3-column breakpoint the page scrolls naturally. */
 @media (max-width: 1100px) {

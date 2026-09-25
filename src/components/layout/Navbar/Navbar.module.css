@@ -103,19 +103,6 @@
   gap: var(--spacing-8);
 }
 
-/* Outline sibling of Login — the human fallback (Focus concept). */
-.expert {
-  padding: var(--spacing-8) var(--spacing-10);
-  border-radius: var(--radius-12);
-  border: var(--border-hairline) solid var(--color-brand-primary);
-  background: var(--color-card);
-  color: var(--color-brand-primary);
-  font-size: var(--font-size-75);
-  font-weight: 600;
-  line-height: 1;
-  cursor: pointer;
-}
-
 .login {
   padding: var(--spacing-8) var(--spacing-10);
   border-radius: var(--radius-12);

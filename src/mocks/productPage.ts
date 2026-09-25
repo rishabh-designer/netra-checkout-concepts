@@ -106,10 +106,10 @@ const RISK_NEWS_A: QuoteSearchPanel = {
     cinHighlight: "mixed",
     detailsHeading: "Recent Coverage",
     details: [
-      "Business Standard — Pepe Jeans Innerfashion posts 21% YoY revenue growth in FY24",
-      "ET Retail — Pepe Jeans innerwear adds 40 exclusive outlets across East India",
-      "The Morning Context — Distributor alleges ₹38L payment delay by innerwear brand",
-      "MoneyControl — MCA lists one registered charge; no litigation on record",
+      "Business Standard - Pepe Jeans Innerfashion posts 21% YoY revenue growth in FY24",
+      "ET Retail - Pepe Jeans innerwear adds 40 exclusive outlets across East India",
+      "The Morning Context - Distributor alleges ₹38L payment delay by innerwear brand",
+      "MoneyControl - MCA lists one registered charge, no litigation on record",
     ],
     founderTag: "ET Retail +3",
     footer: "Would you like BimaNetra to find other additional information?",
@@ -122,13 +122,13 @@ const RISK_NEWS_B: QuoteSearchPanel = {
   body: {
     tentative: true,
     cinSentence:
-      "We couldn't tie this coverage to a verified entity for “Sabyasachi Calcutta LLP” — the results below are unconfirmed and may blend more than one business.",
+      "We couldn't tie this coverage to a verified entity for “Sabyasachi Calcutta LLP”. The results below are unconfirmed and may mix up more than one business.",
     cinHighlight: "unconfirmed",
     detailsHeading: "Unverified Coverage",
     details: [
-      "Trade blog — “Sabyasachi Calcutta” linked to a GST notice (entity not corroborated)",
-      "LinkedIn — a page by this name lists a Kolkata address; unverified",
-      "Regional daily — studio expansion reported, no official filing found",
+      "Trade blog - “Sabyasachi Calcutta” linked to a GST notice (entity not corroborated)",
+      "LinkedIn - a page by this name lists a Kolkata address, unverified",
+      "Regional daily - studio expansion reported, no official filing found",
     ],
     founderTag: "2 low-confidence sources",
     footer:
@@ -173,6 +173,13 @@ const PROFILE_CASE_B: QuoteCase = {
   demoFill: { fullName: "Sabyasachi Mukherjee", phone: "9007296854", email: "ceo@sabyasachi.in" },
 };
 
+/* Case C (no data — "Studio Two Rupees") Profile: clicking the "Profile" title
+   fills the contact details for the demo. */
+const PROFILE_CASE_C: QuoteCase = {
+  ...PROFILE_CASE,
+  demoFill: { fullName: "Ashlen Singh", phone: "9007296854", email: "cdo@studio2rs.in" },
+};
+
 /** Fixture for the Director's & Officer's Insurance product page (Figma node 179:65816). */
 export const mockProductPageContent: ProductPageContent = {
   nav: {
@@ -184,7 +191,6 @@ export const mockProductPageContent: ProductPageContent = {
       { label: "Claims", hoverLabel: "Claims", href: "#" },
     ],
     loginLabel: "Login",
-    expertLabel: "Talk to an Expert",
   },
   breadcrumbs: [
     { label: "HOME", href: "#" },
@@ -215,6 +221,8 @@ export const mockProductPageContent: ProductPageContent = {
     inputPlaceholder: "Start with your Company's Legal Name",
     inputTooltip:
       "To verify you're running a registered business, we need the legal entity name registered against your PAN.",
+    // Hidden demo shortcut: each click on the input's info icon cycles A → B → C.
+    demoNames: ["Pepe Jeans Innerwear", "Sabyasachi Calcutta", "Studio Two Rupees"],
     ctaLabel: "Get My Quote",
     ctaMeta: "In 2 Minutes",
     providersHeading: "Policy Provided By",
@@ -259,6 +267,9 @@ export const mockProductPageContent: ProductPageContent = {
         canonicalName: "Pepe Jeans Innerfashion Private Limited",
       },
       { caseId: "B", aliases: ["sabyasachi calcutta llp", "sabyasachi calcutta"] },
+      // C is also the fallback for any unmatched name; this alias only swaps in
+      // the demo company's legal name.
+      { caseId: "C", aliases: ["studio two rupees llp", "studio two rupees"], canonicalName: "Studio Two Rupees LLP" },
     ],
     stepperLabels: ["Profile", "Business", "Risk"],
     ctaLabel: "Get Instant Quotes",
@@ -291,7 +302,7 @@ export const mockProductPageContent: ProductPageContent = {
         title: "Profile",
         activeTab: "",
         collectMode: true,
-        cases: { A: PROFILE_CASE_A, B: PROFILE_CASE_B, C: PROFILE_CASE },
+        cases: { A: PROFILE_CASE_A, B: PROFILE_CASE_B, C: PROFILE_CASE_C },
       },
       // ── Step 1: Business — the typed name resolves A/B/C. ──────────────
       {
@@ -324,8 +335,10 @@ export const mockProductPageContent: ProductPageContent = {
             search: SEARCH_FUZZY,
           },
           // C — nothing found: empty, manual entry, CIN last, no consent.
+          // Clicking the "Business" title fills Studio Two Rupees' details (demo).
           C: {
             requiresConsent: false,
+            demoFill: { type: "Limited Liability Partnership", business: "IT & Digital Businesses", turnover: "Up to ₹1 Cr", cin: "AAABC1234A" },
             fields: [
               { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "", placeholder: "Select Company Type", options: COMPANY_TYPE_OPTIONS, status: "empty" },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "", placeholder: "Select Type of Business", options: BUSINESS_OPTIONS, status: "empty" },
@@ -375,13 +388,15 @@ export const mockProductPageContent: ProductPageContent = {
             ],
             search: RISK_NEWS_B,
           },
-          // C (No Data) — nothing found: toggles empty + mandatory, coverage search.
+          // C (No Data) — nothing found: toggles empty + mandatory, sum insured
+          // blank. Clicking the "Risk" title fills No / No / ₹5 Cr (demo).
           C: {
             requiresConsent: false,
+            demoFill: { existingPolicy: "No", claims5y: "No", coverage: "₹5 Cr" },
             fields: [
               { key: "existingPolicy", label: "Does Your Business Have An Existing Directors and Officers Policy?", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
-              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "search", value: "", placeholder: "Search Your Sum Insured", status: "empty" },
+              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "", placeholder: "Select Your Sum Insured", options: COVERAGE_OPTIONS, status: "empty" },
             ],
             search: RISK_NEWS_C,
           },
@@ -401,6 +416,6 @@ export const mockProductPageContent: ProductPageContent = {
       "Covers regulatory investigations",
       "Protects directors’ personal assets",
     ],
-    privacyLine: "We only use your company name to look up public records. No spam.",
+    privacyLine: "We use your company name to look up public records, so we can assess your risk better.",
   },
 };

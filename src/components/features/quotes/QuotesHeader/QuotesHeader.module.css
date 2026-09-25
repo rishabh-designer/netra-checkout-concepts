@@ -16,27 +16,29 @@
   width: auto;
 }
 
+/* button/primary.fill (584:44872): 10/14, r10, 12px SemiBold, icon first. */
 .cta {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
-  padding: var(--spacing-8) var(--spacing-16);
-  border: 0;
-  border-radius: var(--radius-16);
-  background: var(--color-brand-secondary);
+  padding: var(--spacing-10) 14px;
+  border: var(--border-hairline) solid var(--color-brand-primary);
+  border-radius: var(--radius-12); /* one step rounder than Figma's r10 (house rule) */
+  background: var(--color-brand-primary);
   color: var(--color-label-inverse);
-  font-size: var(--font-size-100);
+  font-size: var(--font-size-75);
   font-weight: 600;
+  line-height: 1;
   cursor: pointer;
-  transition: filter 0.15s ease;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .cta:hover {
-  filter: brightness(1.05);
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-button-primary-hover);
 }
 
 .ctaIcon {
-  width: 16px;
-  height: 16px;
+  display: inline-flex;
   flex-shrink: 0;
 }

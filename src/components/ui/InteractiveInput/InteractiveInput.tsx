@@ -48,6 +48,8 @@ export interface InteractiveInputProps {
   /** When set, the suffix info icon becomes a button that reveals this tooltip
    *  on hover/focus (Peetal DSL tooltip, Figma 3437:64324). */
   infoTooltip?: string;
+  /** Click on the info icon (the tooltip still shows on hover/focus). */
+  onInfoClick?: () => void;
   name?: string;
   ariaLabel?: string;
   /** Value type size: "md" = 16px (DSL default, Figma 503:14272); "lg" = 18px
@@ -87,6 +89,7 @@ export function InteractiveInput({
   active = false,
   onSubmit,
   infoTooltip,
+  onInfoClick,
   name,
   ariaLabel,
   size = "md",
@@ -202,6 +205,7 @@ export function InteractiveInput({
                 className={styles.infoBtn}
                 aria-label="More information"
                 aria-describedby={tipId}
+                onClick={onInfoClick}
               >
                 <Info />
               </button>

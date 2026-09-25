@@ -32,11 +32,13 @@
   flex-shrink: 0;
 }
 
-/* slash variant (Quotes feed, Figma 564:32971): 12px, muted-purple crumbs and
-   "/" separators, purple current page. */
+/* slash variant (Quotes feed, Figma 584:42901): 10px, -1% tracking, muted-purple
+   crumbs and "/" separators, purple current page. */
 .slash .crumb,
-.slash .current {
-  font-size: var(--font-size-75);
+.slash .current,
+.slash .slashSep {
+  font-size: var(--font-size-50);
+  letter-spacing: -0.01em;
 }
 
 .slash .crumb {
@@ -44,14 +46,11 @@
 }
 
 .slash .current {
-  letter-spacing: normal;
   color: var(--color-brand-primary);
 }
 
 .slashSep {
-  font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1;
-  letter-spacing: 0.24px;
   color: var(--color-label-muted-primary);
 }

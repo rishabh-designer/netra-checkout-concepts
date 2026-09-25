@@ -17,6 +17,7 @@
   --color-brand-primary-faint: #dbd7ea;
   --color-brand-primary-border: #d1c6ff;
   --color-brand-secondary: #ff7700;
+  --color-brand-primary-tint: rgba(65, 0, 207, 0.08); /* button/primary/fill/primary/clicked */
 
   /* labels */
   --color-label-basic: #1c1c1c;
@@ -35,6 +36,7 @@
   --color-success: #00b200;
   --color-success-border: #a9eaa2;
   --color-success-subtle: #ecfbea;
+  --color-success-tint: rgba(0, 178, 0, 0.08); /* button/primary/fill/success/clicked */
   --color-caution: #ffcf0e; /* Gold Quote stroke */
   --color-caution-subtle: #fff9e6;
   --color-caution-border: #ffe890;
@@ -52,6 +54,7 @@
   --color-info-ring: #dde8ff; /* Figma button/primary/stroke/info/clicked — inner ring */
   --color-info-subtle: #eef4ff;
   --color-info-border: #b9d1ff;
+  --color-roundel-border: #cdd8f0; /* surface/border/300/primary: logo & avatar roundels */
   --color-error: #f10000;
   --color-error-subtle: rgba(241, 0, 0, 0.05);
 

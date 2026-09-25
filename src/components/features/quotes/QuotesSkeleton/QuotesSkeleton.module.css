@@ -83,6 +83,13 @@
   padding: var(--spacing-16) 0;
 }
 
+.crumbRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
 .controls {
   display: flex;
   justify-content: center;
@@ -124,10 +131,20 @@
   padding: var(--spacing-12) var(--spacing-4) 0;
 }
 
+/* Help desk column: help card, testimonial, risk report; chat pinned below. */
+.helpStack {
+  display: flex;
+  flex-direction: column;
+  gap: 24.5px; /* 12 + hairline rule + 12 */
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* Help desk column */
 .help {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   height: 100%;
   padding: var(--spacing-8);
 }

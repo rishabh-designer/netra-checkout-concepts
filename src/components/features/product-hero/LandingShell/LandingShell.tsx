@@ -36,7 +36,6 @@ export function LandingShell({ content, classic, flourish, ticker, foregroundCla
       <div className={foregroundClassName}>
         <Navbar
           content={content.nav}
-          showExpert={focus}
           onLogin={() => setVariant(focus ? "classic" : "focus")}
         />
         <AnimatePresence mode="wait" initial={false}>

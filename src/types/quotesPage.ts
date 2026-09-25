@@ -6,7 +6,6 @@ export interface QuotesHeaderContent {
   logoSrc: string;
   logoAlt: string;
   ctaLabel: string;
-  ctaIconSrc: string;
 }
 
 /** One "Your Details" row. `key` (a flow field key) overrides `value` with the
@@ -49,6 +48,9 @@ export interface NeedHelpContent {
   /** Stacked expert photos, pre-composited into one image (Figma 564:35811). */
   avatarsSrc: string;
   avatarsAlt: string;
+  /** "Chat with Us" CTA pinned to the bottom of the Help Desk column (593:64948). */
+  chatLabel: string;
+  chatIconSrc: string;
 }
 
 /** One insurer quote card. */
@@ -78,6 +80,30 @@ export interface QuoteCardData {
 
 export type QuoteRating = "excellent" | "good" | "average" | "na";
 
+/** One entry in a features-drawer tab: a titled line with its explanation. */
+export interface FeatureItem {
+  title: string;
+  body: string;
+}
+
+/** A features-drawer tab (Figma 587:64696). `tone` picks the item marker:
+ *  covered → green tick (587:63851), excluded → red cross, info → purple dot. */
+export interface FeatureTab {
+  key: string;
+  label: string;
+  tone: "covered" | "excluded" | "info";
+  items: FeatureItem[];
+}
+
+/** "View All Features" drawer (Figma 587:63725). */
+export interface FeaturesDrawerContent {
+  title: string;
+  closeLabel: string;
+  /** Tab key opened first — the card's "Top Coverages" leads into coverages. */
+  defaultTab: string;
+  tabs: FeatureTab[];
+}
+
 /** The risk-report banner (item 9 left). Copy flips on the carried Yes/No answer. */
 export interface RiskReportBannerContent {
   /** "No" state — the offer. `emphasis` is the purple-italic tail of `question`. */
@@ -95,9 +121,15 @@ export interface TestimonialContent {
   quote: string;
   name: string;
   role: string;
+  company: string;
+  /** Overlapping 32px roundels, bottom right (584:44147): person over logo. */
+  photoSrc: string;
+  logoSrc: string;
 }
 
 export interface QuotesFeedContent {
+  /** Right of the breadcrumb (601:65040); `{count}` is the number of quotes. */
+  availableLabel: string;
   breadcrumb: BreadcrumbItem[];
   needHelp: NeedHelpContent;
   filterLabel: string;
@@ -109,6 +141,7 @@ export interface QuotesFeedContent {
   /** Per-case quote list override (e.g. fuzzy B). Falls back to `quotes`. */
   quotesByCase?: Partial<Record<QuoteCaseId, QuoteCardData[]>>;
   viewFeaturesLabel: string;
+  featuresDrawer: FeaturesDrawerContent;
   compareLabel: string;
   comparisonUnavailableLabel: string;
   getQuoteLabel: string;

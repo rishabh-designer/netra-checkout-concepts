@@ -18,11 +18,12 @@ function split(text: string, mark: string): [string, string, string] {
 }
 
 /**
- * RiskReportBanner — the offer banner (item 9 left). When the user answered "No"
- * (or hasn't answered), it invites them to get a customized Risk Report; the
- * emphasis tail is purple italic serif. When they answered "Yes" — or press
- * "Send Risk Report" — it flips to "…sent to your Inbox!" (that span purple
- * italic). Usage: <RiskReportBanner content={riskReport} sent={interest==="Yes"} />
+ * RiskReportBanner — the risk-report offer at the foot of the Help Desk stack
+ * (Figma 584:44155): a centred serif question whose tail is purple italic on
+ * its own line, a cropped preview of the report, and "Send Risk Report". Once
+ * sent (or when the user answered "Yes" in the flow) the heading flips to
+ * "…sent to your Inbox!" and the button goes away.
+ * Usage: <RiskReportBanner content={riskReport} sent={interest==="Yes"} />
  */
 export function RiskReportBanner({ content, sent = false }: RiskReportBannerProps) {
   const [isSent, setIsSent] = useState(sent);
@@ -31,24 +32,22 @@ export function RiskReportBanner({ content, sent = false }: RiskReportBannerProp
     : split(content.question, content.emphasis);
 
   return (
-    <div className={styles.banner}>
-      <div className={styles.text}>
-        <h2 className={styles.heading}>
-          {before}
-          <span className={styles.em}>{em}</span>
-          {after}
-        </h2>
-        {!isSent && (
-          <button type="button" className={styles.cta} onClick={() => setIsSent(true)}>
-            <span>{content.ctaLabel}</span>
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden>
-              <path d="M5 12h13m-5-5 5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        )}
-      </div>
+    <div className={styles.banner} data-sent={isSent || undefined}>
+      <h2 className={styles.heading}>
+        {before}
+        <span className={styles.em}>{em}</span>
+        {after}
+      </h2>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={content.visualSrc} alt={content.visualAlt} className={styles.visual} />
+      {!isSent && (
+        <button type="button" className={styles.cta} onClick={() => setIsSent(true)}>
+          <span>{content.ctaLabel}</span>
+          <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
+            <path d="M6.65 2.65a.5.5 0 0 1 .7 0l3 3a.5.5 0 0 1 0 .7l-3 3a.5.5 0 0 1-.7-.7L8.79 6.5H2a.5.5 0 0 1 0-1h6.79L6.65 3.35a.5.5 0 0 1 0-.7Z" fill="currentColor" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
