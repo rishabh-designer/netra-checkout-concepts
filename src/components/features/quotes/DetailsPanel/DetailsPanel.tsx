@@ -12,6 +12,9 @@ export interface DetailsPanelProps {
   collapsed?: boolean;
   /** Toggle the collapsed rail. */
   onToggleCollapse?: () => void;
+  /** Exact match (Case A): the Gold Quote is revealed, so the banner reads
+   *  "You're Upgraded!" instead of the "Ready to Upgrade?" progress. */
+  upgraded?: boolean;
 }
 
 /** Panel toggle glyph — `[< |]` (collapse); flipped via CSS to `[| >]` (expand). */
@@ -26,50 +29,58 @@ function ToggleGlyph() {
 }
 
 /**
- * DetailsPanel — the left "Your Details" column. Expanded: a header (title +
- * Edit Details + collapse toggle), the entered detail rows (live values from the
- * flow override the Case-C defaults) and the "Ready to Upgrade?" banner.
+ * DetailsPanel — the left "Your Details" column (Figma 564:32918), full column
+ * height. Expanded: a header (title + Edit Details + collapse toggle), the
+ * entered detail rows (live values from the flow override the Case-C defaults)
+ * and, pinned to the bottom, the "Ready to Upgrade?" (or, for the exact match,
+ * "You're Upgraded!") banner.
  * Collapsed: a narrow rail showing only the (flipped) toggle and the progress %.
  * Usage: <DetailsPanel content={detailsPanel} values={values} onEdit={fn}
  *          collapsed={bool} onToggleCollapse={fn} />
  */
-export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse }: DetailsPanelProps) {
-  const percent = Math.max(0, Math.min(100, content.upgrade.percent));
+export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, upgraded = false }: DetailsPanelProps) {
+  const percent = upgraded ? 100 : Math.max(0, Math.min(100, content.upgrade.percent));
   return (
     <aside className={styles.panel} data-collapsed={collapsed || undefined}>
       {/* Expanded layer — defines the panel height; clipped + faded when collapsed. */}
       <div className={styles.expanded} aria-hidden={collapsed}>
-        <div className={styles.head}>
-          <h2 className={styles.title}>{content.title}</h2>
-          <div className={styles.headActions}>
-            <button type="button" className={styles.edit} onClick={onEdit}>
-              {content.editLabel}
-            </button>
-            <button
-              type="button"
-              className={styles.collapse}
-              onClick={onToggleCollapse}
-              aria-label="Collapse details"
-              tabIndex={collapsed ? -1 : 0}
-            >
-              <ToggleGlyph />
-            </button>
+        <div className={styles.details}>
+          <div className={styles.head}>
+            <h2 className={styles.title}>{content.title}</h2>
+            <div className={styles.headActions}>
+              <button type="button" className={styles.edit} onClick={onEdit}>
+                {content.editLabel}
+              </button>
+              <button
+                type="button"
+                className={styles.collapse}
+                onClick={onToggleCollapse}
+                aria-label="Collapse details"
+                tabIndex={collapsed ? -1 : 0}
+              >
+                <ToggleGlyph />
+              </button>
+            </div>
           </div>
+
+          <dl className={styles.rows}>
+            {content.rows.map((row) => {
+              const live = row.key ? values?.[row.key]?.trim() : "";
+              return (
+                <div key={row.label} className={styles.row}>
+                  <dt className={styles.label}>{row.label}</dt>
+                  <dd className={styles.value}>{live || row.value}</dd>
+                </div>
+              );
+            })}
+          </dl>
         </div>
 
-        <dl className={styles.rows}>
-          {content.rows.map((row) => {
-            const live = row.key ? values?.[row.key]?.trim() : "";
-            return (
-              <div key={row.label} className={styles.row}>
-                <dt className={styles.label}>{row.label}</dt>
-                <dd className={styles.value}>{live || row.value}</dd>
-              </div>
-            );
-          })}
-        </dl>
-
-        <UpgradeBanner content={content.upgrade} />
+        {upgraded ? (
+          <UpgradeBanner variant="upgraded" upgraded={content.upgraded} />
+        ) : (
+          <UpgradeBanner content={content.upgrade} />
+        )}
       </div>
 
       {/* Collapsed rail — toggle at top, progress pinned to the bottom. */}

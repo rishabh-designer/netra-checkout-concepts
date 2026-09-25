@@ -1,33 +1,64 @@
 /*
- * Quote card (Figma 523:24496 / 523:24828 / 523:25002, hover 523:24653).
- * The three types share one layout; `data-tone` only swaps the gradient's
- * top-right corner (green / purple / grey).
+ * Quote card (Figma 571:40935 gold / 571:38844 immediate / 571:39032 priced /
+ * 571:41141 get-quote). One layout; each `data-tone` has its own diagonal
+ * gradient, bottom-bar fill and button. Gold also swaps the stroke and adds an
+ * outer orange glow; Get Quote goes neutral grey with a dark title.
  */
 .card {
-  --tone-top: var(--color-success-subtle);
+  --bar-fill: var(--color-brand-primary-subtle);
   position: relative;
   display: flex;
   flex-direction: column;
+  width: 100%;
   padding: 0 var(--spacing-8);
   border: var(--border-hairline) solid var(--color-border-subtle);
   border-radius: var(--radius-16);
+  /* immediate (571:38844) */
   background: linear-gradient(
-    200.3deg,
-    var(--tone-top) 2.92%,
-    var(--color-card) 25.302%,
-    var(--color-card) 78.268%,
-    var(--color-brand-primary-subtle) 82.243%
+    205.66deg,
+    var(--color-success-subtle) 5.7472%,
+    var(--color-card) 15.199%,
+    var(--color-card) 58.958%,
+    var(--color-brand-primary-subtle) 80.277%
   );
   overflow: hidden;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* priced (571:39032) */
 .card[data-tone="priced"] {
-  --tone-top: var(--color-brand-primary-subtle);
+  background: linear-gradient(
+    204.06deg,
+    var(--color-brand-primary-subtle) 5.7472%,
+    var(--color-card) 15.199%,
+    var(--color-card) 58.958%,
+    var(--color-brand-primary-subtle) 80.277%
+  );
 }
 
+/* get quote (571:41141 / 577:42637 / 571:39168): neutral grey */
 .card[data-tone="quote"] {
-  --tone-top: var(--color-card-sunken);
+  --bar-fill: var(--color-card-sunken);
+  background: linear-gradient(
+    201.62deg,
+    var(--color-card-sunken) 5.7472%,
+    var(--color-card) 9.4737%,
+    var(--color-card) 58.958%,
+    var(--color-card-sunken) 80.277%
+  );
+}
+
+.card[data-tone="gold"] {
+  --bar-fill: var(--color-brand-secondary-subtle);
+  border-color: var(--color-caution);
+  box-shadow: var(--shadow-gold-glow);
+  background: linear-gradient(
+    202.6deg,
+    var(--color-caution-subtle) 3.175%,
+    var(--color-card) 25.236%,
+    var(--color-card) 77.441%,
+    var(--color-brand-secondary-subtle) 81.359%
+  );
 }
 
 .card:hover {
@@ -35,20 +66,123 @@
   box-shadow: var(--shadow-card-hover);
 }
 
-/* Immediate Purchase pill sits on the card's green-tinted corner — white fill
-   (the landing-page pill keeps its gradient). */
+.card[data-tone="gold"]:hover {
+  border-color: var(--color-caution);
+  box-shadow: var(--shadow-gold-glow), var(--shadow-card-hover);
+}
+
+/*
+ * Gold border beam (after libraries.dev "Border beam"): layers around the gold
+ * card — its fill, stroke and glow are untouched. A large conic-gradient square
+ * (.beamSpin) rotates with `transform` (always composited, so it never stalls)
+ * inside two clips: .beamRing masks it to a 0.5px ring on top of the card;
+ * .beamGlow blurs it behind the card as a halo. One slow 9s revolution with a
+ * bright comet and a faint twin opposite — calm, almost hypnotic.
+ */
+.goldBeam {
+  position: relative;
+  display: flex;
+  width: 100%;
+  border-radius: var(--radius-16);
+  isolation: isolate;
+}
+
+.beamRing,
+.beamGlow {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 0.5px ring laid exactly over the card's 0.5px stroke — the border itself
+   appears to light up as the comet passes. */
+.beamRing {
+  inset: 0;
+  z-index: 1;
+  padding: 0.5px;
+  border-radius: var(--radius-16);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+/* Halo: 2px spread, radius = card 16 + 2, blur scaled with the spread
+   (reach ≈ 2 + 2×6 = 14px, well inside the feed's 24px top padding). */
+.beamGlow {
+  inset: -2px;
+  z-index: -1;
+  border-radius: 18px;
+  filter: blur(6px);
+  opacity: 1;
+}
+
+.beamSpin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1200px;
+  height: 1200px;
+  background: conic-gradient(
+    transparent 0% 10%,
+    color-mix(in srgb, var(--color-gold-highlight) 45%, transparent) 18%,
+    color-mix(in srgb, var(--color-caution) 40%, transparent) 22%,
+    transparent 30% 58%,
+    var(--color-gold-highlight) 70%,
+    var(--color-caution) 78%,
+    var(--color-gold) 85%,
+    var(--color-brand-secondary) 91%,
+    transparent 98% 100%
+  );
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: beam-rotate 9s linear infinite;
+  will-change: transform;
+}
+
+@keyframes beam-rotate {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Reduced motion: no sweep — a faint static gold rim keeps the card distinct. */
+@media (prefers-reduced-motion: reduce) {
+  .beamSpin {
+    animation: none;
+    background: conic-gradient(
+      var(--color-gold-highlight),
+      var(--color-caution),
+      var(--color-gold),
+      var(--color-brand-secondary),
+      var(--color-gold-highlight)
+    );
+  }
+  .beamRing {
+    opacity: 0.35;
+  }
+  .beamGlow {
+    opacity: 0.2;
+  }
+}
+
+/* Pills sit on tinted corners — white fill (landing pills keep gradients). */
 .logoRow .pill {
   background: var(--color-card);
 }
 
-/* product.icon/final — sits behind the content, pinned bottom-right. */
+/* product.icon/final (571:40936) — behind the content, pinned right, 50%. */
 .watermark {
   position: absolute;
+  top: 61.84px;
   right: -0.5px;
-  bottom: 23px;
-  width: 139px;
-  height: 139px;
+  width: 159.318px;
+  height: 159.318px;
+  opacity: 0.5;
   pointer-events: none;
+}
+
+/* Get Quote: the icon desaturates (luminosity blend in Figma). */
+.card[data-tone="quote"] .watermark {
+  mix-blend-mode: luminosity;
 }
 
 .inner {
@@ -80,6 +214,13 @@
   object-fit: contain;
 }
 
+/* Gold has no insurer logo yet — hold the 32px row height. */
+.logoSlot {
+  display: block;
+  width: 49.211px;
+  height: 32px;
+}
+
 .divider {
   padding: 0;
 }
@@ -87,21 +228,24 @@
 .header {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: var(--spacing-12);
 }
 
-/* Always two lines (Figma breaks every name in two): QuoteCard splits the name
-   at the most balanced word boundary; each line stays on one row and ellipsizes
-   if the column is too narrow, so every card's title block is 2 lines tall. */
+/* Always two lines (QuoteCard splits at the most balanced word boundary). */
 .insurer {
   display: flex;
   flex-direction: column;
-  height: 2em;
+  align-self: stretch;
   padding: 0 var(--spacing-4);
-  font-size: var(--font-size-400);
+  font-size: var(--font-size-300);
   font-weight: 600;
-  line-height: 1;
-  color: var(--color-label-basic);
+  line-height: 1.1;
+  color: var(--color-brand-primary);
+}
+
+.card[data-tone="quote"] .insurer {
+  color: var(--color-label-primary);
 }
 
 .insurerLine {
@@ -110,13 +254,108 @@
   text-overflow: ellipsis;
 }
 
-.actionRow {
+/* "Top Coverages" box */
+.coverage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-12);
+  align-self: stretch;
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+}
+
+/* "Top Coverages" row — label left, rating chip right (584:45342). */
+.coverageHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+}
+
+.coverageLabel {
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1.7;
+  color: var(--color-success);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+  width: 100%;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-6);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-6);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-label-primary);
+}
+
+.card[data-tone="priced"] .chip {
+  padding: var(--spacing-6);
+}
+
+.chipCheck {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+
+.coverage .divider {
+  align-self: stretch;
+}
+
+.viewFeatures {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6) var(--spacing-10) var(--spacing-6) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-brand-secondary-border);
+  border-radius: 1000px;
+  corner-shape: round;
+  background: linear-gradient(
+    254.5deg,
+    var(--color-card) 51.898%,
+    var(--color-brand-secondary-subtle) 95.253%
+  );
+  color: var(--color-label-primary);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -0.12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Bottom bar: compare left; Sum Insured + button right. */
+.bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-8);
-  height: 38px;
-  padding: 0 var(--spacing-8) 0 var(--spacing-12);
+  align-self: stretch;
+  padding: var(--spacing-6) var(--spacing-8);
+  border-radius: var(--radius-8);
+  background: var(--bar-fill);
+}
+
+.barRight {
+  display: flex;
+  align-items: center;
+  gap: 21px;
 }
 
 .compare,
@@ -128,8 +367,6 @@
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.12px;
-  /* Narrow grid columns: the label wraps to two lines instead of pushing the
-     button out of the card (the button never shrinks). */
   min-width: 0;
 }
 
@@ -155,85 +392,6 @@
   border-color: var(--color-input-stroke);
 }
 
-/* button/primary.fill — filled (price) and outlined (Get Quote). */
-.price,
-.getQuote {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-12);
-  flex-shrink: 0;
-  padding: var(--spacing-12) var(--spacing-20);
-  border: var(--border-hairline) solid var(--color-brand-primary);
-  /* one step rounder than Figma's r12, per design review */
-  border-radius: var(--radius-16);
-  font-size: var(--font-size-100);
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.price {
-  background: var(--color-brand-primary);
-  color: var(--color-label-inverse);
-}
-
-.getQuote {
-  background: var(--color-card);
-  color: var(--color-brand-primary);
-}
-
-.card:hover .price {
-  background: var(--color-brand-primary-hover);
-  border-color: var(--color-brand-primary-subtle);
-  box-shadow: var(--shadow-button-primary-hover);
-}
-
-.card:hover .getQuote {
-  background: var(--color-brand-primary-subtle);
-  box-shadow: var(--shadow-button-primary-hover);
-}
-
-.arrow {
-  display: inline-flex;
-  flex-shrink: 0;
-}
-
-.bottomStack {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-8);
-  padding: var(--spacing-12);
-  border: var(--border-hairline) solid var(--color-card);
-  border-radius: var(--radius-12);
-  background: var(--color-brand-primary-subtle);
-}
-
-.viewFeatures {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--spacing-6) var(--spacing-10) var(--spacing-6) var(--spacing-12);
-  border: var(--border-hairline) solid var(--color-brand-secondary-border);
-  border-radius: 1000px;
-  corner-shape: round;
-  background: linear-gradient(
-    254.5deg,
-    var(--color-card) 51.898%,
-    var(--color-brand-secondary-subtle) 95.253%
-  );
-  color: var(--color-brand-secondary);
-  font-size: var(--font-size-75);
-  font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: -0.12px;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
 .sum {
   display: flex;
   flex-direction: column;
@@ -257,9 +415,75 @@
   color: var(--color-brand-primary);
 }
 
+/* button/primary.fill — filled (price / gold) and outlined (Get Quote). */
+.buttonFilled,
+.buttonOutline {
+  --btn: var(--color-brand-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-12);
+  flex-shrink: 0;
+  padding: var(--spacing-12) var(--spacing-20);
+  border: var(--border-hairline) solid var(--btn);
+  /* one step rounder than Figma's r12, per design review */
+  border-radius: var(--radius-16);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.buttonFilled {
+  background: var(--btn);
+  color: var(--color-label-inverse);
+}
+
+.buttonOutline {
+  background: var(--color-card);
+  color: var(--btn);
+}
+
+.card[data-tone="gold"] .buttonFilled {
+  --btn: var(--color-brand-secondary);
+}
+
+.card:hover .buttonFilled {
+  background: var(--color-brand-primary-hover);
+  border-color: var(--color-brand-primary-subtle);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.card[data-tone="gold"]:hover .buttonFilled {
+  background: var(--color-brand-secondary);
+  border-color: var(--color-brand-secondary-subtle-bold);
+  box-shadow: var(--shadow-button-secondary-hover);
+  filter: brightness(0.96);
+}
+
+/* Get Quote outline: neutral stroke, purple label (571:41141). */
+.buttonOutline {
+  border-color: var(--color-border-subtle);
+}
+
+.card:hover .buttonOutline {
+  background: var(--color-brand-primary-subtle);
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.arrow {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
 /* Ghost / locked card (fuzzy match) — mostly empty, centered "Reveal Quote". */
 .ghostCard {
   display: flex;
+  width: 100%;
+  min-height: 200px;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-16);

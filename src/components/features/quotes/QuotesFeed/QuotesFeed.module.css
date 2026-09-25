@@ -1,54 +1,103 @@
+/* Middle column (Figma 564:32970): fixed top over a scrolling stack. */
 .feed {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-24);
-  min-width: 0;
-  flex: 1;
+  width: 100%;
+  max-width: 691px;
+  height: 100%;
+  min-height: 0;
+  margin: 0 auto;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--spacing-16);
-}
-
-/* Details rail collapsed → the feed widens, so fit a 4th card per row.
-   Desktop only; the narrow-width rules below keep 2/1 columns regardless. */
-@media (min-width: 1101px) {
-  .grid[data-collapsed] {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-/* Grid cell wrapper (reveal animation) — the card fills it edge to edge. */
-.cell {
+/* Fixed top (571:39337): 16px vertical padding, centred, gap 16. Its fill is
+   the page's own viewport gradient pinned to the viewport, so it reads as the
+   background behind it while still masking cards that scroll underneath. */
+.top {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-16) 0;
+  background: var(--gradient-quotes-hero);
+  background-attachment: fixed;
+  flex-shrink: 0;
+}
+
+/* Page-width rule: 8×4 marks, 8/12 padding (564:36087). */
+.rule {
+  width: 100%;
+  padding: var(--spacing-8) var(--spacing-12);
+}
+
+/* Only this area scrolls. Scrollbar hidden to match the Figma frame.
+   A scroll box clips at its edges, so it bleeds 24px into the column gutters
+   (padding puts the content back) to give card glows room at the sides, and
+   its top edge fades rather than cuts — glows and cards dissolve under the
+   feed header instead of meeting a hard line. */
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  margin-inline: calc(-1 * var(--spacing-24));
+  padding-inline: var(--spacing-24);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--spacing-24));
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--spacing-24));
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 480-wide centred stack (564:32996): cards → rule → misc, 32 apart. */
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
+  width: 480px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: var(--spacing-24) 0 var(--spacing-32);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+/* Reveal wrapper — the card fills it. */
+.cell {
+  display: flex;
   min-width: 0;
 }
 
-.cell > * {
-  flex: 1;
+.stackRule {
+  width: 100%;
+  padding: var(--spacing-8) 0;
 }
 
-.secondary {
+.misc {
   display: flex;
-  gap: var(--spacing-16);
-  align-items: stretch;
+  flex-direction: column;
+  gap: var(--spacing-12);
 }
 
-/* Low-effort responsive: collapse the grid and the secondary stack when narrow. */
+/* Stacked vertically now, so each misc card spans the 480 column. */
+.column .misc > * {
+  width: 100%;
+}
+
+/* Below the 3-column breakpoint the page scrolls naturally. */
 @media (max-width: 1100px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .feed {
+    height: auto;
   }
-}
-
-@media (max-width: 760px) {
-  .grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .secondary {
-    flex-direction: column;
+  .scroll {
+    overflow: visible;
+    margin-inline: 0;
+    padding-inline: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 }

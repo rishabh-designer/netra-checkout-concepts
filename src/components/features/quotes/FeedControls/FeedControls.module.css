@@ -1,43 +1,77 @@
+/* Centred controls row (Figma 564:32971): two 226×32 dropdowns + the toggle box. */
+/* One row at Figma width; on a narrow feed column the toggle box drops
+   under the two dropdowns instead of overflowing the panel. */
 .row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-16);
+  justify-content: center;
   flex-wrap: wrap;
-}
-
-.chips {
-  display: flex;
-  align-items: center;
+  width: 100%;
   gap: var(--spacing-12);
-  flex-wrap: wrap;
 }
 
-.chip {
+/* The two dropdowns shrink together (never split); only the toggle wraps. */
+.dropdowns {
+  display: flex;
+  gap: var(--spacing-12);
+  /* 464 in Figma; 4px slack so sub-pixel rounding never wraps the toggle at 691 */
+  flex: 0 1 460px;
+  min-width: 0;
+}
+
+.dropdown,
+.toggleBox {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-8);
+  height: 32px;
   padding: var(--spacing-8) var(--spacing-12);
-  border: var(--border-hairline) solid var(--color-border-neutral);
-  border-radius: var(--radius-16);
+  border: var(--border-hairline) solid rgba(169, 172, 177, 0.6);
+  border-radius: var(--radius-8);
   background: var(--color-card);
+}
+
+/* 226 wide in Figma; shrink (never wrap) when the feed column is narrower. */
+.dropdown {
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  flex: 0 1 226px;
+  min-width: 150px;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
-.chip:hover {
+.dropdown:hover {
   background: var(--color-card-sunken);
 }
 
-.chipLabel {
+.label {
+  flex: 1;
+  min-width: 0;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: var(--font-size-100);
   font-weight: 500;
-  color: var(--color-label-basic);
+  line-height: 1;
+  text-align: left;
+  color: var(--color-label-secondary);
   white-space: nowrap;
 }
 
-.chipDivider {
-  width: 1px;
+.suffix {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.divider {
+  width: 0.5px;
   height: 16px;
-  background: var(--color-divider);
+  background: var(--color-label-tertiary);
+}
+
+/* The switch label uses the basic ink, 14px Medium. */
+.toggleBox {
+  flex: 0 0 215px;
+  justify-content: center;
 }

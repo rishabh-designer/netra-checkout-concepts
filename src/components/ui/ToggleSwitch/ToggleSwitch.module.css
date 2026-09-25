@@ -45,3 +45,31 @@
 .track[data-on] .knob {
   transform: translateX(18px);
 }
+
+/* sm (Figma 564:32971): 32×16, lavender track + hairline, 12px purple knob;
+   on = purple track, white knob. */
+.track[data-size="sm"] {
+  width: 32px;
+  height: 16px;
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+}
+
+.track[data-size="sm"] .knob {
+  top: 1.5px;
+  left: 1.5px;
+  width: 12px;
+  height: 12px;
+  background: var(--color-brand-primary);
+  box-shadow: none;
+}
+
+.track[data-size="sm"][data-on] {
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+}
+
+.track[data-size="sm"][data-on] .knob {
+  background: var(--color-label-inverse);
+  transform: translateX(16px);
+}

@@ -80,3 +80,31 @@
 .cta:hover {
   background: var(--color-card-sunken);
 }
+
+/* "You're Upgraded!" (Figma 564:32956) */
+.upgradedBanner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-card);
+  border-radius: var(--radius-12);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-secondary-subtle));
+  line-height: 1.2;
+  color: var(--color-label-warm);
+  overflow: hidden;
+}
+
+.upgradedTitle {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-style: italic;
+  font-size: var(--font-size-heading-lg);
+  white-space: nowrap;
+}
+
+.upgradedBody {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: 0.12px;
+}

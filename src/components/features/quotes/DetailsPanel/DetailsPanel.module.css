@@ -1,12 +1,15 @@
+/* Figma 564:32918 (width kept at 280 per design review): full column height,
+   translucent lavender → white wash, r16. */
 .panel {
   position: relative;
   width: 280px;
   max-width: 100%;
+  height: 100%;
   flex-shrink: 0;
   padding: var(--spacing-8);
   border: var(--border-hairline) solid var(--color-brand-primary-border);
-  border-radius: var(--radius-24);
-  background: linear-gradient(to bottom, var(--color-brand-primary-subtle), var(--color-card) 50%);
+  border-radius: var(--radius-16);
+  background: linear-gradient(to bottom, rgba(244, 241, 255, 0.5), rgba(255, 255, 255, 0.5) 50%);
   overflow: hidden;
   transition: width 0.38s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -20,8 +23,10 @@
 .expanded {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: var(--spacing-24);
   width: 264px;
+  height: 100%;
   transition: opacity 0.22s ease;
 }
 
@@ -30,17 +35,26 @@
   pointer-events: none;
 }
 
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
 .head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-8);
+  border-bottom: 1px solid var(--color-brand-primary-subtle-bold);
 }
 
 .title {
   font-size: var(--font-size-200);
   font-weight: 600;
-  color: var(--color-label-basic);
+  line-height: 1.5;
+  letter-spacing: -0.16px;
+  color: var(--color-brand-primary);
 }
 
 .headActions {
@@ -50,7 +64,8 @@
 }
 
 .edit {
-  padding: var(--spacing-6) var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-10);
+  line-height: 1;
   border: var(--border-hairline) solid var(--color-brand-primary-subtle-bold);
   border-radius: var(--radius-8);
   background: var(--color-brand-primary-subtle);
@@ -165,24 +180,36 @@
 .rows {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-16);
+  gap: var(--spacing-24);
   padding: 0 var(--spacing-12);
 }
 
 .row {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
+  gap: var(--spacing-8);
 }
 
 .label {
-  font-size: var(--font-size-75);
+  font-size: var(--font-size-100);
   font-weight: 500;
-  color: var(--color-label-tertiary);
+  line-height: 1;
+  color: var(--color-label-secondary);
 }
 
 .value {
   font-size: var(--font-size-200);
   font-weight: 500;
-  color: var(--color-label-basic);
+  line-height: 1;
+  color: var(--color-label-primary);
+}
+
+@media (max-width: 1100px) {
+  .panel {
+    width: 100%;
+    height: auto;
+  }
+  .expanded {
+    width: 100%;
+  }
 }

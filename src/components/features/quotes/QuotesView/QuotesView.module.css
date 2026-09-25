@@ -1,34 +1,74 @@
+/* Viewport-height shell (Figma 564:32915): the page itself never scrolls —
+   header, sidebar, help desk and the feed's top stay put; only the feed's
+   quote stack scrolls. */
 .page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background: var(--color-page);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  /* Figma fold-hero (571:38795): pale blue → white across the viewport. */
+  background: var(--gradient-quotes-hero);
 }
 
 .body {
+  flex: 1;
+  min-height: 0;
   display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-24);
   width: 100%;
-  max-width: 1440px;
+  max-width: 1512px;
   margin: 0 auto;
-  padding: var(--spacing-24) var(--spacing-32);
+  padding: 17px var(--spacing-32) var(--spacing-32);
 }
 
-/* Skeleton ↔ content swap layer: carries the body's row layout so the
-   crossfade wrapper is transparent to it. */
+/* Skeleton ↔ content swap layer: carries the 3-column grid
+   (sidebar 280 | feed | help desk 290, 72px gaps). */
 .swap {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-24);
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 290px;
+  column-gap: 72px;
   width: 100%;
-  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  transition: grid-template-columns 0.38s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (max-width: 900px) {
-  .body,
+.swap[data-collapsed] {
+  grid-template-columns: 70px minmax(0, 1fr) 290px;
+}
+
+/* Narrower desktops: tighten the 72px gutters so the feed keeps its width. */
+@media (max-width: 1440px) {
   .swap {
-    flex-direction: column;
+    column-gap: var(--spacing-24);
+  }
+}
+
+.swap > * {
+  min-height: 0;
+}
+
+/* Skeleton wrapper — QuotesSkeleton carries its own matching grid. */
+.fill {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Below the 3-column width: natural page scroll, columns stacked. */
+@media (max-width: 1100px) {
+  .page {
+    height: auto;
+    overflow: visible;
+  }
+  .fill {
+    height: auto;
+  }
+  .swap,
+  .swap[data-collapsed] {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--spacing-24);
+    height: auto;
   }
 }
 

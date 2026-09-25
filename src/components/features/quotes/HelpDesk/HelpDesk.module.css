@@ -1,0 +1,79 @@
+/* Right column (Figma 564:36773): full height; no fill or stroke, so the
+   page gradient shows through behind the help card. */
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 290px;
+  height: 100%;
+  padding: var(--spacing-8);
+}
+
+/* Help card (564:35806) */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  width: 100%;
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-brand-secondary-border);
+  border-radius: var(--radius-12);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-secondary-subtle));
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  line-height: 1.1;
+}
+
+.title {
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  color: var(--color-label-primary);
+}
+
+.sub {
+  max-width: 150px;
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: 0.12px;
+  color: var(--color-label-warm);
+}
+
+/* 4 × 32px photos, 1.6px cream ring, −5.6px overlap — composited (111 × 32). */
+.avatars {
+  width: 112px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.phone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-10) 14px;
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: 10px;
+  background: var(--color-card);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-brand-primary);
+}
+
+@media (max-width: 1100px) {
+  .column {
+    width: 100%;
+    height: auto;
+  }
+}

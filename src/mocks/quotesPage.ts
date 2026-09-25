@@ -8,29 +8,47 @@ const ROYAL = "/Insurance.Comp/Royal.webp";
 const BAJAJ = "/Insurance.Comp/Bajaj.webp";
 const SBI = "/Insurance.Comp/SBI.webp";
 
-/* Nine mock quotes mirroring the Figma grid states: immediate-purchase carry a
-   price pill + are comparable; some show an "X% Match" bar; non-comparable ones
-   read "Comparison Unavailable". Order follows the Figma (immediate lead). */
+/* Standard D&O heads of cover, mixed per insurer for the "Top Coverages" chips. */
+const DEFENCE = "Defence Costs";
+const EPL = "Entity Employment Practices";
+const REGULATORY = "Regulatory Investigations";
+const ASSETS = "Personal Asset Protection";
+const EMERGENCY = "Emergency Costs";
+const CRISIS = "Crisis Management";
+const EXTRADITION = "Extradition Costs";
+
+/* Default list (Cases A/C): immediate-purchase quotes carry a price and are
+   comparable; unpriced "Get Quote" ones have no coverage chips and read
+   "Unavailable" for compare. */
 const QUOTES: QuoteCardData[] = [
-  { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true },
+  { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, coverages: [DEFENCE, EPL, REGULATORY] },
   { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", comparable: false },
   { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", comparable: false },
   { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", comparable: false },
   { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", comparable: true },
   { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", comparable: false },
-  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, matchPercent: 32, comparable: true },
+  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, matchPercent: 32, comparable: true, coverages: [DEFENCE, ASSETS, CRISIS] },
   { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", matchPercent: 12, comparable: true },
   { insurer: "National Insurance Company", logoSrc: NATIONAL, sumInsured: "₹5 Crore", matchPercent: 43, comparable: false },
 ];
 
-/* Fuzzy case (B): HDFC/Generali lead as immediate purchases; Royal is priced but
-   not immediate (same purple price pill); Bajaj/SBI/ICICI are unpriced "Get Quote".
-   The feed interleaves the divider + secondary stack after the first 5 (see
-   secondaryAfterByCase), so ICICI lands below the risk-report banner. */
-const FUZZY_QUOTES: QuoteCardData[] = [
-  { insurer: "HDFC ERGO General Insurance", logoSrc: HDFC, sumInsured: "₹5 Crore", immediate: true, price: "₹7,000", comparable: true },
-  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, price: "₹8,000", comparable: true },
-  { insurer: "Royal Sundaram General Insurance", logoSrc: ROYAL, sumInsured: "₹5 Crore", price: "₹12,000", comparable: true },
+/* Exact match (A): the Gold Quote is revealed on arrival and leads the stack. */
+const GOLD_QUOTE: QuoteCardData = {
+  insurer: "Your Personalized Insurance Quote",
+  logoSrc: "",
+  sumInsured: "₹5 Crore",
+  gold: true,
+  comparable: true,
+  coverages: [DEFENCE, EPL, REGULATORY, ASSETS],
+};
+
+/* Cases A and B share this sequence (Figma 571 stack): two immediate
+   purchases, one priced quote, then the unpriced "Get Quote" insurers. A leads
+   it with the Gold Quote; B with the ghost "Reveal Quote" card. */
+const MATCHED_QUOTES: QuoteCardData[] = [
+  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, coverages: [DEFENCE, REGULATORY, ASSETS, EXTRADITION] },
+  { insurer: "HDFC ERGO General Insurance", logoSrc: HDFC, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, coverages: [DEFENCE, EPL, EMERGENCY] },
+  { insurer: "Royal Sundaram General Insurance", logoSrc: ROYAL, sumInsured: "₹5 Crore", price: "₹12,000", comparable: true, coverages: [DEFENCE, EPL, CRISIS] },
   { insurer: "Bajaj General Insurance", logoSrc: BAJAJ, sumInsured: "₹5 Crore", comparable: false },
   { insurer: "SBI General Insurance", logoSrc: SBI, sumInsured: "₹5 Crore", comparable: false },
   { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", comparable: false },
@@ -64,6 +82,10 @@ export const mockQuotesPageContent: QuotesPageContent = {
       timeLeft: "3:20 Hrs. Left",
       ctaLabel: "Notify Me",
     },
+    upgraded: {
+      title: "You’re Upgraded!",
+      body: "We’ve verified your Business and have created a Gold Quote just for you!",
+    },
   },
   feed: {
     breadcrumb: [
@@ -71,21 +93,20 @@ export const mockQuotesPageContent: QuotesPageContent = {
       { label: "DIRECTOR’S & OFFICER’S INSURANCE", href: "/directors-and-officers-insurance" },
       { label: "LIVE QUOTES" },
     ],
-    title: "Director’s & Officer’s Insurance Quotes",
-    iconSrc: "/media/do-icon.webp",
     needHelp: {
       title: "Need Help?",
       subtitle: "Contact our IRDAI-certified Bima experts",
       phone: "+91-90072-96854",
-      avatarCount: 4,
+      avatarsSrc: "/media/experts/avatars.webp",
+      avatarsAlt: "BimaKavach insurance experts",
     },
-    filterLabel: "Filtering: All Insurance Brokers",
+    filterLabel: "Filtering: All",
     filterOptions: ["All Insurance Brokers", "PSU Insurers", "Private Insurers"],
-    sortLabel: "Sort Quotes By Match",
+    sortLabel: "Sorting: Default",
     sortOptions: ["Match", "Premium: Low to High", "Sum Insured: High to Low"],
     switchLabel: "Immediate Purchase Only",
     quotes: QUOTES,
-    quotesByCase: { B: FUZZY_QUOTES },
+    quotesByCase: { A: [GOLD_QUOTE, ...MATCHED_QUOTES], B: MATCHED_QUOTES },
     viewFeaturesLabel: "View All Features",
     compareLabel: "Add To Compare",
     comparisonUnavailableLabel: "Unavailable",
@@ -93,6 +114,9 @@ export const mockQuotesPageContent: QuotesPageContent = {
     sumInsuredLabel: "Sum Insured",
     immediatePurchaseLabel: "Immediate Purchase",
     revealQuoteLabel: "Reveal Quote",
+    topCoveragesLabel: "Top Coverages",
+    ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },
+    poweredByLabel: "Powered by BimaNetra",
     riskReport: {
       question: "Are you Interested in a customized Risk Report?",
       emphasis: "customized Risk Report?",

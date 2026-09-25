@@ -1,17 +1,28 @@
-import type { UpgradeBannerContent } from "@/types/quotesPage";
+import type { UpgradeBannerContent, UpgradedBannerContent } from "@/types/quotesPage";
 import styles from "./UpgradeBanner.module.css";
 
-export interface UpgradeBannerProps {
-  content: UpgradeBannerContent;
-}
+export type UpgradeBannerProps =
+  | { variant?: "progress"; content: UpgradeBannerContent }
+  | { variant: "upgraded"; upgraded: UpgradedBannerContent };
 
 /**
- * UpgradeBanner — the "Ready to Upgrade?" panel pinned under the details list:
- * a serif italic heading, a status line, a live progress bar with a % + time
- * left, and a "Notify Me" action. Its own component (the design owner is
- * expanding its behavior). Usage: <UpgradeBanner content={upgrade} />
+ * UpgradeBanner — pinned under the details list. "progress" (default): "Ready
+ * to Upgrade?" — serif italic heading, status line, live progress bar with a
+ * % + time left, and "Notify Me". "upgraded" (Figma 564:32956, exact match):
+ * "You're Upgraded!" in warm tan on a white → peach wash, no meter or action.
+ * Usage: <UpgradeBanner content={upgrade} />
+ *        <UpgradeBanner variant="upgraded" upgraded={upgraded} />
  */
-export function UpgradeBanner({ content }: UpgradeBannerProps) {
+export function UpgradeBanner(props: UpgradeBannerProps) {
+  if (props.variant === "upgraded") {
+    return (
+      <div className={styles.upgradedBanner}>
+        <p className={styles.upgradedTitle}>{props.upgraded.title}</p>
+        <p className={styles.upgradedBody}>{props.upgraded.body}</p>
+      </div>
+    );
+  }
+  const { content } = props;
   const percent = Math.max(0, Math.min(100, content.percent));
   return (
     <div className={styles.banner}>

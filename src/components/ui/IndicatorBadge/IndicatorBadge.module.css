@@ -24,3 +24,48 @@
   line-height: 1;
   color: var(--color-label-basic);
 }
+
+/* sm: 12px label, 2px gap (quote rating chips). */
+.badge[data-size="sm"] {
+  gap: var(--spacing-2);
+}
+
+.badge[data-size="sm"] .label {
+  font-size: var(--font-size-75);
+}
+
+/* Rating tones */
+.badge[data-tone="success"] {
+  border-color: var(--color-success-border);
+  background: var(--color-success-subtle);
+}
+.badge[data-tone="success"] .dot {
+  background: var(--color-success);
+}
+
+.badge[data-tone="info"] {
+  border-color: var(--color-info-border);
+  background: var(--color-info-subtle);
+}
+.badge[data-tone="info"] .dot {
+  background: var(--color-info-fill);
+}
+
+.badge[data-tone="caution"] {
+  border-color: var(--color-caution-border);
+  background: var(--color-caution-subtle);
+}
+.badge[data-tone="caution"] .dot {
+  background: var(--color-caution);
+}
+
+.badge[data-tone="disabled"] {
+  border-color: var(--color-input-stroke);
+  background: var(--color-fill-disabled);
+}
+.badge[data-tone="disabled"] .dot {
+  background: var(--color-input-stroke);
+}
+.badge[data-tone="disabled"] .label {
+  color: var(--color-label-disabled);
+}

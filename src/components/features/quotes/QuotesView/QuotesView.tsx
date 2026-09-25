@@ -10,6 +10,7 @@ import { QuotesHeader } from "../QuotesHeader";
 import { DetailsPanel } from "../DetailsPanel";
 import { QuotesFeed } from "../QuotesFeed";
 import { QuotesSkeleton } from "../QuotesSkeleton";
+import { HelpDesk } from "../HelpDesk";
 import styles from "./QuotesView.module.css";
 
 export interface QuotesViewProps {
@@ -19,8 +20,9 @@ export interface QuotesViewProps {
 }
 
 /**
- * QuotesView — client shell for the Quotes page: slim header + a 2-column body
- * (Your Details + the quote feed). Reads the carried flow result so Your Details
+ * QuotesView — client shell for the Quotes page (Figma 564:32915): a pinned
+ * header over a viewport-height 3-column body — Your Details | the quote feed |
+ * Help Desk. The page never scrolls; only the feed's quote stack does. Reads the carried flow result so Your Details
  * shows live entries and the risk-report banner reflects the Yes/No answer; falls
  * back to the mock when visited off-flow. Edit Details opens the quote form as a
  * form-only lightbox on this page (no navigation) and saves back to the store.
@@ -59,7 +61,7 @@ export function QuotesView({ content, quoteModal }: QuotesViewProps) {
           {loading ? (
             <motion.div
               key="skeleton"
-              className={styles.swap}
+              className={styles.fill}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -75,6 +77,7 @@ export function QuotesView({ content, quoteModal }: QuotesViewProps) {
             <motion.div
               key="content"
               className={styles.swap}
+              data-collapsed={detailsCollapsed || undefined}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
@@ -85,14 +88,15 @@ export function QuotesView({ content, quoteModal }: QuotesViewProps) {
                 onEdit={() => setEditOpen(true)}
                 collapsed={detailsCollapsed}
                 onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
+                upgraded={caseId === "A"}
               />
               <QuotesFeed
                 content={content.feed}
                 reportInterest={reportInterest}
-                collapsed={detailsCollapsed}
                 caseId={caseId}
                 sumInsured={values?.["coverage"] || undefined}
               />
+              <HelpDesk content={content.feed.needHelp} />
             </motion.div>
           )}
         </AnimatePresence>

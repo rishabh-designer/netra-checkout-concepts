@@ -10,57 +10,64 @@ export interface FeedControlsProps {
   switchLabel: string;
 }
 
-/** Three-line filter glyph. */
+/** "bars-filter" glyph (Figma: 12px glyph in a 16px box). */
 function FilterIcon() {
   return (
     <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <path d="M2.5 4.5h11M4.5 8h7M6.5 11.5h3" stroke="var(--color-label-secondary)" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M2.5 4.5h11M4.5 8h7M6.5 11.5h3" stroke="var(--color-label-secondary)" strokeWidth="1.3" strokeLinecap="round" />
     </svg>
   );
 }
 
-/** Sort (arrows) glyph. */
+/** "bars-sort" glyph — bars shortening downward. */
 function SortIcon() {
   return (
     <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <path d="M4.5 3v10M4.5 3 2.5 5M4.5 3l2 2M11.5 13V3M11.5 13l-2-2M11.5 13l2-2" stroke="var(--color-label-secondary)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h3" stroke="var(--color-label-secondary)" strokeWidth="1.3" strokeLinecap="round" />
     </svg>
   );
 }
 
 function Chevron() {
   return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
-      <path d="m4 6 4 4 4-4" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+      <path d="m4 6 4 4 4-4" stroke="var(--color-label-tertiary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 /**
- * FeedControls — the row above the quote grid: a Filter chip, a Sort chip, and
- * the "Immediate Purchase Only" switch. The switch toggles; the chips are
- * dropdown-styled but don't filter/sort the grid yet (next pass).
+ * FeedControls — the centred row above the quote stack (Figma 564:32971): a
+ * Filtering and a Sorting dropdown (226×32; label, chevron, divider, glyph) and
+ * the "Immediate Purchase Only" switch in a matching bordered box. The switch
+ * toggles; the dropdowns don't filter/sort yet (next pass).
  * Usage: <FeedControls filterLabel sortLabel switchLabel />
  */
 export function FeedControls({ filterLabel, sortLabel, switchLabel }: FeedControlsProps) {
-  const [immediateOnly, setImmediateOnly] = useState(true);
+  const [immediateOnly, setImmediateOnly] = useState(false);
   return (
     <div className={styles.row}>
-      <div className={styles.chips}>
-        <button type="button" className={styles.chip}>
-          <span className={styles.chipLabel}>{filterLabel}</span>
-          <Chevron />
-          <span className={styles.chipDivider} />
-          <FilterIcon />
+      <div className={styles.dropdowns}>
+        <button type="button" className={styles.dropdown}>
+          <span className={styles.label}>{filterLabel}</span>
+          <span className={styles.suffix}>
+            <Chevron />
+            <span className={styles.divider} />
+            <FilterIcon />
+          </span>
         </button>
-        <button type="button" className={styles.chip}>
-          <span className={styles.chipLabel}>{sortLabel}</span>
-          <Chevron />
-          <span className={styles.chipDivider} />
-          <SortIcon />
+        <button type="button" className={styles.dropdown}>
+          <span className={styles.label}>{sortLabel}</span>
+          <span className={styles.suffix}>
+            <Chevron />
+            <span className={styles.divider} />
+            <SortIcon />
+          </span>
         </button>
       </div>
-      <ToggleSwitch checked={immediateOnly} onChange={setImmediateOnly} label={switchLabel} />
+      <div className={styles.toggleBox}>
+        <ToggleSwitch checked={immediateOnly} onChange={setImmediateOnly} label={switchLabel} size="sm" />
+      </div>
     </div>
   );
 }

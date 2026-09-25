@@ -27,11 +27,19 @@
   --color-label-inverse: #ffffff;
   --color-label-subtle-primary: #7b8bb3;
   --color-label-disabled: rgba(169, 172, 177, 0.48);
+  --color-fill-disabled: rgba(169, 172, 177, 0.24);
+  --color-label-warm: #ba9d83; /* brand-secondary-muted: help desk / upgraded copy */
+  --color-label-muted-primary: #9082b3; /* breadcrumb trail */
 
   /* semantic */
   --color-success: #00b200;
   --color-success-border: #a9eaa2;
   --color-success-subtle: #ecfbea;
+  --color-caution: #ffcf0e; /* Gold Quote stroke */
+  --color-caution-subtle: #fff9e6;
+  --color-caution-border: #ffe890;
+  --color-gold: #ffb800; /* Gold Quote border beam */
+  --color-gold-highlight: #fff1b8;
   --color-indicator: #00ab82;
   --color-indicator-bg: rgba(0, 171, 130, 0.12);
   --color-indicator-border: #a3e1d2;
@@ -42,6 +50,8 @@
   --color-info: #1458d2;
   --color-info-fill: #1869f4; /* Figma background/semantic/info — filled controls */
   --color-info-ring: #dde8ff; /* Figma button/primary/stroke/info/clicked — inner ring */
+  --color-info-subtle: #eef4ff;
+  --color-info-border: #b9d1ff;
   --color-error: #f10000;
   --color-error-subtle: rgba(241, 0, 0, 0.05);
 
@@ -78,6 +88,9 @@
   --shadow-ghost-glow: inset 0 0 24px rgba(255, 119, 0, 0.08);
   --shadow-card-hover: 0 0 12px rgba(169, 172, 177, 0.6);
   --shadow-button-primary-hover: 0 0 16px rgba(65, 0, 207, 0.48);
+  --shadow-button-secondary-hover: 0 0 16px rgba(255, 119, 0, 0.48);
+  --shadow-gold-glow: 0 0 36px rgba(255, 119, 0, 0.16);
+  --gradient-quotes-hero: linear-gradient(180deg, #eef4ff 0%, #ffffff 77.58%); /* Figma 571:38795 fold-hero */
 
   /* radii */
   --radius-6: 6px;

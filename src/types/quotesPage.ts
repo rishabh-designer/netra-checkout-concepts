@@ -26,11 +26,19 @@ export interface UpgradeBannerContent {
   ctaLabel: string;
 }
 
+/** "You're Upgraded!" — the exact-match (Case A) banner once the Gold Quote
+ *  is revealed (Figma 564:32956): title + one line, no meter or action. */
+export interface UpgradedBannerContent {
+  title: string;
+  body: string;
+}
+
 export interface DetailsPanelContent {
   title: string;
   editLabel: string;
   rows: QuoteDetailRow[];
   upgrade: UpgradeBannerContent;
+  upgraded: UpgradedBannerContent;
 }
 
 /** "Need Help?" banner in the feed header — IRDAI experts + phone. */
@@ -38,8 +46,9 @@ export interface NeedHelpContent {
   title: string;
   subtitle: string;
   phone: string;
-  /** Number of stacked expert avatars to render (presentational circles). */
-  avatarCount: number;
+  /** Stacked expert photos, pre-composited into one image (Figma 564:35811). */
+  avatarsSrc: string;
+  avatarsAlt: string;
 }
 
 /** One insurer quote card. */
@@ -57,7 +66,17 @@ export interface QuoteCardData {
   comparable?: boolean;
   /** true → a locked "ghost" card whose only action is "Reveal Quote" (fuzzy match). */
   ghost?: boolean;
+  /** "Top Coverages" chips; omitted on unpriced Get Quote cards. */
+  coverages?: string[];
+  /** The revealed exact-match "Gold Quote" (Figma 553:29978): caution-gold card,
+   *  "Powered by BimaNetra" pill, orange Get Quote. */
+  gold?: boolean;
+  /** How this quote compares against the Gold Quote — set by the feed only
+   *  when a Gold Quote is present (exact match). */
+  rating?: QuoteRating;
 }
+
+export type QuoteRating = "excellent" | "good" | "average" | "na";
 
 /** The risk-report banner (item 9 left). Copy flips on the carried Yes/No answer. */
 export interface RiskReportBannerContent {
@@ -80,8 +99,6 @@ export interface TestimonialContent {
 
 export interface QuotesFeedContent {
   breadcrumb: BreadcrumbItem[];
-  title: string;
-  iconSrc: string;
   needHelp: NeedHelpContent;
   filterLabel: string;
   filterOptions: string[];
@@ -98,6 +115,10 @@ export interface QuotesFeedContent {
   sumInsuredLabel: string;
   immediatePurchaseLabel: string;
   revealQuoteLabel: string;
+  topCoveragesLabel: string;
+  /** Rating chip copy (shown beside "Top Coverages" when a Gold Quote leads). */
+  ratingLabels: Record<QuoteRating, string>;
+  poweredByLabel: string;
   riskReport: RiskReportBannerContent;
   testimonial: TestimonialContent;
 }
