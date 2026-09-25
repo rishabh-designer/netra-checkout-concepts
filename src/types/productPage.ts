@@ -12,6 +12,8 @@ export interface NavContent {
   logoAlt: string;
   items: NavItem[];
   loginLabel: string;
+  /** "Talk to an Expert" — shown in the Focus landing concept only. */
+  expertLabel?: string;
 }
 
 export interface BreadcrumbItem {
@@ -180,7 +182,18 @@ export interface IntelligenceEngine {
   tasks: EngineTask[];
 }
 
+/** Routes a typed company name to a flow case. */
+export interface QuoteCaseMatch {
+  caseId: "A" | "B" | "C";
+  /** Matched trimmed, case-insensitive, whitespace-collapsed. */
+  aliases: string[];
+  /** Replaces the typed name in the modal + Quotes page (e.g. the legal name). */
+  canonicalName?: string;
+}
+
 export interface QuoteModalContent {
+  /** Typed-name → case routing; unmatched names resolve to Case C. */
+  caseMatches: QuoteCaseMatch[];
   /** Ordered form steps; `stepIndex` walks these. */
   steps: QuoteStep[];
   /** The left-panel task-runner (index-aligned to `steps`). */
@@ -197,6 +210,18 @@ export interface QuoteModalContent {
   completeToast: { title: string; description: string };
 }
 
+/** Copy for the "Focus" landing concept (single-column, offer-led hero). */
+export interface FocusHeroContent {
+  eyebrow: string;
+  /** Headline in two parts: the cover (ink) + the price (brand purple). */
+  headlineCover: string;
+  headlinePrice: string;
+  /** What the policy covers — rotated in the chip under the subtitle. */
+  coveredChips: string[];
+  /** Reassurance under the CTA. */
+  privacyLine: string;
+}
+
 export interface ProductPageContent {
   nav: NavContent;
   breadcrumbs: BreadcrumbItem[];
@@ -209,4 +234,5 @@ export interface ProductPageContent {
   quoteModal: QuoteModalContent;
   tickerPhrases: string[];
   flourishSrc: string;
+  focusHero: FocusHeroContent;
 }

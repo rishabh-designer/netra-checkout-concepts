@@ -1,0 +1,99 @@
+/* Single centred column — the form is the page's one destination. */
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-24);
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-32) var(--spacing-16);
+  text-align: center;
+}
+
+.pills {
+  display: flex;
+  gap: var(--spacing-8);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.eyebrow {
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  letter-spacing: 0.14px;
+  text-transform: uppercase;
+  color: var(--color-label-secondary);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-display-xs);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--color-label-basic);
+}
+
+/* Price on its own line — the headline always breaks cover / price. */
+.price {
+  display: block;
+  font-style: italic;
+  color: var(--color-brand-primary);
+}
+
+.subtitle {
+  font-size: var(--font-size-300);
+  font-weight: 500;
+  color: var(--color-label-secondary);
+}
+
+.form {
+  width: 100%;
+  text-align: left;
+}
+
+.proof {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-12);
+  margin-top: calc(-1 * var(--spacing-8));
+}
+
+.stat {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  color: var(--color-label-secondary);
+}
+
+.statValue {
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  color: var(--color-brand-primary);
+}
+
+.sep {
+  width: 12px;
+}
+
+.providers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  overflow: hidden;
+}
+
+.providersHeading {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  color: var(--color-label-basic);
+}

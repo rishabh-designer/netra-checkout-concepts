@@ -46,22 +46,22 @@ const CONSENT_TEXT =
 /* The left-panel search result persists across steps (same company), so the
    three per-case panels are authored once and reused by both form steps. */
 const SEARCH_MATCHED: QuoteSearchPanel = {
-  query: "Rambo Undergarments",
+  query: "Pepe Jeans Innerfashion Private Limited",
   tabs: TABS,
   body: {
     cinSentence:
-      "The Permanent Account Number (PAN) for Rambo Undergarments is AABCR1325P.",
-    cinHighlight: "AABCR1325P.",
+      "The Permanent Account Number (PAN) for Pepe Jeans Innerfashion Private Limited is AAJCP5565B.",
+    cinHighlight: "AAJCP5565B.",
     detailsHeading: "Company Details",
     details: [
-      "Date of Incorporation: March 18, 2024",
-      "Registered State: Maharashtra, India (Mumbai)",
+      "Date of Incorporation: June 12, 2019",
+      "Registered State: West Bengal, India (Kolkata)",
       "Company Type: Private Limited Company",
-      "Founders: Nikunj Anil Biyani and Ranveer Singh",
+      "Directors: Amit Sharma, Kavita Rao +2",
     ],
-    founderTag: "LinkedIn India · Rambo… +1",
+    founderTag: "LinkedIn India · Pepe Je… +1",
     footer:
-      "Would you like to know more details about Rambo Undergarments (such as registered address, directors, or funding history)?",
+      "Would you like to know more details about Pepe Jeans Innerfashion (such as registered address, directors, or funding history)?",
   },
 };
 
@@ -98,17 +98,17 @@ const SEARCH_EMPTY: QuoteSearchPanel = {
    Each is a realistic MIXED feed: some reassuring coverage, some cautionary,
    some neutral — the kind of signal an underwriter would actually weigh. */
 const RISK_NEWS_A: QuoteSearchPanel = {
-  query: "Rambo Undergarments",
+  query: "Pepe Jeans Innerfashion Private Limited",
   tabs: TABS,
   body: {
     cinSentence:
-      "Recent press on Rambo Undergarments is mixed: strong FY24 growth headlines sit alongside a vendor-payment complaint and a routine compliance query.",
+      "Recent press on Pepe Jeans Innerfashion is mixed: strong FY24 innerwear growth sits alongside a distributor payment dispute and a routine compliance query.",
     cinHighlight: "mixed",
     detailsHeading: "Recent Coverage",
     details: [
-      "Business Standard — Rambo Undergarments posts 18% YoY revenue growth in FY24",
-      "ET Retail — Innerwear maker Rambo opens 12 new outlets across Maharashtra",
-      "The Morning Context — Vendor alleges ₹42L payment delay by apparel maker Rambo",
+      "Business Standard — Pepe Jeans Innerfashion posts 21% YoY revenue growth in FY24",
+      "ET Retail — Pepe Jeans innerwear adds 40 exclusive outlets across East India",
+      "The Morning Context — Distributor alleges ₹38L payment delay by innerwear brand",
       "MoneyControl — MCA lists one registered charge; no litigation on record",
     ],
     founderTag: "ET Retail +3",
@@ -159,11 +159,11 @@ const PROFILE_CASE: QuoteCase = {
   ],
 };
 
-/* Case A (confirmed — "Rambo Undergarments") Profile: clicking the "Profile"
+/* Case A (confirmed — "Pepe Jeans Innerfashion Private Limited") Profile: clicking the "Profile"
    title fills the contact details for the demo. */
 const PROFILE_CASE_A: QuoteCase = {
   ...PROFILE_CASE,
-  demoFill: { fullName: "Rambo D'Souza", phone: "9007296854", email: "ceo@rambo.in" },
+  demoFill: { fullName: "Amit Sharma", phone: "9007296854", email: "finance@pepejeans.in" },
 };
 
 /* Case B (fuzzy — "Sabyasachi Calcutta") Profile: clicking the "Profile" title
@@ -184,6 +184,7 @@ export const mockProductPageContent: ProductPageContent = {
       { label: "Claims", hoverLabel: "Claims", href: "#" },
     ],
     loginLabel: "Login",
+    expertLabel: "Talk to an Expert",
   },
   breadcrumbs: [
     { label: "HOME", href: "#" },
@@ -251,6 +252,14 @@ export const mockProductPageContent: ProductPageContent = {
     ],
   },
   quoteModal: {
+    caseMatches: [
+      {
+        caseId: "A",
+        aliases: ["pepe jeans innerfashion private limited", "pepe jeans innerfashion", "pepe jeans innerwear"],
+        canonicalName: "Pepe Jeans Innerfashion Private Limited",
+      },
+      { caseId: "B", aliases: ["sabyasachi calcutta llp", "sabyasachi calcutta"] },
+    ],
     stepperLabels: ["Profile", "Business", "Risk"],
     ctaLabel: "Get Instant Quotes",
     // Live meter denominator: Company 1 + Profile 3 + Business 3 + Insurance 3.
@@ -296,8 +305,8 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "type", label: "Enter Company Type", mandatory: true, control: "text", value: "Private Limited Company", status: "success" },
               { key: "business", label: "Type of Business", mandatory: true, control: "text", value: "Retail & Wholesale", status: "success" },
-              { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "₹50 Cr to ₹250 Cr", options: TURNOVER_OPTIONS, status: "success" },
-              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AABCR1325P", status: "success" },
+              { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "₹5 Cr to ₹50 Cr", options: TURNOVER_OPTIONS, status: "success" },
+              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AAJCP5565B", status: "success" },
             ],
             search: SEARCH_MATCHED,
           },
@@ -382,4 +391,16 @@ export const mockProductPageContent: ProductPageContent = {
   },
   tickerPhrases: ["quotes in seconds", "coverage in minutes"],
   flourishSrc: "/media/do-logo.webp",
+  focusHero: {
+    eyebrow: "Director’s & Officer’s Insurance",
+    headlineCover: "₹25 Lakh Cover",
+    headlinePrice: "Starting At ₹3,000/Year",
+    coveredChips: [
+      "Covers legal & defence costs",
+      "Covers settlements & damages",
+      "Covers regulatory investigations",
+      "Protects directors’ personal assets",
+    ],
+    privacyLine: "We only use your company name to look up public records. No spam.",
+  },
 };

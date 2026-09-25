@@ -34,6 +34,9 @@ const anekTamil = Anek_Tamil({ subsets: ["tamil"], preload: false, variable: "--
 const anekTelugu = Anek_Telugu({ subsets: ["telugu"], preload: false, variable: "--font-anek-telugu" });
 const instrumentSerif = Instrument_Serif({
   weight: "400",
+  // Italic is a real face in Instrument Serif — load it so display italics
+  // aren't browser-synthesized slants.
+  style: ["normal", "italic"],
   subsets: ["latin"],
   variable: "--font-instrument-serif",
 });

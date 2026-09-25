@@ -116,3 +116,23 @@
 }
 
 
+
+/* ---- Focus landing concept ---- */
+/* A raised white card so the form reads as the page's single destination. */
+.cardFocus {
+  background: var(--color-card);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  box-shadow: var(--shadow-raised);
+}
+
+/* Reassurance at the point of commitment. */
+.privacy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-6);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  color: var(--color-label-secondary);
+  text-align: center;
+}

@@ -1,0 +1,55 @@
+/* Shares the TagPill "success" shell; a touch more gap for the 14px label. */
+.ticker {
+  position: relative;
+  gap: var(--spacing-6);
+}
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* The label line: width is animated to the current item; overflow clips the
+   rising / lifting labels, which stack in the same spot. */
+.window {
+  position: relative;
+  display: inline-block;
+  height: 1.2em;
+  font-size: var(--font-size-100);
+  overflow: hidden;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window {
+    transition: none;
+  }
+}
+
+/* One step up from the TagPill's 12px label. */
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  letter-spacing: -0.14px;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--color-success);
+}
+
+/* Invisible measuring rack — out of flow, never clipped. */
+.sizer {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+}
+
+.sizer .label {
+  position: static;
+  display: block;
+  width: max-content;
+}

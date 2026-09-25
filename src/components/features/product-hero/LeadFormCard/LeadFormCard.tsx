@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { LeadFormContent, QuoteModalContent } from "@/types/productPage";
+import type { LeadFormContent, QuoteCaseMatch, QuoteModalContent } from "@/types/productPage";
 import { useQuoteFlow } from "@/lib/quote-flow";
+import { cn } from "@/lib/utils";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { InteractiveInput } from "@/components/ui/InteractiveInput";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
@@ -18,14 +19,20 @@ import styles from "./LeadFormCard.module.css";
 export interface LeadFormCardProps {
   content: LeadFormContent;
   quoteModal: QuoteModalContent;
+  /** Focus landing concept: no price block (it's the page headline) and a
+   *  privacy line under the CTA. */
+  focus?: { privacyLine: string };
 }
 
-/** Route the typed name to an outcome (case-insensitive, trimmed). */
-function resolveCase(name: string): QuoteCaseId {
-  const n = name.trim().toLowerCase();
-  if (n === "rambo undergarments") return "A";
-  if (n === "sabyasachi calcutta llp" || n === "sabyasachi calcutta") return "B";
-  return "C";
+/** Route the typed name to an outcome via the content's alias table (trimmed,
+ *  case-insensitive, whitespace-collapsed). A match may swap in a canonical
+ *  legal name for the rest of the flow; no match → Case C with the typed name. */
+function resolveCase(name: string, matches: QuoteCaseMatch[]): { caseId: QuoteCaseId; displayName: string } {
+  const n = name.trim().replace(/\s+/g, " ").toLowerCase();
+  const hit = matches.find((m) => m.aliases.includes(n));
+  return hit
+    ? { caseId: hit.caseId, displayName: hit.canonicalName ?? name.trim() }
+    : { caseId: "C", displayName: name.trim() };
 }
 
 /**
@@ -35,12 +42,14 @@ function resolveCase(name: string): QuoteCaseId {
  * fires a toast instead of opening the modal.
  * Usage: <LeadFormCard content={leadForm} quoteModal={quoteModal} />
  */
-export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
+export function LeadFormCard({ content, quoteModal, focus }: LeadFormCardProps) {
   const router = useRouter();
   const { setResult } = useQuoteFlow();
   const [companyName, setCompanyName] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [caseId, setCaseId] = useState<QuoteCaseId>("C");
+  // The name carried into the modal / Quotes page (canonical when matched).
+  const [resolvedName, setResolvedName] = useState("");
   const [toastOpen, setToastOpen] = useState(false);
 
   const handleSubmit = () => {
@@ -50,7 +59,9 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
       requestAnimationFrame(() => setToastOpen(true));
       return;
     }
-    setCaseId(resolveCase(companyName));
+    const { caseId: next, displayName } = resolveCase(companyName, quoteModal.caseMatches);
+    setCaseId(next);
+    setResolvedName(displayName);
     setModalOpen(true);
   };
 
@@ -58,7 +69,7 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
   // values, Yes/No answer) in the shared store and navigate to the Quotes page.
   const handleComplete = (values: Record<string, string>) => {
     setResult({
-      companyName,
+      companyName: resolvedName,
       caseId,
       values,
       reportInterest: values["reportInterest"] ?? "",
@@ -68,12 +79,14 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
   };
 
   return (
-    <div className={styles.card}>
+    <div className={cn(styles.card, focus && styles.cardFocus)}>
       <div className={styles.top}>
-        <div className={styles.priceBlock}>
-          <p className={styles.kicker}>{content.priceKicker}</p>
-          <p className={styles.headline}>{content.priceHeadline}</p>
-        </div>
+        {!focus && (
+          <div className={styles.priceBlock}>
+            <p className={styles.kicker}>{content.priceKicker}</p>
+            <p className={styles.headline}>{content.priceHeadline}</p>
+          </div>
+        )}
         <div className={styles.promoBanner}>
           <div className={styles.promoLeft}>
             <IndicatorBadge label={content.promoBadge} />
@@ -106,13 +119,22 @@ export function LeadFormCard({ content, quoteModal }: LeadFormCardProps) {
             onClick={handleSubmit}
           />
         </div>
+        {focus && (
+          <p className={styles.privacy}>
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
+              <rect x="3.5" y="7" width="9" height="6.5" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+              <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" strokeWidth="1.2" />
+            </svg>
+            {focus.privacyLine}
+          </p>
+        )}
       </div>
       <QuoteModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         content={quoteModal}
         caseId={caseId}
-        companyName={companyName}
+        companyName={resolvedName}
         onComplete={handleComplete}
       />
       <Toast

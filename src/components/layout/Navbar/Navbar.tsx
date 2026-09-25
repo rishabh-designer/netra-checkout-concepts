@@ -4,6 +4,10 @@ import styles from "./Navbar.module.css";
 
 export interface NavbarProps {
   content: NavContent;
+  /** Login click — the prototype uses it to toggle the Focus landing concept. */
+  onLogin?: () => void;
+  /** Show the "Talk to an Expert" outline button before Login. */
+  showExpert?: boolean;
 }
 
 /**
@@ -11,7 +15,7 @@ export interface NavbarProps {
  * hover label, ikkat separators, and the Login button.
  * Usage: <Navbar content={nav} />
  */
-export function Navbar({ content }: NavbarProps) {
+export function Navbar({ content, onLogin, showExpert = false }: NavbarProps) {
   return (
     <header className={styles.bar}>
       <div className={styles.inner}>
@@ -42,9 +46,16 @@ export function Navbar({ content }: NavbarProps) {
             ))}
           </nav>
         </div>
-        <button type="button" className={styles.login}>
-          {content.loginLabel}
-        </button>
+        <div className={styles.actions}>
+          {showExpert && content.expertLabel && (
+            <button type="button" className={styles.expert}>
+              {content.expertLabel}
+            </button>
+          )}
+          <button type="button" className={styles.login} onClick={onLogin}>
+            {content.loginLabel}
+          </button>
+        </div>
       </div>
     </header>
   );
