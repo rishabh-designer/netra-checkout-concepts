@@ -500,42 +500,37 @@
   flex-shrink: 0;
 }
 
-/* Ghost / locked card (fuzzy match) — mostly empty, centered "Reveal Quote". */
-.ghostCard {
-  display: flex;
-  width: 100%;
-  min-height: 200px;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-16);
-  border: var(--border-hairline) solid var(--color-brand-secondary-border);
-  border-radius: var(--radius-16);
-  background: var(--color-card);
-  box-shadow: var(--shadow-raised), var(--shadow-ghost-glow);
-  overflow: hidden;
+/* Wrapper that exists only as a RevealCard selector hook. */
+.hook {
+  display: contents;
 }
 
-.reveal {
+.rating {
   display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-8);
-  padding: var(--spacing-12) var(--spacing-20);
-  border: 0;
-  border-radius: var(--radius-16); /* one step rounder than Figma's r12 (house rule) */
-  background: var(--color-brand-secondary);
-  color: var(--color-label-inverse);
-  font-size: var(--font-size-100);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease;
 }
 
-.reveal:hover {
-  filter: brightness(0.95);
+/* Rating ripple: pops in on an overshoot once the Gold Quote lands. */
+.ratingPop {
+  display: inline-flex;
+  animation: rating-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: var(--rating-delay, 0s);
 }
 
-.revealIcon {
-  width: 12px;
-  height: 12px;
-  object-fit: contain;
+@keyframes rating-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ratingPop {
+    animation: none;
+  }
 }

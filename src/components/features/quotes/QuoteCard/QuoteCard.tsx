@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type CSSProperties } from "react";
 import type { QuoteCardData, QuoteRating } from "@/types/quotesPage";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { TagPill } from "@/components/ui/TagPill";
@@ -52,12 +52,13 @@ const RATING_TONE = {
 export interface QuoteCardProps {
   quote: QuoteCardData;
   labels: QuoteCardLabels;
-  /** Ghost card only — fired by "Reveal Quote" (unwired this pass). */
-  onReveal?: () => void;
   /** "View All Features" — opens the features drawer for this quote. */
   onViewFeatures?: () => void;
   /** Price button — starts checkout (immediate + priced quotes only). */
   onSelect?: () => void;
+  /** When set, the rating badge pops in after this many seconds (the ripple
+   *  that runs down the feed as the Gold Quote is revealed). */
+  ratingDelay?: number;
 }
 
 /**
@@ -68,27 +69,15 @@ export interface QuoteCardProps {
  * features drawer), and a bottom bar with Add-To-Compare, Sum Insured and the
  * price / Get Quote button. `data-tone` swaps the gradient, rule colour, bar
  * fill and button; the arrow loops while the card is hovered. The Gold card is
- * wrapped in a golden "border beam" that circles its edge to draw the eye. A ghost card
- * (fuzzy match) shows only a centred "Reveal Quote" button.
+ * wrapped in a golden "border beam" that circles its edge to draw the eye.
+ * `data-reveal` hooks let RevealCard choreograph the Gold card's entrance.
  * Usage: <QuoteCard quote={q} labels={…} />
  */
-export function QuoteCard({ quote, labels, onReveal, onViewFeatures, onSelect }: QuoteCardProps) {
+export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay }: QuoteCardProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<EyeIconHandle>(null);
   const arrowRef = useRef<MoveRightIconHandle>(null);
 
-  // Ghost / locked card — the golden quote is hidden until the user reveals it.
-  if (quote.ghost) {
-    return (
-      <article className={styles.ghostCard}>
-        <button type="button" className={styles.reveal} onClick={onReveal}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/media/chat-with-us.svg" alt="" className={styles.revealIcon} aria-hidden />
-          {labels.revealQuote}
-        </button>
-      </article>
-    );
-  }
 
   const tone = quote.gold ? "gold" : quote.immediate ? "immediate" : quote.price ? "priced" : "quote";
   const filled = tone === "gold" || !!quote.price;
@@ -105,7 +94,7 @@ export function QuoteCard({ quote, labels, onReveal, onViewFeatures, onSelect }:
 
       <div className={styles.inner}>
         <div className={styles.top}>
-          <div className={styles.logoRow}>
+          <div className={styles.logoRow} data-reveal="pill">
             {tone === "gold" && (
               <TagPill
                 variant="secondary"
@@ -133,27 +122,35 @@ export function QuoteCard({ quote, labels, onReveal, onViewFeatures, onSelect }:
               <span className={styles.logoSlot} aria-hidden />
             )}
           </div>
-          <IkkatDivider height={2} unit={19} color={DIVIDER_COLOR[tone]} className={styles.divider} />
+          <div className={styles.hook} data-reveal="rule">
+            <IkkatDivider height={2} unit={19} color={DIVIDER_COLOR[tone]} className={styles.divider} />
+          </div>
         </div>
 
         <div className={styles.header}>
           <h3 className={styles.insurer} title={quote.insurer}>
             {splitName(quote.insurer).map((line, i) => (
-              <span key={i} className={styles.insurerLine}>{line}</span>
+              <span key={i} className={styles.insurerLine} data-reveal="item">{line}</span>
             ))}
           </h3>
 
-          <div className={styles.coverage}>
+          <div className={styles.coverage} data-reveal="coverage">
             <div className={styles.coverageHead}>
-              <p className={styles.coverageLabel}>{labels.topCoverages}</p>
+              <p className={styles.coverageLabel} data-reveal="item">{labels.topCoverages}</p>
               {quote.rating && (
-                <IndicatorBadge label={labels.ratings[quote.rating]} tone={RATING_TONE[quote.rating]} size="sm" />
+                <span
+                  data-reveal="rating"
+                  className={ratingDelay !== undefined ? styles.ratingPop : styles.rating}
+                  style={ratingDelay !== undefined ? ({ "--rating-delay": `${ratingDelay}s` } as CSSProperties) : undefined}
+                >
+                  <IndicatorBadge label={labels.ratings[quote.rating]} tone={RATING_TONE[quote.rating]} size="sm" />
+                </span>
               )}
             </div>
             {!!quote.coverages?.length && (
               <ul className={styles.chips}>
                 {quote.coverages.map((c, i) => (
-                  <li key={`${c}-${i}`} className={styles.chip}>
+                  <li key={`${c}-${i}`} className={styles.chip} data-reveal="chip">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/media/coverage-check.svg" alt="" aria-hidden className={styles.chipCheck} />
                     {c}
@@ -161,31 +158,31 @@ export function QuoteCard({ quote, labels, onReveal, onViewFeatures, onSelect }:
                 ))}
               </ul>
             )}
-            <hr className={styles.rule} />
-            <button type="button" className={styles.viewFeatures} onClick={onViewFeatures} aria-haspopup="dialog">
+            <hr className={styles.rule} data-reveal="item" />
+            <button type="button" className={styles.viewFeatures} onClick={onViewFeatures} aria-haspopup="dialog" data-reveal="item">
               {labels.viewFeatures}
               <FeaturesChevron />
             </button>
           </div>
 
-          <div className={styles.bar}>
+          <div className={styles.bar} data-reveal="bar">
             {quote.comparable ? (
-              <span className={styles.compare}>
+              <span className={styles.compare} data-reveal="item">
                 <span className={styles.checkbox} aria-hidden />
                 {labels.compare}
               </span>
             ) : (
-              <span className={styles.compareOff}>
+              <span className={styles.compareOff} data-reveal="item">
                 <span className={styles.checkboxOff} aria-hidden />
                 {labels.comparisonUnavailable}
               </span>
             )}
             <div className={styles.barRight}>
-              <div className={styles.sum}>
+              <div className={styles.sum} data-reveal="item">
                 <span className={styles.sumLabel}>{labels.sumInsured}</span>
                 <span className={styles.sumValue}>{quote.sumInsured}</span>
               </div>
-              <button type="button" className={filled ? styles.buttonFilled : styles.buttonOutline} onClick={onSelect}>
+              <button type="button" className={filled ? styles.buttonFilled : styles.buttonOutline} onClick={onSelect} data-reveal="item">
                 {quote.price ?? labels.getQuote}
                 <MoveRightIcon ref={arrowRef} size={12} loop className={styles.arrow} />
               </button>
@@ -202,11 +199,11 @@ export function QuoteCard({ quote, labels, onReveal, onViewFeatures, onSelect }:
   if (tone !== "gold") return card;
   return (
     <div className={styles.goldBeam}>
-      <span className={styles.beamGlow} aria-hidden>
+      <span className={styles.beamGlow} aria-hidden data-reveal="beam">
         <span className={styles.beamSpin} />
       </span>
       {card}
-      <span className={styles.beamRing} aria-hidden>
+      <span className={styles.beamRing} aria-hidden data-reveal="beam">
         <span className={styles.beamSpin} />
       </span>
     </div>

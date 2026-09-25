@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuoteFlow } from "@/lib/quote-flow";
-import { motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { BreadcrumbTrail } from "@/components/ui/BreadcrumbTrail";
 import type { QuoteCardData, QuoteRating, QuotesFeedContent } from "@/types/quotesPage";
@@ -11,6 +11,7 @@ import type { QuoteCaseId } from "@/lib/quote-flow";
 import { FeedControls } from "../FeedControls";
 import { FeaturesDrawer, type QuoteTone } from "../FeaturesDrawer";
 import { QuoteCard } from "../QuoteCard";
+import { RevealCard } from "../RevealCard";
 import styles from "./QuotesFeed.module.css";
 
 export interface QuotesFeedProps {
@@ -20,6 +21,11 @@ export interface QuotesFeedProps {
   /** The Sum Insured the user chose in the flow ("₹10 Cr") — shown on every
    *  card in place of the mock's value. Off-flow, the mock value stays. */
   sumInsured?: string;
+  /** Case B: verification finished, so the Reveal button is live. */
+  unlocked?: boolean;
+  /** Case B: the Gold Quote has been revealed. */
+  revealed?: boolean;
+  onRevealed?: () => void;
 }
 
 /**
@@ -30,7 +36,7 @@ export interface QuotesFeedProps {
  * a ghost "Reveal Quote" card; exact match (A) leads with the Gold Quote.
  * Usage: <QuotesFeed content={feed} caseId="B" sumInsured="₹10 Cr" />
  */
-export function QuotesFeed({ content, caseId, sumInsured }: QuotesFeedProps) {
+export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed }: QuotesFeedProps) {
   const labels = {
     sumInsured: content.sumInsuredLabel,
     getQuote: content.getQuoteLabel,
@@ -45,8 +51,15 @@ export function QuotesFeed({ content, caseId, sumInsured }: QuotesFeedProps) {
   };
 
   const reduced = useReducedMotion();
+  // Case B leads with a locked slot that reveals the Gold Quote once verified.
   const ghostFirst = caseId === "B";
-  const list = (caseId && content.quotesByCase?.[caseId]) ?? content.quotes;
+  const base = (caseId && content.quotesByCase?.[caseId]) ?? content.quotes;
+  const list = ghostFirst && revealed ? [content.goldQuote, ...base] : base;
+  // Ratings ripple down the feed only at the moment of the reveal.
+  const [ripple, setRipple] = useState(false);
+  useEffect(() => {
+    if (!revealed) setRipple(false);
+  }, [revealed]);
   // With a Gold Quote in the feed, every quote is rated against it (Netra's
   // Gold covers everything the user needs): gold Excellent, immediate Good,
   // priced Average, offline Get Quote N/A.
@@ -76,7 +89,10 @@ export function QuotesFeed({ content, caseId, sumInsured }: QuotesFeedProps) {
           router.push(content.checkoutHref);
         }
       : undefined;
-  const available = content.availableLabel.replace("{count}", String(quotes.length));
+  const [countBefore, countAfter = ""] = content.availableLabel.split("{count}");
+  // For Case B the Gold card lives in the reveal slot; the rest follow it.
+  const goldCard: QuoteCardData = { ...content.goldQuote, rating: "excellent", ...(sumInsured ? { sumInsured } : {}) };
+  const rest = ghostFirst && revealed ? quotes.slice(1) : quotes;
   // Cards rise in one after another as the results reveal (after the skeleton).
   const reveal = (i: number) =>
     reduced
@@ -94,7 +110,24 @@ export function QuotesFeed({ content, caseId, sumInsured }: QuotesFeedProps) {
         {/* Breadcrumb left, quote count right (601:65042) */}
         <div className={styles.crumbRow}>
           <BreadcrumbTrail items={content.breadcrumb} variant="slash" />
-          <p className={styles.available}>{available}</p>
+          <p className={styles.available}>
+            {countBefore}
+            <span className={styles.count}>
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.span
+                  key={quotes.length}
+                  className={styles.countDigit}
+                  initial={reduced ? { opacity: 0 } : { y: "100%", opacity: 0, filter: "blur(4px)" }}
+                  animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
+                  exit={reduced ? { opacity: 0 } : { y: "-100%", opacity: 0, filter: "blur(4px)" }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  {quotes.length}
+                </motion.span>
+              </AnimatePresence>
+            </span>
+            {countAfter}
+          </p>
         </div>
         <FeedControls
           filterLabel={content.filterLabel}
@@ -109,11 +142,28 @@ export function QuotesFeed({ content, caseId, sumInsured }: QuotesFeedProps) {
         <div className={styles.column}>
           <div className={styles.stack}>
             {ghostFirst && (
-              <motion.div key="ghost" className={styles.cell} {...reveal(0)}>
-                <QuoteCard quote={{ insurer: "", logoSrc: "", sumInsured: "", ghost: true }} labels={labels} />
+              <motion.div key="reveal-slot" className={styles.cell} {...reveal(0)}>
+                <RevealCard
+                  unlocked={unlocked}
+                  revealed={revealed}
+                  labels={{ reveal: content.revealQuoteLabel, lockedHint: content.revealLockedHint, readyHint: content.revealReadyHint }}
+                  onRevealed={() => {
+                    setRipple(true);
+                    onRevealed?.();
+                  }}
+                >
+                  <QuoteCard
+                    quote={goldCard}
+                    labels={labels}
+                    onViewFeatures={() => {
+                      setFeaturesQuote(goldCard);
+                      setFeaturesOpen(true);
+                    }}
+                  />
+                </RevealCard>
               </motion.div>
             )}
-            {quotes.map((quote, i) => (
+            {rest.map((quote, i) => (
               <motion.div
                 key={`${quote.insurer}-${i}`}
                 className={styles.cell}
@@ -127,6 +177,7 @@ export function QuotesFeed({ content, caseId, sumInsured }: QuotesFeedProps) {
                     setFeaturesOpen(true);
                   }}
                   onSelect={checkoutFor(quote)}
+                  ratingDelay={ripple ? 0.35 + i * 0.07 : undefined}
                 />
               </motion.div>
             ))}

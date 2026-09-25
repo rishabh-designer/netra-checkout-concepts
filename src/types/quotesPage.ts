@@ -23,6 +23,11 @@ export interface UpgradeBannerContent {
   percent: number;
   timeLeft: string;
   ctaLabel: string;
+  /** Hidden demo shortcut: the percent is a button that simulates verification. */
+  simulateLabel: string;
+  /** Time-left readouts rolled through as the simulated count passes each
+   *  third of the way to 100%. */
+  timeSteps: string[];
 }
 
 /** "You're Upgraded!" — the exact-match (Case A) banner once the Gold Quote
@@ -30,6 +35,8 @@ export interface UpgradeBannerContent {
 export interface UpgradedBannerContent {
   title: string;
   body: string;
+  /** Hidden demo shortcut: clicking the banner resets verification to the start. */
+  resetLabel: string;
 }
 
 export interface DetailsPanelContent {
@@ -150,6 +157,12 @@ export interface QuotesFeedContent {
   sumInsuredLabel: string;
   immediatePurchaseLabel: string;
   revealQuoteLabel: string;
+  /** Under the locked Reveal button, before verification completes. */
+  revealLockedHint: string;
+  /** Under the Reveal button once it unlocks. */
+  revealReadyHint: string;
+  /** The Gold Quote a fuzzy match (Case B) reveals once verified. */
+  goldQuote: QuoteCardData;
   topCoveragesLabel: string;
   /** Rating chip copy (shown beside "Top Coverages" when a Gold Quote leads). */
   ratingLabels: Record<QuoteRating, string>;

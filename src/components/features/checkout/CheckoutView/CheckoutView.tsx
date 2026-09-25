@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { CheckoutContent, CheckoutStepId } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
 import { Toast } from "@/components/ui/Toast";
+import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
 import { useCheckout } from "../useCheckout";
 import { CheckoutStepper } from "../CheckoutStepper";
 import { FormCard } from "../FormCard";
@@ -28,10 +29,11 @@ export interface CheckoutViewProps {
 
 /**
  * CheckoutView — one checkout step (Figma 484:25856 Billing, 484:26420
- * Company, 484:26922 KYC, 484:27578 Review). Left: logo bar, back chip, serif
+ * Company, 484:26922 KYC, 484:27578 Review). The Quotes page's megamenu bar
+ * (logo + Contact Support) spans the top. Below it, left: back chip, serif
  * title + stepper, the form card and the disclaimer over a lavender wash with a
- * kolam watermark (scrolls). Right: Contact Support, progress and the Purchase
- * Summary with the step CTA (fixed). Save & Continue unlocks once the step is
+ * kolam watermark (the only part that scrolls). Right: progress and the
+ * Purchase Summary with the step CTA (fixed). Save & Continue unlocks once the step is
  * complete; Review's final CTA ("Make Payment" / "Request Quote") unlocks on
  * consent.
  * Usage: <CheckoutView step="kyc" steps={…} basePath="…" quotesHref="…" content={c} fallbackQuote={q} />
@@ -70,71 +72,71 @@ export function CheckoutView({ step, steps, basePath, quotesHref, content, fallb
 
   return (
     <div className={styles.page}>
-      <div className={styles.left}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={content.header.watermarkSrc} alt="" aria-hidden className={styles.watermark} />
-        <header className={styles.logoBar}>
-          <Link href={quotesHref} aria-label={content.header.logoAlt}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={content.header.logoSrc} alt={content.header.logoAlt} className={styles.logo} />
-          </Link>
-        </header>
-
-        <main className={styles.content}>
-          <div className={styles.titleRow}>
-            <div className={styles.titleLead}>
-              <Link href={backHref} className={styles.back}>
-                <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-                  <path d="M10 6H2m3-3L2 6l3 3" stroke="var(--color-label-secondary)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                {chrome.backLabel}
-              </Link>
-              <h1 className={styles.title}>{chrome.title}</h1>
-            </div>
-            <CheckoutStepper steps={steps} current={step} labels={content.stepperLabels} ariaLabel={content.stepperAriaLabel} />
-          </div>
-
-          <FormCard
-            banner={chrome.banner}
-            bannerIconSrc={content.header.cautionIconSrc}
-            bannerCompact={chrome.bannerCompact}
-            sectionTitle={chrome.sectionTitle}
-            otherPerson={{ mode: chrome.otherPerson, label: content.otherPersonLabel, checked: co.otherPerson, onChange: co.setOtherPerson }}
-          >
-            {step === "review" ? (
-              <ReviewStep
-                content={content.steps.review}
-                billing={co.fieldsFor("billing")}
-                company={co.fieldsFor("company")}
-                kyc={co.fieldsFor("kyc")}
-                uploads={kyc.uploads}
-                valueOf={co.valueOf}
-                fileOf={co.get}
-                onEdit={setEditing}
-              />
-            ) : (
-              <StepForm step={step} fields={co.fieldsFor(step)} uploads={kyc.uploads} uploadCopy={content.upload} model={model} />
-            )}
-          </FormCard>
-
-          <Disclaimer {...content.disclaimer} />
-        </main>
-      </div>
-
-      <aside className={styles.right}>
-        <button type="button" className={styles.support}>
-          {content.header.supportLabel}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      {/* Same megamenu bar as the Quotes page, with Contact Support. */}
+      <QuotesHeader
+        content={{ logoSrc: content.header.logoSrc, logoAlt: content.header.logoAlt, ctaLabel: content.header.supportLabel }}
+        logoHref={quotesHref}
+        icon={
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={content.header.supportIconSrc} alt="" aria-hidden className={styles.supportIcon} />
-        </button>
-        <PurchaseSummary
-          content={content.summary}
-          quote={co.quote}
-          progress={chrome.progress}
-          cta={cta}
-          consent={step === "review" ? { text: content.steps.review.consentText, checked: consent, onToggle: () => setConsent((c) => !c) } : undefined}
-        />
-      </aside>
+        }
+      />
+      <div className={styles.body}>
+        <div className={styles.left}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={content.header.watermarkSrc} alt="" aria-hidden className={styles.watermark} />
+
+          <main className={styles.content}>
+            <div className={styles.titleRow}>
+              <div className={styles.titleLead}>
+                <Link href={backHref} className={styles.back}>
+                  <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
+                    <path d="M10 6H2m3-3L2 6l3 3" stroke="var(--color-label-secondary)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {chrome.backLabel}
+                </Link>
+                <h1 className={styles.title}>{chrome.title}</h1>
+              </div>
+              <CheckoutStepper steps={steps} current={step} labels={content.stepperLabels} ariaLabel={content.stepperAriaLabel} />
+            </div>
+
+            <FormCard
+              banner={chrome.banner}
+              bannerIconSrc={content.header.cautionIconSrc}
+              bannerCompact={chrome.bannerCompact}
+              sectionTitle={chrome.sectionTitle}
+              otherPerson={{ mode: chrome.otherPerson, label: content.otherPersonLabel, checked: co.otherPerson, onChange: co.setOtherPerson }}
+            >
+              {step === "review" ? (
+                <ReviewStep
+                  content={content.steps.review}
+                  billing={co.fieldsFor("billing")}
+                  company={co.fieldsFor("company")}
+                  kyc={co.fieldsFor("kyc")}
+                  uploads={kyc.uploads}
+                  valueOf={co.valueOf}
+                  fileOf={co.get}
+                  onEdit={setEditing}
+                />
+              ) : (
+                <StepForm step={step} fields={co.fieldsFor(step)} uploads={kyc.uploads} uploadCopy={content.upload} model={model} />
+              )}
+            </FormCard>
+
+            <Disclaimer {...content.disclaimer} />
+          </main>
+        </div>
+
+        <aside className={styles.right}>
+          <PurchaseSummary
+            content={content.summary}
+            quote={co.quote}
+            progress={chrome.progress}
+            cta={cta}
+            consent={step === "review" ? { text: content.steps.review.consentText, checked: consent, onToggle: () => setConsent((c) => !c) } : undefined}
+          />
+        </aside>
+      </div>
 
       <CheckoutEditDrawer
         section={editing}

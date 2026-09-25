@@ -1,0 +1,19 @@
+/* Zero-size origin at the centre of the positioned parent. */
+.burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.spark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: -4px 0 0 -4px;
+  border-radius: 1px;
+  will-change: transform, opacity;
+}

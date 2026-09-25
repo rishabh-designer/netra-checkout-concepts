@@ -8,6 +8,7 @@ import { useQuoteFlow } from "@/lib/quote-flow";
 import { QuoteModal } from "@/components/features/quote-modal/QuoteModal";
 import { QuotesHeader } from "../QuotesHeader";
 import { DetailsPanel } from "../DetailsPanel";
+import type { UpgradeStage } from "../UpgradeBanner";
 import { QuotesFeed } from "../QuotesFeed";
 import { QuotesSkeleton } from "../QuotesSkeleton";
 import { HelpDesk } from "../HelpDesk";
@@ -43,6 +44,11 @@ export function QuotesView({ content, quoteModal }: QuotesViewProps) {
   // Bumped on each Edit Details save → re-runs the loading skeleton.
   const [loadKey, setLoadKey] = useState(0);
   const [loading, setLoading] = useState(true);
+  // Case B's Gold Quote unlocks after (simulated) verification and a reveal;
+  // Case A arrives verified and revealed. Held here so an Edit Details reload
+  // keeps it.
+  const [upgradeStage, setUpgradeStage] = useState<UpgradeStage>(() => (caseId === "A" ? "upgraded" : "pending"));
+  const [revealed, setRevealed] = useState(() => caseId === "A");
 
   useEffect(() => {
     setLoading(true);
@@ -88,9 +94,22 @@ export function QuotesView({ content, quoteModal }: QuotesViewProps) {
                 onEdit={() => setEditOpen(true)}
                 collapsed={detailsCollapsed}
                 onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
-                upgraded={caseId === "A"}
+                stage={upgradeStage}
+                onSimulate={() => setUpgradeStage("verifying")}
+                onVerified={() => setUpgradeStage("upgraded")}
+                onReset={
+                  caseId === "A"
+                    ? undefined
+                    : () => {
+                        setUpgradeStage("pending");
+                        setRevealed(false);
+                      }
+                }
               />
               <QuotesFeed
+                unlocked={upgradeStage === "upgraded"}
+                revealed={revealed}
+                onRevealed={() => setRevealed(true)}
                 content={content.feed}
                 caseId={caseId}
                 sumInsured={values?.["coverage"] || undefined}

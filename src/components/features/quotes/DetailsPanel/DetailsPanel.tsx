@@ -1,5 +1,9 @@
+"use client";
+
+import { useEffect } from "react";
+import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import type { DetailsPanelContent } from "@/types/quotesPage";
-import { UpgradeBanner } from "../UpgradeBanner";
+import { UpgradeBanner, type UpgradeStage } from "../UpgradeBanner";
 import styles from "./DetailsPanel.module.css";
 
 export interface DetailsPanelProps {
@@ -12,9 +16,15 @@ export interface DetailsPanelProps {
   collapsed?: boolean;
   /** Toggle the collapsed rail. */
   onToggleCollapse?: () => void;
-  /** Exact match (Case A): the Gold Quote is revealed, so the banner reads
-   *  "You're Upgraded!" instead of the "Ready to Upgrade?" progress. */
-  upgraded?: boolean;
+  /** Verification stage: "pending" shows "Ready to Upgrade?" at the mock %,
+   *  "verifying" runs the simulated count, "upgraded" shows "You're Upgraded!". */
+  stage?: UpgradeStage;
+  /** Hidden demo shortcut (click the %): start the simulated verification. */
+  onSimulate?: () => void;
+  /** The simulated count reached 100%. */
+  onVerified?: () => void;
+  /** Hidden demo shortcut (click "You're Upgraded!"): back to the start. */
+  onReset?: () => void;
 }
 
 /** Panel toggle glyph — `[< |]` (collapse); flipped via CSS to `[| >]` (expand). */
@@ -32,14 +42,48 @@ function ToggleGlyph() {
  * DetailsPanel — the left "Your Details" column (Figma 564:32918), full column
  * height. Expanded: a header (title + Edit Details + collapse toggle), the
  * entered detail rows (live values from the flow override the Case-C defaults)
- * and, pinned to the bottom, the "Ready to Upgrade?" (or, for the exact match,
- * "You're Upgraded!") banner.
+ * and, pinned to the bottom, the upgrade banner: "Ready to Upgrade?" (click
+ * the % to simulate verification) morphing into "You're Upgraded!".
  * Collapsed: a narrow rail showing only the (flipped) toggle and the progress %.
  * Usage: <DetailsPanel content={detailsPanel} values={values} onEdit={fn}
  *          collapsed={bool} onToggleCollapse={fn} />
  */
-export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, upgraded = false }: DetailsPanelProps) {
-  const percent = upgraded ? 100 : Math.max(0, Math.min(100, content.upgrade.percent));
+export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset }: DetailsPanelProps) {
+  const reduced = useReducedMotion();
+  const start = Math.max(0, Math.min(100, content.upgrade.percent));
+  // One progress value for the banner and the collapsed rail.
+  const progress = useMotionValue(stage === "upgraded" ? 100 : start);
+  const railLabel = useTransform(progress, (v) => `${Math.round(v)}%`);
+  const railWidth = useTransform(progress, (v) => `${v}%`);
+
+  // Simulated verification: climbs with two believable stalls (~70%, ~90%),
+  // holds a beat at 100% for the gold flash, then reports done.
+  // Reset: the count eases back down to where verification started.
+  useEffect(() => {
+    if (stage !== "pending" || progress.get() === start) return;
+    const controls = animate(progress, start, { duration: reduced ? 0.01 : 0.7, ease: [0.16, 1, 0.3, 1] });
+    return () => controls.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage !== "verifying") return;
+    let done = false;
+    const controls = animate(progress, reduced ? 100 : [start, 68, 71, 89, 91, 100], {
+      duration: reduced ? 0.01 : 2.8,
+      times: reduced ? undefined : [0, 0.34, 0.5, 0.72, 0.84, 1],
+      ease: "easeInOut",
+    });
+    controls.then(() => {
+      if (done) return;
+      window.setTimeout(() => !done && onVerified?.(), reduced ? 0 : 450);
+    });
+    return () => {
+      done = true;
+      controls.stop();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage]);
   return (
     <aside className={styles.panel} data-collapsed={collapsed || undefined}>
       {/* Expanded layer — defines the panel height; clipped + faded when collapsed. */}
@@ -76,11 +120,14 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
           </dl>
         </div>
 
-        {upgraded ? (
-          <UpgradeBanner variant="upgraded" upgraded={content.upgraded} />
-        ) : (
-          <UpgradeBanner content={content.upgrade} />
-        )}
+        <UpgradeBanner
+          stage={stage}
+          content={content.upgrade}
+          upgraded={content.upgraded}
+          progress={progress}
+          onSimulate={onSimulate}
+          onReset={onReset}
+        />
       </div>
 
       {/* Collapsed rail — toggle at top, progress pinned to the bottom. */}
@@ -97,9 +144,9 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
           </button>
         </div>
         <div className={styles.railMeter}>
-          <span className={styles.railPercent}>{percent}%</span>
+          <motion.span className={styles.railPercent}>{railLabel}</motion.span>
           <div className={styles.railTrack}>
-            <div className={styles.railFill} style={{ width: `${percent}%` }} />
+            <motion.div className={styles.railFill} style={{ width: railWidth }} />
           </div>
         </div>
       </div>

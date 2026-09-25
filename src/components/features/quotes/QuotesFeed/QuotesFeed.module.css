@@ -43,6 +43,20 @@
   white-space: nowrap;
 }
 
+/* Odometer: the count rolls when the Gold Quote joins the feed. */
+.count {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.countDigit {
+  display: inline-block;
+}
+
 /* Page-width rule: 8×4 marks, 8/12 padding (564:36087). */
 .rule {
   width: 100%;

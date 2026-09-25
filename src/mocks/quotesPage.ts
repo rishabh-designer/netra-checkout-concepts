@@ -149,10 +149,13 @@ export const mockQuotesPageContent: QuotesPageContent = {
       percent: 29,
       timeLeft: "3:20 Hrs. Left",
       ctaLabel: "Notify Me",
+      simulateLabel: "Simulate verification",
+      timeSteps: ["1:05 Hrs. Left", "0:12 Hrs. Left", "Almost there"],
     },
     upgraded: {
       title: "You’re Upgraded!",
       body: "We’ve verified your Business and have created a Gold Quote just for you!",
+      resetLabel: "Reset the upgrade demo",
     },
   },
   feed: {
@@ -187,6 +190,9 @@ export const mockQuotesPageContent: QuotesPageContent = {
     sumInsuredLabel: "Sum Insured",
     immediatePurchaseLabel: "Immediate Purchase",
     revealQuoteLabel: "Reveal Quote",
+    revealLockedHint: "Unlocks once we've verified your business",
+    revealReadyHint: "Your Gold Quote is ready",
+    goldQuote: GOLD_QUOTE,
     topCoveragesLabel: "Top Coverages",
     ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },
     poweredByLabel: "Powered by BimaNetra",
