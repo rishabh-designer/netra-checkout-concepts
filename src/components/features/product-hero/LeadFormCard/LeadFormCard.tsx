@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { LeadFormContent, QuoteCaseMatch, QuoteModalContent } from "@/types/productPage";
+import type { QuotesPreview } from "@/types/quotesPage";
+import { QuotesBackdrop } from "@/components/features/quotes/QuotesBackdrop";
 import { useQuoteFlow } from "@/lib/quote-flow";
 import { cn } from "@/lib/utils";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
@@ -22,6 +24,8 @@ export interface LeadFormCardProps {
   /** Focus landing concept: no price block (it's the page headline) and a
    *  privacy line under the CTA. */
   focus?: { privacyLine: string };
+  /** When given, the Quotes page skeleton loads behind the modal's lightbox. */
+  quotesPreview?: QuotesPreview;
 }
 
 /** Route the typed name to an outcome via the content's alias table (trimmed,
@@ -42,7 +46,7 @@ function resolveCase(name: string, matches: QuoteCaseMatch[]): { caseId: QuoteCa
  * fires a toast instead of opening the modal.
  * Usage: <LeadFormCard content={leadForm} quoteModal={quoteModal} />
  */
-export function LeadFormCard({ content, quoteModal, focus }: LeadFormCardProps) {
+export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: LeadFormCardProps) {
   const router = useRouter();
   const { setResult } = useQuoteFlow();
   const [companyName, setCompanyName] = useState("");
@@ -136,6 +140,7 @@ export function LeadFormCard({ content, quoteModal, focus }: LeadFormCardProps) 
         caseId={caseId}
         companyName={resolvedName}
         onComplete={handleComplete}
+        backdrop={quotesPreview && <QuotesBackdrop preview={quotesPreview} caseId={caseId} />}
       />
       <Toast
         open={toastOpen}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { TextLoader } from "generative-loaders";
 import "generative-loaders/styles.css";
@@ -54,6 +54,9 @@ export interface QuoteModalProps {
    *  receives the collected field values so the caller can carry them to the
    *  Quotes page. */
   onComplete?: (values: Record<string, string>) => void;
+  /** Page drawn behind the lightbox while the (non-drawer) modal is open —
+   *  e.g. the Quotes page skeleton, so results read as loading behind it. */
+  backdrop?: ReactNode;
 }
 
 /**
@@ -75,6 +78,7 @@ export function QuoteModal({
   formOnly = false,
   initialValues,
   onComplete,
+  backdrop,
 }: QuoteModalProps) {
   const reduced = useReducedMotion();
 
@@ -183,8 +187,22 @@ export function QuoteModal({
 
   return (
     <AnimatePresence>
+      {open && backdrop && !formOnly && (
+        <motion.div
+          key="backdrop"
+          className={styles.backdrop}
+          aria-hidden
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {backdrop}
+        </motion.div>
+      )}
       {open && (
         <motion.div
+          key="overlay"
           className={cn(styles.overlay, formOnly && styles.overlayDrawer)}
           onClick={onClose}
           // Drawer (Edit Details): the scrim tints and blurs in as the panel

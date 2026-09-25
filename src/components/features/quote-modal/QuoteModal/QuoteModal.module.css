@@ -13,6 +13,15 @@
   backdrop-filter: blur(6px);
 }
 
+/* Page layer behind the lightbox (the overlay's tint + blur sit on top). */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  overflow: hidden;
+  background: var(--color-page);
+}
+
 .modal {
   display: flex;
   /* Full viewport height less the overlay's 32px top/bottom; width hugs the two

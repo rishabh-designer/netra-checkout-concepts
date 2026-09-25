@@ -1,4 +1,6 @@
 import { getProductPageContent } from "@/lib/api/productPage";
+import { getQuotesPageContent } from "@/lib/api/quotesPage";
+import type { QuotesPreview } from "@/types/quotesPage";
 import { BreadcrumbTrail } from "@/components/ui/BreadcrumbTrail";
 import { IkkatLine } from "@/components/ui/IkkatLine";
 import { ProductHeroLeft } from "@/components/features/product-hero/ProductHeroLeft";
@@ -12,7 +14,15 @@ import styles from "./page.module.css";
 
 /** Director's & Officer's Insurance product page — Figma node 179:65816, hero fold. */
 export default async function DirectorsAndOfficersInsurancePage() {
-  const content = await getProductPageContent();
+  const [content, quotes] = await Promise.all([getProductPageContent(), getQuotesPageContent()]);
+  // Enough of the Quotes page to draw its skeleton behind the quote modal.
+  const countFor = (c: "A" | "B" | "C") =>
+    (quotes.feed.quotesByCase?.[c] ?? quotes.feed.quotes).length + (c === "B" ? 1 : 0);
+  const quotesPreview: QuotesPreview = {
+    header: quotes.header,
+    rowCount: quotes.detailsPanel.rows.length,
+    cardCounts: { A: countFor("A"), B: countFor("B"), C: countFor("C") },
+  };
 
   return (
     <div className={styles.fold}>
@@ -21,6 +31,7 @@ export default async function DirectorsAndOfficersInsurancePage() {
       <LandingShell
         content={content}
         foregroundClassName={styles.foreground}
+        quotesPreview={quotesPreview}
         flourish={<HeroFlourish key="flourish" src={content.flourishSrc} />}
         ticker={
           <div key="ticker" className={styles.ticker}>
@@ -44,7 +55,7 @@ export default async function DirectorsAndOfficersInsurancePage() {
                 <div className={styles.mediaArea}>
                   <MediaComposition media={content.media} />
                 </div>
-                <LeadFormCard content={content.leadForm} quoteModal={content.quoteModal} />
+                <LeadFormCard content={content.leadForm} quoteModal={content.quoteModal} quotesPreview={quotesPreview} />
                 <div className={styles.providersArea}>
                   <p className={styles.providersHeading}>{content.leadForm.providersHeading}</p>
                   <InsurerLogoShowcase slots={content.leadForm.providerShowcase} />

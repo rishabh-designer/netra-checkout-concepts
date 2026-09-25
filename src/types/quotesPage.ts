@@ -108,3 +108,13 @@ export interface QuotesPageContent {
   detailsPanel: DetailsPanelContent;
   feed: QuotesFeedContent;
 }
+
+/** What the landing page needs to draw the Quotes page skeleton behind the
+ *  quote modal ("results working in the background"). */
+export interface QuotesPreview {
+  header: QuotesHeaderContent;
+  /** Your Details rows to mirror. */
+  rowCount: number;
+  /** Cards per case (incl. Case B's ghost card). */
+  cardCounts: Record<QuoteCaseId, number>;
+}

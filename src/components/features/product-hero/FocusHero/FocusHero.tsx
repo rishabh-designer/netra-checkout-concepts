@@ -2,6 +2,7 @@
 
 import { Fragment } from "react";
 import type { FocusHeroContent, ProductPageContent } from "@/types/productPage";
+import type { QuotesPreview } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
 import { IkkatMark } from "@/components/ui/IkkatMark";
 import { InsurerLogoShowcase } from "@/components/ui/InsurerLogoShowcase";
@@ -14,6 +15,7 @@ import styles from "./FocusHero.module.css";
 export interface FocusHeroProps {
   content: ProductPageContent;
   focus: FocusHeroContent;
+  quotesPreview?: QuotesPreview;
 }
 
 /**
@@ -23,7 +25,7 @@ export interface FocusHeroProps {
  * insurer logos. No hero image or flourish competing with the form.
  * Usage: <FocusHero content={content} focus={content.focusHero} />
  */
-export function FocusHero({ content, focus }: FocusHeroProps) {
+export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
   return (
     <main className={styles.column}>
       <div className={styles.pills}>
@@ -59,6 +61,7 @@ export function FocusHero({ content, focus }: FocusHeroProps) {
           content={content.leadForm}
           quoteModal={content.quoteModal}
           focus={{ privacyLine: focus.privacyLine }}
+          quotesPreview={quotesPreview}
         />
       </div>
 

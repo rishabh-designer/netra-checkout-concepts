@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { ProductPageContent } from "@/types/productPage";
+import type { QuotesPreview } from "@/types/quotesPage";
 import { Navbar } from "@/components/layout/Navbar";
 import { FocusHero } from "../FocusHero";
 
@@ -15,6 +16,8 @@ export interface LandingShellProps {
   /** Bottom marquee, shared by both layouts. */
   ticker: ReactNode;
   foregroundClassName: string;
+  /** Quotes page skeleton data, drawn behind the quote modal. */
+  quotesPreview?: QuotesPreview;
 }
 
 /**
@@ -23,7 +26,7 @@ export interface LandingShellProps {
  * Focus also shows the "Talk to an Expert" button. Usage (in the page):
  * <LandingShell content={c} classic={<main…/>} flourish={<HeroFlourish/>} ticker={…} foregroundClassName={…} />
  */
-export function LandingShell({ content, classic, flourish, ticker, foregroundClassName }: LandingShellProps) {
+export function LandingShell({ content, classic, flourish, ticker, foregroundClassName, quotesPreview }: LandingShellProps) {
   const [variant, setVariant] = useState<"classic" | "focus">("focus");
   const focus = variant === "focus";
 
@@ -44,7 +47,7 @@ export function LandingShell({ content, classic, flourish, ticker, foregroundCla
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {focus ? <FocusHero content={content} focus={content.focusHero} /> : classic}
+            {focus ? <FocusHero content={content} focus={content.focusHero} quotesPreview={quotesPreview} /> : classic}
           </motion.div>
         </AnimatePresence>
         {ticker}
