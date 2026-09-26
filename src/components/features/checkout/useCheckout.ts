@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useQuoteFlow, type QuoteCaseId } from "@/lib/quote-flow";
 import { formatPhone } from "@/lib/utils";
-import { statusFor, validateField } from "@/lib/checkout";
+import { placeForPincode, statusFor, validateField } from "@/lib/checkout";
 import type { CheckoutContent, CheckoutField, CheckoutStepId } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
 import type { FieldStatus } from "@/components/ui/InteractiveInput";
@@ -23,6 +23,9 @@ export interface CheckoutState {
   /** Current value of any key (uploads store the file name). */
   get: (key: string) => string;
   set: (patch: Record<string, string>) => void;
+  /** The patch for one edit, plus anything it fills in (a pincode sets the
+   *  Place of Incorporation). `current` reads the values being edited. */
+  patchFor: (key: string, value: string, current: (key: string) => string) => Record<string, string>;
   otherPerson: boolean;
   setOtherPerson: (on: boolean) => void;
   /** Mandatory fields filled + valid (and uploads done on KYC). */
@@ -57,7 +60,11 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
   );
 
   const valueOf = useCallback((field: CheckoutField) => checkout[field.key] ?? seedOf(field), [checkout, seedOf]);
-  const isBilling = useCallback((field: CheckoutField) => content.steps.billing.fields.includes(field), [content]);
+  // Billing fields that swap to someone else's details (the company stays).
+  const isPersonal = useCallback(
+    (field: CheckoutField) => content.steps.billing.fields.includes(field) && !field.keepForOtherPerson,
+    [content],
+  );
 
   const errorOf = useCallback(
     (field: CheckoutField, value?: string) => validateField(field, value ?? valueOf(field), content.validationMessages),
@@ -66,8 +73,8 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
 
   const statusOf = useCallback(
     (field: CheckoutField, value?: string) =>
-      statusFor(field, value ?? valueOf(field), seedOf(field), otherPerson && isBilling(field)),
-    [valueOf, seedOf, otherPerson, isBilling],
+      statusFor(field, value ?? valueOf(field), seedOf(field), otherPerson && isPersonal(field)),
+    [valueOf, seedOf, otherPerson, isPersonal],
   );
 
   const set = useCallback((patch: Record<string, string>) => setCheckout({ ...checkout, ...patch }), [checkout, setCheckout]);
@@ -78,6 +85,7 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
     (on: boolean) => {
       const next = { ...checkout };
       for (const f of content.steps.billing.fields) {
+        if (f.keepForOtherPerson) continue;
         if (on) next[f.key] = "";
         else delete next[f.key];
       }
@@ -86,6 +94,20 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
       setCheckout(next);
     },
     [checkout, content, setCheckout],
+  );
+
+  // The place follows the pincode unless the user picked a different one:
+  // fill it only when it's empty or still matches the old pincode's place.
+  const patchFor = useCallback(
+    (key: string, value: string, current: (key: string) => string) => {
+      const patch: Record<string, string> = { [key]: value };
+      if (key !== "pincode") return patch;
+      const next = placeForPincode(value, content.pincodePlaces);
+      const place = current("place");
+      if (next && (!place || place === placeForPincode(current("pincode"), content.pincodePlaces))) patch.place = next;
+      return patch;
+    },
+    [content.pincodePlaces],
   );
 
   const isComplete = useCallback(
@@ -107,10 +129,11 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
       errorOf,
       get: (key: string) => checkout[key] ?? "",
       set,
+      patchFor,
       otherPerson,
       setOtherPerson,
       isComplete,
     }),
-    [caseId, selectedQuote, fallbackQuote, fieldsFor, valueOf, statusOf, errorOf, checkout, set, otherPerson, setOtherPerson, isComplete],
+    [caseId, selectedQuote, fallbackQuote, fieldsFor, valueOf, statusOf, errorOf, checkout, set, patchFor, otherPerson, setOtherPerson, isComplete],
   );
 }

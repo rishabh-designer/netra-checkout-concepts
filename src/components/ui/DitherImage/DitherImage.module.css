@@ -1,0 +1,5 @@
+/* One dither grain per CSS px, scaled up without smoothing so grains stay crisp. */
+.canvas {
+  display: block;
+  image-rendering: pixelated;
+}

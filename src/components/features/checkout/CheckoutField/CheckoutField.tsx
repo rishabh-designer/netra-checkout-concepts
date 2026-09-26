@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { InteractiveInput, type FieldStatus } from "@/components/ui/InteractiveInput";
 import { formatPhone } from "@/lib/utils";
 import type { CheckoutField as Field } from "@/types/checkout";
@@ -19,10 +20,14 @@ export interface CheckoutFieldProps {
 /**
  * CheckoutField — one checkout input on the shared InteractiveInput at the
  * 18px checkout size: formats phones, uppercases GSTIN/PAN, and shows the
- * validation line in the help row.
+ * validation line in the help row. Errors wait for blur (a half-typed value
+ * reads neutral, not wrong); once shown they clear live as the user fixes it.
  * Usage: <CheckoutField field={f} value={v} status={s} error={e} onChange={set} />
  */
 export function CheckoutField({ field, value, status, error, onChange, variant = "underline", reserveHelp = false }: CheckoutFieldProps) {
+  // A prefilled value counts as touched, so a bad seed still shows its error.
+  const [touched, setTouched] = useState(value !== "");
+  const shown = touched ? error : null;
   const format = (v: string) => (field.validate === "phone" ? formatPhone(v) : field.upper ? v.toUpperCase() : v);
   return (
     <InteractiveInput
@@ -41,10 +46,12 @@ export function CheckoutField({ field, value, status, error, onChange, variant =
       value={value}
       onChange={(v) => onChange(format(v))}
       clearable
-      status={error ? "error" : status}
-      helpText={error ?? undefined}
-      helpTone={error ? "error" : "neutral"}
-      showHelp={reserveHelp || !!error}
+      status={shown ? "error" : error ? "empty" : status}
+      helpText={shown ?? undefined}
+      helpTone={shown ? "error" : "neutral"}
+      showHelp={reserveHelp || !!shown}
+      onFocus={() => !error && setTouched(false)}
+      onBlur={() => setTouched(true)}
     />
   );
 }

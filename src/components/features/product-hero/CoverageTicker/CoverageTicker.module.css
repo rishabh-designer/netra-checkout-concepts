@@ -1,20 +1,31 @@
-/* Shares the TagPill "success" shell; a touch more gap for the 14px label. */
+/* Mirrors the Quote Card coverage chip (QuoteCard .chip / .chipCheck). */
 .ticker {
   position: relative;
+  display: inline-flex;
+  align-items: center;
   gap: var(--spacing-6);
+  padding: var(--spacing-8) var(--spacing-6);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
 }
 
-.icon {
-  display: inline-flex;
+/* The old shield's 14px, so the tick holds its own beside the 14px label. */
+.check {
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
 }
 
 /* The label line: width is animated to the current item; overflow clips the
-   rising / lifting labels, which stack in the same spot. */
+   rising / lifting labels, which stack in the same spot. 0.1em of room above
+   and below (cancelled by the margins) keeps descenders from being clipped
+   while the chip keeps the card's line-height-1 height. */
 .window {
   position: relative;
   display: inline-block;
   height: 1.2em;
+  margin: -0.1em 0;
   font-size: var(--font-size-100);
   overflow: hidden;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -26,17 +37,17 @@
   }
 }
 
-/* One step up from the TagPill's 12px label. */
+/* Quote Card chip type (Medium ink) at the hero's 14px. */
 .label {
   position: absolute;
-  top: 0;
+  top: 0.1em;
   left: 0;
   font-size: var(--font-size-100);
   font-weight: 500;
   letter-spacing: -0.14px;
-  line-height: 1.2;
+  line-height: 1;
   white-space: nowrap;
-  color: var(--color-success);
+  color: var(--color-label-primary);
 }
 
 /* Invisible measuring rack — out of flow, never clipped. */

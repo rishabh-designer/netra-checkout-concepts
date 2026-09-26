@@ -12,11 +12,11 @@ export interface DisclaimerProps {
 /**
  * Disclaimer — the legal accordion under every checkout step (Figma 613:67716):
  * a muted title over a hairline rule with a boxed chevron, then the broker's
- * disclosures. Open by default; the chevron collapses it.
+ * disclosures. Collapsed by default; the chevron opens it.
  * Usage: <Disclaimer title="Disclaimer" toggleLabel="…" paragraphs={[…]} />
  */
 export function Disclaimer({ title, toggleLabel, paragraphs }: DisclaimerProps) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const bodyId = useId();
   return (
     <section className={styles.wrap}>

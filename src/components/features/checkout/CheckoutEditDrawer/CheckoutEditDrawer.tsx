@@ -75,7 +75,7 @@ export function CheckoutEditDrawer({ section, title, fields, uploads, uploadCopy
               status: (f) => co.statusOf(f, value(f)),
               error: (f) => co.errorOf(f, value(f)),
               file: (key) => draft[key] ?? "",
-              onChange: (key, v) => setDraft((d) => ({ ...d, [key]: v })),
+              onChange: (key, v) => setDraft((d) => ({ ...d, ...co.patchFor(key, v, (k) => d[k] ?? "") })),
             }}
           />
         )}

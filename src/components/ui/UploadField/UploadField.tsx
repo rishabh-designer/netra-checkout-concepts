@@ -61,7 +61,8 @@ function isAccepted(file: File): boolean {
  * UploadField — the Peetal DSL Interactive Input (Upload): a 200px drop zone
  * with a 3D illustration, title and hint (Default, dashed blue). A picked or
  * dropped file is checked (image or PDF, at most `copy.maxBytes`) → Success
- * (green, "file has been uploaded", "Cancel and Upload again") or Failure
+ * (green, "file has been uploaded", "Replace File": the current file stays
+ * until a new one is picked) or Failure
  * (red, the reason, "Try Again"). Disabled is dashed grey. Only the file name
  * is kept; nothing is sent anywhere.
  * Usage: <UploadField label="…" title="Upload Company GST" fileName={f} onChange={setF} copy={upload} />
@@ -158,7 +159,7 @@ export function UploadField({ label, title, mandatory, fileName, onChange, copy,
             </p>
           </div>
           {(state === "success" || state === "failure") && (
-            <button type="button" className={styles.again} onClick={reset}>
+            <button type="button" className={styles.again} onClick={state === "success" ? browse : reset}>
               {state === "success" ? copy.cancelLabel : copy.retryLabel}
             </button>
           )}

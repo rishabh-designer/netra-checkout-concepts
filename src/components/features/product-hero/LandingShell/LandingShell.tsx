@@ -6,6 +6,7 @@ import type { ProductPageContent } from "@/types/productPage";
 import type { QuotesPreview } from "@/types/quotesPage";
 import { Navbar } from "@/components/layout/Navbar";
 import { FocusHero } from "../FocusHero";
+import styles from "./LandingShell.module.css";
 
 export interface LandingShellProps {
   content: ProductPageContent;
@@ -41,6 +42,7 @@ export function LandingShell({ content, classic, flourish, ticker, foregroundCla
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={variant}
+            className={focus ? styles.stage : undefined}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

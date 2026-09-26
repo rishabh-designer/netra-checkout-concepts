@@ -62,6 +62,9 @@ export interface InteractiveInputProps {
   /** HTML input type / inputmode hint for text controls. */
   inputMode?: "text" | "numeric" | "email" | "tel";
   maxLength?: number;
+  /** Focus / blur of the text input (e.g. to validate on blur). */
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 /**
@@ -103,6 +106,8 @@ export function InteractiveInput({
   variant = "underline",
   inputMode,
   maxLength,
+  onFocus,
+  onBlur,
 }: InteractiveInputProps) {
   const inputRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const uid = useId();
@@ -185,6 +190,8 @@ export function InteractiveInput({
             disabled={loading}
             maxLength={maxLength}
             onChange={(e) => onChange?.(e.target.value)}
+            onFocus={onFocus}
+            onBlur={onBlur}
           />
         ) : (
           <input
@@ -203,6 +210,8 @@ export function InteractiveInput({
             inputMode={inputMode === "text" ? undefined : inputMode}
             maxLength={maxLength}
             onChange={(e) => onChange?.(e.target.value)}
+            onFocus={onFocus}
+            onBlur={onBlur}
             onKeyDown={onSubmit ? (e) => e.key === "Enter" && onSubmit() : undefined}
           />
         )}

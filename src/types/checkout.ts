@@ -30,6 +30,9 @@ export interface CheckoutField {
   validate?: CheckoutValidator;
   /** Uppercase as the user types (GSTIN, PAN). */
   upper?: boolean;
+  /** Stays put when "Buy in Another Person's Name" is on (the company is
+   *  still the one being insured). */
+  keepForOtherPerson?: boolean;
 }
 
 /** A document upload (KYC). The stored value is the uploaded file's name. */
@@ -117,6 +120,8 @@ export interface CheckoutContent {
   disclaimer: { title: string; toggleLabel: string; paragraphs: string[] };
   drawer: { saveLabel: string; closeLabel: string };
   validationMessages: Record<CheckoutValidator, string>;
+  /** [pincode prefix, Place of Incorporation] pairs for the pincode autofill. */
+  pincodePlaces: [string, string][];
   /** Lead-flow values used when checkout is opened without a flow (reload / direct URL). */
   fallbackValues: Record<string, string>;
   fallbackCompanyName: string;

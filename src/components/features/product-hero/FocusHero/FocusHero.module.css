@@ -1,6 +1,7 @@
 /* Single centred column — the form is the page's one destination. */
 .column {
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-24);
@@ -11,9 +12,52 @@
   text-align: center;
 }
 
+/* Top stack (Figma 626:15872): pill row, then the PLP name on a top rule. */
+.top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .pills {
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: var(--spacing-8);
+}
+
+/* Both pills 148 wide so the icon sits dead centre. */
+.pill {
+  width: 148px;
+}
+
+/* 100×50 window onto the 102px icon: only its top half shows, resting on
+   the PLP name rule. */
+.plpIcon {
+  position: relative;
+  flex-shrink: 0;
+  width: 100px;
+  height: 50px;
+  overflow: clip;
+}
+
+.plpIconArt {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+}
+
+.plpName {
+  width: 100%;
+  padding: var(--spacing-4) var(--spacing-8);
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.14px;
+  text-transform: uppercase;
+  color: var(--color-label-primary);
 }
 
 .heading {
@@ -23,21 +67,19 @@
   gap: var(--spacing-12);
 }
 
-.eyebrow {
-  font-size: var(--font-size-100);
-  font-weight: 600;
-  letter-spacing: 0.14px;
-  text-transform: uppercase;
-  color: var(--color-label-secondary);
-}
-
 .title {
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
   font-size: var(--font-size-display-xs);
   font-weight: 400;
-  line-height: 1.05;
-  color: var(--color-label-basic);
+  line-height: 1;
+}
+
+/* Cover: a small warm lead-in over the price. */
+.cover {
+  display: block;
+  font-size: var(--font-size-heading-md);
+  color: var(--color-brand-secondary);
 }
 
 /* Price on its own line — the headline always breaks cover / price. */
@@ -47,40 +89,67 @@
   color: var(--color-brand-primary);
 }
 
+.divider {
+  padding: 0 var(--spacing-12);
+}
+
 .subtitle {
   font-size: var(--font-size-300);
   font-weight: 500;
   color: var(--color-label-secondary);
 }
 
+/* Form + its proof line, grouped 16 apart (tighter than the column's 24). */
 .form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
   width: 100%;
   text-align: left;
 }
 
+/* Stats (Figma 626:15669): three equal columns split by bead marks. */
 .proof {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-12);
-  margin-top: calc(-1 * var(--spacing-8));
+  padding: 0 var(--spacing-28);
 }
 
 .stat {
-  font-size: var(--font-size-75);
-  font-weight: 500;
-  color: var(--color-label-secondary);
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .statValue {
-  font-size: var(--font-size-100);
-  font-weight: 600;
-  color: var(--color-brand-primary);
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-heading-sm);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--color-brand-secondary);
 }
 
-.sep {
-  width: 12px;
+.statLabel {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  color: var(--color-label-warm);
+}
+
+/* Bottom stack (Figma 626:16095): ikkat rule + insurer logos, pinned to the
+   bottom of the column so the fold's spare height sits above it. */
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  width: 100%;
+  margin-top: auto;
 }
 
 .providers {

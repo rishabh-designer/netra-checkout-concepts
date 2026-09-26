@@ -122,7 +122,7 @@
 .cardFocus {
   background: var(--color-card);
   border: var(--border-hairline) solid var(--color-brand-primary-border);
-  box-shadow: var(--shadow-raised);
+  box-shadow: var(--shadow-raised-wide);
 }
 
 /* Reassurance at the point of commitment. */

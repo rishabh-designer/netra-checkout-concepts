@@ -2,38 +2,30 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { cn } from "@/lib/utils";
-import pillStyles from "@/components/ui/TagPill/TagPill.module.css";
 import styles from "./CoverageTicker.module.css";
 
 export interface CoverageTickerProps {
   /** Covered items, cycled in order (first one shows under reduced motion). */
   items: string[];
+  /** The quote card's green coverage tick. */
+  iconSrc: string;
   /** Hold time per item (ms). */
   interval?: number;
 }
 
 const EASE = [0.4, 0, 0.2, 1] as const;
 
-/** Shield-check glyph — fixed while the label rotates. */
-function ShieldCheck() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
-      <path d="M8 1.8 13 3.6v4c0 3-2.1 5.4-5 6.6-2.9-1.2-5-3.6-5-6.6v-4L8 1.8Z" stroke="var(--color-success)" strokeWidth="1.3" strokeLinejoin="round" />
-      <path d="m5.7 8 1.6 1.6 3-3.2" stroke="var(--color-success)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 /**
- * CoverageTicker — a green TagPill whose label rotates through what the policy
- * covers (after Policybazaar's feature line): each item rises in, holds, then
+ * CoverageTicker — a coverage chip styled exactly like the Quote Card's
+ * (hairline box, green tick, ink label; 14px here) so the hero and the quotes read
+ * as one pattern. Its label rotates through what the policy covers (after
+ * Policybazaar's feature line): each item rises in, holds, then
  * lifts away for the next, while the label window eases to the new item's
  * measured width (no scale distortion). Pauses in background tabs; static
  * under reduced motion.
- * Usage: <CoverageTicker items={["Covers legal & defence costs", …]} />
+ * Usage: <CoverageTicker items={["Covers legal & defence costs", …]} iconSrc="/media/coverage-check.svg" />
  */
-export function CoverageTicker({ items, interval = 2200 }: CoverageTickerProps) {
+export function CoverageTicker({ items, iconSrc, interval = 2200 }: CoverageTickerProps) {
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [widths, setWidths] = useState<number[]>([]);
@@ -71,10 +63,9 @@ export function CoverageTicker({ items, interval = 2200 }: CoverageTickerProps) 
   const width = widths[index];
 
   return (
-    <div className={cn(pillStyles.pill, pillStyles.success, styles.ticker)}>
-      <span className={styles.icon}>
-        <ShieldCheck />
-      </span>
+    <div className={styles.ticker}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={iconSrc} alt="" aria-hidden className={styles.check} />
       <span className={styles.window} aria-live="polite" style={width ? { width } : undefined}>
         <AnimatePresence initial={false}>
           <motion.span

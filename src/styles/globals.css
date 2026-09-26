@@ -17,6 +17,7 @@
   --color-brand-primary-faint: #dbd7ea;
   --color-brand-primary-border: #d1c6ff;
   --color-brand-secondary: #ff7700;
+  --color-brand-secondary-deep: #b35300; /* ikkat marks on warm copy (stats line) */
   --color-brand-primary-tint: rgba(65, 0, 207, 0.08); /* button/primary/fill/primary/clicked */
 
   /* labels */
@@ -93,6 +94,7 @@
 
   /* shadows */
   --shadow-raised: 0 0 12px rgba(169, 172, 177, 0.24);
+  --shadow-raised-wide: 0 0 24px rgba(169, 172, 177, 0.24); /* Focus lead form */
   --shadow-ghost-glow: inset 0 0 24px rgba(255, 119, 0, 0.08);
   --shadow-card-hover: 0 0 12px rgba(169, 172, 177, 0.6);
   --shadow-button-primary-hover: 0 0 16px rgba(65, 0, 207, 0.48);

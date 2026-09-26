@@ -408,8 +408,10 @@ export const mockProductPageContent: ProductPageContent = {
   flourishSrc: "/media/do-logo.webp",
   focusHero: {
     eyebrow: "Director’s & Officer’s Insurance",
+    plpIconSrc: "/media/plp-icon.svg",
     headlineCover: "₹25 Lakh Cover",
     headlinePrice: "Starting At ₹3,000/Year",
+    coveredIconSrc: "/media/coverage-check.svg",
     coveredChips: [
       "Covers legal & defence costs",
       "Covers settlements & damages",

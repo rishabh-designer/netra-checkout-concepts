@@ -42,7 +42,21 @@ function kycFields(
   ];
 }
 
-const PROGRESS_TIME = "12 Mins. Left";
+/* Place of Incorporation from the first three digits of a pincode (demo
+   table: one prefix per entry in PLACES). */
+const PINCODE_PLACES: [string, string][] = [
+  ["560", "Bengaluru, Karnataka"],
+  ["600", "Chennai, Tamil Nadu"],
+  ["122", "Gurugram, Haryana"],
+  ["500", "Hyderabad, Telangana"],
+  ["452", "Indore, Madhya Pradesh"],
+  ["302", "Jaipur, Rajasthan"],
+  ["700", "Kolkata, West Bengal"],
+  ["400", "Mumbai, Maharashtra"],
+  ["110", "New Delhi, Delhi"],
+  ["201", "Noida, Uttar Pradesh"],
+  ["411", "Pune, Maharashtra"],
+];
 
 /** Fixture for the checkout journey (Figma 484:25856 Billing / 484:26420
  *  Company / 484:26922 KYC / 484:27578 Review). */
@@ -66,11 +80,11 @@ export const mockCheckoutContent: CheckoutContent = {
         "These details will be shown on your policy & used for communication. You can purchase the policy in another person's name by selecting the option below.",
       sectionTitle: "Primary Policy Details",
       bannerCompact: true,
-      progress: { percent: 35, timeLeft: PROGRESS_TIME },
+      progress: { percent: 35, timeLeft: "4 Mins. Left" },
       otherPerson: "live",
       fields: [
         { key: "fullName", label: "Your Full Name", mandatory: true, hideLabel: true, control: "text", seedFrom: "fullName", status: "verified", placeholder: "Full Name" },
-        { key: "companyName", label: "Company Name", mandatory: true, hideLabel: true, control: "text", seedFrom: "companyName", status: "verified", placeholder: "Company Name" },
+        { key: "companyName", label: "Company Name", mandatory: true, hideLabel: true, control: "text", seedFrom: "companyName", status: "verified", placeholder: "Company Name", keepForOtherPerson: true },
         { key: "phone", label: "Your Phone Number", mandatory: true, hideLabel: true, control: "text", seedFrom: "phone", status: "verified", prefix: "+91", placeholder: "0000 000 000", inputMode: "tel", validate: "phone" },
         { key: "email", label: "Your Email Address", mandatory: true, hideLabel: true, control: "text", seedFrom: "email", status: "verified", placeholder: "Email Address", inputMode: "email", validate: "email" },
       ],
@@ -80,7 +94,7 @@ export const mockCheckoutContent: CheckoutContent = {
       backLabel: "Back to Billing",
       banner: "These company details will be shown on your policy & used for policy communication.",
       sectionTitle: "Company Registration Details",
-      progress: { percent: 42, timeLeft: PROGRESS_TIME },
+      progress: { percent: 42, timeLeft: "3 Mins. Left" },
       otherPerson: "hidden",
       cases: {
         // A: registry match, filled and green.
@@ -96,7 +110,7 @@ export const mockCheckoutContent: CheckoutContent = {
       backLabel: "Back to Company",
       banner: "As per IRDAI guidelines, completing KYC is mandatory to issue your policy.",
       sectionTitle: "KYC Details",
-      progress: { percent: 58, timeLeft: PROGRESS_TIME },
+      progress: { percent: 58, timeLeft: "2 Mins. Left" },
       otherPerson: "hidden",
       uploads: [
         { key: "gstinFile", label: "Upload Company GST Certificate - Image or PDF", reviewLabel: "GSTIN Upload", title: "Upload Company GST" },
@@ -137,7 +151,7 @@ export const mockCheckoutContent: CheckoutContent = {
     failureTitle: "Upload Failed",
     tooLarge: "{file} is larger than 2MB",
     wrongType: "{file} isn't an image or a PDF",
-    cancelLabel: "Cancel and Upload again",
+    cancelLabel: "Replace File",
     retryLabel: "Try Again",
     disabledTitle: "Unable to Upload",
     disabledBody: "Please Refresh or Try Again Later",
@@ -167,6 +181,7 @@ export const mockCheckoutContent: CheckoutContent = {
       "Visitors are being informed that BimaKavach Insurance Broking Pvt. Ltd. holds the right to share the information submitted by you on the website with Insurers. Product information is genuine and exclusively based on information obtained from insurers.",
     ],
   },
+  pincodePlaces: PINCODE_PLACES,
   drawer: { saveLabel: "Save Changes", closeLabel: "Close" },
   validationMessages: {
     phone: "Enter a 10-digit mobile number",

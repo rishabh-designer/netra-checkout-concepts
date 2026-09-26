@@ -23,11 +23,8 @@
   background: linear-gradient(to bottom, var(--color-card), var(--color-success-subtle));
 }
 
-/* Upcoming: a 24px grey circle, no label. */
+/* Upcoming: a grey pill with its label, so the steps ahead are readable. */
 .pill[data-state="upcoming"] {
-  width: 24px;
-  height: 24px;
-  padding: var(--spacing-6);
   border-color: var(--color-divider);
   background: linear-gradient(to bottom, var(--color-card-sunken), var(--color-card-recessed));
 }
@@ -38,7 +35,6 @@
 
 .label {
   display: inline-block;
-  overflow: hidden;
   font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1;
@@ -49,6 +45,10 @@
 
 .pill[data-state="current"] .label {
   color: var(--color-label-primary);
+}
+
+.pill[data-state="upcoming"] .label {
+  color: var(--color-label-tertiary);
 }
 
 .ring {
@@ -80,13 +80,4 @@
 
 .dot[data-state="upcoming"] circle {
   fill: var(--color-input-stroke);
-}
-
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
 }

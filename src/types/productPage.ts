@@ -214,11 +214,15 @@ export interface QuoteModalContent {
 /** Copy for the "Focus" landing concept (single-column, offer-led hero). */
 export interface FocusHeroContent {
   eyebrow: string;
-  /** Headline in two parts: the cover (ink) + the price (brand purple). */
+  /** Product icon between the pills (shown top half, dithered). */
+  plpIconSrc: string;
+  /** Headline in two parts: the cover (orange, small) + the price (purple). */
   headlineCover: string;
   headlinePrice: string;
   /** What the policy covers — rotated in the chip under the subtitle. */
   coveredChips: string[];
+  /** Green tick shared with the Quote Card coverage chips. */
+  coveredIconSrc: string;
   /** Reassurance under the CTA. */
   privacyLine: string;
 }

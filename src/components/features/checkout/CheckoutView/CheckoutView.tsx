@@ -74,12 +74,18 @@ export function CheckoutView({ step, steps, basePath, quotesHref, content, fallb
         }
       : { label: content.summary.saveLabel, enabled: co.isComplete(step), onClick: () => router.push(`${basePath}/${steps[i + 1]}`) };
 
+  // Live value of a Company field by key (seed or edit), for the pincode autofill.
+  const live = (key: string) => {
+    const f = co.fieldsFor("company").find((x) => x.key === key);
+    return f ? co.valueOf(f) : co.get(key);
+  };
+
   const model = {
     value: co.valueOf,
     status: (f: Parameters<typeof co.statusOf>[0]) => co.statusOf(f),
     error: (f: Parameters<typeof co.errorOf>[0]) => co.errorOf(f),
     file: co.get,
-    onChange: (key: string, v: string) => co.set({ [key]: v }),
+    onChange: (key: string, v: string) => co.set(co.patchFor(key, v, live)),
   };
 
   return (

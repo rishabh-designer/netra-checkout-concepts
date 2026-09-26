@@ -1,0 +1,7 @@
+/* Focus hero stage: takes the fold's spare height between the navbar and the
+   marquee, so FocusHero can pin its insurer logos to the bottom. */
+.stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}

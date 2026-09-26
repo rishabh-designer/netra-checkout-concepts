@@ -33,6 +33,13 @@ export function statusFor(field: CheckoutField, value: string, seed: string, man
   return field.status;
 }
 
+/** The Place of Incorporation a valid pincode points to, or null. */
+export function placeForPincode(pin: string, table: [string, string][]): string | null {
+  const v = pin.trim();
+  if (!RULES.pincode(v)) return null;
+  return table.find(([prefix]) => v.startsWith(prefix))?.[1] ?? null;
+}
+
 /** Split a GST-inclusive total ("₹10,000") into premium + GST at `rate`. */
 export function splitPrice(total: string, rate: number): { premium: number; gst: number; total: number } {
   const t = Number(total.replace(/[^\d]/g, "")) || 0;

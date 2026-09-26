@@ -39,13 +39,13 @@
   background: var(--color-brand-primary-subtle);
 }
 
+/* Chevron points down while collapsed, flips up once open. */
 .toggle svg {
-  transform: rotate(-90deg);
   transition: transform 0.2s ease;
 }
 
 .toggle svg[data-open] {
-  transform: none;
+  transform: rotate(180deg);
 }
 
 .body {

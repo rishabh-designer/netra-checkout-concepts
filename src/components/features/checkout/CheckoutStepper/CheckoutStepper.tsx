@@ -48,9 +48,9 @@ function Glyph({ state }: { state: PillState }) {
 /**
  * CheckoutStepper — the four-step pill row beside the page title (Figma
  * 484:25864 / 613:65314): done steps green with a tick, the current step
- * lilac with a purple dot, upcoming steps a bare grey dot (no label).
+ * lilac with a purple dot, upcoming steps grey with their label.
  * On Save & Continue the step just finished pops green with its tick, then the
- * next pill blooms open: its dot grows and its label unfurls.
+ * next pill blooms: its dot grows and its label brightens.
  * Usage: <CheckoutStepper steps={…} current="company" labels={…} from="billing" />
  */
 export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null }: CheckoutStepperProps) {
@@ -82,18 +82,14 @@ export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null
             >
               <Glyph state={state} />
             </motion.span>
-            {state === "upcoming" ? (
-              <span className={styles.srOnly}>{labels[s]}</span>
-            ) : (
-              <motion.span
-                className={styles.label}
-                initial={justCurrent ? { width: 0, opacity: 0 } : false}
-                animate={{ width: "auto", opacity: 1 }}
-                transition={{ type: "tween", duration: HANDOFF.label, ease: EASE, delay: HANDOFF.land + 0.1 }}
-              >
-                {labels[s]}
-              </motion.span>
-            )}
+            <motion.span
+              className={styles.label}
+              initial={justCurrent ? { opacity: 0.4 } : false}
+              animate={{ opacity: 1 }}
+              transition={{ type: "tween", duration: HANDOFF.label, ease: EASE, delay: HANDOFF.land + 0.1 }}
+            >
+              {labels[s]}
+            </motion.span>
           </motion.li>
         );
       })}
