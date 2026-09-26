@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import type { DetailsPanelContent } from "@/types/quotesPage";
-import { UpgradeBanner, type UpgradeStage } from "../UpgradeBanner";
+import { NoRecordsBanner, UpgradeBanner, type UpgradeStage } from "../UpgradeBanner";
 import styles from "./DetailsPanel.module.css";
 
 export interface DetailsPanelProps {
@@ -25,6 +25,8 @@ export interface DetailsPanelProps {
   onVerified?: () => void;
   /** Hidden demo shortcut (click "You're Upgraded!"): back to the start. */
   onReset?: () => void;
+  /** Case C: no public records, so no verification to show. */
+  noRecords?: boolean;
 }
 
 /** Panel toggle glyph — `[< |]` (collapse); flipped via CSS to `[| >]` (expand). */
@@ -48,7 +50,7 @@ function ToggleGlyph() {
  * Usage: <DetailsPanel content={detailsPanel} values={values} onEdit={fn}
  *          collapsed={bool} onToggleCollapse={fn} />
  */
-export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset }: DetailsPanelProps) {
+export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false }: DetailsPanelProps) {
   const reduced = useReducedMotion();
   const start = Math.max(0, Math.min(100, content.upgrade.percent));
   // One progress value for the banner and the collapsed rail.
@@ -120,14 +122,18 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
           </dl>
         </div>
 
-        <UpgradeBanner
-          stage={stage}
-          content={content.upgrade}
-          upgraded={content.upgraded}
-          progress={progress}
-          onSimulate={onSimulate}
-          onReset={onReset}
-        />
+        {noRecords ? (
+          <NoRecordsBanner content={content.noRecords} />
+        ) : (
+          <UpgradeBanner
+            stage={stage}
+            content={content.upgrade}
+            upgraded={content.upgraded}
+            progress={progress}
+            onSimulate={onSimulate}
+            onReset={onReset}
+          />
+        )}
       </div>
 
       {/* Collapsed rail — toggle at top, progress pinned to the bottom. */}
@@ -143,12 +149,14 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
             <ToggleGlyph />
           </button>
         </div>
-        <div className={styles.railMeter}>
-          <motion.span className={styles.railPercent}>{railLabel}</motion.span>
-          <div className={styles.railTrack}>
-            <motion.div className={styles.railFill} style={{ width: railWidth }} />
+        {!noRecords && (
+          <div className={styles.railMeter}>
+            <motion.span className={styles.railPercent}>{railLabel}</motion.span>
+            <div className={styles.railTrack}>
+              <motion.div className={styles.railFill} style={{ width: railWidth }} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </aside>
   );

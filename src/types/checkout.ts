@@ -91,6 +91,8 @@ export interface CheckoutReviewContent extends CheckoutStepChrome {
 export interface CheckoutSummaryContent {
   title: string;
   immediateLabel: string;
+  /** Pill on the Gold Quote's summary (in place of Immediate Purchase). */
+  poweredByLabel: string;
   productLines: [string, string];
   productIconSrc: string;
   priceTitle: string;

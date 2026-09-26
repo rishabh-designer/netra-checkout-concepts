@@ -30,13 +30,13 @@
   background: var(--color-card);
 }
 
-/* 226 wide in Figma; shrink (never wrap) when the feed column is narrower. */
+/* 226 wide in Figma; shrink (never wrap) when the feed column is narrower.
+   Positioned so the option list anchors under the box. */
 .dropdown {
-  justify-content: space-between;
-  gap: var(--spacing-8);
+  position: relative;
   flex: 0 1 226px;
   min-width: 150px;
-  cursor: pointer;
+  padding: 0;
   transition: background 0.15s ease;
 }
 
@@ -44,18 +44,19 @@
   background: var(--color-card-sunken);
 }
 
-.label {
-  flex: 1;
-  min-width: 0;
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* The SelectMenu trigger fills the box: label left, chevron + glyph right.
+   Scoped under .dropdown so it outranks SelectMenu's own trigger reset
+   (padding 0, 16px) whatever order the two stylesheets load in. */
+.dropdown .trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  height: 100%;
+  padding: var(--spacing-8) var(--spacing-12);
   font-size: var(--font-size-100);
-  font-weight: 500;
   line-height: 1;
-  text-align: left;
   color: var(--color-label-secondary);
-  white-space: nowrap;
 }
 
 .suffix {

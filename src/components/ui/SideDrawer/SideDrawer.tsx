@@ -22,6 +22,8 @@ export interface SideDrawerProps {
   /** Panel width in px: 624 (View All Features) or 480 (form drawers, like
    *  the Quotes page's Edit Details). */
   width?: number;
+  /** "right" (default) docks the drawer; "center" floats it as a popup. */
+  placement?: "right" | "center";
 }
 
 /**
@@ -30,9 +32,12 @@ export interface SideDrawerProps {
  * Instrument Serif title + boxed ×, a flexible body and an optional pinned
  * footer. Slides in from the right; Esc, × or a scrim click closes it; focus
  * lands on × when it opens. Shared by View All Features and the checkout edit
- * drawers. Usage: <SideDrawer open={o} onClose={c} title="KYC" closeLabel="Close" footer={…}>…</SideDrawer>
+ * drawers. placement="center" floats it as a content-height popup that
+ * scales in (Know More).
+ * Usage: <SideDrawer open={o} onClose={c} title="KYC" closeLabel="Close" footer={…}>…</SideDrawer>
  */
-export function SideDrawer({ open, onClose, title, closeLabel, children, footer, width = 624 }: SideDrawerProps) {
+export function SideDrawer({ open, onClose, title, closeLabel, children, footer, width = 624, placement = "right" }: SideDrawerProps) {
+  const centered = placement === "center";
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -61,6 +66,7 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
         <motion.div
           key="side-drawer"
           className={styles.overlay}
+          data-placement={placement}
           onClick={onClose}
           initial={SCRIM.hidden}
           animate={SCRIM.shown}
@@ -74,10 +80,10 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
             aria-labelledby={titleId}
             style={{ width }}
             onClick={(e) => e.stopPropagation()}
-            initial={{ x: reduced ? 0 : "calc(100% + 32px)" }}
-            animate={{ x: 0 }}
-            exit={{ x: reduced ? 0 : "calc(100% + 32px)" }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            initial={centered ? { opacity: 0, y: reduced ? 0 : 12, scale: reduced ? 1 : 0.97 } : { x: reduced ? 0 : "calc(100% + 32px)" }}
+            animate={centered ? { opacity: 1, y: 0, scale: 1 } : { x: 0 }}
+            exit={centered ? { opacity: 0, y: reduced ? 0 : 8, scale: reduced ? 1 : 0.98 } : { x: reduced ? 0 : "calc(100% + 32px)" }}
+            transition={{ duration: centered ? 0.35 : 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className={styles.body}>
               <div className={styles.head}>

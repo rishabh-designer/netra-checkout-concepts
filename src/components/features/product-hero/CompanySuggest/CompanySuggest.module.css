@@ -1,0 +1,65 @@
+/* Floating list under the company-name field (anchors to the host's
+   positioned wrapper). Matches the DSL SelectMenu card. */
+.list {
+  position: absolute;
+  top: calc(100% + var(--spacing-4));
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: var(--spacing-8);
+  list-style: none;
+  background: var(--color-card);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-16);
+  box-shadow: var(--shadow-raised);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  min-height: 48px;
+  padding: 0 var(--spacing-16);
+  border-radius: var(--radius-8);
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  color: var(--color-label-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.option[data-active] {
+  background: var(--color-card-sunken);
+}
+
+.label {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "MCA Records" — 12px tertiary, then a hairline to the edge. */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-16);
+}
+
+.dividerLabel {
+  flex-shrink: 0;
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  color: var(--color-label-tertiary);
+}
+
+.dividerLine {
+  flex: 1;
+  height: 0;
+  border-top: var(--border-hairline) solid var(--color-divider);
+}

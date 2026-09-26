@@ -23,6 +23,8 @@ export interface UpgradeBannerContent {
   percent: number;
   timeLeft: string;
   ctaLabel: string;
+  /** Top-right alert once Notify Me is pressed. */
+  notifyToast: { title: string; description: string };
   /** Hidden demo shortcut: the percent is a button that simulates verification. */
   simulateLabel: string;
   /** Time-left readouts rolled through as the simulated count passes each
@@ -45,6 +47,17 @@ export interface DetailsPanelContent {
   rows: QuoteDetailRow[];
   upgrade: UpgradeBannerContent;
   upgraded: UpgradedBannerContent;
+  /** Case C (no public records): nothing to verify, so no progress; point the
+   *  customer to an expert instead. */
+  noRecords: NoRecordsBannerContent;
+}
+
+export interface NoRecordsBannerContent {
+  title: string;
+  body: string;
+  ctaLabel: string;
+  /** Where the CTA goes (a tel: link to the experts). */
+  ctaHref: string;
 }
 
 /** "Need Help?" banner in the feed header — IRDAI experts + phone. */
@@ -136,6 +149,11 @@ export interface TestimonialContent {
   logoSrc: string;
 }
 
+/** Which quotes the feed shows: every one, only priced, or only price-on-request. */
+export type QuoteFilter = "all" | "priced" | "onRequest";
+/** Feed order: the insurer default, premium either way, or most coverages first. */
+export type QuoteSort = "default" | "priceLow" | "priceHigh" | "coverage";
+
 export interface QuotesFeedContent {
   /** Where a quote's price button leads (checkout, first step). */
   checkoutHref: string;
@@ -143,11 +161,14 @@ export interface QuotesFeedContent {
   availableLabel: string;
   breadcrumb: BreadcrumbItem[];
   needHelp: NeedHelpContent;
+  /** Dropdown trigger copy; `{option}` is the chosen option's label. */
   filterLabel: string;
-  filterOptions: string[];
+  filterOptions: { id: QuoteFilter; label: string }[];
   sortLabel: string;
-  sortOptions: string[];
+  sortOptions: { id: QuoteSort; label: string }[];
   switchLabel: string;
+  /** Shown when the filters leave no quotes. */
+  noResults: { title: string; body: string; resetLabel: string };
   quotes: QuoteCardData[];
   /** Per-case quote list override (e.g. fuzzy B). Falls back to `quotes`. */
   quotesByCase?: Partial<Record<QuoteCaseId, QuoteCardData[]>>;

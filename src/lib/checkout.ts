@@ -9,6 +9,11 @@ const RULES: Record<CheckoutValidator, (v: string) => boolean> = {
   pan: (v) => /^[A-Z]{5}\d{4}[A-Z]$/.test(v.trim()),
 };
 
+/** Whether a filled value passes its format rule (empty values pass). */
+export function passesRule(rule: CheckoutValidator, value: string): boolean {
+  return !value.trim() || RULES[rule](value);
+}
+
 /** The validation message for a filled value, or null when it's fine (or empty).
  *  Messages come from content (`validationMessages`). */
 export function validateField(

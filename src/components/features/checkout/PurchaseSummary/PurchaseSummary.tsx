@@ -5,7 +5,9 @@ import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 
 import type { CheckoutProgress, CheckoutSummaryContent } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
+import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
+import { EyeIcon, type EyeIconHandle } from "@/components/icons/EyeIcon";
 import { formatInr, splitPrice } from "@/lib/checkout";
 import { splitName } from "@/lib/utils";
 import { HANDOFF } from "../handoff";
@@ -23,6 +25,13 @@ export interface PurchaseSummaryProps {
   consent?: { text: string; checked: boolean; onToggle: () => void };
 }
 
+/* The ikkat rule under the title, in the chosen quote's colour (as on its card). */
+const RULE_COLOR = {
+  gold: "var(--color-brand-secondary)",
+  immediate: "var(--color-success)",
+  neutral: "var(--color-label-tertiary)",
+} as const;
+
 /**
  * PurchaseSummary — the checkout's right column (Figma 484:26250 / 613:69256):
  * a progress bar with time left, then the summary card (Immediate Purchase tag,
@@ -33,6 +42,7 @@ export interface PurchaseSummaryProps {
  */
 export function PurchaseSummary({ content, quote, progress, cta, consent, from = null }: PurchaseSummaryProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
+  const eyeRef = useRef<EyeIconHandle>(null);
   const reduced = useReducedMotion();
   // Count the percent and fill the bar from the previous step's value.
   const pct = useMotionValue(reduced ? progress.percent : (from?.percent ?? 0));
@@ -49,6 +59,7 @@ export function PurchaseSummary({ content, quote, progress, cta, consent, from =
   }, [pct, progress.percent, reduced]);
   const timeChanged = !reduced && !!from && from.timeLeft !== progress.timeLeft;
   const price = splitPrice(quote.price ?? "", content.gstRate);
+  const tone = quote.gold ? "gold" : quote.immediate ? "immediate" : "neutral";
   const [line1, line2] = splitName(quote.insurer);
 
   return (
@@ -70,33 +81,50 @@ export function PurchaseSummary({ content, quote, progress, cta, consent, from =
         </span>
       </div>
 
-      <section className={styles.card}>
+      <section className={styles.card} data-tone={tone === "neutral" ? undefined : tone}>
+        {/* Product icon (Figma 635:16096): a 100px mark cropped to its top half
+            in a 100×50 window, pinned to the card beside the product name. */}
+        <span className={styles.productIconCrop} aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={content.productIconSrc} alt="" className={styles.productIcon} />
+        </span>
         <div className={styles.head}>
           <h2 className={styles.title}>{content.title}</h2>
-          {quote.immediate && (
+          {/* The quote's own pill, as on its card: the Gold Quote is Powered by
+              BimaNetra, other purchasable quotes are Immediate Purchase. */}
+          {quote.gold ? (
             <TagPill
-              variant="success"
+              variant="secondary"
               className={styles.tag}
-              label={content.immediateLabel}
-              icon={<ShoppingBagIcon ref={bagRef} size={12} color="var(--color-success)" />}
-              onMouseEnter={() => bagRef.current?.startAnimation()}
-              onMouseLeave={() => bagRef.current?.stopAnimation()}
+              label={content.poweredByLabel}
+              icon={<EyeIcon ref={eyeRef} size={12} color="var(--color-brand-secondary)" />}
+              onMouseEnter={() => eyeRef.current?.startAnimation()}
+              onMouseLeave={() => eyeRef.current?.stopAnimation()}
             />
+          ) : (
+            quote.immediate && (
+              <TagPill
+                variant="success"
+                className={styles.tag}
+                label={content.immediateLabel}
+                icon={<ShoppingBagIcon ref={bagRef} size={12} color="var(--color-success)" />}
+                onMouseEnter={() => bagRef.current?.startAnimation()}
+                onMouseLeave={() => bagRef.current?.stopAnimation()}
+              />
+            )
           )}
         </div>
-        <hr className={styles.dots} />
+        <IkkatDivider height={2} unit={19} color={RULE_COLOR[tone]} className={styles.rule} />
 
         <div className={styles.product}>
           <p className={styles.productName}>
             <span>{content.productLines[0]}</span>
             <span>{content.productLines[1]}</span>
           </p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={content.productIconSrc} alt="" aria-hidden className={styles.productIcon} />
         </div>
 
         <div className={styles.insurer}>
-          {/* The Gold Quote has no insurer logo yet: show just the name. */}
+          {/* Quotes without an insurer logo show just the name. */}
           {quote.logoSrc && (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}

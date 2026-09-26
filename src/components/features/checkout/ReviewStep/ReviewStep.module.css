@@ -17,6 +17,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-12);
+  /* Same height with or without Edit Details (Billing has none). */
+  min-height: 46px;
   padding: var(--spacing-8) var(--spacing-12);
   border: var(--border-hairline) solid var(--color-brand-primary-border);
   border-radius: var(--radius-12);
@@ -26,7 +28,7 @@
 .stripTitle {
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
-  font-size: var(--font-size-heading-md);
+  font-size: var(--font-size-heading-sm);
   font-style: italic;
   font-weight: 400;
   line-height: 1;
@@ -47,16 +49,11 @@
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.edit:hover:not(:disabled) {
+.edit:hover {
   border-color: var(--color-brand-primary-border);
   background: var(--color-brand-primary-subtle);
 }
 
-.edit:disabled {
-  background: var(--color-fill-disabled);
-  color: var(--color-label-disabled);
-  cursor: not-allowed;
-}
 
 /* Label/value grid: cells flow in a row, 64 apart; Address spans the row. */
 .rows {
@@ -77,8 +74,9 @@
   flex-basis: 100%;
 }
 
+/* Every section (Billing, Company, KYC): 12px label over a 14px value. */
 .cell dt {
-  font-size: var(--font-size-100);
+  font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1.5;
   color: rgba(169, 172, 177, 0.6);
@@ -86,7 +84,7 @@
 
 .cell dd {
   margin: 0;
-  font-size: var(--font-size-300);
+  font-size: var(--font-size-100);
   font-weight: 500;
   line-height: 1.5;
   color: var(--color-label-primary);

@@ -61,8 +61,11 @@
   color: var(--color-brand-primary-muted);
 }
 
-/* Card (484:26250): 24/20, r24, hairline, green-tinted top, lilac foot. */
+/* Card (484:26250): 24/20, r24, hairline, lilac foot. The top tint and the
+   ikkat rule follow the chosen quote: green for Immediate Purchase, gold for
+   the Gold Quote, neutral otherwise. */
 .card {
+  --summary-tint: var(--color-brand-primary-subtle);
   position: relative;
   z-index: 1;
   display: flex;
@@ -73,7 +76,7 @@
   border-radius: var(--radius-24);
   background: linear-gradient(
     184.36deg,
-    var(--color-success-subtle) 1.04%,
+    var(--summary-tint) 1.04%,
     var(--color-card) 5.65%,
     var(--color-card) 80.04%,
     var(--color-brand-primary-subtle) 94.92%
@@ -98,17 +101,23 @@
   background: var(--color-card);
 }
 
-/* Dotted green rule (4×2 dashes spread across the width). */
-.dots {
-  height: 2px;
-  margin: 0;
-  border: 0;
-  background: repeating-linear-gradient(to right, var(--color-success) 0 4px, transparent 4px 14.6px);
+/* Ikkat rule under the title, edge to edge like the quote card's. */
+.rule {
+  padding: 0;
 }
 
+.card[data-tone="immediate"] {
+  --summary-tint: var(--color-success-subtle);
+}
+
+.card[data-tone="gold"] {
+  --summary-tint: var(--color-caution-subtle);
+}
+
+/* Name row sizes to its two lines (40px), so the insurer box starts at 141
+   and the cropped icon's lower edge rests on it (Figma 613:68605). */
 .product {
   position: relative;
-  min-height: 48px;
 }
 
 .productName {
@@ -120,14 +129,22 @@
   color: var(--color-brand-primary);
 }
 
-.productIcon {
+/* 100×50 window, 20 from the right and 91 from the top of the card (Figma
+   613:68605); the 100px icon sits at its top, so only the upper half shows. */
+.productIconCrop {
   position: absolute;
-  top: -8px;
-  right: 0;
-  width: 97.5px;
-  height: 97.5px;
-  opacity: 0.9;
+  top: 91px;
+  right: var(--spacing-20);
+  width: 100px;
+  height: 50px;
+  overflow: hidden;
   pointer-events: none;
+}
+
+.productIcon {
+  display: block;
+  width: 100px;
+  height: 100px;
 }
 
 /* Insurer box: lilac, r8, 8 padding; logo | rule | two-line name | info. */

@@ -8,6 +8,7 @@ import type { QuoteCardData } from "@/types/quotesPage";
 import { Toast } from "@/components/ui/Toast";
 import { TextCascade } from "@/components/ui/TextCascade";
 import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
+import { useQuoteFlow } from "@/lib/quote-flow";
 import { useCheckout } from "../useCheckout";
 import { CheckoutStepper } from "../CheckoutStepper";
 import { FormCard } from "../FormCard";
@@ -41,7 +42,14 @@ export interface CheckoutViewProps {
  * consent.
  * Usage: <CheckoutView step="kyc" steps={…} basePath="…" quotesHref="…" content={c} fallbackQuote={q} />
  */
-export function CheckoutView({ step, steps, basePath, quotesHref, content, fallbackQuote }: CheckoutViewProps) {
+export function CheckoutView(props: CheckoutViewProps) {
+  // Wait for the saved flow (a reload restores it before the first paint), so
+  // the fields seed from the customer's details, not the demo fallback.
+  const { hydrated } = useQuoteFlow();
+  return hydrated ? <CheckoutScreen {...props} /> : null;
+}
+
+function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQuote }: CheckoutViewProps) {
   const router = useRouter();
   const co = useCheckout(content, fallbackQuote);
   const [consent, setConsent] = useState(false);
@@ -65,7 +73,7 @@ export function CheckoutView({ step, steps, basePath, quotesHref, content, fallb
   const cta =
     step === "review"
       ? {
-          label: co.quote.immediate ? content.steps.review.payLabel : content.steps.review.requestLabel,
+          label: co.quote.price ? content.steps.review.payLabel.replace("{price}", co.quote.price) : content.steps.review.requestLabel,
           enabled: consent,
           onClick: () => {
             setToast(false);

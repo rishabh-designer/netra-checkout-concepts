@@ -74,6 +74,10 @@
 }
 
 .promoLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
   font-size: var(--font-size-75);
   font-weight: 600;
   letter-spacing: -0.12px;
@@ -82,6 +86,57 @@
   text-decoration: underline;
   text-underline-position: from-font;
   white-space: nowrap;
+}
+
+/* Company name + its type-ahead list (anchored under the field). */
+.nameField {
+  position: relative;
+}
+
+/* Know More popup body: intro, then the three things BimaNetra does, each
+   on a soft lilac tile. */
+.knowMore {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-20);
+}
+
+.knowMoreIntro {
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-secondary);
+}
+
+.knowMoreList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.knowMorePoint {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-12) var(--spacing-16);
+  border-radius: var(--radius-16);
+  background: var(--color-brand-primary-subtle);
+}
+
+.knowMoreTitle {
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  color: var(--color-brand-primary);
+}
+
+.knowMoreBody {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-secondary);
 }
 
 /* Below web (<1000): the price headline drops to heading (28) and may wrap so

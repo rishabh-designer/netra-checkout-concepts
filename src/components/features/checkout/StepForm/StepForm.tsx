@@ -27,7 +27,7 @@ export interface StepFormProps {
 
 /**
  * StepForm — the field layout for one checkout step:
- *  - Billing (484:25880): four boxed fields stacked, 16 apart, no labels.
+ *  - Billing (484:25880): four boxed fields in a 2 × 2 grid, 16 apart, no labels.
  *  - Company (484:26443): Pincode + Place side by side, Address full width.
  *  - KYC (484:26922): two columns, each an upload above its number field.
  * `stacked` collapses to one column for the 624px edit drawer.
@@ -48,7 +48,7 @@ export function StepForm({ step, fields, uploads = [], uploadCopy, model, stacke
   );
 
   if (step === "billing") {
-    return <div className={styles.billing}>{fields.map((f) => input(f, "boxed"))}</div>;
+    return <div className={styles.billing} data-stacked={stacked || undefined}>{fields.map((f) => input(f, "boxed"))}</div>;
   }
 
   if (step === "company") {

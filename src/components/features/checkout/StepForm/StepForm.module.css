@@ -1,7 +1,14 @@
+/* Billing: 2 × 2 boxed fields; rows size to their content so an error line
+   under one field only grows its own row. */
 .billing {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: var(--spacing-16);
+}
+
+.billing[data-stacked] {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 /* Company: 2 × 434.5 with a 16 gap; KYC: 2 × 430.5 with a 24 gap. */
@@ -31,6 +38,7 @@
 }
 
 @media (max-width: 760px) {
+  .billing,
   .grid {
     grid-template-columns: minmax(0, 1fr);
   }

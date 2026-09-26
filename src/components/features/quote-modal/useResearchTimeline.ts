@@ -16,6 +16,8 @@ export interface ResearchView {
   progressLabel: string;
   /** The closing readout, filled in, or null for no research. */
   verdict: string | null;
+  /** How long the probe runs (the sources pace themselves to it). */
+  probeMs: number;
 }
 
 interface Options {

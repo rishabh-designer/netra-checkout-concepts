@@ -1,3 +1,5 @@
+import type { CheckoutValidator } from "./checkout";
+
 /** Shared content types for the product page. All copy flows from /lib/api. */
 
 export interface NavItem {
@@ -50,13 +52,34 @@ export interface MediaContent {
   stillAlt: string;
 }
 
+export interface CompanySearchContent {
+  /** Beside the divider above the registry names. */
+  recordsLabel: string;
+  /** Characters typed before suggestions show. */
+  minChars: number;
+  /** One entry per known company: the best match, then its MCA records. */
+  companies: { best: string; records: string[] }[];
+}
+
+export interface KnowMoreContent {
+  title: string;
+  intro: string;
+  points: { title: string; body: string }[];
+  closeLabel: string;
+}
+
 export interface LeadFormContent {
   priceKicker: string;
   priceHeadline: string;
   promoBadge: string;
   promoLabel: string;
   promoLinkLabel: string;
+  /** The "Know More" popup explaining BimaNetra (placeholder until marketing
+   *  supplies final copy). */
+  knowMore: KnowMoreContent;
   inputPlaceholder: string;
+  /** Type-ahead under the company name: pick the entity before continuing. */
+  companySearch: CompanySearchContent;
   /** Body copy for the company-name field's info-icon tooltip. */
   inputTooltip: string;
   /** Demo shortcut: clicking the input's info icon cycles through these
@@ -104,6 +127,12 @@ export interface QuoteModalField {
   helpTone?: QuoteFieldHelpTone;
   /** Hover tooltip on the field's info (i) icon. */
   infoTooltip?: string;
+  /** Format rule, checked on blur and before the step can continue. */
+  validate?: CheckoutValidator;
+  inputMode?: "text" | "numeric" | "email" | "tel";
+  maxLength?: number;
+  /** Uppercase as typed (PAN). */
+  upper?: boolean;
 }
 
 export interface QuoteSearchBody {
@@ -204,6 +233,9 @@ export interface QuoteCaseMatch {
   aliases: string[];
   /** Replaces the typed name in the modal + Quotes page (e.g. the legal name). */
   canonicalName?: string;
+  /** Help line under the company name when it was swapped for the legal name,
+   *  with an action that closes the modal so the name can be re-typed. */
+  nameHelp?: { text: string; actionLabel: string };
 }
 
 export interface QuoteModalContent {
@@ -216,11 +248,16 @@ export interface QuoteModalContent {
   /** Denominator for the live progress meter — total mandatory questions across
    *  the whole flow (incl. the future Report step). Tune to re-anchor the %. */
   totalFlowQuestions: number;
+  /** CTA on every step but the last (which shows `ctaLabel`). */
+  continueLabel: string;
+  /** Error lines for fields with a `validate` rule. */
+  validationMessages: Partial<Record<CheckoutValidator, string>>;
   /** Footer-stepper pills — labels only; the last ("Quotes") is a future step
    *  with no form. Earlier than the current step = done/green. */
   stepperLabels: string[];
   ctaLabel: string;
-  emptyNameToast: { title: string; description: string };
+  /** Help-row error under the company name when the form is sent empty. */
+  emptyNameError: string;
   /** Shown when the terminal "Go to Quotes" CTA is pressed (Quotes page pending). */
   completeToast: { title: string; description: string };
 }

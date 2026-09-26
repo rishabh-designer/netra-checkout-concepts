@@ -12,6 +12,8 @@ export interface ResearchSourcesProps {
   scanning: boolean;
   /** Show every source already returned (revisit / reduced motion). */
   settled: boolean;
+  /** How long the probe runs; the last source answers just inside it. */
+  probeMs?: number;
 }
 
 type ChipState = "pending" | "querying" | "returned";
@@ -20,8 +22,12 @@ const FIRST_RETURN_MS = 350; // the first source answers here…
 const LAST_RETURN_MS = 1400; // …the last by here (inside the 1.5s probe)
 const QUERY_MS = 300; // each source is "querying" this long before it answers
 
-/** When source i answers, spread evenly between the first and last return. */
-const returnAt = (i: number, n: number) => FIRST_RETURN_MS + (n > 1 ? (i * (LAST_RETURN_MS - FIRST_RETURN_MS)) / (n - 1) : 0);
+/** When source i answers, spread evenly between the first and last return
+ *  (both scaled down for a shorter probe, e.g. Case C's quick "no records"). */
+const returnAt = (i: number, n: number, last: number) => {
+  const first = Math.min(FIRST_RETURN_MS, last / 4);
+  return first + (n > 1 ? (i * (last - first)) / (n - 1) : 0);
+};
 
 /** Result glyphs: ✓ hit, ◐ partial, – no match (12px, token colours). */
 function Glyph({ result }: { result: QuoteResearchSource["result"] }) {
@@ -53,7 +59,8 @@ function Glyph({ result }: { result: QuoteResearchSource["result"] }) {
  * checked.
  * Usage: <ResearchSources sources={search.sources} scanning={!fetched} settled={instant} />
  */
-export function ResearchSources({ sources, scanning, settled }: ResearchSourcesProps) {
+export function ResearchSources({ sources, scanning, settled, probeMs = 1500 }: ResearchSourcesProps) {
+  const last = Math.min(LAST_RETURN_MS, probeMs - 100);
   const [elapsed, setElapsed] = useState(settled || !scanning ? Infinity : 0);
 
   useEffect(() => {
@@ -63,14 +70,14 @@ export function ResearchSources({ sources, scanning, settled }: ResearchSourcesP
     const id = window.setInterval(() => {
       const t = performance.now() - started;
       setElapsed(t);
-      if (t > LAST_RETURN_MS) window.clearInterval(id);
+      if (t > last) window.clearInterval(id);
     }, 50);
     return () => window.clearInterval(id);
-  }, [scanning, settled]);
+  }, [scanning, settled, last]);
 
   const stateOf = (i: number): ChipState => {
-    const at = returnAt(i, sources.length);
-    return elapsed >= at ? "returned" : elapsed >= at - QUERY_MS ? "querying" : "pending";
+    const at = returnAt(i, sources.length, last);
+    return elapsed >= at ? "returned" : elapsed >= at - Math.min(QUERY_MS, last / 3) ? "querying" : "pending";
   };
 
   return (

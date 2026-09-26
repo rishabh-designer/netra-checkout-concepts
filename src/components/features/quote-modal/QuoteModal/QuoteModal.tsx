@@ -4,6 +4,7 @@ import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { useStream } from "@/lib/useStream";
 import { cn, formatPhone } from "@/lib/utils";
+import { passesRule } from "@/lib/checkout";
 import { IkkatMark } from "@/components/ui/IkkatMark";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { RingSweep } from "@/components/ui/RingSweep";
@@ -34,6 +35,8 @@ const PROBE_MS = 1500;
 const TYPE_OUT_MS = 2000;
 const QUERY_TYPE_MS = 400;
 const FIELD_WAVE_MS = 110;
+/** No records (Case C): say so quickly instead of a full research beat. */
+const EMPTY_PROBE_MS = 700;
 
 export type QuoteCaseId = "A" | "B" | "C";
 
@@ -151,7 +154,8 @@ export function QuoteModal({
   const researchKeys = useMemo(() => qc.fields.map((f) => f.key).filter((k) => k !== "name"), [qc.fields]);
   const instant = formOnly || !!reduced || !!step.collectMode || probedRef.current.has(stepIndex);
   const runKey = `${stepIndex}:${caseId}`;
-  const tl = useResearchTimeline({ runKey, active: open, instant, fieldKeys: researchKeys, probeMs: fetchDelay });
+  const probeMs = qc.search.body ? fetchDelay : Math.min(fetchDelay, EMPTY_PROBE_MS);
+  const tl = useResearchTimeline({ runKey, active: open, instant, fieldKeys: researchKeys, probeMs });
   const ready = tl.done;
   useEffect(() => {
     if (tl.done && !step.collectMode) probedRef.current.add(stepIndex);
@@ -169,11 +173,16 @@ export function QuoteModal({
   const allMandatoryFilled = (fields: QuoteModalField[]) =>
     fields.filter((f) => f.mandatory).every((f) => (values[f.key] ?? "").trim() !== "");
 
+  // A field's format error (phone, email, PAN), or null when it passes.
+  const errorFor = (f: QuoteModalField) =>
+    f.validate && !passesRule(f.validate, values[f.key] ?? "") ? (content.validationMessages[f.validate] ?? null) : null;
+
   const canSubmit = useMemo(() => {
     if (!ready) return false;
-    // Every step gates on its mandatory fields; consent steps (case B) also
-    // need the attestation ticked.
+    // Every step gates on its mandatory fields and valid formats; consent
+    // steps (case B) also need the attestation ticked.
     if (!allMandatoryFilled(qc.fields)) return false;
+    if (qc.fields.some((f) => errorFor(f))) return false;
     return qc.requiresConsent ? consent : true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, consent, values, qc.fields, qc.requiresConsent]);
@@ -214,6 +223,7 @@ export function QuoteModal({
     onStreamDone: tl.onStreamDone,
     progressLabel: content.engine.progressLabel,
     verdict,
+    probeMs,
   };
   // Evidence wave: once the findings finish typing, the fields resolve one
   // after another in form order (the meter climbs with each).
@@ -226,7 +236,12 @@ export function QuoteModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [evidence, instant, runKey]);
 
-  const profileComplete = allMandatoryFilled(content.steps[0].cases[caseId].fields);
+  const profileFields = content.steps[0].cases[caseId].fields;
+  // Case A swaps the typed name for the MCA legal name: say so, and offer a
+  // way back to re-type it.
+  const matchHelp = content.caseMatches.find((m) => m.caseId === caseId)?.nameHelp;
+  const nameHelp = matchHelp && { text: matchHelp.text, action: { label: matchHelp.actionLabel, onClick: onClose } };
+  const profileComplete = allMandatoryFilled(profileFields) && !profileFields.some((f) => errorFor(f));
 
   /** Advance to the next form step (the probe re-runs for it). On the last step
    *  the CTA is terminal — hand the collected values to `onComplete`, which
@@ -370,6 +385,8 @@ export function QuoteModal({
                         consent={consent}
                         fetched={field.key === "name" || tl.resolved.has(field.key)}
                         value={values[field.key] ?? ""}
+                        error={errorFor(field)}
+                        nameHelp={field.key === "name" ? nameHelp : undefined}
                         onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
                       />
                     </Fragment>
@@ -403,7 +420,7 @@ export function QuoteModal({
                   disabled={!canSubmit}
                   onClick={handleSubmit}
                 >
-                  <span>{content.ctaLabel}</span>
+                  <span>{stepIndex < lastStep ? content.continueLabel : content.ctaLabel}</span>
                   <Arrow />
                 </button>
               </div>
@@ -473,6 +490,8 @@ function Field({
   consent,
   fetched,
   value,
+  error,
+  nameHelp,
   onChange,
 }: {
   field: QuoteModalField;
@@ -482,8 +501,15 @@ function Field({
   /** The engine's research has resolved this field (the evidence wave). */
   fetched: boolean;
   value: string;
+  /** Format error for the current value; shown once the field is blurred. */
+  error: string | null;
+  /** Company name only: where the legal name came from, plus "Not you?". */
+  nameHelp?: { text: string; action: { label: string; onClick: () => void } };
   onChange: (value: string) => void;
 }) {
+  // Errors wait for blur (a half-typed value reads neutral, not wrong); once
+  // shown they clear live as the user fixes it. A prefilled value counts as touched.
+  const [touched, setTouched] = useState(value !== "");
   const isName = field.key === "name";
   const fetching = !isName && !fetched;
   const status = displayStatus(field, caseId, value, collectMode, consent);
@@ -520,14 +546,8 @@ function Field({
     );
   }
 
-  // Phone: show an error help line until 10 digits are entered.
-  const validate =
-    field.key === "phone"
-      ? (v: string) => {
-          const digits = v.replace(/\D/g, "");
-          return digits.length > 0 && digits.length < 10 ? "Enter a valid 10-digit number" : null;
-        }
-      : undefined;
+  const shownError = touched && !fetching ? error : null;
+  const format = (v: string) => (field.key === "phone" ? formatPhone(v) : field.upper ? v.toUpperCase() : v);
 
   const control =
     field.control === "select" ? "select" : field.control === "search" ? "search" : "text";
@@ -543,15 +563,19 @@ function Field({
       control={control}
       options={field.options}
       value={fetching ? "" : shown}
-      onChange={isPhone ? (v) => onChange(formatPhone(v)) : onChange}
+      onChange={(v) => onChange(format(v))}
       readOnly={isName}
       clearable={!isName}
       prefix={field.prefix}
       placeholder={fetching ? fetchingLabel : field.placeholder}
-      status={uiStatus}
-      validate={validate}
-      helpText={visibleHelp}
-      helpTone={field.helpTone}
+      status={shownError ? "error" : error && uiStatus === "success" ? "empty" : uiStatus}
+      helpText={shownError ?? nameHelp?.text ?? visibleHelp}
+      helpAction={nameHelp?.action}
+      helpTone={shownError ? "error" : nameHelp ? "basic" : field.helpTone}
+      inputMode={field.inputMode}
+      maxLength={field.maxLength}
+      onFocus={() => !error && setTouched(false)}
+      onBlur={() => setTouched(true)}
       infoTooltip={field.infoTooltip}
       showHelp
     />
@@ -632,7 +656,8 @@ function SearchResult({
   const pieces = [before ?? "", highlight ?? "", after ?? "", body?.detailsHeading ?? "", ...details, body ? "" : search.emptyNote ?? ""];
   // Paced so the whole finding types out in TYPE_OUT_MS, whatever its length.
   const chars = pieces.reduce((n, p) => n + p.length, 0);
-  const stream = useStream(pieces, fetched, settled ? 1e6 : Math.max(40, (chars * 1000) / TYPE_OUT_MS));
+  // No records: the note lands at once rather than typing out.
+  const stream = useStream(pieces, fetched, settled || !body ? 1e6 : Math.max(40, (chars * 1000) / TYPE_OUT_MS));
   // The query types into the search bar first, as if the engine is asking.
   const typedQuery = useStream([query], !settled, Math.max(20, (query.length * 1000) / QUERY_TYPE_MS));
   useEffect(() => {
@@ -693,7 +718,7 @@ function SearchResult({
             </motion.div>
           )}
         </AnimatePresence>
-        {search.sources.length > 0 && <ResearchSources sources={search.sources} scanning={!fetched} settled={settled} />}
+        {search.sources.length > 0 && <ResearchSources sources={search.sources} scanning={!fetched} settled={settled} probeMs={research.probeMs} />}
       </div>
 
       {body ? (
@@ -758,7 +783,7 @@ function SearchResult({
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
           >
-            <FilledCheck color="currentColor" />
+            {body ? <FilledCheck color="currentColor" /> : <InfoDot />}
             {verdict}
           </motion.p>
         )}
@@ -1131,6 +1156,17 @@ function Arrow() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden>
       <path d="M5 12h13m-5-5 5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Neutral "i" for the no-records readout (a tick would read as success). */
+function InfoDot() {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1" />
+      <circle cx="8" cy="5.2" r="0.8" fill="currentColor" />
+      <path d="M8 7.3v4" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
     </svg>
   );
 }

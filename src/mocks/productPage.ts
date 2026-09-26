@@ -25,7 +25,7 @@ const TURNOVER_OPTIONS = [
   "₹700 Cr and Above",
 ];
 const COVERAGE_OPTIONS = [
-  "₹25 Lacs", "₹50 Lacs", "₹1 Cr", "₹2 Cr", "₹3 Cr", "₹4 Cr", "₹5 Cr", "₹7.5 Cr", "₹8 Cr", "₹9 Cr",
+  "₹25 Lakh", "₹50 Lakh", "₹1 Cr", "₹2 Cr", "₹3 Cr", "₹4 Cr", "₹5 Cr", "₹7.5 Cr", "₹8 Cr", "₹9 Cr",
   "₹10 Cr", "₹12 Cr", "₹15 Cr", "₹16 Cr", "₹18 Cr", "₹20 Cr", "₹21 Cr", "₹24 Cr", "₹25 Cr",
 ];
 
@@ -41,7 +41,7 @@ const FETCH_DISCLAIMER = "Fetched from publicly available sources. BimaNetra can
 
 /** Shared broker-liability consent (Fuzzy / Case B, both steps). */
 const CONSENT_TEXT =
-  "I confirm all details provided are correct. I understand the broker is not responsible for policy creation errors, as this depends on the insurance company.";
+  "I confirm these details are correct. The insurer issues my policy using them, so I have checked them carefully.";
 
 /* The left-panel search result persists across steps (same company), so the
    three per-case panels are authored once and reused by both form steps. */
@@ -55,7 +55,7 @@ const SEARCH_MATCHED: QuoteSearchPanel = {
     detailsHeading: "Company Details",
     details: [
       "Date of Incorporation: June 12, 2019",
-      "Registered State: West Bengal, India (Kolkata)",
+      "Registered State: Karnataka, India (Bengaluru)",
       "Company Type: Private Limited Company",
       "Directors: Amit Sharma, Kavita Rao +2",
     ],
@@ -104,14 +104,14 @@ const SEARCH_EMPTY: QuoteSearchPanel = {
   tabs: TABS,
   body: null,
   emptyNote:
-    "We couldn't find public records for this company. Please fill in the details manually to continue.",
+    "We couldn't find public records for this company. That's normal for newer businesses - fill in the details below to continue.",
   sources: [
     { label: "MCA Registry", result: "miss" },
     { label: "GST Network", result: "miss" },
     { label: "Probe42", result: "miss" },
     { label: "News", result: "miss" },
   ],
-  verdict: "No public records found · you'll fill these in",
+  verdict: "No public records yet · normal for newer businesses",
 };
 
 /* Risk step (step 2) — the active task surfaces the "News" tab, so its panels
@@ -128,7 +128,7 @@ const RISK_NEWS_A: QuoteSearchPanel = {
     detailsHeading: "Recent Coverage",
     details: [
       "Business Standard - Pepe Jeans Innerfashion posts 21% YoY revenue growth in FY24",
-      "ET Retail - Pepe Jeans innerwear adds 40 exclusive outlets across East India",
+      "ET Retail - Pepe Jeans innerwear adds 40 exclusive outlets across South India",
       "The Morning Context - Distributor alleges ₹38L payment delay by innerwear brand",
       "MoneyControl - MCA lists one registered charge, no litigation on record",
     ],
@@ -174,13 +174,13 @@ const RISK_NEWS_C: QuoteSearchPanel = {
   tabs: TABS,
   body: null,
   emptyNote:
-    "No news coverage found for this business yet. Fill in the details manually and BimaNetra will keep scanning for relevant press.",
+    "No news coverage found for this business yet. That's normal for newer businesses - answer the questions below to continue.",
   sources: [
     { label: "News", result: "miss" },
     { label: "Court Records", result: "miss" },
     { label: "MCA Charges", result: "miss" },
   ],
-  verdict: "No public records found · you'll fill these in",
+  verdict: "No public records yet · normal for newer businesses",
 };
 
 /* Profile (step 0) is a data-collection step: the company name is seeded from
@@ -193,8 +193,8 @@ const PROFILE_CASE: QuoteCase = {
   fields: [
     { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "", status: "verified" },
     { key: "fullName", label: "Your Full Name", mandatory: true, control: "text", value: "", placeholder: "Enter Full Name", status: "empty" },
-    { key: "phone", label: "Your Phone Number", mandatory: true, control: "text", value: "", prefix: "+91", placeholder: "0000 000 000", status: "empty" },
-    { key: "email", label: "Your Email Address", mandatory: true, control: "text", value: "", placeholder: "Enter Email Address", status: "empty" },
+    { key: "phone", label: "Your Phone Number", mandatory: true, control: "text", value: "", prefix: "+91", placeholder: "0000 000 000", status: "empty", inputMode: "tel", validate: "phone" },
+    { key: "email", label: "Your Email Address", mandatory: true, control: "text", value: "", placeholder: "Enter Email Address", status: "empty", inputMode: "email", validate: "email" },
   ],
 };
 
@@ -257,7 +257,28 @@ export const mockProductPageContent: ProductPageContent = {
     promoBadge: "New",
     promoLabel: "Personalize My Quote",
     promoLinkLabel: "Know More",
+    // Placeholder copy; marketing will supply the final version.
+    knowMore: {
+      title: "What is BimaNetra?",
+      intro:
+        "BimaNetra is the research assistant behind your quote. It reads public records about your company, so you answer fewer questions and get a price that fits your business.",
+      points: [
+        { title: "Looks up your company", body: "Company type, PAN and registration details from sources like the MCA registry and the GST network." },
+        { title: "Reads your risk", body: "News, court records and filings that shape what D&O cover should cost you." },
+        { title: "Fills in the form for you", body: "Everything it finds is filled in for you to check. You can change any of it." },
+      ],
+      closeLabel: "Close",
+    },
     inputPlaceholder: "Start with your Company's Legal Name",
+    // Every name here is also a case alias (quoteModal.caseMatches), so any pick routes.
+    companySearch: {
+      recordsLabel: "MCA Records",
+      minChars: 3,
+      companies: [
+        { best: "Pepe Jeans Innerfashion Private Limited", records: ["Pepe Jeans Innerwear", "PEPE JEANS INNERFASHION PRIVATE LIMITED"] },
+        { best: "Sabyasachi Calcutta LLP", records: ["Sabyasachi Calcutta", "SABYASACHI CALCUTTA LLP"] },
+      ],
+    },
     inputTooltip:
       "To verify you're running a registered business, we need the legal entity name registered against your PAN.",
     // Hidden demo shortcut: each click on the input's info icon cycles A → B → C.
@@ -304,6 +325,7 @@ export const mockProductPageContent: ProductPageContent = {
         caseId: "A",
         aliases: ["pepe jeans innerfashion private limited", "pepe jeans innerfashion", "pepe jeans innerwear"],
         canonicalName: "Pepe Jeans Innerfashion Private Limited",
+        nameHelp: { text: "Retrieved Legal Company Name from MCA.", actionLabel: "Not you?" },
       },
       { caseId: "B", aliases: ["sabyasachi calcutta llp", "sabyasachi calcutta"] },
       // C is also the fallback for any unmatched name; this alias only swaps in
@@ -312,9 +334,16 @@ export const mockProductPageContent: ProductPageContent = {
     ],
     stepperLabels: ["Profile", "Business", "Risk"],
     ctaLabel: "Get Instant Quotes",
+    // Steps before the last only move the flow on.
+    continueLabel: "Continue",
     // Live meter denominator: Company 1 + Profile 3 + Business 3 + Insurance 3.
     // CIN is non-mandatory (excluded).
     totalFlowQuestions: 10,
+    validationMessages: {
+      phone: "Enter a 10-digit mobile number",
+      email: "Enter a valid email address",
+      pan: "PAN numbers look like ABCDE1234F",
+    },
     // The persistent left-panel task-runner; one task per form step (index-aligned).
     engine: {
       requestLabel: "Personalize My Quote",
@@ -327,10 +356,7 @@ export const mockProductPageContent: ProductPageContent = {
         { activeLabel: "Assessing Risk", doneLabel: "Insurance Confirmed", hasSearch: true },
       ],
     },
-    emptyNameToast: {
-      title: "Company name required",
-      description: "Enter your legal company name to get an instant quote.",
-    },
+    emptyNameError: "Enter your company's legal name to get your quote",
     completeToast: {
       title: "Preparing your quotes",
       description: "We're putting together your personalized D&O quotes from our insurers.",
@@ -357,7 +383,7 @@ export const mockProductPageContent: ProductPageContent = {
               { key: "type", label: "Enter Company Type", mandatory: true, control: "text", value: "Private Limited Company", status: "success" },
               { key: "business", label: "Type of Business", mandatory: true, control: "text", value: "Retail & Wholesale", status: "success" },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "₹5 Cr to ₹50 Cr", options: TURNOVER_OPTIONS, status: "success" },
-              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AAJCP5565B", status: "success" },
+              { key: "cin", label: "Enter Company PAN Number", control: "text", validate: "pan", upper: true, maxLength: 10, value: "AAJCP5565B", status: "success" },
             ],
             search: SEARCH_MATCHED,
           },
@@ -370,7 +396,7 @@ export const mockProductPageContent: ProductPageContent = {
               { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Limited Liability Partnership", options: COMPANY_TYPE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "Unclassified / Miscellaneous", options: BUSINESS_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "", placeholder: "Select Annual Turnover", options: TURNOVER_OPTIONS, status: "empty" },
-              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "AATFS4271L", placeholder: "Enter Company PAN Number", status: "success" },
+              { key: "cin", label: "Enter Company PAN Number", control: "text", validate: "pan", upper: true, maxLength: 10, value: "AATFS4271L", placeholder: "Enter Company PAN Number", status: "success" },
             ],
             search: SEARCH_FUZZY,
           },
@@ -383,7 +409,7 @@ export const mockProductPageContent: ProductPageContent = {
               { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "", placeholder: "Select Company Type", options: COMPANY_TYPE_OPTIONS, status: "empty" },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "", placeholder: "Select Type of Business", options: BUSINESS_OPTIONS, status: "empty" },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "", placeholder: "Select Annual Turnover", options: TURNOVER_OPTIONS, status: "empty" },
-              { key: "cin", label: "Enter Company PAN Number", control: "text", value: "", placeholder: "Enter Company PAN Number", status: "empty" },
+              { key: "cin", label: "Enter Company PAN Number", control: "text", validate: "pan", upper: true, maxLength: 10, value: "", placeholder: "Enter Company PAN Number", status: "empty" },
             ],
             search: SEARCH_EMPTY,
           },
@@ -406,7 +432,7 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "existingPolicy", label: "Does Your Business Have An Existing Directors and Officers Policy?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
               { key: "claims5y", label: "Any Claims or Incidents in the Last 5 Years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
-              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "₹10 Cr", options: COVERAGE_OPTIONS, status: "success", helpText: "This is the Sum Insured that's perfect for you", helpTone: "success" },
+              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "₹10 Cr", options: COVERAGE_OPTIONS, status: "success", helpText: "Recommended for businesses your size", helpTone: "success" },
             ],
             search: RISK_NEWS_A,
           },
@@ -444,7 +470,7 @@ export const mockProductPageContent: ProductPageContent = {
       },
     ],
   },
-  tickerPhrases: ["quotes in seconds", "coverage in minutes"],
+  tickerPhrases: ["quotes in minutes", "coverage in minutes"],
   flourishSrc: "/media/do-logo.webp",
   focusHero: {
     eyebrow: "Director’s & Officer’s Insurance",

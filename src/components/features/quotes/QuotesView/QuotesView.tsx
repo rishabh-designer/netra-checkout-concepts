@@ -34,7 +34,14 @@ export interface QuotesViewProps {
 /** How long the results skeleton shows before the quotes reveal. */
 const LOAD_MS = 1500;
 
-export function QuotesView({ content, quoteModal }: QuotesViewProps) {
+export function QuotesView(props: QuotesViewProps) {
+  // Wait for the saved flow (restored before the first paint on a reload), so
+  // state seeded from it (case, upgrade stage) starts from the real result.
+  const { hydrated } = useQuoteFlow();
+  return hydrated ? <QuotesScreen {...props} /> : null;
+}
+
+function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const { result, setResult } = useQuoteFlow();
   const values = result?.values;
   const reportInterest = result?.reportInterest ?? values?.["reportInterest"] ?? "";
@@ -95,6 +102,7 @@ export function QuotesView({ content, quoteModal }: QuotesViewProps) {
                 collapsed={detailsCollapsed}
                 onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
                 stage={upgradeStage}
+                noRecords={caseId !== "A" && caseId !== "B"}
                 onSimulate={() => setUpgradeStage("verifying")}
                 onVerified={() => setUpgradeStage("upgraded")}
                 onReset={

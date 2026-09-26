@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { FilledCheck } from "@/components/ui/InteractiveInput/icons";
 import styles from "./SelectMenu.module.css";
 
@@ -14,6 +15,11 @@ export interface SelectMenuProps {
   ariaLabel?: string;
   /** Reports open/close so the host field can theme itself (chevron flip). */
   onOpenChange?: (open: boolean) => void;
+  /** Trigger text in place of the value (e.g. "Sorting: Default"). */
+  triggerLabel?: string;
+  /** Rendered inside the trigger after its text (chevron, glyphs). */
+  adornment?: ReactNode;
+  triggerClassName?: string;
 }
 
 /**
@@ -34,6 +40,9 @@ export function SelectMenu({
   disabled = false,
   ariaLabel,
   onOpenChange,
+  triggerLabel,
+  adornment,
+  triggerClassName,
 }: SelectMenuProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -91,7 +100,7 @@ export function SelectMenu({
         id={id}
         type="button"
         role="combobox"
-        className={styles.trigger}
+        className={cn(styles.trigger, triggerClassName)}
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -102,7 +111,8 @@ export function SelectMenu({
         onClick={() => setOpen(!open)}
         onKeyDown={onKeyDown}
       >
-        {value || placeholder}
+        {adornment ? <span className={styles.text}>{triggerLabel ?? (value || placeholder)}</span> : (triggerLabel ?? (value || placeholder))}
+        {adornment}
       </button>
 
       {open && (

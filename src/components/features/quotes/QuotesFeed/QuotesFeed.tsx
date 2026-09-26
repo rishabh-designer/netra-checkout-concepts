@@ -6,13 +6,12 @@ import { useQuoteFlow } from "@/lib/quote-flow";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { BreadcrumbTrail } from "@/components/ui/BreadcrumbTrail";
-import type { QuoteCardData, QuoteRating, QuotesFeedContent } from "@/types/quotesPage";
+import type { QuoteCardData, QuoteFilter, QuoteRating, QuoteSort, QuotesFeedContent } from "@/types/quotesPage";
 import type { QuoteCaseId } from "@/lib/quote-flow";
 import { FeedControls } from "../FeedControls";
 import { FeaturesDrawer, type QuoteTone } from "../FeaturesDrawer";
 import { QuoteCard } from "../QuoteCard";
 import { RevealCard } from "../RevealCard";
-import { GoldEntrance, hasGoldEntrancePlayed } from "../GoldEntrance";
 import type { PriceIntro } from "../PriceMorph";
 import styles from "./QuotesFeed.module.css";
 
@@ -30,12 +29,41 @@ export interface QuotesFeedProps {
   onRevealed?: () => void;
 }
 
+/* Case A's Gold Quote plays its reveal once per page load; an Edit Details
+   reload (the skeleton remounts the feed) shows it at rest. */
+let caseARevealPlayed = false;
+/* Case A arrives verified: its reveal plays on its own after this beat. */
+const CASE_A_REVEAL_MS = 800;
+
+const priceOf = (q: QuoteCardData) => (q.price ? Number(q.price.replace(/\D/g, "")) : Infinity);
+
+/** Filter + sort the non-gold quotes (the Gold Quote stays pinned on top).
+ *  Price-on-request quotes always sink below priced ones in a premium sort. */
+function arrange(list: QuoteCardData[], filter: QuoteFilter, sort: QuoteSort, immediateOnly: boolean) {
+  const kept = list.filter(
+    (q) =>
+      (!immediateOnly || q.immediate) &&
+      (filter === "all" || (filter === "priced" ? !!q.price : !q.price)),
+  );
+  if (sort === "default") return kept;
+  const bySort = (a: QuoteCardData, b: QuoteCardData) => {
+    if (sort === "coverage") return (b.coverages?.length ?? 0) - (a.coverages?.length ?? 0) || priceOf(a) - priceOf(b);
+    const pa = priceOf(a);
+    const pb = priceOf(b);
+    if (pa === Infinity || pb === Infinity) return pa === pb ? 0 : pa === Infinity ? 1 : -1;
+    return sort === "priceLow" ? pa - pb : pb - pa;
+  };
+  return [...kept].sort(bySort);
+}
+
 /**
  * QuotesFeed — the middle column (Figma 564:32970). A fixed top (breadcrumb + count,
  * controls, ikkat rule) over a scroll area that holds the vertical quote stack
  * (480 wide). Only the scroll area moves. (The testimonial and risk report now
  * live in the Help Desk column.) Fuzzy (Case B) leads the stack with
  * a ghost "Reveal Quote" card; exact match (A) leads with the Gold Quote.
+ * Filtering, sorting and "Immediate Purchase Only" rearrange the rest; the
+ * Gold Quote (or Case B's reveal slot) stays pinned first.
  * Usage: <QuotesFeed content={feed} caseId="B" sumInsured="₹10 Cr" />
  */
 export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed }: QuotesFeedProps) {
@@ -59,8 +87,12 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   const list = ghostFirst && revealed ? [content.goldQuote, ...base] : base;
   // Ratings ripple down the feed only at the moment of the reveal.
   const [ripple, setRipple] = useState(false);
+  // Case B: the revealed Gold Quote's price strikes down once the card lands.
+  const [revealIntro, setRevealIntro] = useState<PriceIntro>(() => (revealed ? "done" : "idle"));
   useEffect(() => {
-    if (!revealed) setRipple(false);
+    if (revealed) return;
+    setRipple(false);
+    setRevealIntro("idle");
   }, [revealed]);
   // With a Gold Quote in the feed, every quote is rated against it (Netra's
   // Gold covers everything the user needs): gold Excellent, immediate Good,
@@ -92,12 +124,23 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
         }
       : undefined;
   // Case A: the Gold Quote enters on its own beat, then its price morphs.
-  const [goldIntro, setGoldIntro] = useState<PriceIntro>(() => (hasGoldEntrancePlayed() ? "done" : "idle"));
-  const landGold = useCallback(() => setGoldIntro((p) => (p === "idle" ? "play" : p)), []);
+  const [caseAPlayed] = useState(() => caseARevealPlayed);
+  const [goldIntro, setGoldIntro] = useState<PriceIntro>(() => (caseAPlayed ? "done" : "idle"));
   const [countBefore, countAfter = ""] = content.availableLabel.split("{count}");
   // For Case B the Gold card lives in the reveal slot; the rest follow it.
   const goldCard: QuoteCardData = { ...content.goldQuote, rating: "excellent", ...(sumInsured ? { sumInsured } : {}) };
   const rest = ghostFirst && revealed ? quotes.slice(1) : quotes;
+  const [filter, setFilter] = useState<QuoteFilter>("all");
+  const [sort, setSort] = useState<QuoteSort>("default");
+  const [immediateOnly, setImmediateOnly] = useState(false);
+  const pinned = rest.filter((q) => q.gold);
+  const arranged = arrange(rest.filter((q) => !q.gold), filter, sort, immediateOnly);
+  const shown = [...pinned, ...arranged];
+  const shownCount = shown.length + (ghostFirst && revealed ? 1 : 0);
+  const resetFilters = () => {
+    setFilter("all");
+    setImmediateOnly(false);
+  };
   // Cards rise in one after another as the results reveal (after the skeleton).
   const reveal = (i: number) =>
     reduced
@@ -120,14 +163,14 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
             <span className={styles.count}>
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.span
-                  key={quotes.length}
+                  key={shownCount}
                   className={styles.countDigit}
                   initial={reduced ? { opacity: 0 } : { y: "100%", opacity: 0, filter: "blur(4px)" }}
                   animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
                   exit={reduced ? { opacity: 0 } : { y: "-100%", opacity: 0, filter: "blur(4px)" }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  {quotes.length}
+                  {shownCount}
                 </motion.span>
               </AnimatePresence>
             </span>
@@ -136,8 +179,16 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
         </div>
         <FeedControls
           filterLabel={content.filterLabel}
+          filterOptions={content.filterOptions}
+          filter={filter}
+          onFilterChange={setFilter}
           sortLabel={content.sortLabel}
+          sortOptions={content.sortOptions}
+          sort={sort}
+          onSortChange={setSort}
           switchLabel={content.switchLabel}
+          immediateOnly={immediateOnly}
+          onImmediateOnlyChange={setImmediateOnly}
         />
         <IkkatDivider unit={23.8} height={4} className={styles.rule} />
       </div>
@@ -156,6 +207,9 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                     setRipple(true);
                     onRevealed?.();
                   }}
+                  // The price strikes down once the card sits still, so the
+                  // morph never restarts when the reveal layer hands over.
+                  onSettled={() => setRevealIntro("play")}
                 >
                   <QuoteCard
                     quote={goldCard}
@@ -164,11 +218,14 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                       setFeaturesQuote(goldCard);
                       setFeaturesOpen(true);
                     }}
+                    onSelect={revealed ? checkoutFor(goldCard) : undefined}
+                    priceIntro={revealIntro}
                   />
                 </RevealCard>
               </motion.div>
             )}
-            {rest.map((quote, i) => {
+            <AnimatePresence mode="popLayout" initial={false}>
+            {shown.map((quote, i) => {
               const card = (
                 <QuoteCard
                   quote={quote}
@@ -182,20 +239,49 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                   priceIntro={quote.gold ? goldIntro : undefined}
                 />
               );
-              // Case A's Gold: its own delayed entrance instead of the stagger.
+              // Case A's Gold: the same reveal as Case B's button, played on
+              // its own once the feed has settled.
               if (quote.gold && caseId === "A") {
                 return (
-                  <div key={`${quote.insurer}-${i}`} className={styles.cell}>
-                    <GoldEntrance onLanded={landGold}>{card}</GoldEntrance>
+                  <div key={quote.insurer} className={styles.cell}>
+                    <RevealCard
+                      unlocked
+                      revealed={caseAPlayed}
+                      autoRevealDelay={CASE_A_REVEAL_MS}
+                      labels={{ reveal: content.revealQuoteLabel, lockedHint: content.revealLockedHint, readyHint: content.revealReadyHint }}
+                      onRevealed={() => {
+                        caseARevealPlayed = true;
+                      }}
+                      onSettled={() => setGoldIntro((p) => (p === "idle" ? "play" : p))}
+                    >
+                      {card}
+                    </RevealCard>
                   </div>
                 );
               }
+              // Keyed by insurer so a re-sort slides cards to their new slots.
               return (
-                <motion.div key={`${quote.insurer}-${i}`} className={styles.cell} {...reveal(i + (ghostFirst ? 1 : 0))}>
+                <motion.div
+                  key={quote.insurer}
+                  layout="position"
+                  className={styles.cell}
+                  exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.98, transition: { duration: 0.2 } }}
+                  {...reveal(i + (ghostFirst ? 1 : 0))}
+                >
                   {card}
                 </motion.div>
               );
             })}
+            </AnimatePresence>
+            {arranged.length === 0 && (
+              <div className={styles.empty}>
+                <p className={styles.emptyTitle}>{content.noResults.title}</p>
+                <p className={styles.emptyBody}>{content.noResults.body}</p>
+                <button type="button" className={styles.emptyReset} onClick={resetFilters}>
+                  {content.noResults.resetLabel}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

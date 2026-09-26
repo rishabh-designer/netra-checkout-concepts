@@ -13,6 +13,12 @@ export interface RevealCardProps {
   labels: { reveal: string; lockedHint: string; readyHint: string };
   /** Fired mid-reveal, as the Gold card lands, so the feed can ripple its ratings. */
   onRevealed: () => void;
+  /** Fired once the sequence has finished and the card sits in place (start
+   *  anything that must not restart, like the price morph, here). */
+  onSettled?: () => void;
+  /** Play the reveal on its own after this many ms, no press needed (Case A,
+   *  which arrives verified). */
+  autoRevealDelay?: number;
   /** The Gold QuoteCard. */
   children: ReactNode;
 }
@@ -36,20 +42,21 @@ const CASCADE = "[data-reveal='pill'], [data-reveal='item'], [data-reveal='cover
  *   its parts cascade in (pill, divider marks from the centre, title lines,
  *   coverage box, chips from the centre, the Excellent badge on an overshoot,
  *   the price bar) → one sheen sweeps across → the border beam fades up.
- * Reduced motion: a plain cross-fade.
+ * Reduced motion: a plain cross-fade. `autoRevealDelay` plays it unprompted.
  * Usage: <RevealCard unlocked={u} revealed={r} labels={…} onRevealed={fn}><QuoteCard … /></RevealCard>
  */
-export function RevealCard({ unlocked, revealed, labels, onRevealed, children }: RevealCardProps) {
+export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, autoRevealDelay, children }: RevealCardProps) {
   const reduced = useReducedMotion();
   const [scope, animate] = useAnimate<HTMLDivElement>();
   const goldRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>(revealed ? "done" : "idle");
   const wasUnlocked = useRef(unlocked);
 
-  // Demo reset: the feed took the Gold Quote back, so return to the locked slot.
+  // Demo reset (Case B): the feed took the Gold Quote back, so return to the
+  // locked slot. An auto reveal (Case A) is never taken back.
   useEffect(() => {
-    if (!revealed && phase === "done") setPhase("idle");
-  }, [revealed, phase]);
+    if (autoRevealDelay === undefined && !revealed && phase === "done") setPhase("idle");
+  }, [revealed, phase, autoRevealDelay]);
 
   // Unlock beat: the button springs up when verification completes.
   useEffect(() => {
@@ -95,11 +102,11 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, children }:
         ["[data-rv='sheen']", { x: ["-130%", "330%"] }, { type: "tween", duration: 0.9, ease: [0.65, 0, 0.35, 1], at: 1.65 }],
         ["[data-reveal='beam']", { opacity: [0, 1] }, { duration: 0.8, at: 1.8 }],
       ]);
-      if (!cancelled) setPhase("done");
+      if (!cancelled) settle();
     };
     run();
     // Safety net: whatever happens mid-sequence, finish on the Gold card.
-    const guard = window.setTimeout(() => !cancelled && setPhase("done"), 3600);
+    const guard = window.setTimeout(() => !cancelled && settle(), 3600);
     return () => {
       cancelled = true;
       window.clearTimeout(land);
@@ -108,15 +115,33 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, children }:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
+  const settledRef = useRef(false);
+  function settle() {
+    setPhase("done");
+    if (settledRef.current) return;
+    settledRef.current = true;
+    onSettled?.();
+  }
+
   const start = () => {
     if (!unlocked || phase !== "idle") return;
+    settledRef.current = false;
     if (reduced) {
       onRevealed();
-      setPhase("done");
+      settle();
       return;
     }
     setPhase("revealing");
   };
+
+  // Unprompted reveal (Case A): the slot shows its ready state for a beat,
+  // then plays the same sequence as a press.
+  useEffect(() => {
+    if (autoRevealDelay === undefined || !unlocked || phase !== "idle") return;
+    const id = window.setTimeout(start, autoRevealDelay);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoRevealDelay, unlocked, phase]);
 
   if (phase === "done") {
     return (

@@ -110,6 +110,10 @@
   justify-content: space-between;
 }
 
+.footer[data-align="end"] {
+  justify-content: flex-end;
+}
+
 .timeWrap {
   position: relative;
   display: inline-flex;
@@ -133,6 +137,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
+}
+
+a.cta {
+  text-decoration: none;
 }
 
 .cta:hover {

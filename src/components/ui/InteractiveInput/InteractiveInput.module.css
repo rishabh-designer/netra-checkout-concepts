@@ -302,6 +302,17 @@
   color: var(--color-label-tertiary);
 }
 
+.helpAction {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--color-info);
+  text-decoration: underline;
+  text-underline-position: from-font;
+  cursor: pointer;
+}
+
 .help[data-tone="error"] .helpText {
   color: var(--color-error);
 }

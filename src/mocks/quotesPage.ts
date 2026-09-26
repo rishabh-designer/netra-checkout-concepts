@@ -19,7 +19,7 @@ const EXTRADITION = "Extradition Costs";
 /* Exact match (A): the Gold Quote is revealed on arrival and leads the stack. */
 const GOLD_QUOTE: QuoteCardData = {
   insurer: "Your Personalized Insurance Quote",
-  logoSrc: "",
+  logoSrc: GENERALI,
   sumInsured: "₹5 Crore",
   gold: true,
   comparable: true,
@@ -28,6 +28,8 @@ const GOLD_QUOTE: QuoteCardData = {
 
 /* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹6,500. */
 const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, price: "₹6,500", originalPrice: "₹10,000" };
+/* Case B's, revealed once verified: a smaller cut (partly verified records). */
+const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, price: "₹7,000", originalPrice: "₹10,000" };
 
 /* Case C premiums at its lower ₹5 Cr Sum Insured. */
 const CASE_C_PRICES: Record<string, string> = {
@@ -152,8 +154,18 @@ export const mockQuotesPageContent: QuotesPageContent = {
       percent: 29,
       timeLeft: "3:20 Hrs. Left",
       ctaLabel: "Notify Me",
+      notifyToast: {
+        title: "We'll let you know",
+        description: "You'll get an email and SMS as soon as your Gold Quote is ready.",
+      },
       simulateLabel: "Simulate verification",
       timeSteps: ["1:05 Hrs. Left", "0:12 Hrs. Left", "Almost there"],
+    },
+    noRecords: {
+      title: "Want a Sharper Price?",
+      body: "We couldn't find public records to verify your business, so these are standard quotes. Our experts can help you find the right cover.",
+      ctaLabel: "Call an Expert",
+      ctaHref: "tel:+919007296854",
     },
     upgraded: {
       title: "You’re Upgraded!",
@@ -178,10 +190,24 @@ export const mockQuotesPageContent: QuotesPageContent = {
       chatLabel: "Chat with Us",
       chatIconSrc: "/media/chat-sparkle.svg",
     },
-    filterLabel: "Filtering: All",
-    filterOptions: ["All Insurance Brokers", "PSU Insurers", "Private Insurers"],
-    sortLabel: "Sorting: Default",
-    sortOptions: ["Match", "Premium: Low to High", "Sum Insured: High to Low"],
+    filterLabel: "Filtering: {option}",
+    filterOptions: [
+      { id: "all", label: "All" },
+      { id: "priced", label: "Priced" },
+      { id: "onRequest", label: "On Request" },
+    ],
+    sortLabel: "Sorting: {option}",
+    sortOptions: [
+      { id: "default", label: "Default" },
+      { id: "priceLow", label: "Lowest Price" },
+      { id: "priceHigh", label: "Highest Price" },
+      { id: "coverage", label: "Widest Cover" },
+    ],
+    noResults: {
+      title: "No quotes match these filters",
+      body: "Try another filter, or turn off Immediate Purchase Only.",
+      resetLabel: "Show All Quotes",
+    },
     switchLabel: "Immediate Purchase Only",
     quotes: QUOTES,
     quotesByCase: { A: [CASE_A_GOLD, ...MATCHED_QUOTES], B: MATCHED_QUOTES },
@@ -195,7 +221,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     revealQuoteLabel: "Reveal Quote",
     revealLockedHint: "Unlocks once we've verified your business",
     revealReadyHint: "Your Gold Quote is ready",
-    goldQuote: GOLD_QUOTE,
+    goldQuote: CASE_B_GOLD,
     topCoveragesLabel: "Top Coverages",
     ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },
     poweredByLabel: "Powered by BimaNetra",

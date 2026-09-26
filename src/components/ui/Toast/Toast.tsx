@@ -11,6 +11,8 @@ export interface ToastProps {
   onClose: () => void;
   /** ms before auto-dismiss. */
   duration?: number;
+  /** "warning" (default) for a nudge; "success" for a confirmation. */
+  tone?: "warning" | "success";
 }
 
 /**
@@ -19,7 +21,7 @@ export interface ToastProps {
  * Tailwind. Slides in from the right and auto-dismisses.
  * Usage: <Toast open={open} title="…" description="…" onClose={close} />
  */
-export function Toast({ open, title, description, onClose, duration = 4000 }: ToastProps) {
+export function Toast({ open, title, description, onClose, duration = 4000, tone = "warning" }: ToastProps) {
   useEffect(() => {
     if (!open) return;
     const id = window.setTimeout(onClose, duration);
@@ -39,6 +41,12 @@ export function Toast({ open, title, description, onClose, duration = 4000 }: To
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
           >
             <span className={styles.icon} aria-hidden>
+              {tone === "success" ? (
+                <svg viewBox="0 0 20 20" width="18" height="18" fill="none">
+                  <circle cx="10" cy="10" r="7.75" stroke="var(--color-success)" strokeWidth="1.5" />
+                  <path d="m6.8 10.2 2.2 2.2 4.2-4.6" stroke="var(--color-success)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
               <svg viewBox="0 0 20 20" width="18" height="18" fill="none">
                 <path
                   d="M10 2.2 1.6 16.5h16.8L10 2.2Z"
@@ -49,6 +57,7 @@ export function Toast({ open, title, description, onClose, duration = 4000 }: To
                 <path d="M10 8v3.6" stroke="var(--color-brand-secondary)" strokeWidth="1.6" strokeLinecap="round" />
                 <circle cx="10" cy="13.9" r="0.9" fill="var(--color-brand-secondary)" />
               </svg>
+              )}
             </span>
             <div className={styles.body}>
               <p className={styles.title}>{title}</p>

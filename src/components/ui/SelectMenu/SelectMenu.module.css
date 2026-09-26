@@ -28,10 +28,16 @@
   cursor: default;
 }
 
-/* placeholder = A9ACB1 @ 48%, regular — same as the text input's */
+.text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* placeholder = A9ACB1 @ 48%, medium — same as the text input's */
 .trigger[data-empty] {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
-  font-weight: 400;
+  font-weight: 500;
 }
 
 /* Floating option card under the field */

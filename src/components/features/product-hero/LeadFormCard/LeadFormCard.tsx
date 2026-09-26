@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useId, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { LeadFormContent, QuoteCaseMatch, QuoteModalContent } from "@/types/productPage";
 import type { QuotesPreview } from "@/types/quotesPage";
@@ -11,7 +11,8 @@ import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { InteractiveInput } from "@/components/ui/InteractiveInput";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { CtaButton } from "@/components/ui/CtaButton";
-import { Toast } from "@/components/ui/Toast";
+import { SideDrawer } from "@/components/ui/SideDrawer";
+import { CompanySuggest, findCompanyOptions } from "../CompanySuggest";
 import {
   QuoteModal,
   preloadQuoteModal,
@@ -56,7 +57,35 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
   const [caseId, setCaseId] = useState<QuoteCaseId>("C");
   // The name carried into the modal / Quotes page (canonical when matched).
   const [resolvedName, setResolvedName] = useState("");
-  const [toastOpen, setToastOpen] = useState(false);
+  // Sent empty: the field shows the error in its help row until typed in.
+  const [emptyError, setEmptyError] = useState(false);
+  const [knowMoreOpen, setKnowMoreOpen] = useState(false);
+  // Type-ahead: opens as the customer types, so they pick their legal entity
+  // before continuing. Enter picks the highlighted row (then submits).
+  const suggestId = useId();
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const options = findCompanyOptions(companyName, content.companySearch);
+  const listShown = suggestOpen && options.length > 0;
+  const pickCompany = (name: string) => {
+    setCompanyName(name);
+    setSuggestOpen(false);
+    emitHeroPulse("typing");
+  };
+  const onNameKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (!listShown) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      setActive((i) => (i + step + options.length) % options.length);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      pickCompany(options[active]?.name ?? companyName);
+    } else if (e.key === "Escape") {
+      setSuggestOpen(false);
+    }
+  };
+  const closeKnowMore = useCallback(() => setKnowMoreOpen(false), []);
   // Hidden demo shortcut: the info icon cycles the demo names (A → B → C → A);
   // clearing the field starts the cycle over.
   const [demoIndex, setDemoIndex] = useState(-1);
@@ -66,14 +95,13 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
     const next = (demoIndex + 1) % names.length;
     setDemoIndex(next);
     setCompanyName(names[next]);
+    setSuggestOpen(false);
   };
 
   const handleSubmit = () => {
     emitHeroPulse("submit");
     if (!companyName.trim()) {
-      setToastOpen(false);
-      // re-arm so a repeat click re-triggers the toast animation
-      requestAnimationFrame(() => setToastOpen(true));
+      setEmptyError(true);
       return;
     }
     const { caseId: next, displayName } = resolveCase(companyName, quoteModal.caseMatches);
@@ -110,14 +138,15 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
             <span className={styles.promoLabel}>{content.promoLabel}</span>
           </div>
           <div className={styles.promoRight}>
-            <a href="#" className={styles.promoLink}>
+            <button type="button" className={styles.promoLink} onClick={() => setKnowMoreOpen(true)} aria-haspopup="dialog">
               {content.promoLinkLabel}
-            </a>
+            </button>
             <SquareCheckbox tone="info" state="checked" />
           </div>
         </div>
       </div>
       <div className={styles.bottom}>
+        <div className={styles.nameField}>
         <InteractiveInput
           size="lg"
           placeholder={content.inputPlaceholder}
@@ -126,15 +155,34 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
           onFocus={preloadQuoteModal}
           onChange={(v) => {
             setCompanyName(v);
+            setEmptyError(false);
+            setSuggestOpen(true);
+            setActive(0);
             emitHeroPulse("typing");
           }}
-          status={companyName.trim().length >= 4 ? "success" : "empty"}
+          status={emptyError ? "error" : companyName.trim().length >= 4 ? "success" : "empty"}
+          helpText={emptyError ? quoteModal.emptyNameError : undefined}
+          helpTone="error"
+          showHelp={emptyError}
           clearable
           onClear={() => setDemoIndex(-1)}
           infoTooltip={content.inputTooltip}
           onInfoClick={cycleDemoName}
           onSubmit={handleSubmit}
+          onKeyDown={onNameKey}
+          onBlur={() => setSuggestOpen(false)}
+          combobox={{ listId: suggestId, expanded: suggestOpen && options.length > 0, activeId: `${suggestId}-${active}` }}
         />
+          <CompanySuggest
+            id={suggestId}
+            open={suggestOpen}
+            options={options}
+            active={active}
+            recordsLabel={content.companySearch.recordsLabel}
+            onPick={pickCompany}
+            onHover={setActive}
+          />
+        </div>
         <div className={styles.actions}>
           <CtaButton
             label={content.ctaLabel}
@@ -155,12 +203,26 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
         onComplete={handleComplete}
         backdrop={quotesPreview && <QuotesBackdrop preview={quotesPreview} caseId={caseId} />}
       />
-      <Toast
-        open={toastOpen}
-        title={quoteModal.emptyNameToast.title}
-        description={quoteModal.emptyNameToast.description}
-        onClose={() => setToastOpen(false)}
-      />
+      <SideDrawer
+        open={knowMoreOpen}
+        onClose={closeKnowMore}
+        title={content.knowMore.title}
+        closeLabel={content.knowMore.closeLabel}
+        placement="center"
+        width={480}
+      >
+        <div className={styles.knowMore}>
+          <p className={styles.knowMoreIntro}>{content.knowMore.intro}</p>
+          <ul className={styles.knowMoreList}>
+            {content.knowMore.points.map((point) => (
+              <li key={point.title} className={styles.knowMorePoint}>
+                <span className={styles.knowMoreTitle}>{point.title}</span>
+                <span className={styles.knowMoreBody}>{point.body}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </SideDrawer>
     </div>
   );
 }

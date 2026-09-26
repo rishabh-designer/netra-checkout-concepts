@@ -129,14 +129,15 @@ export const mockCheckoutContent: CheckoutContent = {
       backLabel: "Back to KYC",
       banner: "Please check your details once more before purchase.",
       sectionTitle: "Details Shown On Policy",
-      progress: { percent: 92, timeLeft: "1 Min. Left" },
-      otherPerson: "faded",
+      progress: { percent: 98, timeLeft: "1 Min. Left" },
+      otherPerson: "hidden",
       sectionTitles: { billing: "Billing", company: "Company", kyc: "KYC" },
-      editLabel: "Edit Details",
+      editLabel: "Edit",
       uploadedLabel: "Uploaded",
       consentText:
-        "I confirm all details provided are correct. I understand the broker is not responsible for policy creation errors, as this depends on the insurance company.",
-      payLabel: "Make Payment",
+        "I confirm these details are correct. The insurer issues my policy using them, so I have checked them carefully.",
+      // `{price}` is the chosen quote's total (GST included).
+      payLabel: "Pay {price}",
       requestLabel: "Request Quote",
       postCheckoutToast: {
         title: "Post-checkout is next",
@@ -160,8 +161,9 @@ export const mockCheckoutContent: CheckoutContent = {
   summary: {
     title: "Purchase Summary",
     immediateLabel: "Immediate Purchase",
+    poweredByLabel: "Powered by BimaNetra",
     productLines: ["Director’s & Officer’s", "Insurance"],
-    productIconSrc: "/media/quote-card-watermark.webp",
+    productIconSrc: "/media/checkout/product-icon.svg",
     priceTitle: "Price Details",
     premiumLabel: "Premium",
     gstLabel: "GST (18%)",

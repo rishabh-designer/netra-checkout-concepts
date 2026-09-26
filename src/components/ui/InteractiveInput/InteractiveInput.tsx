@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { SelectMenu } from "@/components/ui/SelectMenu";
 import styles from "./InteractiveInput.module.css";
 import {
@@ -24,6 +24,8 @@ export interface InteractiveInputProps {
   /** Fixed affix ("+91", "₹") — always label-disabled grey with a right divider. */
   prefix?: string;
   helpText?: string;
+  /** Inline link after the help text (e.g. "Not you?"). */
+  helpAction?: { label: string; onClick: () => void };
   helpTone?: HelpTone;
   /** Reserve the help row (28px). Its text toggles, but the row never shifts height. */
   showHelp?: boolean;
@@ -65,6 +67,11 @@ export interface InteractiveInputProps {
   /** Focus / blur of the text input (e.g. to validate on blur). */
   onFocus?: () => void;
   onBlur?: () => void;
+  /** Keys in the text input, before Enter-to-submit; call preventDefault()
+   *  to keep Enter from submitting (e.g. it picked a suggestion). */
+  onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void;
+  /** The text input drives a suggestion list (ARIA combobox). */
+  combobox?: { listId: string; expanded: boolean; activeId?: string };
 }
 
 /**
@@ -84,6 +91,7 @@ export function InteractiveInput({
   placeholder,
   prefix,
   helpText,
+  helpAction,
   helpTone = "neutral",
   showHelp = false,
   control = "text",
@@ -108,6 +116,8 @@ export function InteractiveInput({
   maxLength,
   onFocus,
   onBlur,
+  onKeyDown,
+  combobox,
 }: InteractiveInputProps) {
   const inputRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const uid = useId();
@@ -212,7 +222,16 @@ export function InteractiveInput({
             onChange={(e) => onChange?.(e.target.value)}
             onFocus={onFocus}
             onBlur={onBlur}
-            onKeyDown={onSubmit ? (e) => e.key === "Enter" && onSubmit() : undefined}
+            role={combobox ? "combobox" : undefined}
+            aria-autocomplete={combobox ? "list" : undefined}
+            aria-expanded={combobox ? combobox.expanded : undefined}
+            aria-controls={combobox?.listId}
+            aria-activedescendant={combobox?.expanded ? combobox.activeId : undefined}
+            autoComplete={combobox ? "off" : undefined}
+            onKeyDown={(e) => {
+              onKeyDown?.(e);
+              if (!e.defaultPrevented && e.key === "Enter") onSubmit?.();
+            }}
           />
         )}
 
@@ -265,6 +284,14 @@ export function InteractiveInput({
           {effectiveHelp && (
             <p id={helpId} className={styles.helpText}>
               {effectiveHelp}
+              {helpAction && !validationError && (
+                <>
+                  {" "}
+                  <button type="button" className={styles.helpAction} onClick={helpAction.onClick}>
+                    {helpAction.label}
+                  </button>
+                </>
+              )}
             </p>
           )}
         </div>

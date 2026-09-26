@@ -1,1 +1,1 @@
-export { UpgradeBanner, type UpgradeBannerProps, type UpgradeStage } from "./UpgradeBanner";
+export { UpgradeBanner, NoRecordsBanner, type UpgradeBannerProps, type UpgradeStage } from "./UpgradeBanner";

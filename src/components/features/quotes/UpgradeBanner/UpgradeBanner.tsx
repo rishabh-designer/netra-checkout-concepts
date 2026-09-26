@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   AnimatePresence,
   motion,
@@ -10,8 +10,9 @@ import {
   type MotionValue,
   type Variants,
 } from "motion/react";
-import type { UpgradeBannerContent, UpgradedBannerContent } from "@/types/quotesPage";
+import type { NoRecordsBannerContent, UpgradeBannerContent, UpgradedBannerContent } from "@/types/quotesPage";
 import { Sparks } from "@/components/ui/Sparks";
+import { Toast } from "@/components/ui/Toast";
 import styles from "./UpgradeBanner.module.css";
 
 export type UpgradeStage = "pending" | "verifying" | "upgraded";
@@ -58,6 +59,8 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
   const width = useTransform(progress, (v) => `${v}%`);
   const [step, setStep] = useState(-1);
   const [full, setFull] = useState(false);
+  const [notified, setNotified] = useState(false);
+  const closeNotified = useCallback(() => setNotified(false), []);
 
   // Roll the time-left readout down as the count passes each third.
   useMotionValueEvent(progress, "change", (v) => {
@@ -71,6 +74,7 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
   const verifying = stage === "verifying";
 
   return (
+    <>
     <AnimatePresence mode="wait" initial={false}>
       {stage === "upgraded" ? (
         <motion.div
@@ -140,12 +144,50 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
                 </motion.span>
               </AnimatePresence>
             </span>
-            <button type="button" className={styles.cta}>
+            <button
+              type="button"
+              className={styles.cta}
+              onClick={() => {
+                setNotified(false);
+                // re-arm so a repeat press replays the alert
+                requestAnimationFrame(() => setNotified(true));
+              }}
+            >
               {content.ctaLabel}
             </button>
           </div>
         </motion.div>
       )}
     </AnimatePresence>
+    {/* Outside the animated banner, so its blur/transform never traps the
+        fixed top-right alert. */}
+    <Toast
+      open={notified}
+      tone="success"
+      title={content.notifyToast.title}
+      description={content.notifyToast.description}
+      onClose={closeNotified}
+    />
+    </>
+  );
+}
+
+/**
+ * NoRecordsBanner — Case C's version of the banner: there's nothing to verify,
+ * so no meter or time left, just a plain line and a call to an expert. Same
+ * shell and type as "Ready to Upgrade?".
+ * Usage: <NoRecordsBanner content={noRecords} />
+ */
+export function NoRecordsBanner({ content }: { content: NoRecordsBannerContent }) {
+  return (
+    <div className={styles.banner}>
+      <p className={styles.title}>{content.title}</p>
+      <p className={styles.body}>{content.body}</p>
+      <div className={styles.footer} data-align="end">
+        <a href={content.ctaHref} className={styles.cta}>
+          {content.ctaLabel}
+        </a>
+      </div>
+    </div>
   );
 }
