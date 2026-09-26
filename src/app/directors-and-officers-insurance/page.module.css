@@ -94,6 +94,21 @@
   position: relative;
   /* anchor to the bottom of the viewport-filling fold */
   margin-top: auto;
+  /* Entrance: the marquee rises in last, after the hero's stagger. */
+  animation: ticker-in 700ms cubic-bezier(0.22, 1, 0.36, 1) 760ms backwards;
+}
+
+@keyframes ticker-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker {
+    animation: none;
+  }
 }
 
 /* Below web (<1000): single column — text, form, logos, media, stats. */

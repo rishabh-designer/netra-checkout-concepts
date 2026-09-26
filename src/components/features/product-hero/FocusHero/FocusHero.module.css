@@ -12,6 +12,44 @@
   text-align: center;
 }
 
+/*
+ * Entrance: each block rises 12px and fades in, top to bottom, 70ms apart
+ * (`--i` is the slot). `backwards` fill keeps it hidden through its delay and
+ * leaves no transform behind once it lands, so nothing fixed gets trapped.
+ */
+.enter,
+.draw {
+  animation: hero-rise 720ms cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 70ms + 60ms) backwards;
+}
+
+/* The ikkat rule draws out from the centre instead. */
+.draw {
+  width: 100%;
+  animation-name: hero-draw;
+  animation-duration: 900ms;
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes hero-draw {
+  from {
+    opacity: 0;
+    clip-path: inset(0 50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter,
+  .draw {
+    animation: none;
+  }
+}
+
 /* Top stack (Figma 626:15872): pill row, then the PLP name on a top rule. */
 .top {
   display: flex;

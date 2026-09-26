@@ -157,6 +157,21 @@
   --font-display-features: "kern" 1, "liga" 1;
 }
 
+/* Safari (no corner-shape yet): plain round corners at the squircle's radius
+   cut far deeper (≈0.29r vs 0.16r at the diagonal) and read puffy. Tighter
+   radii give the same visual corner; browsers with corner-shape keep the
+   squircle tokens untouched. */
+@supports not (corner-shape: superellipse(2)) {
+  :root {
+    --radius-6: 4px;
+    --radius-8: 5px;
+    --radius-12: 7px;
+    --radius-16: 10px;
+    --radius-24: 14px;
+    --radius-32: 19px;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

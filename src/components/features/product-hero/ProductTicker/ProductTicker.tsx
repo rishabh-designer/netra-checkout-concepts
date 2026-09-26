@@ -31,7 +31,7 @@ export function ProductTicker({
               <Fragment key={`${r}-${phrase}`}>
                 <IkkatMark
                   pattern={i % 2 === 0 ? 1 : 2}
-                  width={14}
+                  width={8}
                   color="var(--color-label-inverse)"
                   className={styles.diamond}
                 />

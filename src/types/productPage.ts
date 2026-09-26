@@ -262,26 +262,11 @@ export interface QuoteModalContent {
   completeToast: { title: string; description: string };
 }
 
-/** The product mark's micro-animations (click the icon to cycle). */
-export type PlpMarkMode = "sunrise" | "strokes" | "tilt" | "spill";
-
-export interface PlpMarkModeContent {
-  id: PlpMarkMode;
-  name: string;
-  description: string;
-}
-
 /** Copy for the "Focus" landing concept (single-column, offer-led hero). */
 export interface FocusHeroContent {
   eyebrow: string;
   /** Product icon between the pills (shown top half, shimmering). */
   plpIconSrc: string;
-  /** Accessible name of the icon button that cycles its animation. */
-  markLabel: string;
-  /** Animation modes in click order (the first plays on load). */
-  markModes: PlpMarkModeContent[];
-  /** Toast title on switch; "{name}" is the mode's name. */
-  markToastTitle: string;
   /** Headline in two parts: the cover (orange, small) + the price (purple). */
   headlineCover: string;
   headlinePrice: string;

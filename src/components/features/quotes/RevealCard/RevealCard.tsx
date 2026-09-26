@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, stagger, useAnimate, useReducedMotion } from "motion/react";
 import { Sparks } from "@/components/ui/Sparks";
+import { DitherBurst } from "@/components/ui/DitherBurst";
 import styles from "./RevealCard.module.css";
 
 export interface RevealCardProps {
@@ -28,7 +29,7 @@ type Phase = "idle" | "revealing" | "done";
 const BLUR = (px: number) => `blur(${px}px)`;
 const OUT_EXPO = [0.16, 1, 0.3, 1] as const;
 /* Every Gold-card part that cascades in, matched in document (reading) order. */
-const CASCADE = "[data-reveal='pill'], [data-reveal='item'], [data-reveal='coverage'], [data-reveal='rating'], [data-reveal='chip'], [data-reveal='bar']";
+const CASCADE = "[data-reveal='pill'], [data-reveal='rule'], [data-reveal='item'], [data-reveal='coverage'], [data-reveal='rating'], [data-reveal='chip'], [data-reveal='bar']";
 
 /**
  * RevealCard — the fuzzy match's locked slot and its unveiling.
@@ -37,10 +38,11 @@ const CASCADE = "[data-reveal='pill'], [data-reveal='item'], [data-reveal='cover
  * soft glow breathes behind it and hairline rings ripple out. Reveal: one
  * choreographed sequence (about 2.7s):
  *   press → the label letters scatter → the button collapses to a core and
- *   detonates into a gold light bloom with an ikkat spark burst → the slot
+ *   detonates into a gold light bloom (a dithered shockwave and glitter
+ *   ride it, like the PLP icon) with an ikkat spark burst → the slot
  *   eases open while the Gold card rises and settles out of the light →
- *   its parts cascade in (pill, divider marks from the centre, title lines,
- *   coverage box, chips from the centre, the Excellent badge on an overshoot,
+ *   its parts cascade in (pill, the ikkat rule drawing out from the centre,
+ *   title lines, coverage box, chips, the Excellent badge on an overshoot,
  *   the price bar) → one sheen sweeps across → the border beam fades up.
  * Reduced motion: a plain cross-fade. `autoRevealDelay` plays it unprompted.
  * Usage: <RevealCard unlocked={u} revealed={r} labels={…} onRevealed={fn}><QuoteCard … /></RevealCard>
@@ -91,9 +93,8 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
         // Slot eases open; the Gold card rises and settles out of the light.
         [scope.current!, { height: [200, h] }, { type: "tween", duration: 0.75, ease: OUT_EXPO, at: 0.45 }],
         ["[data-rv='gold']", { opacity: [0, 1], scale: [0.94, 1], y: [14, 0] }, { type: "tween", duration: 0.8, ease: OUT_EXPO, at: 0.5 }],
-        // Ikkat divider marks bloom out from the centre.
-        ["[data-reveal='rule'] > div > *", { opacity: [0, 1], scale: [0, 1] }, { type: "tween", duration: 0.35, delay: stagger(0.012, { from: "center" }), at: 0.8 }],
-        // Top-to-bottom cascade, in reading order: pill → title lines → the
+        // Top-to-bottom cascade, in reading order: pill → ikkat rule (it
+        // also draws out from the centre, in CSS) → title lines → the
         // coverage box → its label, rating, chips, rule, View All Features →
         // the price bar → Add To Compare, Sum Insured, the button.
         [CASCADE, { opacity: [0, 1], y: [16, 0] }, { type: "tween", duration: 0.6, ease: OUT_EXPO, delay: stagger(0.06), at: 0.7 }],
@@ -240,6 +241,8 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
         <>
           <span className={styles.flash} data-rv="flash" aria-hidden />
           <span className={styles.burstOrigin} aria-hidden>
+            {/* Dithered shockwave + glitter riding the bloom (same 0.3s / 1.15s beat). */}
+            <DitherBurst radius={250} delay={0.3} duration={1.15} />
             <Sparks count={20} distance={[150, 280]} delay={0.32} />
           </span>
         </>

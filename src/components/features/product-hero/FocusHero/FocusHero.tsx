@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, type CSSProperties } from "react";
 import type { FocusHeroContent, ProductPageContent } from "@/types/productPage";
 import type { QuotesPreview } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
@@ -28,17 +28,20 @@ export interface FocusHeroProps {
  * logos pinned to the foot. No hero image competing with the form.
  * Usage: <FocusHero content={content} focus={content.focusHero} />
  */
+/** Entrance beat (top to bottom): `--i` sets the stagger slot in the CSS. */
+const beat = (i: number) => ({ "--i": i }) as CSSProperties;
+
 export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
   return (
     <main className={styles.column}>
       {/* Top stack (Figma 626:15872): pills around the half-cropped product
           icon, sat on the PLP name rule. */}
-      <div className={styles.top}>
+      <div className={`${styles.top} ${styles.enter}`} style={beat(1)}>
         <div className={styles.pills}>
           {content.tags.map((tag, i) => (
             <Fragment key={tag.label}>
               {i === 1 && (
-                <PlpMark src={focus.plpIconSrc} label={focus.markLabel} modes={focus.markModes} toastTitle={focus.markToastTitle} />
+                <PlpMark src={focus.plpIconSrc} />
               )}
               <TagPill
                 label={tag.label}
@@ -61,26 +64,32 @@ export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
       {/* Offer-led headline: the cover as a warm lead-in, the price as the hero. */}
       <div className={styles.heading}>
         <h1 className={styles.title}>
-          <span className={styles.cover}>{focus.headlineCover}</span>{" "}
-          <span className={styles.price}>{focus.headlinePrice}</span>
+          <span className={`${styles.cover} ${styles.enter}`} style={beat(2)}>{focus.headlineCover}</span>{" "}
+          <span className={`${styles.price} ${styles.enter}`} style={beat(3)}>{focus.headlinePrice}</span>
         </h1>
-        <p className={styles.subtitle}>{content.subtitle}</p>
-        <CoverageTicker items={focus.coveredChips} iconSrc={focus.coveredIconSrc} />
+        <p className={`${styles.subtitle} ${styles.enter}`} style={beat(4)}>{content.subtitle}</p>
+        <div className={styles.enter} style={beat(5)}>
+          <CoverageTicker items={focus.coveredChips} iconSrc={focus.coveredIconSrc} />
+        </div>
       </div>
 
-      <IkkatDivider unit={21.8} className={styles.divider} />
+      <div className={styles.draw} style={beat(6)}>
+        <IkkatDivider unit={21.8} className={styles.divider} />
+      </div>
 
       <div className={styles.form}>
-        <LeadFormCard
-          content={content.leadForm}
-          quoteModal={content.quoteModal}
-          focus={{ privacyLine: focus.privacyLine }}
-          quotesPreview={quotesPreview}
-        />
+        <div className={styles.enter} style={beat(7)}>
+          <LeadFormCard
+            content={content.leadForm}
+            quoteModal={content.quoteModal}
+            focus={{ privacyLine: focus.privacyLine }}
+            quotesPreview={quotesPreview}
+          />
+        </div>
 
         {/* Proof at the point of action (Figma 626:15669): serif figures in
             three equal columns, split by bead marks. */}
-        <div className={styles.proof}>
+        <div className={`${styles.proof} ${styles.enter}`} style={beat(8)}>
           {content.stats.map((stat, i) => (
             <Fragment key={stat.label}>
               {i > 0 && <IkkatMark pattern={3} width={12} color="var(--color-brand-secondary-deep)" />}
@@ -94,7 +103,7 @@ export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
       </div>
 
       {/* Bottom stack (Figma 626:16095), pinned to the column's foot. */}
-      <div className={styles.bottom}>
+      <div className={`${styles.bottom} ${styles.enter}`} style={beat(9)}>
         <div className={styles.providers}>
           <p className={styles.providersHeading}>{content.leadForm.providersHeading}</p>
           <InsurerLogoShowcase slots={content.leadForm.providerShowcase} />

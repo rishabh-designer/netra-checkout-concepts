@@ -65,6 +65,16 @@ export interface QuoteCardProps {
   priceIntro?: PriceIntro;
 }
 
+const BEAM_MS = 9000; // one revolution; matches beam-rotate in the CSS
+
+/** Phase-locks the beam to the page clock, so a remount (the Gold card
+ *  swapping from its reveal layer to the feed) picks up at the same angle
+ *  instead of restarting from the top. */
+function lockBeam(el: HTMLElement | null) {
+  const now = Number(document.timeline?.currentTime ?? performance.now());
+  if (el) el.style.animationDelay = `${-(now % BEAM_MS)}ms`;
+}
+
 /**
  * QuoteCard — one insurer quote in the vertical feed (Figma 553:29607 immediate
  * / 553:29205 priced / 553:28954 get-quote / 553:29978 gold; 584:* refresh).
@@ -208,11 +218,11 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay
   return (
     <div className={styles.goldBeam}>
       <span className={styles.beamGlow} aria-hidden data-reveal="beam">
-        <span className={styles.beamSpin} />
+        <span ref={lockBeam} className={styles.beamSpin} />
       </span>
       {card}
       <span className={styles.beamRing} aria-hidden data-reveal="beam">
-        <span className={styles.beamSpin} />
+        <span ref={lockBeam} className={styles.beamSpin} />
       </span>
     </div>
   );

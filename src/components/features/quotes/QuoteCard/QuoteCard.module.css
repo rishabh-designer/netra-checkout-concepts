@@ -111,7 +111,7 @@
 .beamGlow {
   inset: -2px;
   z-index: -1;
-  border-radius: 18px;
+  border-radius: calc(var(--radius-16) + 2px);
   filter: blur(6px);
   opacity: 1;
 }

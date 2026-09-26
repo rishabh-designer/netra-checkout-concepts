@@ -1,52 +1,35 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { animate, useReducedMotion } from "motion/react";
-import type { PlpMarkModeContent } from "@/types/productPage";
-import { DitherImage, type ShimmerPointer } from "@/components/ui/DitherImage";
-import { Toast } from "@/components/ui/Toast";
+import { DitherImage } from "@/components/ui/DitherImage";
 import { onHeroPulse } from "@/lib/heroPulse";
 import styles from "./PlpMark.module.css";
 
 export interface PlpMarkProps {
   src: string;
-  label: string;
-  modes: PlpMarkModeContent[];
-  /** Toast title on switch; "{name}" is replaced with the mode's name. */
-  toastTitle: string;
 }
 
 const SIZE = 102; // the icon; the 100×50 window shows its top half
 const RISE_IGNITE_MS = 560; // when the rising icon clears the rule
 const BURST_MS = 380;
-// Sunrise re-ignites on a loose loop: every 3.5–5.5s, never a fixed beat.
+// Re-ignites on a loose loop: every 3.5–5.5s, never a fixed beat.
 const GLOW_EVERY_MS = [3500, 5500] as const;
 const TYPING_ENERGY = 0.6;
 const TYPING_HOLD_MS = 1200;
-const TILT_RADIUS = 600; // px from the icon at which the tilt maxes out
 
 /**
- * PlpMark — the Focus hero's product mark sitting on the PLP name rule. Four
- * micro-animations, cycled by clicking the icon (a toast names each):
- * Sunrise (rises from behind the rule, ignites, then keeps re-igniting on a
- * loose 3.5–5.5s loop), Strokes (light rides the
- * artwork's lines), Tilt (the sheen springs toward the cursor), Spill (the
- * glow falls onto the rule). In every mode typing the company name warms it
- * and Get My Quote fires a sparkle burst (via heroPulse).
- * Usage: <PlpMark src="/media/plp-icon.svg" label="…" modes={…} toastTitle="Switched to {name}" />
+ * PlpMark — the Focus hero's product mark sitting on the PLP name rule, in
+ * "Sunrise": it rises from behind the rule, ignites as it clears, then keeps
+ * re-igniting on a loose 3.5–5.5s loop. Typing the company name warms it and
+ * Get My Quote fires a sparkle burst (via heroPulse). Decorative.
+ * Usage: <PlpMark src="/media/plp-icon.svg" />
  */
-export function PlpMark({ src, label, modes, toastTitle }: PlpMarkProps) {
+export function PlpMark({ src }: PlpMarkProps) {
   const reduced = useReducedMotion();
-  const [index, setIndex] = useState(0);
-  const [riseKey, setRiseKey] = useState(0);
-  const [toast, setToast] = useState(false);
-  const windowRef = useRef<HTMLButtonElement>(null);
   const riseRef = useRef<HTMLSpanElement>(null);
-  const spillRef = useRef<HTMLSpanElement>(null);
   const energy = useRef(0);
-  const pointer = useRef<ShimmerPointer>({ x: 0, y: 0, at: 0, active: false });
   const pulse = useRef({ base: 0, bursting: false, burstT: 0, typingT: 0 });
-  const mode = modes[index]?.id ?? "sunrise";
 
   const burst = useCallback(() => {
     const p = pulse.current;
@@ -59,9 +42,9 @@ export function PlpMark({ src, label, modes, toastTitle }: PlpMarkProps) {
     }, BURST_MS);
   }, []);
 
-  // Sunrise: rise from behind the rule, igniting as it clears (on load and on
-  // re-entry). Imperative so it plays even inside the landing's
-  // AnimatePresence initial={false}; CSS parks the icon below the rule first.
+  // Rise from behind the rule, igniting as it clears. Imperative so it plays
+  // even inside the landing's AnimatePresence initial={false}; CSS parks the
+  // icon below the rule first.
   useEffect(() => {
     const el = riseRef.current;
     if (!el || reduced) return;
@@ -71,12 +54,11 @@ export function PlpMark({ src, label, modes, toastTitle }: PlpMarkProps) {
       rise.stop();
       window.clearTimeout(id);
     };
-  }, [riseKey, reduced, burst]);
+  }, [reduced, burst]);
 
-  // Sunrise keeps shimmering: after the ignition, the burst recurs on a loose
-  // loop for as long as the mode is showing.
+  // After the ignition, the burst recurs on a loose loop.
   useEffect(() => {
-    if (mode !== "sunrise" || reduced) return;
+    if (reduced) return;
     let id = 0;
     const [min, max] = GLOW_EVERY_MS;
     const schedule = (wait: number) => {
@@ -87,7 +69,7 @@ export function PlpMark({ src, label, modes, toastTitle }: PlpMarkProps) {
     };
     schedule(RISE_IGNITE_MS + min);
     return () => window.clearTimeout(id);
-  }, [mode, riseKey, reduced, burst]);
+  }, [reduced, burst]);
 
   // Form reactions: typing warms the glow; submit bursts.
   useEffect(() => {
@@ -109,64 +91,11 @@ export function PlpMark({ src, label, modes, toastTitle }: PlpMarkProps) {
     };
   }, [burst]);
 
-  // Tilt input: fine pointers only (touch keeps the autonomous sway).
-  useEffect(() => {
-    if (!window.matchMedia("(pointer: fine)").matches) return;
-    const clamp = (v: number) => Math.max(-1, Math.min(1, v));
-    const move = (e: PointerEvent) => {
-      const r = windowRef.current?.getBoundingClientRect();
-      if (!r) return;
-      pointer.current = {
-        x: clamp((e.clientX - (r.left + r.width / 2)) / TILT_RADIUS),
-        y: clamp((e.clientY - (r.top + r.height / 2)) / TILT_RADIUS),
-        at: performance.now(),
-        active: true,
-      };
-    };
-    const leave = () => (pointer.current = { ...pointer.current, active: false });
-    window.addEventListener("pointermove", move, { passive: true });
-    document.documentElement.addEventListener("pointerleave", leave);
-    return () => {
-      window.removeEventListener("pointermove", move);
-      document.documentElement.removeEventListener("pointerleave", leave);
-    };
-  }, []);
-
-  // Spill: move the rule glow with the sheen, straight on the element.
-  const onLight = useCallback(
-    (x: number, strength: number) => {
-      const el = spillRef.current;
-      if (!el || mode !== "spill") return;
-      el.style.setProperty("--spill-x", `${x * 100}%`);
-      el.style.setProperty("--spill-o", `${Math.min(1, strength * 2.2)}`);
-    },
-    [mode],
-  );
-
-  const next = () => {
-    const i = (index + 1) % modes.length;
-    setIndex(i);
-    if (modes[i].id === "sunrise") setRiseKey((k) => k + 1);
-    setToast(false);
-    requestAnimationFrame(() => setToast(true));
-  };
-
-  const current = modes[index];
-
   return (
-    <div className={styles.mark} data-mode={mode}>
-      <button ref={windowRef} type="button" className={styles.window} aria-label={label} onClick={next}>
-        <span ref={riseRef} className={styles.rise}>
-          <DitherImage src={src} width={SIZE} height={SIZE} mode={mode} energy={energy} pointer={pointer} onLight={onLight} className={styles.art} />
-        </span>
-      </button>
-      <span ref={spillRef} className={styles.spill} aria-hidden />
-      <Toast
-        open={toast}
-        title={toastTitle.replace("{name}", current?.name ?? "")}
-        description={current?.description}
-        onClose={() => setToast(false)}
-      />
+    <div className={styles.mark} aria-hidden>
+      <span ref={riseRef} className={styles.rise}>
+        <DitherImage src={src} width={SIZE} height={SIZE} energy={energy} className={styles.art} />
+      </span>
     </div>
   );
 }

@@ -1,0 +1,9 @@
+/* Centred on its (zero-size) origin; crisp cells, never smoothed. */
+.canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  image-rendering: pixelated;
+  pointer-events: none;
+}

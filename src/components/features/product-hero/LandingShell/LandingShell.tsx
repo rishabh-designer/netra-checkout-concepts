@@ -35,10 +35,12 @@ export function LandingShell({ content, classic, flourish, ticker, foregroundCla
     <>
       {!focus && flourish}
       <div className={foregroundClassName}>
-        <Navbar
-          content={content.nav}
-          onLogin={() => setVariant(focus ? "classic" : "focus")}
-        />
+        <div className={styles.navIn}>
+          <Navbar
+            content={content.nav}
+            onLogin={() => setVariant(focus ? "classic" : "focus")}
+          />
+        </div>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={variant}
