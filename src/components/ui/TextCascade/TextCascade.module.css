@@ -1,0 +1,42 @@
+/* Clips vertically only (letters roll within the line), never horizontally,
+   so italic overhangs survive. Extra vertical room for descenders. */
+.root {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: -0.14em 0;
+  padding: 0.14em 0.08em;
+  white-space: nowrap;
+  vertical-align: bottom;
+  clip-path: inset(0 -999px);
+}
+
+/* Holds the final width/height so the layout never shifts mid-roll. */
+.ghost {
+  display: inline-block;
+  visibility: hidden;
+  white-space: pre;
+}
+
+.layer {
+  position: absolute;
+  top: 0.14em;
+  left: 0.08em;
+  display: inline-block;
+  white-space: pre;
+}
+
+.letter {
+  display: inline-block;
+  white-space: pre;
+  will-change: transform, opacity, filter;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

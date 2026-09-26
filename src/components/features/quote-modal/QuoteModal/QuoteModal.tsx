@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { TextLoader } from "generative-loaders";
+import { useStream } from "@/lib/useStream";
 import "generative-loaders/styles.css";
 import { cn, formatPhone } from "@/lib/utils";
 import { IkkatMark } from "@/components/ui/IkkatMark";
@@ -26,6 +27,24 @@ import type {
 import styles from "./QuoteModal.module.css";
 
 export type QuoteCaseId = "A" | "B" | "C";
+
+/* Morphing Modal motion tokens (beui.dev/components/motion/morphing-modal):
+   panel spring, strong ease-out, and the blurred cross-fade between views. */
+const MORPH_EASE = [0.16, 1, 0.3, 1] as const;
+const MORPH_SPRING = { type: "spring", stiffness: 420, damping: 40, mass: 0.5 } as const;
+function morphView(reduced: boolean | null) {
+  return reduced
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1, transition: { duration: 0.18, ease: MORPH_EASE } },
+        exit: { opacity: 0, transition: { duration: 0.14, ease: MORPH_EASE } },
+      }
+    : {
+        initial: { opacity: 0, y: 8, filter: "blur(4px)" },
+        animate: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.24, ease: MORPH_EASE } },
+        exit: { opacity: 0, y: -8, filter: "blur(4px)", transition: { duration: 0.16, ease: MORPH_EASE } },
+      };
+}
 
 /* Drawer scrim — mirrors .overlay's A9ACB1 @ 80% + 6px blur (design node
    249:3516), as animatable start/end states. */
@@ -215,10 +234,11 @@ export function QuoteModal({
                 transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] },
               }
             : {
+                // Morphing Modal (beui.dev): a quick scrim fade.
                 initial: { opacity: 0 },
                 animate: { opacity: 1 },
                 exit: { opacity: 0 },
-                transition: { duration: 0.3 },
+                transition: { duration: 0.2, ease: MORPH_EASE },
               })}
         >
           <motion.div
@@ -237,10 +257,17 @@ export function QuoteModal({
                   transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
                 }
               : {
-                  initial: { y: reduced ? 0 : 80, opacity: 0 },
-                  animate: { y: 0, opacity: 1 },
-                  exit: { y: reduced ? 0 : 80, opacity: 0 },
-                  transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+                  // Morphing Modal (beui.dev): the panel springs up from 20px
+                  // below at 97% scale, and leaves quickly.
+                  initial: { y: reduced ? 0 : 20, scale: reduced ? 1 : 0.97, opacity: 0 },
+                  animate: { y: 0, scale: 1, opacity: 1 },
+                  exit: {
+                    y: reduced ? 0 : 20,
+                    scale: reduced ? 1 : 0.98,
+                    opacity: 0,
+                    transition: { duration: 0.18, ease: MORPH_EASE },
+                  },
+                  transition: MORPH_SPRING,
                 })}
           >
             <div className={styles.left}>
@@ -262,7 +289,10 @@ export function QuoteModal({
                     </button>
                     {/* Demo shortcut: a case with `demoFill` fills its fields
                         when the title is clicked. */}
-                    <h2
+                    <AnimatePresence mode="wait" initial={false}>
+                    <motion.h2
+                      key={stepIndex}
+                      {...morphView(reduced)}
                       className={cn(styles.title, qc.demoFill && styles.titleFill)}
                       onClick={
                         qc.demoFill
@@ -271,7 +301,8 @@ export function QuoteModal({
                       }
                     >
                       {step.title}
-                    </h2>
+                    </motion.h2>
+                    </AnimatePresence>
                   </div>
                   <button
                     type="button"
@@ -283,7 +314,8 @@ export function QuoteModal({
                   </button>
                 </header>
 
-                <div className={styles.fields}>
+                <AnimatePresence mode="wait" initial={false}>
+                <motion.div key={stepIndex} className={styles.fields} {...morphView(reduced)}>
                   {qc.fields.map((field) => (
                     <Fragment key={field.key}>
                       {/* Auto-personalize badge sits between the questions and the
@@ -306,7 +338,8 @@ export function QuoteModal({
                       />
                     </Fragment>
                   ))}
-                </div>
+                </motion.div>
+                </AnimatePresence>
               </div>
 
               {/* Pinned footer (Figma 503:15072): divider → consent → CTA. */}
@@ -555,6 +588,17 @@ function SearchResult({
   const [before, highlight, after] = body?.cinSentence
     ? splitHighlight(body.cinSentence, body.cinHighlight ?? "")
     : ["", "", ""];
+  // Streaming Response (beui.dev): once the probe returns, the result streams
+  // in reading order — sentence (with its highlight), heading, each detail,
+  // footer — each element mounting only when the cursor reaches it.
+  const details = body?.details ?? [];
+  const stream = useStream(
+    [before ?? "", highlight ?? "", after ?? "", body?.detailsHeading ?? "", ...details, body?.footer ?? "", body ? "" : search.emptyNote ?? ""],
+    fetched || !body,
+  );
+  const D0 = 4; // index of the first detail piece
+  const FOOT = D0 + details.length;
+  const EMPTY = FOOT + 1;
 
   return (
     <motion.div
@@ -582,51 +626,63 @@ function SearchResult({
         <>
           {/* The engine "results" load as skeletons, then redact-reveal (the
               detail lines / footer) or blur-in (the highlighted CIN + heading). */}
-          {body.cinSentence &&
-            (fetched ? (
-              <motion.p variants={item} className={styles.cinSentence}>
-                {before}
-                <mark className={cn(styles.cinMark, body.tentative && styles.cinMarkGuess)}>
-                  {highlight}
-                </mark>
-                {after}
-              </motion.p>
-            ) : (
-              <TextLoader text={body.cinSentence} variant="skeleton" className={styles.cinSentence} />
-            ))}
-
-          {fetched ? (
-            <motion.h3
-              variants={item}
-              className={cn(styles.detailsHeading, body.tentative && styles.detailsHeadingGuess)}
-            >
-              {body.detailsHeading}
-            </motion.h3>
+          {!fetched ? (
+            <>
+              {body.cinSentence && <TextLoader text={body.cinSentence} variant="skeleton" className={styles.cinSentence} />}
+              <TextLoader text={body.detailsHeading} variant="skeleton" className={styles.detailsHeading} />
+              <ul className={styles.detailsList}>
+                {body.details.map((detail) => (
+                  <li key={detail} className={styles.detailItem}>
+                    <TextLoader text={detail} variant="skeleton" />
+                  </li>
+                ))}
+              </ul>
+              <TextLoader text={body.footer} variant="skeleton" className={styles.resultFooter} />
+            </>
           ) : (
-            <TextLoader text={body.detailsHeading} variant="skeleton" className={styles.detailsHeading} />
+            <div aria-busy={!stream.done} className={styles.streamBody}>
+              {body.cinSentence && stream.started(0) && (
+                <p className={styles.cinSentence}>
+                  {stream.reveal(0)}
+                  {stream.started(1) && (
+                    <mark className={cn(styles.cinMark, body.tentative && styles.cinMarkGuess)}>{stream.reveal(1)}</mark>
+                  )}
+                  {stream.reveal(2)}
+                </p>
+              )}
+              {stream.started(3) && (
+                <h3 className={cn(styles.detailsHeading, body.tentative && styles.detailsHeadingGuess)}>{stream.reveal(3)}</h3>
+              )}
+              {stream.started(D0) && (
+                <ul className={styles.detailsList}>
+                  {details.map(
+                    (detail, i) =>
+                      stream.started(D0 + i) && (
+                        <li key={detail} className={styles.detailItem}>
+                          {stream.reveal(D0 + i)}
+                          {body.founderTag && i === details.length - 1 && stream.finished(D0 + i) && (
+                            <motion.span
+                              className={styles.sourceTag}
+                              initial={reduced ? false : { opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                            >
+                              {body.founderTag}
+                            </motion.span>
+                          )}
+                        </li>
+                      ),
+                  )}
+                </ul>
+              )}
+              {stream.started(FOOT) && <p className={styles.resultFooter}>{stream.reveal(FOOT)}</p>}
+            </div>
           )}
-
-          <ul className={styles.detailsList}>
-            {body.details.map((detail, i) => (
-              <li key={detail} className={styles.detailItem}>
-                <TextLoader text={detail} variant={fetched ? "redact" : "skeleton"} />
-                {fetched && body.founderTag && i === body.details.length - 1 && (
-                  <span className={styles.sourceTag}>{body.founderTag}</span>
-                )}
-              </li>
-            ))}
-          </ul>
-
-          <TextLoader
-            text={body.footer}
-            variant={fetched ? "redact" : "skeleton"}
-            className={styles.resultFooter}
-          />
         </>
       ) : (
         <motion.div variants={item} className={styles.emptyState}>
           <EmptyGlyph />
-          <p>{search.emptyNote}</p>
+          <p aria-busy={!stream.done}>{stream.reveal(EMPTY)}</p>
         </motion.div>
       )}
     </motion.div>
@@ -661,6 +717,8 @@ function IntelligenceEngine({
   reduced: boolean;
 }) {
   const message = engine.messageTemplate.replace("{company}", companyName || "your company");
+  // The engine's reply streams in like an agent response.
+  const reply = useStream([message]);
   return (
     <motion.div
       className={styles.engine}
@@ -674,7 +732,10 @@ function IntelligenceEngine({
           <span>{engine.requestLabel}</span>
           <CheckboxTick />
         </div>
-        <div className={styles.engineMessage}>{message}</div>
+        <div className={styles.engineMessage} aria-busy={!reply.done} aria-label={message}>
+          <span className={styles.engineGhost} aria-hidden>{message}</span>
+          <span aria-hidden>{reply.reveal(0)}</span>
+        </div>
       </motion.div>
 
       <motion.div variants={item} className={styles.engineRunner} layout={reduced ? false : "position"}>

@@ -1,4 +1,8 @@
+"use client";
+
+import { motion, useReducedMotion } from "motion/react";
 import type { CheckoutStepId } from "@/types/checkout";
+import { HANDOFF } from "../handoff";
 import styles from "./CheckoutStepper.module.css";
 
 export interface CheckoutStepperProps {
@@ -6,11 +10,19 @@ export interface CheckoutStepperProps {
   current: CheckoutStepId;
   labels: Record<CheckoutStepId, string>;
   ariaLabel: string;
+  /** The step the user just left (null on arrival): pills that changed state
+   *  animate from their previous look. */
+  from?: CheckoutStepId | null;
 }
+
+type PillState = "done" | "current" | "upcoming";
+const stateAt = (i: number, at: number): PillState => (i < at ? "done" : i === at ? "current" : "upcoming");
+const EASE = HANDOFF.ease as unknown as [number, number, number, number];
+const POP = [0.34, 1.4, 0.64, 1] as const;
 
 /** 12px glyphs (Figma 484:25864): done tick in a green ring, current purple
  *  dot in a lilac ring, upcoming grey dot. */
-function Glyph({ state }: { state: "done" | "current" | "upcoming" }) {
+function Glyph({ state }: { state: PillState }) {
   if (state === "done") {
     return (
       <span className={styles.ring}>
@@ -37,19 +49,52 @@ function Glyph({ state }: { state: "done" | "current" | "upcoming" }) {
  * CheckoutStepper — the four-step pill row beside the page title (Figma
  * 484:25864 / 613:65314): done steps green with a tick, the current step
  * lilac with a purple dot, upcoming steps a bare grey dot (no label).
- * Usage: <CheckoutStepper steps={…} current="company" labels={…} />
+ * On Save & Continue the step just finished pops green with its tick, then the
+ * next pill blooms open: its dot grows and its label unfurls.
+ * Usage: <CheckoutStepper steps={…} current="company" labels={…} from="billing" />
  */
-export function CheckoutStepper({ steps, current, labels, ariaLabel }: CheckoutStepperProps) {
+export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null }: CheckoutStepperProps) {
+  const reduced = useReducedMotion();
   const at = steps.indexOf(current);
+  const was = from ? steps.indexOf(from) : -1;
   return (
     <ol className={styles.stepper} aria-label={ariaLabel}>
       {steps.map((s, i) => {
-        const state = i < at ? "done" : i === at ? "current" : "upcoming";
+        const state = stateAt(i, at);
+        const changed = !reduced && stateAt(i, was) !== state;
+        const justDone = changed && state === "done";
+        const justCurrent = changed && state === "current";
         return (
-          <li key={s} className={styles.pill} data-state={state} aria-current={state === "current" ? "step" : undefined}>
-            <Glyph state={state} />
-            {state === "upcoming" ? <span className={styles.srOnly}>{labels[s]}</span> : <span className={styles.label}>{labels[s]}</span>}
-          </li>
+          <motion.li
+            key={s}
+            className={styles.pill}
+            data-state={state}
+            aria-current={state === "current" ? "step" : undefined}
+            initial={justDone ? { scale: 0.9 } : justCurrent ? { scale: 0.85, opacity: 0.6 } : false}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "tween", duration: HANDOFF.pill, ease: POP, delay: justCurrent ? HANDOFF.land : HANDOFF.begin }}
+          >
+            <motion.span
+              className={styles.glyph}
+              initial={justDone || justCurrent ? { scale: 0, rotate: justDone ? -90 : 0 } : false}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "tween", duration: HANDOFF.pill, ease: POP, delay: (justCurrent ? HANDOFF.land : HANDOFF.begin) + 0.08 }}
+            >
+              <Glyph state={state} />
+            </motion.span>
+            {state === "upcoming" ? (
+              <span className={styles.srOnly}>{labels[s]}</span>
+            ) : (
+              <motion.span
+                className={styles.label}
+                initial={justCurrent ? { width: 0, opacity: 0 } : false}
+                animate={{ width: "auto", opacity: 1 }}
+                transition={{ type: "tween", duration: HANDOFF.label, ease: EASE, delay: HANDOFF.land + 0.1 }}
+              >
+                {labels[s]}
+              </motion.span>
+            )}
+          </motion.li>
         );
       })}
     </ol>

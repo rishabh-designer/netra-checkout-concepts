@@ -19,6 +19,9 @@ export interface SideDrawerProps {
   children: ReactNode;
   /** Pinned under the body (e.g. a price bar or Save button). */
   footer?: ReactNode;
+  /** Panel width in px: 624 (View All Features) or 480 (form drawers, like
+   *  the Quotes page's Edit Details). */
+  width?: number;
 }
 
 /**
@@ -29,7 +32,7 @@ export interface SideDrawerProps {
  * lands on × when it opens. Shared by View All Features and the checkout edit
  * drawers. Usage: <SideDrawer open={o} onClose={c} title="KYC" closeLabel="Close" footer={…}>…</SideDrawer>
  */
-export function SideDrawer({ open, onClose, title, closeLabel, children, footer }: SideDrawerProps) {
+export function SideDrawer({ open, onClose, title, closeLabel, children, footer, width = 624 }: SideDrawerProps) {
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -69,6 +72,7 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer 
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
+            style={{ width }}
             onClick={(e) => e.stopPropagation()}
             initial={{ x: reduced ? 0 : "calc(100% + 32px)" }}
             animate={{ x: 0 }}

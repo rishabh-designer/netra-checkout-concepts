@@ -32,7 +32,13 @@
   background: linear-gradient(to bottom, var(--color-card-sunken), var(--color-card-recessed));
 }
 
+.glyph {
+  display: inline-flex;
+}
+
 .label {
+  display: inline-block;
+  overflow: hidden;
   font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1;

@@ -484,6 +484,11 @@
   vertical-align: middle;
 }
 
+/* Streamed result keeps the panel's own rhythm (children join .result's gap). */
+.streamBody {
+  display: contents;
+}
+
 .resultFooter {
   font-size: var(--font-size-100);
   font-weight: 500;
@@ -539,7 +544,10 @@
   white-space: nowrap;
 }
 
+/* The reply streams over an invisible copy of itself, so the bubble is its
+   final size from the first character (no growth jitter). */
 .engineMessage {
+  display: grid;
   padding: var(--spacing-12);
   background: var(--color-card);
   border-radius: var(--radius-12);
@@ -547,6 +555,14 @@
   font-weight: 500;
   line-height: 1.5;
   color: var(--color-label-basic);
+}
+
+.engineMessage > * {
+  grid-area: 1 / 1;
+}
+
+.engineGhost {
+  visibility: hidden;
 }
 
 /* Body (Figma 503:14912): meter + tasks; the active task takes the leftover height */

@@ -55,6 +55,7 @@ export function CheckoutEditDrawer({ section, title, fields, uploads, uploadCopy
       onClose={onClose}
       title={title}
       closeLabel={labels.close}
+      width={480}
       footer={
         <button type="button" className={styles.save} disabled={!valid} onClick={save}>
           {labels.save}

@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  overflow: hidden;
+  overflow: clip;
   background: var(--color-card);
 }
 
@@ -13,6 +13,9 @@
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 515px;
+  /* One viewport-tall row: neither column can grow the page. */
+  grid-template-rows: minmax(0, 1fr);
+  overflow: clip;
 }
 
 .left {
@@ -83,11 +86,11 @@
   color: var(--color-brand-primary);
 }
 
-/* Instrument Serif italic 64 / 1.2, brand purple. */
+/* Instrument Serif italic 48 / 1.2, brand purple. */
 .title {
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
-  font-size: var(--font-size-display-md);
+  font-size: var(--font-size-display-xs);
   font-style: italic;
   font-weight: 400;
   line-height: 1.2;
@@ -96,18 +99,17 @@
 }
 
 .right {
+  height: 100%;
+  overscroll-behavior: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-24);
   min-height: 0;
   padding: var(--spacing-24) var(--spacing-32);
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-
-.right::-webkit-scrollbar {
-  display: none;
+  /* Fixed panel: never scrolls (clip, not hidden, so neither the wheel, focus
+     nor script can move it); the decorative badge simply crops at the foot. */
+  overflow: clip;
 }
 
 .supportIcon {

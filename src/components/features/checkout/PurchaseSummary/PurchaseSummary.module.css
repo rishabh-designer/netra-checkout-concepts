@@ -7,13 +7,12 @@
   max-width: 449px;
 }
 
-/* Progress row (484:29238): % · 3px track · time left, right-aligned. */
+/* Progress row (484:29238): % · 3px track · time left, centred over the card. */
 .progress {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: var(--spacing-8);
-  margin-right: calc(-1 * var(--spacing-12));
 }
 
 .percent {
@@ -40,10 +39,20 @@
   inset: 0 auto 0 0;
   border-radius: inherit;
   background: var(--color-brand-primary);
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.percent {
+  min-width: 3ch;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeWrap {
+  display: inline-flex;
+  overflow: hidden;
 }
 
 .time {
+  display: inline-block;
   font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1.1;
@@ -271,12 +280,16 @@
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.12s ease;
 }
 
 .cta:hover:not(:disabled) {
   background: var(--color-brand-primary-hover);
   box-shadow: var(--shadow-button-primary-hover);
+}
+
+.cta:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .cta:hover:not(:disabled) .ctaArrow {

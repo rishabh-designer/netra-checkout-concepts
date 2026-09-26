@@ -1,18 +1,23 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import type { CheckoutProgress, CheckoutSummaryContent } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
 import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
 import { formatInr, splitPrice } from "@/lib/checkout";
 import { splitName } from "@/lib/utils";
+import { HANDOFF } from "../handoff";
 import styles from "./PurchaseSummary.module.css";
 
 export interface PurchaseSummaryProps {
   content: CheckoutSummaryContent;
   quote: QuoteCardData;
   progress: CheckoutProgress;
+  /** Where the bar stood on the step just left (null on arrival): the bar
+   *  fills and the percent counts up from there. */
+  from?: CheckoutProgress | null;
   cta: { label: string; enabled: boolean; onClick: () => void };
   /** Review only: the confirmation that unlocks the final CTA (613:69388). */
   consent?: { text: string; checked: boolean; onToggle: () => void };
@@ -26,19 +31,43 @@ export interface PurchaseSummaryProps {
  * card's price.
  * Usage: <PurchaseSummary content={summary} quote={q} progress={p} cta={{…}} />
  */
-export function PurchaseSummary({ content, quote, progress, cta, consent }: PurchaseSummaryProps) {
+export function PurchaseSummary({ content, quote, progress, cta, consent, from = null }: PurchaseSummaryProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
+  const reduced = useReducedMotion();
+  // Count the percent and fill the bar from the previous step's value.
+  const pct = useMotionValue(reduced ? progress.percent : (from?.percent ?? 0));
+  const pctLabel = useTransform(pct, (v) => `${Math.round(v)}%`);
+  const pctWidth = useTransform(pct, (v) => `${v}%`);
+  useEffect(() => {
+    const controls = animate(pct, progress.percent, {
+      type: "tween",
+      duration: reduced ? 0 : HANDOFF.bar,
+      ease: HANDOFF.ease as unknown as [number, number, number, number],
+      delay: reduced ? 0 : HANDOFF.begin,
+    });
+    return () => controls.stop();
+  }, [pct, progress.percent, reduced]);
+  const timeChanged = !reduced && !!from && from.timeLeft !== progress.timeLeft;
   const price = splitPrice(quote.price ?? "", content.gstRate);
   const [line1, line2] = splitName(quote.insurer);
 
   return (
     <div className={styles.column}>
       <div className={styles.progress}>
-        <span className={styles.percent}>{progress.percent}%</span>
+        <motion.span className={styles.percent}>{pctLabel}</motion.span>
         <span className={styles.track} role="progressbar" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}>
-          <span className={styles.fill} style={{ width: `${progress.percent}%` }} />
+          <motion.span className={styles.fill} style={{ width: pctWidth }} />
         </span>
-        <span className={styles.time}>{progress.timeLeft}</span>
+        <span className={styles.timeWrap}>
+          <motion.span
+            className={styles.time}
+            initial={timeChanged ? { y: 10, opacity: 0 } : false}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: "tween", duration: HANDOFF.time, ease: HANDOFF.ease as unknown as [number, number, number, number], delay: HANDOFF.land + 0.3 }}
+          >
+            {progress.timeLeft}
+          </motion.span>
+        </span>
       </div>
 
       <section className={styles.card}>

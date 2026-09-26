@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { CheckoutContent, CheckoutStepId } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
 import { Toast } from "@/components/ui/Toast";
+import { TextCascade } from "@/components/ui/TextCascade";
 import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
 import { useCheckout } from "../useCheckout";
 import { CheckoutStepper } from "../CheckoutStepper";
@@ -15,6 +16,8 @@ import { ReviewStep } from "../ReviewStep";
 import { CheckoutEditDrawer } from "../CheckoutEditDrawer";
 import { PurchaseSummary } from "../PurchaseSummary";
 import { Disclaimer } from "../Disclaimer";
+import { readLastCheckout, writeLastCheckout } from "../lastStep";
+import { HANDOFF } from "../handoff";
 import styles from "./CheckoutView.module.css";
 
 export interface CheckoutViewProps {
@@ -44,9 +47,18 @@ export function CheckoutView({ step, steps, basePath, quotesHref, content, fallb
   const [consent, setConsent] = useState(false);
   const [editing, setEditing] = useState<"company" | "kyc" | null>(null);
   const [toast, setToast] = useState(false);
+  // The step we arrived from, so the bar and stepper animate the hand-off.
+  const [from] = useState(() => readLastCheckout());
 
   const i = steps.indexOf(step);
   const chrome = content.steps[step];
+  // Title cascade: start on the previous step's title, then roll to this one
+  // (first arrival lands the letters in from below).
+  const [shownTitle, setShownTitle] = useState(() => (from ? content.steps[from.step].title : chrome.title));
+  useEffect(() => setShownTitle(chrome.title), [chrome.title]);
+  useEffect(() => {
+    writeLastCheckout({ step, percent: chrome.progress.percent, timeLeft: chrome.progress.timeLeft });
+  }, [step, chrome.progress]);
   const backHref = i === 0 ? quotesHref : `${basePath}/${steps[i - 1]}`;
   const { kyc } = content.steps;
 
@@ -95,9 +107,22 @@ export function CheckoutView({ step, steps, basePath, quotesHref, content, fallb
                   </svg>
                   {chrome.backLabel}
                 </Link>
-                <h1 className={styles.title}>{chrome.title}</h1>
+                <h1 className={styles.title}>
+                <TextCascade
+                  text={shownTitle}
+                  appear={!from}
+                  timing={{
+                    delay: HANDOFF.land,
+                    exitDelay: HANDOFF.begin,
+                    stagger: HANDOFF.letterStagger,
+                    enter: HANDOFF.letterEnter,
+                    exit: HANDOFF.letterExit,
+                    ease: HANDOFF.ease,
+                  }}
+                />
+              </h1>
               </div>
-              <CheckoutStepper steps={steps} current={step} labels={content.stepperLabels} ariaLabel={content.stepperAriaLabel} />
+              <CheckoutStepper steps={steps} current={step} labels={content.stepperLabels} ariaLabel={content.stepperAriaLabel} from={from?.step ?? null} />
             </div>
 
             <FormCard
@@ -132,6 +157,7 @@ export function CheckoutView({ step, steps, basePath, quotesHref, content, fallb
             content={content.summary}
             quote={co.quote}
             progress={chrome.progress}
+          from={from ? { percent: from.percent, timeLeft: from.timeLeft } : null}
             cta={cta}
             consent={step === "review" ? { text: content.steps.review.consentText, checked: consent, onToggle: () => setConsent((c) => !c) } : undefined}
           />
