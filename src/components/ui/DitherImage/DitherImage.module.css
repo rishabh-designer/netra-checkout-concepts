@@ -1,5 +1,5 @@
-/* One dither grain per CSS px, scaled up without smoothing so grains stay crisp. */
+/* Backing store is sized to the screen's pixel ratio in JS, so the canvas
+   maps 1:1 to device pixels: no scaling, no blur, no blocky grain. */
 .canvas {
   display: block;
-  image-rendering: pixelated;
 }

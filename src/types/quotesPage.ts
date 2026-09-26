@@ -69,6 +69,8 @@ export interface QuoteCardData {
   immediate?: boolean;
   /** Shown as a filled price pill instead of "Get Quote" (immediate purchase). */
   price?: string;
+  /** The price before the offer, shown struck through beside `price`. */
+  originalPrice?: string;
   /** 0–100; renders a "X% Match" progress bar when set. */
   matchPercent?: number;
   /** true → "Add to Compare" checkbox; false/undefined → "Comparison Unavailable". */

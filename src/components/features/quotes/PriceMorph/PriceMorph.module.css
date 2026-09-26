@@ -1,0 +1,35 @@
+.morph {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-6);
+}
+
+/* The struck "was" price: small, muted, left of the offer. */
+.was {
+  display: inline-block;
+  overflow: hidden;
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  transform-origin: right center;
+}
+
+.now {
+  position: relative;
+  display: inline-block;
+}
+
+/* The line that strikes through the old price before it rolls. */
+.strike {
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  right: -2px;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: currentColor;
+  transform-origin: left center;
+  pointer-events: none;
+}

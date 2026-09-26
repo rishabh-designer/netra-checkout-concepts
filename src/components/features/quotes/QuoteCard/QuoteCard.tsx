@@ -9,6 +9,7 @@ import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
 import { EyeIcon, type EyeIconHandle } from "@/components/icons/EyeIcon";
 import { splitName } from "@/lib/utils";
+import { PriceMorph, type PriceIntro } from "../PriceMorph";
 import styles from "./QuoteCard.module.css";
 
 /** Figma interface-icon/icons (587:62128) — 12px chevron, success green. */
@@ -59,6 +60,9 @@ export interface QuoteCardProps {
   /** When set, the rating badge pops in after this many seconds (the ripple
    *  that runs down the feed as the Gold Quote is revealed). */
   ratingDelay?: number;
+  /** Offer prices (`originalPrice` set): where the strike → roll story is.
+   *  Defaults to "done" (the offer at rest). */
+  priceIntro?: PriceIntro;
 }
 
 /**
@@ -73,7 +77,7 @@ export interface QuoteCardProps {
  * `data-reveal` hooks let RevealCard choreograph the Gold card's entrance.
  * Usage: <QuoteCard quote={q} labels={…} />
  */
-export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay }: QuoteCardProps) {
+export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay, priceIntro = "done" }: QuoteCardProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<EyeIconHandle>(null);
   const arrowRef = useRef<MoveRightIconHandle>(null);
@@ -183,7 +187,11 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay
                 <span className={styles.sumValue}>{quote.sumInsured}</span>
               </div>
               <button type="button" className={filled ? styles.buttonFilled : styles.buttonOutline} onClick={onSelect} data-reveal="item">
-                {quote.price ?? labels.getQuote}
+                {quote.price && quote.originalPrice ? (
+                  <PriceMorph from={quote.originalPrice} to={quote.price} intro={priceIntro} />
+                ) : (
+                  (quote.price ?? labels.getQuote)
+                )}
                 <MoveRightIcon ref={arrowRef} size={12} loop className={styles.arrow} />
               </button>
             </div>

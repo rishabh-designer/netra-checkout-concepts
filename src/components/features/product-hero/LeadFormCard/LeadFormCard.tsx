@@ -16,6 +16,7 @@ import {
   QuoteModal,
   type QuoteCaseId,
 } from "@/components/features/quote-modal/QuoteModal";
+import { emitHeroPulse } from "@/lib/heroPulse";
 import styles from "./LeadFormCard.module.css";
 
 export interface LeadFormCardProps {
@@ -67,6 +68,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
   };
 
   const handleSubmit = () => {
+    emitHeroPulse("submit");
     if (!companyName.trim()) {
       setToastOpen(false);
       // re-arm so a repeat click re-triggers the toast animation
@@ -120,7 +122,10 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
           placeholder={content.inputPlaceholder}
           name="legal-company-name"
           value={companyName}
-          onChange={setCompanyName}
+          onChange={(v) => {
+            setCompanyName(v);
+            emitHeroPulse("typing");
+          }}
           status={companyName.trim().length >= 4 ? "success" : "empty"}
           clearable
           onClear={() => setDemoIndex(-1)}

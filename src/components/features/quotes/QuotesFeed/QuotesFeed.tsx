@@ -12,6 +12,8 @@ import { FeedControls } from "../FeedControls";
 import { FeaturesDrawer, type QuoteTone } from "../FeaturesDrawer";
 import { QuoteCard } from "../QuoteCard";
 import { RevealCard } from "../RevealCard";
+import { GoldEntrance, hasGoldEntrancePlayed } from "../GoldEntrance";
+import type { PriceIntro } from "../PriceMorph";
 import styles from "./QuotesFeed.module.css";
 
 export interface QuotesFeedProps {
@@ -77,18 +79,21 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   const [featuresOpen, setFeaturesOpen] = useState(false);
   const closeFeatures = useCallback(() => setFeaturesOpen(false), []);
 
-  // Immediate-purchase and priced quotes open checkout (the "additional
-  // questions" drawer never applies in our flows). Gold / Get Quote stay put.
+  // Any priced quote opens checkout (the "additional questions" drawer never
+  // applies in our flows), including Case A's priced Gold. Get Quote stays put.
   const router = useRouter();
   const { setSelectedQuote, setCheckout } = useQuoteFlow();
   const checkoutFor = (q: QuoteCardData) =>
-    q.price && !q.gold
+    q.price
       ? () => {
           setSelectedQuote(q);
           setCheckout({});
           router.push(content.checkoutHref);
         }
       : undefined;
+  // Case A: the Gold Quote enters on its own beat, then its price morphs.
+  const [goldIntro, setGoldIntro] = useState<PriceIntro>(() => (hasGoldEntrancePlayed() ? "done" : "idle"));
+  const landGold = useCallback(() => setGoldIntro((p) => (p === "idle" ? "play" : p)), []);
   const [countBefore, countAfter = ""] = content.availableLabel.split("{count}");
   // For Case B the Gold card lives in the reveal slot; the rest follow it.
   const goldCard: QuoteCardData = { ...content.goldQuote, rating: "excellent", ...(sumInsured ? { sumInsured } : {}) };
@@ -163,12 +168,8 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                 </RevealCard>
               </motion.div>
             )}
-            {rest.map((quote, i) => (
-              <motion.div
-                key={`${quote.insurer}-${i}`}
-                className={styles.cell}
-                {...reveal(i + (ghostFirst ? 1 : 0))}
-              >
+            {rest.map((quote, i) => {
+              const card = (
                 <QuoteCard
                   quote={quote}
                   labels={labels}
@@ -178,9 +179,23 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                   }}
                   onSelect={checkoutFor(quote)}
                   ratingDelay={ripple ? 0.35 + i * 0.07 : undefined}
+                  priceIntro={quote.gold ? goldIntro : undefined}
                 />
-              </motion.div>
-            ))}
+              );
+              // Case A's Gold: its own delayed entrance instead of the stagger.
+              if (quote.gold && caseId === "A") {
+                return (
+                  <div key={`${quote.insurer}-${i}`} className={styles.cell}>
+                    <GoldEntrance onLanded={landGold}>{card}</GoldEntrance>
+                  </div>
+                );
+              }
+              return (
+                <motion.div key={`${quote.insurer}-${i}`} className={styles.cell} {...reveal(i + (ghostFirst ? 1 : 0))}>
+                  {card}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </div>

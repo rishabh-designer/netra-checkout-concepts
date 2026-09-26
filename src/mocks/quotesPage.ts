@@ -26,6 +26,9 @@ const GOLD_QUOTE: QuoteCardData = {
   coverages: [DEFENCE, EPL, REGULATORY, ASSETS],
 };
 
+/* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹6,500. */
+const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, price: "₹6,500", originalPrice: "₹10,000" };
+
 /* Case C premiums at its lower ₹5 Cr Sum Insured. */
 const CASE_C_PRICES: Record<string, string> = {
   "Generali Central Insurance": "₹6,000",
@@ -181,7 +184,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     sortOptions: ["Match", "Premium: Low to High", "Sum Insured: High to Low"],
     switchLabel: "Immediate Purchase Only",
     quotes: QUOTES,
-    quotesByCase: { A: [GOLD_QUOTE, ...MATCHED_QUOTES], B: MATCHED_QUOTES },
+    quotesByCase: { A: [CASE_A_GOLD, ...MATCHED_QUOTES], B: MATCHED_QUOTES },
     viewFeaturesLabel: "View All Features",
     featuresDrawer: FEATURES_DRAWER,
     compareLabel: "Add To Compare",

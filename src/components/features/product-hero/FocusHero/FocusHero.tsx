@@ -6,12 +6,12 @@ import type { QuotesPreview } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
 import { IkkatMark } from "@/components/ui/IkkatMark";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
-import { DitherImage } from "@/components/ui/DitherImage";
 import { InsurerLogoShowcase } from "@/components/ui/InsurerLogoShowcase";
 import { EyeIcon } from "@/components/icons/EyeIcon";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import { LeadFormCard } from "../LeadFormCard";
 import { CoverageTicker } from "../CoverageTicker";
+import { PlpMark } from "../PlpMark";
 import styles from "./FocusHero.module.css";
 
 export interface FocusHeroProps {
@@ -22,10 +22,10 @@ export interface FocusHeroProps {
 
 /**
  * FocusHero — the "Focus" landing concept (toggled from Login). One centred
- * column so the eye has a single path: pills around the dithered product icon
+ * column so the eye has a single path: pills around the shimmering product mark
  * on the PLP name rule → offer-led headline → what's covered → ikkat rule →
- * the form (the page's one destination) → proof beside the CTA → ikkat rule +
- * insurer logos pinned to the foot. No hero image competing with the form.
+ * the form (the page's one destination) → proof beside the CTA → insurer
+ * logos pinned to the foot. No hero image competing with the form.
  * Usage: <FocusHero content={content} focus={content.focusHero} />
  */
 export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
@@ -38,9 +38,7 @@ export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
           {content.tags.map((tag, i) => (
             <Fragment key={tag.label}>
               {i === 1 && (
-                <span className={styles.plpIcon}>
-                  <DitherImage src={focus.plpIconSrc} width={102} height={102} className={styles.plpIconArt} />
-                </span>
+                <PlpMark src={focus.plpIconSrc} label={focus.markLabel} modes={focus.markModes} toastTitle={focus.markToastTitle} />
               )}
               <TagPill
                 label={tag.label}
@@ -97,7 +95,6 @@ export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
 
       {/* Bottom stack (Figma 626:16095), pinned to the column's foot. */}
       <div className={styles.bottom}>
-        <IkkatDivider unit={21.8} className={styles.divider} />
         <div className={styles.providers}>
           <p className={styles.providersHeading}>{content.leadForm.providersHeading}</p>
           <InsurerLogoShowcase slots={content.leadForm.providerShowcase} />

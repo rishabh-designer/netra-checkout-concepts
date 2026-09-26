@@ -409,6 +409,14 @@ export const mockProductPageContent: ProductPageContent = {
   focusHero: {
     eyebrow: "Director’s & Officer’s Insurance",
     plpIconSrc: "/media/plp-icon.svg",
+    markLabel: "Switch icon animation",
+    markModes: [
+      { id: "sunrise", name: "Sunrise", description: "The icon rises over the rule and lights up." },
+      { id: "strokes", name: "Strokes", description: "Light glides along the icon's lines." },
+      { id: "tilt", name: "Tilt", description: "The shine follows your cursor." },
+      { id: "spill", name: "Spill", description: "The glow spills onto the rule below." },
+    ],
+    markToastTitle: "Switched to {name}",
     headlineCover: "₹25 Lakh Cover",
     headlinePrice: "Starting At ₹3,000/Year",
     coveredIconSrc: "/media/coverage-check.svg",

@@ -96,9 +96,14 @@ export function PurchaseSummary({ content, quote, progress, cta, consent, from =
         </div>
 
         <div className={styles.insurer}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={quote.logoSrc} alt="" aria-hidden className={styles.logo} />
-          <span className={styles.vr} aria-hidden />
+          {/* The Gold Quote has no insurer logo yet: show just the name. */}
+          {quote.logoSrc && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={quote.logoSrc} alt="" aria-hidden className={styles.logo} />
+              <span className={styles.vr} aria-hidden />
+            </>
+          )}
           <p className={styles.insurerName}>
             <span>{line1}</span>
             <span>{line2}</span>
