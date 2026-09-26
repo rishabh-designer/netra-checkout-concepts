@@ -376,15 +376,6 @@
   gap: var(--spacing-16);
 }
 
-/* generative-loaders sets `.tl-loader { font-family: var(--tl-font) }`, whose
-   default is a ui-sans-serif system stack — so every TextLoader (fetched
-   company details, the redact footer) rendered off-brand. Pin them to Anek per
-   the two-typeface rule. Scoped under .modal so it outranks the library's
-   :root default regardless of the styles.css import order. */
-.modal :global(.tl-loader) {
-  font-family: var(--font-body);
-}
-
 .searchBar {
   display: flex;
   align-items: center;
@@ -520,13 +511,6 @@
 /* Streamed result keeps the panel's own rhythm (children join .result's gap). */
 .streamBody {
   display: contents;
-}
-
-.resultFooter {
-  font-size: var(--font-size-100);
-  font-weight: 500;
-  line-height: 1.6;
-  color: var(--color-label-tertiary);
 }
 
 .emptyState {
@@ -805,11 +789,6 @@
 
 .resultCompact .cinSentence,
 .resultCompact .detailItem,
-.resultCompact .resultFooter {
-  font-size: var(--font-size-75);
-  line-height: 1.5;
-}
-
 .resultCompact .detailsHeading {
   font-size: var(--font-size-100);
 }

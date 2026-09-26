@@ -3,7 +3,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { useStream } from "@/lib/useStream";
-import "generative-loaders/styles.css";
 import { cn, formatPhone } from "@/lib/utils";
 import { IkkatMark } from "@/components/ui/IkkatMark";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";

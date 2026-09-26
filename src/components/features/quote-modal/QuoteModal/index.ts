@@ -1,2 +1,2 @@
-export { QuoteModal } from "./QuoteModal";
+export { LazyQuoteModal as QuoteModal, preloadQuoteModal } from "./LazyQuoteModal";
 export type { QuoteModalProps, QuoteCaseId } from "./QuoteModal";

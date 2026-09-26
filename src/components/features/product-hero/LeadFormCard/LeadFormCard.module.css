@@ -121,7 +121,7 @@
 /* A raised white card so the form reads as the page's single destination. */
 .cardFocus {
   background: var(--color-card);
-  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border: var(--border-hairline) solid var(--color-card);
   box-shadow: var(--shadow-raised-wide);
 }
 

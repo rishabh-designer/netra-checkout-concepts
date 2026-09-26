@@ -105,8 +105,7 @@
 }
 
 .value,
-.input,
-.select {
+.input {
   flex: 1;
   min-width: 0;
   /* 16px value (Figma 503:14272); the hero field opts up to 18px via size="lg" */
@@ -118,25 +117,17 @@
   text-overflow: ellipsis;
 }
 
-.input,
-.select {
+.input {
   border: 0;
   background: none;
   outline: none;
   cursor: text;
 }
 
-.select {
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
 /* placeholder / empty-value = A9ACB1 @ 48% */
 .field[data-size="lg"] .prefix,
 .field[data-size="lg"] .value,
-.field[data-size="lg"] .input,
-.field[data-size="lg"] .select {
+.field[data-size="lg"] .input {
   font-size: var(--font-size-300);
 }
 
@@ -198,8 +189,7 @@
   font-weight: 400;
 }
 
-.input[data-empty],
-.select[data-empty] {
+.input[data-empty] {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
   font-weight: 400;
 }

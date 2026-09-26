@@ -59,7 +59,6 @@ export function InsurerLogoShowcase({
             style={{ width: `${slotWidth}px` }}
           >
             {logos.map((logo, l) => (
-              // eslint-disable-next-line @next/next/no-img-element
               <motion.img
                 key={logo.src}
                 src={logo.src}

@@ -10,7 +10,7 @@ import {
   useReducedMotion,
 } from "motion/react";
 import {
-  forwardRef,
+  type Ref,
   useCallback,
   useImperativeHandle,
   useRef,
@@ -37,112 +37,104 @@ interface ChevronRightIconProps extends Omit<
   color?: string;
 }
 
-const ChevronRightIcon = forwardRef<
-  ChevronRightIconHandle,
-  ChevronRightIconProps
->(
-  (
-    {
-      onMouseEnter,
-      onMouseLeave,
-      className,
-      size = 24,
-      duration = 1,
-      isAnimated = true,
-      color,
-      ...props
+function ChevronRightIcon({
+  ref,
+  onMouseEnter,
+  onMouseLeave,
+  className,
+  size = 24,
+  duration = 1,
+  isAnimated = true,
+  color,
+  ...props
+}: ChevronRightIconProps & { ref?: Ref<ChevronRightIconHandle> }) {
+  const controls = useAnimation();
+  const reduced = useReducedMotion();
+  const isControlled = useRef(false);
+
+  useImperativeHandle(ref, () => {
+    isControlled.current = true;
+    return {
+      startAnimation: () =>
+        reduced ? controls.start("normal") : controls.start("animate"),
+      stopAnimation: () => controls.start("normal"),
+    };
+  });
+
+  const handleEnter = useCallback(
+    (e?: React.MouseEvent<HTMLDivElement>) => {
+      if (!isAnimated || reduced) return;
+      if (!isControlled.current) controls.start("animate");
+      else onMouseEnter?.(e as React.MouseEvent<HTMLDivElement>);
     },
-    ref,
-  ) => {
-    const controls = useAnimation();
-    const reduced = useReducedMotion();
-    const isControlled = useRef(false);
+    [controls, reduced, isAnimated, onMouseEnter],
+  );
 
-    useImperativeHandle(ref, () => {
-      isControlled.current = true;
-      return {
-        startAnimation: () =>
-          reduced ? controls.start("normal") : controls.start("animate"),
-        stopAnimation: () => controls.start("normal"),
-      };
-    });
+  const handleLeave = useCallback(
+    (e?: React.MouseEvent<HTMLDivElement>) => {
+      if (!isControlled.current) controls.start("normal");
+      else onMouseLeave?.(e as React.MouseEvent<HTMLDivElement>);
+    },
+    [controls, onMouseLeave],
+  );
 
-    const handleEnter = useCallback(
-      (e?: React.MouseEvent<HTMLDivElement>) => {
-        if (!isAnimated || reduced) return;
-        if (!isControlled.current) controls.start("animate");
-        else onMouseEnter?.(e as any);
+  const arrowVariants: Variants = {
+    normal: { x: 0, opacity: 1 },
+    animate: {
+      x: [0, -1.5, 4, 0],
+      transition: {
+        duration: 1 * duration,
+        ease: "easeInOut",
+        times: [0, 0.2, 0.55, 1],
       },
-      [controls, reduced, isAnimated, onMouseEnter],
-    );
+    },
+  };
 
-    const handleLeave = useCallback(
-      (e?: React.MouseEvent<HTMLDivElement>) => {
-        if (!isControlled.current) controls.start("normal");
-        else onMouseLeave?.(e as any);
+  const trailVariants: Variants = {
+    normal: { x: 0, opacity: 0 },
+    animate: {
+      x: [0, 9],
+      opacity: [0, 0.45, 0],
+      transition: {
+        duration: 1 * duration,
+        ease: "easeOut",
+        delay: 0.08 * duration,
       },
-      [controls, onMouseLeave],
-    );
+    },
+  };
 
-    const arrowVariants: Variants = {
-      normal: { x: 0, opacity: 1 },
-      animate: {
-        x: [0, -1.5, 4, 0],
-        transition: {
-          duration: 1 * duration,
-          ease: "easeInOut",
-          times: [0, 0.2, 0.55, 1],
-        },
-      },
-    };
-
-    const trailVariants: Variants = {
-      normal: { x: 0, opacity: 0 },
-      animate: {
-        x: [0, 9],
-        opacity: [0, 0.45, 0],
-        transition: {
-          duration: 1 * duration,
-          ease: "easeOut",
-          delay: 0.08 * duration,
-        },
-      },
-    };
-
-    return (
-      <LazyMotion features={domMin} strict>
-        <m.div
-          className={cn("inline-flex items-center justify-center", className)}
-          onMouseEnter={handleEnter}
-          onMouseLeave={handleLeave}
-          {...props}
-          style={{ color, ...props.style }}
+  return (
+    <LazyMotion features={domMin} strict>
+      <m.div
+        className={cn("inline-flex items-center justify-center", className)}
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
+        {...props}
+        style={{ color, ...props.style }}
+      >
+        <m.svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          animate={controls}
+          initial="normal"
         >
-          <m.svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={size}
-            height={size}
-            viewBox="0 0 24 24"
-            fill="none"
+          <m.path
+            d="m9 18 6-6-6-6"
+            variants={trailVariants}
             stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            animate={controls}
-            initial="normal"
-          >
-            <m.path
-              d="m9 18 6-6-6-6"
-              variants={trailVariants}
-              stroke="currentColor"
-            />
-            <m.path d="m9 18 6-6-6-6" variants={arrowVariants} />
-          </m.svg>
-        </m.div>
-      </LazyMotion>
-    );
-  },
-);
+          />
+          <m.path d="m9 18 6-6-6-6" variants={arrowVariants} />
+        </m.svg>
+      </m.div>
+    </LazyMotion>
+  );
+}
 
-ChevronRightIcon.displayName = "ChevronRightIcon";
 export { ChevronRightIcon };

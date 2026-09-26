@@ -14,6 +14,7 @@ import { CtaButton } from "@/components/ui/CtaButton";
 import { Toast } from "@/components/ui/Toast";
 import {
   QuoteModal,
+  preloadQuoteModal,
   type QuoteCaseId,
 } from "@/components/features/quote-modal/QuoteModal";
 import { emitHeroPulse } from "@/lib/heroPulse";
@@ -122,6 +123,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
           placeholder={content.inputPlaceholder}
           name="legal-company-name"
           value={companyName}
+          onFocus={preloadQuoteModal}
           onChange={(v) => {
             setCompanyName(v);
             emitHeroPulse("typing");
