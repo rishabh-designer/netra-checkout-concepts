@@ -19,6 +19,8 @@ export interface PlpMarkProps {
 const SIZE = 102; // the icon; the 100×50 window shows its top half
 const RISE_IGNITE_MS = 560; // when the rising icon clears the rule
 const BURST_MS = 380;
+// Sunrise re-ignites on a loose loop: every 3.5–5.5s, never a fixed beat.
+const GLOW_EVERY_MS = [3500, 5500] as const;
 const TYPING_ENERGY = 0.6;
 const TYPING_HOLD_MS = 1200;
 const TILT_RADIUS = 600; // px from the icon at which the tilt maxes out
@@ -26,7 +28,8 @@ const TILT_RADIUS = 600; // px from the icon at which the tilt maxes out
 /**
  * PlpMark — the Focus hero's product mark sitting on the PLP name rule. Four
  * micro-animations, cycled by clicking the icon (a toast names each):
- * Sunrise (rises from behind the rule and ignites), Strokes (light rides the
+ * Sunrise (rises from behind the rule, ignites, then keeps re-igniting on a
+ * loose 3.5–5.5s loop), Strokes (light rides the
  * artwork's lines), Tilt (the sheen springs toward the cursor), Spill (the
  * glow falls onto the rule). In every mode typing the company name warms it
  * and Get My Quote fires a sparkle burst (via heroPulse).
@@ -69,6 +72,22 @@ export function PlpMark({ src, label, modes, toastTitle }: PlpMarkProps) {
       window.clearTimeout(id);
     };
   }, [riseKey, reduced, burst]);
+
+  // Sunrise keeps shimmering: after the ignition, the burst recurs on a loose
+  // loop for as long as the mode is showing.
+  useEffect(() => {
+    if (mode !== "sunrise" || reduced) return;
+    let id = 0;
+    const [min, max] = GLOW_EVERY_MS;
+    const schedule = (wait: number) => {
+      id = window.setTimeout(() => {
+        if (!document.hidden) burst();
+        schedule(min + Math.random() * (max - min));
+      }, wait);
+    };
+    schedule(RISE_IGNITE_MS + min);
+    return () => window.clearTimeout(id);
+  }, [mode, riseKey, reduced, burst]);
 
   // Form reactions: typing warms the glow; submit bursts.
   useEffect(() => {

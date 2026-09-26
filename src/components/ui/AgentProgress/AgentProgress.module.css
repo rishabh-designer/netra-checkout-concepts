@@ -1,0 +1,32 @@
+.progress {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--font-size-100);
+  color: var(--color-label-secondary);
+  white-space: nowrap;
+}
+
+/* 3×3 activity grid, coloured by the text colour. */
+.glyph {
+  display: grid;
+  flex-shrink: 0;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5px;
+  width: 13px;
+  height: 13px;
+}
+
+.cell {
+  border-radius: 1px;
+  background: var(--color-brand-primary);
+}
+
+.label {
+  font-weight: 500;
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-label-tertiary);
+}

@@ -2,7 +2,6 @@
 
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
-import { TextLoader } from "generative-loaders";
 import { useStream } from "@/lib/useStream";
 import "generative-loaders/styles.css";
 import { cn, formatPhone } from "@/lib/utils";
@@ -10,9 +9,9 @@ import { IkkatMark } from "@/components/ui/IkkatMark";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { RingSweep } from "@/components/ui/RingSweep";
 import { AITextLoading } from "@/components/ui/AITextLoading";
-import { BorderGlow } from "@/components/ui/BorderGlow";
 import { InteractiveInput, type FieldStatus } from "@/components/ui/InteractiveInput";
 import { SegmentedField } from "@/components/ui/SegmentedField";
+import { AgentProgress } from "@/components/ui/AgentProgress";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { FilledCheck, ChevronDown, SearchIcon } from "@/components/ui/InteractiveInput/icons";
 import type {
@@ -24,7 +23,18 @@ import type {
   QuotePersonalize,
   QuoteSearchPanel,
 } from "@/types/productPage";
+import { useResearchTimeline, type ResearchView } from "../useResearchTimeline";
+import { ResearchSources } from "../ResearchSources";
 import styles from "./QuoteModal.module.css";
+
+/** Research timeline per probed step (one clock, useResearchTimeline): the
+ *  query types in, Agent Progress + the sources scan for PROBE_MS, the
+ *  findings type out over TYPE_OUT_MS, then the evidence wave resolves each
+ *  field (≈3.5s in), the meter climbs with it and the verdict lands. */
+const PROBE_MS = 1500;
+const TYPE_OUT_MS = 2000;
+const QUERY_TYPE_MS = 400;
+const FIELD_WAVE_MS = 110;
 
 export type QuoteCaseId = "A" | "B" | "C";
 
@@ -93,7 +103,7 @@ export function QuoteModal({
   content,
   caseId,
   companyName,
-  fetchDelay = 2000,
+  fetchDelay = PROBE_MS,
   formOnly = false,
   initialValues,
   onComplete,
@@ -106,7 +116,6 @@ export function QuoteModal({
   const qc = step.cases[caseId];
   const lastStep = content.steps.length - 1;
 
-  const [fetched, setFetched] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
   const [consent, setConsent] = useState(false);
   /** Steps whose probe has already resolved — revisiting skips the skeleton. */
@@ -136,18 +145,18 @@ export function QuoteModal({
       return next;
     });
     setConsent(false);
-    // Form-only (edit) and Profile (collect mode) show fields at once — no probe.
-    if (formOnly || reduced || step.collectMode || probedRef.current.has(stepIndex)) {
-      setFetched(true);
-      return;
-    }
-    setFetched(false);
-    const id = window.setTimeout(() => {
-      probedRef.current.add(stepIndex);
-      setFetched(true);
-    }, fetchDelay);
-    return () => window.clearTimeout(id);
-  }, [open, stepIndex, caseId, companyName, reduced, fetchDelay, qc.fields, step.collectMode, formOnly, initialValues]);
+  }, [open, stepIndex, caseId, companyName, qc.fields, initialValues]);
+
+  // One clock for the step's research. Form-only (edit), Profile (collect
+  // mode), reduced motion and revisited steps start at rest.
+  const researchKeys = useMemo(() => qc.fields.map((f) => f.key).filter((k) => k !== "name"), [qc.fields]);
+  const instant = formOnly || !!reduced || !!step.collectMode || probedRef.current.has(stepIndex);
+  const runKey = `${stepIndex}:${caseId}`;
+  const tl = useResearchTimeline({ runKey, active: open, instant, fieldKeys: researchKeys, probeMs: fetchDelay });
+  const ready = tl.done;
+  useEffect(() => {
+    if (tl.done && !step.collectMode) probedRef.current.add(stepIndex);
+  }, [tl.done, stepIndex, step.collectMode]);
 
   useEffect(() => {
     if (!open) return;
@@ -162,13 +171,13 @@ export function QuoteModal({
     fields.filter((f) => f.mandatory).every((f) => (values[f.key] ?? "").trim() !== "");
 
   const canSubmit = useMemo(() => {
-    if (!fetched) return false;
+    if (!ready) return false;
     // Every step gates on its mandatory fields; consent steps (case B) also
     // need the attestation ticked.
     if (!allMandatoryFilled(qc.fields)) return false;
     return qc.requiresConsent ? consent : true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetched, consent, values, qc.fields, qc.requiresConsent]);
+  }, [ready, consent, values, qc.fields, qc.requiresConsent]);
 
   /** The distinct mandatory field keys across the whole flow — the meter's
    *  numerator pool. Depends only on the resolved case, not on typed values, so
@@ -186,9 +195,37 @@ export function QuoteModal({
   /** Live progress meter: share of those questions answered so far. Unvisited
    *  steps' keys aren't seeded yet, so the % climbs as the flow advances. */
   const percent = useMemo(() => {
-    const answered = mandatoryKeys.filter((k) => (values[k] ?? "").trim() !== "").length;
+    // This step's researched answers only count once they've resolved, so the
+    // meter climbs in steps as the evidence lands rather than jumping on entry.
+    const pending = new Set(researchKeys.filter((k) => !tl.resolved.has(k)));
+    const answered = mandatoryKeys.filter((k) => !pending.has(k) && (values[k] ?? "").trim() !== "").length;
     return Math.min(100, Math.round((answered / content.totalFlowQuestions) * 100));
-  }, [mandatoryKeys, content.totalFlowQuestions, values]);
+  }, [mandatoryKeys, content.totalFlowQuestions, values, researchKeys, tl.resolved]);
+
+  // The closing readout: sources that returned something, fields filled.
+  const verdict = step.collectMode
+    ? null
+    : qc.search.verdict
+        .replace("{sources}", String(qc.search.sources.filter((src) => src.result !== "miss").length))
+        .replace("{fields}", String(researchKeys.filter((k) => (values[k] ?? "").trim() !== "").length));
+  const research: ResearchView = {
+    fetched: tl.fetched,
+    instant,
+    done: tl.done,
+    onStreamDone: tl.onStreamDone,
+    progressLabel: content.engine.progressLabel,
+    verdict,
+  };
+  // Evidence wave: once the findings finish typing, the fields resolve one
+  // after another in form order (the meter climbs with each).
+  const { evidence, resolve } = tl;
+  useEffect(() => {
+    if (!evidence || instant) return;
+    const ids = researchKeys.map((key, i) => window.setTimeout(() => resolve(key), i * FIELD_WAVE_MS));
+    return () => ids.forEach((id) => window.clearTimeout(id));
+    // One wave per step.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [evidence, instant, runKey]);
 
   const profileComplete = allMandatoryFilled(content.steps[0].cases[caseId].fields);
 
@@ -324,7 +361,7 @@ export function QuoteModal({
                       {field.key === "coverage" && qc.personalize && (
                         <>
                           <IkkatDivider className={styles.fieldsDivider} />
-                          <PersonalizeBadge personalize={qc.personalize} fetched={fetched} />
+                          <PersonalizeBadge personalize={qc.personalize} fetched={ready} />
                         </>
                       )}
                       <Field
@@ -332,7 +369,7 @@ export function QuoteModal({
                         caseId={caseId}
                         collectMode={!!step.collectMode}
                         consent={consent}
-                        fetched={fetched}
+                        fetched={field.key === "name" || tl.resolved.has(field.key)}
                         value={values[field.key] ?? ""}
                         onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
                       />
@@ -356,7 +393,7 @@ export function QuoteModal({
                       className={styles.consentBox}
                       checked={consent}
                       onChange={(e) => setConsent(e.target.checked)}
-                      disabled={!fetched}
+                      disabled={!ready}
                     />
                     <span>{qc.consentText}</span>
                   </label>
@@ -373,17 +410,10 @@ export function QuoteModal({
               </div>
             </div>
 
-            {/* Left visual — the persistent "Intelligence Engine" task-runner,
-                lit by a pointer-tracking edge glow (panel stays light). Hidden in
-                form-only (Edit Details) mode. */}
+            {/* Left visual — the persistent "Intelligence Engine" task-runner.
+                Hidden in form-only (Edit Details) mode. */}
             {!formOnly && (
-              <BorderGlow
-                className={styles.rightGlow}
-                borderRadius={0}
-                edgeSensitivity={30}
-                glowRadius={40}
-                glowIntensity={1}
-              >
+              <div className={styles.rightGlow}>
                 <div className={styles.right}>
                   <div className={styles.rightScroll}>
                     <IntelligenceEngine
@@ -392,7 +422,7 @@ export function QuoteModal({
                       companyName={companyName}
                       percent={percent}
                       profileComplete={profileComplete}
-                      fetched={fetched}
+                      research={research}
                       search={qc.search}
                       activeTab={step.activeTab}
                       reduced={!!reduced}
@@ -400,7 +430,7 @@ export function QuoteModal({
                   </div>
                   <PanelStepper steps={content.stepperLabels} active={stepIndex} />
                 </div>
-              </BorderGlow>
+              </div>
             )}
           </motion.div>
         </motion.div>
@@ -450,6 +480,7 @@ function Field({
   caseId: QuoteCaseId;
   collectMode: boolean;
   consent: boolean;
+  /** The engine's research has resolved this field (the evidence wave). */
   fetched: boolean;
   value: string;
   onChange: (value: string) => void;
@@ -473,6 +504,7 @@ function Field({
   // Binary Yes/No → the DSL SegmentedField (Insurance questions).
   if (field.control === "toggle") {
     return (
+      <div data-field={field.key}>
       <SegmentedField
         label={field.label || undefined}
         showLabel={!!field.label}
@@ -485,6 +517,7 @@ function Field({
         helpTone={field.helpTone}
         showHelp
       />
+      </div>
     );
   }
 
@@ -504,6 +537,7 @@ function Field({
   const shown = isPhone ? formatPhone(value) : value;
 
   return (
+    <div data-field={field.key}>
     <InteractiveInput
       label={field.label}
       mandatory={field.mandatory}
@@ -522,6 +556,7 @@ function Field({
       infoTooltip={field.infoTooltip}
       showHelp
     />
+    </div>
   );
 }
 
@@ -570,7 +605,7 @@ function SearchResult({
   activeTab,
   companyName,
   reduced,
-  fetched,
+  research,
   compact = false,
 }: {
   search: QuoteSearchPanel;
@@ -578,37 +613,55 @@ function SearchResult({
   activeTab: string;
   companyName: string;
   reduced: boolean;
-  /** false = the engine is still probing → result text shows as skeletons. */
-  fetched: boolean;
+  /** The step's research timeline (probe → findings → evidence → verdict). */
+  research: ResearchView;
   /** true = the smaller variant embedded inside an active engine task. */
   compact?: boolean;
 }) {
+  const { fetched, onStreamDone, progressLabel, verdict, done } = research;
+  // At rest if we arrived here already researched (revisit / reduced motion).
+  const [settled] = useState(research.instant || research.fetched);
   const body = search.body;
   const query = companyName || search.query;
   const [before, highlight, after] = body?.cinSentence
     ? splitHighlight(body.cinSentence, body.cinHighlight ?? "")
     : ["", "", ""];
   // Streaming Response (beui.dev): once the probe returns, the result streams
-  // in reading order — sentence (with its highlight), heading, each detail,
-  // footer — each element mounting only when the cursor reaches it.
+  // in reading order — sentence (with its highlight), heading, each detail —
+  // each element mounting only when the cursor reaches it.
   const details = body?.details ?? [];
-  const stream = useStream(
-    [before ?? "", highlight ?? "", after ?? "", body?.detailsHeading ?? "", ...details, body?.footer ?? "", body ? "" : search.emptyNote ?? ""],
-    fetched || !body,
-  );
+  const pieces = [before ?? "", highlight ?? "", after ?? "", body?.detailsHeading ?? "", ...details, body ? "" : search.emptyNote ?? ""];
+  // Paced so the whole finding types out in TYPE_OUT_MS, whatever its length.
+  const chars = pieces.reduce((n, p) => n + p.length, 0);
+  const stream = useStream(pieces, fetched, settled ? 1e6 : Math.max(40, (chars * 1000) / TYPE_OUT_MS));
+  // The query types into the search bar first, as if the engine is asking.
+  const typedQuery = useStream([query], !settled, Math.max(20, (query.length * 1000) / QUERY_TYPE_MS));
+  useEffect(() => {
+    if (fetched && stream.done) onStreamDone?.();
+  }, [fetched, stream.done, onStreamDone]);
+  // Chat-feed behaviour: the panel follows the newest content as findings
+  // type in and when the verdict lands.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const revealed = pieces.reduce((n, _, i) => n + stream.reveal(i).length, 0);
+  const verdictShown = !!verdict && done;
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || settled) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: verdictShown ? "smooth" : "auto" });
+  }, [revealed, verdictShown, settled]);
   const D0 = 4; // index of the first detail piece
-  const FOOT = D0 + details.length;
-  const EMPTY = FOOT + 1;
+  const EMPTY = D0 + details.length;
 
   return (
     <motion.div
+      ref={scrollRef}
       className={cn(styles.result, compact && styles.resultCompact)}
       variants={container}
       initial={reduced ? "visible" : "hidden"}
       animate="visible"
     >
       <motion.div variants={item} className={styles.searchBar}>
-        <span className={styles.searchQuery}>{query}</span>
+        <span className={styles.searchQuery}>{settled ? query : typedQuery.reveal(0)}</span>
         <div className={styles.searchIcons}>
           <SearchIcon />
         </div>
@@ -622,24 +675,33 @@ function SearchResult({
         ))}
       </motion.div>
 
+      {/* The scan: Agent Progress (beui Agent Loading States, left-aligned
+          where the text starts) with the sources lighting up in turn. Agent
+          Progress then lifts away (fade + crop up); the sources stay as a
+          record of what was checked. */}
+      <div className={styles.research}>
+        <AnimatePresence initial={false}>
+          {!fetched && (
+            <motion.div
+              key="progress"
+              className={styles.progressRow}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto", y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -8 }}
+              transition={{ duration: reduced ? 0 : 0.3, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <AgentProgress label={progressLabel} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        {search.sources.length > 0 && <ResearchSources sources={search.sources} scanning={!fetched} settled={settled} />}
+      </div>
+
       {body ? (
         <>
-          {/* The engine "results" load as skeletons, then redact-reveal (the
-              detail lines / footer) or blur-in (the highlighted CIN + heading). */}
-          {!fetched ? (
-            <>
-              {body.cinSentence && <TextLoader text={body.cinSentence} variant="skeleton" className={styles.cinSentence} />}
-              <TextLoader text={body.detailsHeading} variant="skeleton" className={styles.detailsHeading} />
-              <ul className={styles.detailsList}>
-                {body.details.map((detail) => (
-                  <li key={detail} className={styles.detailItem}>
-                    <TextLoader text={detail} variant="skeleton" />
-                  </li>
-                ))}
-              </ul>
-              <TextLoader text={body.footer} variant="skeleton" className={styles.resultFooter} />
-            </>
-          ) : (
+          {/* Nothing but Agent Progress while probing; the findings then
+              type out in reading order. */}
+          {!fetched ? null : (
             <div aria-busy={!stream.done} className={styles.streamBody}>
               {body.cinSentence && stream.started(0) && (
                 <p className={styles.cinSentence}>
@@ -675,16 +737,33 @@ function SearchResult({
                   )}
                 </ul>
               )}
-              {stream.started(FOOT) && <p className={styles.resultFooter}>{stream.reveal(FOOT)}</p>}
             </div>
           )}
         </>
       ) : (
-        <motion.div variants={item} className={styles.emptyState}>
-          <EmptyGlyph />
-          <p aria-busy={!stream.done}>{stream.reveal(EMPTY)}</p>
-        </motion.div>
+        fetched && (
+          <motion.div variants={item} className={styles.emptyState}>
+            <EmptyGlyph />
+            <p aria-busy={!stream.done}>{stream.reveal(EMPTY)}</p>
+          </motion.div>
+        )
       )}
+
+      {/* Verdict: settles once every field has its answer. */}
+      <AnimatePresence initial={false}>
+        {verdict && done && (
+          <motion.p
+            key="verdict"
+            className={cn(styles.verdict, body?.tentative && styles.verdictGuess, !body && styles.verdictEmpty)}
+            initial={settled || reduced ? false : { opacity: 0, y: 6, filter: "blur(3px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+          >
+            <FilledCheck color="currentColor" />
+            {verdict}
+          </motion.p>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -701,7 +780,7 @@ function IntelligenceEngine({
   companyName,
   percent,
   profileComplete,
-  fetched,
+  research,
   search,
   activeTab,
   reduced,
@@ -711,7 +790,8 @@ function IntelligenceEngine({
   companyName: string;
   percent: number;
   profileComplete: boolean;
-  fetched: boolean;
+  /** The active step's research timeline. */
+  research: ResearchView;
   search: QuoteSearchPanel;
   activeTab: string;
   reduced: boolean;
@@ -726,20 +806,58 @@ function IntelligenceEngine({
       initial={reduced ? "visible" : "hidden"}
       animate="visible"
     >
-      {/* Request bubble + engine reply persist on every step (Figma 503:14900). */}
-      <motion.div variants={item} className={styles.engineIntro}>
-        <div className={styles.requestBubble}>
-          <span>{engine.requestLabel}</span>
-          <CheckboxTick />
-        </div>
-        <div className={styles.engineMessage} aria-busy={!reply.done} aria-label={message}>
-          <span className={styles.engineGhost} aria-hidden>{message}</span>
-          <span aria-hidden>{reply.reveal(0)}</span>
-        </div>
-      </motion.div>
+      {/* Request bubble + engine reply (Figma 503:14900) belong to Profile:
+          leaving it, they lift away (rise, blur, fade) while their space
+          folds shut, and the runner glides up into place. */}
+      <AnimatePresence initial={false}>
+        {stepIndex === 0 && (
+          <motion.div
+            key="intro"
+            variants={item}
+            className={styles.engineIntro}
+            exit={
+              reduced
+                ? { opacity: 0, height: 0, marginBottom: -24 }
+                : {
+                    opacity: 0,
+                    y: -28,
+                    scale: 0.97,
+                    filter: "blur(10px)",
+                    height: 0,
+                    marginBottom: -24,
+                    transition: {
+                      default: { duration: 0.45, ease: [0.4, 0, 0.2, 1] },
+                      height: { duration: 0.6, ease: [0.65, 0, 0.35, 1], delay: 0.12 },
+                      marginBottom: { duration: 0.6, ease: [0.65, 0, 0.35, 1], delay: 0.12 },
+                    },
+                  }
+            }
+          >
+            <div className={styles.requestBubble}>
+              <span>{engine.requestLabel}</span>
+              <CheckboxTick />
+            </div>
+            <div className={styles.engineMessage} aria-busy={!reply.done} aria-label={message}>
+              <span className={styles.engineGhost} aria-hidden>{message}</span>
+              <span aria-hidden>{reply.reveal(0)}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <motion.div variants={item} className={styles.engineRunner} layout={reduced ? false : "position"}>
-        <div className={styles.meterRow}>
+      {/* A chat feed fills top-down: the runner (meter, then tasks) only
+          arrives once the engine's reply has finished typing. */}
+      <AnimatePresence initial={false}>
+      {reply.done && (
+      <motion.div
+        key="runner"
+        className={styles.engineRunner}
+        layout={reduced ? false : "position"}
+        initial={reduced ? false : "hidden"}
+        animate="visible"
+        variants={container}
+      >
+        <motion.div variants={item} className={styles.meterRow}>
           <span className={styles.meterHeading}>{engine.headingLabel}</span>
           <div className={styles.meterRight}>
             <motion.span
@@ -758,24 +876,26 @@ function IntelligenceEngine({
               />
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <ol className={styles.taskList}>
+        <motion.ol variants={item} className={styles.taskList}>
           {engine.tasks.map((task, i) => (
             <TaskRow
               key={task.doneLabel}
               task={task}
               state={i < stepIndex ? "done" : i === stepIndex ? "active" : "pending"}
               profileComplete={profileComplete}
-              fetched={fetched}
+              research={research}
               search={search}
               activeTab={activeTab}
               companyName={companyName}
               reduced={reduced}
             />
           ))}
-        </ol>
+        </motion.ol>
       </motion.div>
+      )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -784,7 +904,7 @@ function TaskRow({
   task,
   state,
   profileComplete,
-  fetched,
+  research,
   search,
   activeTab,
   companyName,
@@ -793,7 +913,7 @@ function TaskRow({
   task: EngineTask;
   state: "done" | "active" | "pending";
   profileComplete: boolean;
-  fetched: boolean;
+  research: ResearchView;
   search: QuoteSearchPanel;
   activeTab: string;
   companyName: string;
@@ -899,7 +1019,7 @@ function TaskRow({
                   activeTab={activeTab}
                   companyName={companyName}
                   reduced={reduced}
-                  fetched={fetched}
+                  research={research}
                 />
               </motion.div>
             </motion.div>

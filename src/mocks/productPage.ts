@@ -59,10 +59,17 @@ const SEARCH_MATCHED: QuoteSearchPanel = {
       "Company Type: Private Limited Company",
       "Directors: Amit Sharma, Kavita Rao +2",
     ],
-    founderTag: "LinkedIn India · Pepe Je… +1",
+    founderTag: "Probe42 · Pepe Je… +1",
     footer:
       "Would you like to know more details about Pepe Jeans Innerfashion (such as registered address, directors, or funding history)?",
   },
+  sources: [
+    { label: "MCA Registry", result: "hit" },
+    { label: "GST Network", result: "hit" },
+    { label: "Probe42", result: "hit" },
+    { label: "News", result: "hit" },
+  ],
+  verdict: "Verified across {sources} sources · {fields} fields filled",
 };
 
 const SEARCH_FUZZY: QuoteSearchPanel = {
@@ -83,6 +90,13 @@ const SEARCH_FUZZY: QuoteSearchPanel = {
     footer:
       "The PAN is confirmed from MCA filings; company type and line of business are best-effort guesses. Review each field, then tick the box to confirm before continuing.",
   },
+  sources: [
+    { label: "MCA Registry", result: "hit" },
+    { label: "GST Network", result: "partial" },
+    { label: "Probe42", result: "partial" },
+    { label: "News", result: "miss" },
+  ],
+  verdict: "Partly verified across {sources} sources · {fields} fields to review",
 };
 
 const SEARCH_EMPTY: QuoteSearchPanel = {
@@ -91,6 +105,13 @@ const SEARCH_EMPTY: QuoteSearchPanel = {
   body: null,
   emptyNote:
     "We couldn't find public records for this company. Please fill in the details manually to continue.",
+  sources: [
+    { label: "MCA Registry", result: "miss" },
+    { label: "GST Network", result: "miss" },
+    { label: "Probe42", result: "miss" },
+    { label: "News", result: "miss" },
+  ],
+  verdict: "No public records found · you'll fill these in",
 };
 
 /* Risk step (step 2) — the active task surfaces the "News" tab, so its panels
@@ -114,6 +135,12 @@ const RISK_NEWS_A: QuoteSearchPanel = {
     founderTag: "ET Retail +3",
     footer: "Would you like BimaNetra to find other additional information?",
   },
+  sources: [
+    { label: "News", result: "hit" },
+    { label: "Court Records", result: "hit" },
+    { label: "MCA Charges", result: "hit" },
+  ],
+  verdict: "Risk signals from {sources} sources · {fields} answers pre-filled",
 };
 
 const RISK_NEWS_B: QuoteSearchPanel = {
@@ -127,13 +154,19 @@ const RISK_NEWS_B: QuoteSearchPanel = {
     detailsHeading: "Unverified Coverage",
     details: [
       "Trade blog - “Sabyasachi Calcutta” linked to a GST notice (entity not corroborated)",
-      "LinkedIn - a page by this name lists a Kolkata address, unverified",
+      "Probe42 - a record by this name lists a Kolkata address, unverified",
       "Regional daily - studio expansion reported, no official filing found",
     ],
     founderTag: "2 low-confidence sources",
     footer:
       "Confirm the company details so BimaNetra can pull verified coverage before scoring risk.",
   },
+  sources: [
+    { label: "News", result: "partial" },
+    { label: "Court Records", result: "miss" },
+    { label: "MCA Charges", result: "partial" },
+  ],
+  verdict: "Weak signals from {sources} sources · {fields} answers to review",
 };
 
 const RISK_NEWS_C: QuoteSearchPanel = {
@@ -142,6 +175,12 @@ const RISK_NEWS_C: QuoteSearchPanel = {
   body: null,
   emptyNote:
     "No news coverage found for this business yet. Fill in the details manually and BimaNetra will keep scanning for relevant press.",
+  sources: [
+    { label: "News", result: "miss" },
+    { label: "Court Records", result: "miss" },
+    { label: "MCA Charges", result: "miss" },
+  ],
+  verdict: "No public records found · you'll fill these in",
 };
 
 /* Profile (step 0) is a data-collection step: the company name is seeded from
@@ -281,6 +320,7 @@ export const mockProductPageContent: ProductPageContent = {
       requestLabel: "Personalize My Quote",
       messageTemplate: "BimaNetra is running 3 Tasks to complete quote Personalization for {company}",
       headingLabel: "Getting Started",
+      progressLabel: "Researching",
       tasks: [
         { activeLabel: "Assessing Profile", readyLabel: "Ready to Confirm Profile", doneLabel: "Profile Confirmed", hasSearch: false },
         { activeLabel: "Assessing Business", doneLabel: "Business Secured", hasSearch: true },

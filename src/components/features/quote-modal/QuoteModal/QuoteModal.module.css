@@ -265,8 +265,7 @@
 
 /* ---- Intelligence Engine / visualization panel ----
  * Visually leads on the LEFT (order:1); see .left for the swap rationale. The
- * BorderGlow wrapper is the flex child (holds the 398 grow weight); .right fills
- * it so the pointer glow aligns to the panel's rounded edge.
+ * wrapper is the flex child (holds the 398 grow weight); .right fills it.
  */
 .rightGlow {
   order: 1;
@@ -414,6 +413,40 @@
   border-bottom: var(--border-hairline) solid var(--color-border-neutral);
 }
 
+/* The scan block under the tabs: Agent Progress (left-aligned, where the
+   text starts) over the sources row. */
+.research {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.progressRow {
+  display: flex;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+/* Verdict: the closing readout once every field has its answer. */
+.verdict {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  padding-top: var(--spacing-8);
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  color: var(--color-success);
+}
+
+.verdictGuess {
+  color: var(--color-brand-secondary);
+}
+
+.verdictEmpty {
+  color: var(--color-label-tertiary);
+}
+
 .tab {
   font-size: var(--font-size-100);
   font-weight: 500;
@@ -523,6 +556,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-24);
+  /* Lets its height fold shut cleanly as it leaves Profile. */
+  transform-origin: top center;
 }
 
 .requestBubble {

@@ -117,12 +117,24 @@ export interface QuoteSearchBody {
   tentative?: boolean;
 }
 
+/** One data source the engine checks while it researches. */
+export interface QuoteResearchSource {
+  label: string;
+  /** What it returned: a match, a weak / partial match, or nothing. */
+  result: "hit" | "partial" | "miss";
+}
+
 export interface QuoteSearchPanel {
   query: string;
   tabs: string[];
   /** null when the probe found nothing (Case C). */
   body: QuoteSearchBody | null;
   emptyNote?: string;
+  /** Sources lit up in turn while the engine scans. */
+  sources: QuoteResearchSource[];
+  /** Closing readout; `{sources}` = sources that returned something,
+   *  `{fields}` = fields filled. */
+  verdict: string;
 }
 
 /** Auto-personalize badge (Insurance case A): "New · Being Personalized" while
@@ -180,6 +192,8 @@ export interface IntelligenceEngine {
   messageTemplate: string;
   /** Progress-meter heading ("Getting Started"). */
   headingLabel: string;
+  /** Agent Progress verb under the result tabs while details load. */
+  progressLabel: string;
   tasks: EngineTask[];
 }
 
