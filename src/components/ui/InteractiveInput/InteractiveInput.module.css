@@ -186,18 +186,18 @@
 .textarea::placeholder {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
   opacity: 1;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .input[data-empty] {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .input::placeholder {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
   opacity: 1; /* Firefox lowers placeholder opacity by default */
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .suffix {
