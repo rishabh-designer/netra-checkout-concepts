@@ -15,6 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 1; /* fills the slot: a full row in the compact grid */
   width: 100%;
   min-height: 200px;
   padding: var(--spacing-16);
@@ -40,7 +41,7 @@
 .slot[data-phase="revealing"] .ghost {
   position: absolute;
   inset: 0 0 auto;
-  height: 200px;
+  height: var(--ghost-h, 200px);
   z-index: 2;
   pointer-events: none;
 }

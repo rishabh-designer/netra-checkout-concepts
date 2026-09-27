@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { AnimatePresence, motion, stagger, useAnimate, useReducedMotion } from "motion/react";
 import { Sparks } from "@/components/ui/Sparks";
 import { DitherBurst } from "@/components/ui/DitherBurst";
@@ -52,6 +52,9 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
   const [scope, animate] = useAnimate<HTMLDivElement>();
   const goldRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>(revealed ? "done" : "idle");
+  // The ghost's height when pressed: 200 in the list, the row height in the
+  // compact grid. The slot opens from it, so the grid never jumps.
+  const [fromH, setFromH] = useState(200);
   const wasUnlocked = useRef(unlocked);
 
   // Demo reset (Case B): the feed took the Gold Quote back, so return to the
@@ -91,7 +94,7 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
         ["[data-rv='hint']", { opacity: 0, y: 6 }, { type: "tween", duration: 0.2, at: 0.3 }],
         ["[data-rv='ghost']", { opacity: 0 }, { duration: 0.45, at: 0.45 }],
         // Slot eases open; the Gold card rises and settles out of the light.
-        [scope.current!, { height: [200, h] }, { type: "tween", duration: 0.75, ease: OUT_EXPO, at: 0.45 }],
+        [scope.current!, { height: [fromH, h] }, { type: "tween", duration: 0.75, ease: OUT_EXPO, at: 0.45 }],
         ["[data-rv='gold']", { opacity: [0, 1], scale: [0.94, 1], y: [14, 0] }, { type: "tween", duration: 0.8, ease: OUT_EXPO, at: 0.5 }],
         // Top-to-bottom cascade, in reading order: pill → ikkat rule (it
         // also draws out from the centre, in CSS) → title lines → the
@@ -132,6 +135,7 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
       settle();
       return;
     }
+    setFromH(scope.current?.offsetHeight || 200);
     setPhase("revealing");
   };
 
@@ -153,7 +157,7 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
   }
 
   return (
-    <div ref={scope} className={styles.slot} data-phase={phase} style={phase === "revealing" ? { height: 200 } : undefined}>
+    <div ref={scope} className={styles.slot} data-phase={phase} style={phase === "revealing" ? ({ height: fromH, "--ghost-h": `${fromH}px` } as CSSProperties) : undefined}>
       {phase === "revealing" && (
         <div className={styles.goldClip}>
           <div ref={goldRef} className={styles.gold} data-rv="gold">

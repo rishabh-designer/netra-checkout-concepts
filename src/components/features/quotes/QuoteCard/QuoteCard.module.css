@@ -662,29 +662,6 @@
   padding: 0;
 }
 
-/* View All Features pill: white → secondary tint, hairline, fully round. */
-.featuresPill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--spacing-6) var(--spacing-10) var(--spacing-6) var(--spacing-12);
-  border: var(--border-hairline) solid var(--color-brand-secondary-border);
-  border-radius: 1000px;
-  corner-shape: round;
-  background: linear-gradient(254.5deg, var(--color-card) 51.9%, var(--color-brand-secondary-subtle) 95.3%);
-  font-size: var(--font-size-75);
-  font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: -0.12px;
-  color: var(--color-label-primary);
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-
-.featuresPill:hover {
-  border-color: var(--color-brand-secondary);
-}
-
 /* Bar: Sum Insured reads left-aligned beside the button. */
 .card[data-compact] .sum {
   align-items: flex-start;

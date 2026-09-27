@@ -293,11 +293,9 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay
           <div className={styles.compactRule} data-reveal="rule">
             <IkkatDivider height={2} unit={19} color={DIVIDER_COLOR[tone]} />
           </div>
-          <button type="button" className={styles.featuresPill} onClick={onViewFeatures} aria-haspopup="dialog" data-reveal="item">
+          <button type="button" className={styles.viewFeatures} onClick={onViewFeatures} aria-haspopup="dialog" data-reveal="item">
             {labels.viewFeatures}
-            <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-              <path d="M4.125 2.25 7.875 6 4.125 9.75" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <FeaturesChevron />
           </button>
         </div>
 
