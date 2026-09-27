@@ -1,9 +1,10 @@
 /* Middle column (Figma 564:32970): fixed top over a scrolling stack. */
+/* The feed always spans its track (it measures that width to pick a layout);
+   the one-up list keeps its top row at 691 instead. */
 .feed {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 691px;
   height: 100%;
   min-height: 0;
   margin: 0 auto;
@@ -12,6 +13,12 @@
 /* Fixed top (571:39337): 16px vertical padding, centred, gap 16. Its fill is
    the page's own viewport gradient pinned to the viewport, so it reads as the
    background behind it while still masking cards that scroll underneath. */
+.feed:not([data-compact]) .top {
+  width: 100%;
+  max-width: 691px;
+  margin-inline: auto;
+}
+
 .top {
   display: flex;
   flex-direction: column;
@@ -163,23 +170,18 @@
   }
 }
 
-/* ── Compact grid (the Mail Quotes experiment) ───────────────────────────
-   The feed opens up to the full column, and the stack becomes a two-up
-   grid: cells in a row stretch to one height; the Reveal slot takes the
-   first cell like any quote. */
-.feed[data-compact] {
-  max-width: none;
-}
-
+/* ── Compact grid ──────────────────────────────────────────────────────
+   Two or three up (--cols, set from the feed's width): cells in a row
+   stretch to one height; the Reveal slot takes the first cell like any
+   quote. */
 .feed[data-compact] .column {
   width: 100%;
 }
 
 .feed[data-compact] .stack {
   display: grid;
-  /* Two up: the compact card is drawn at ~399 (Figma 640:24913); at 1512
-     the feed gives each column ~427–444. */
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* The compact card is drawn at ~399 (Figma 640:24913). */
+  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
   align-items: stretch;
   gap: var(--spacing-16);
 }

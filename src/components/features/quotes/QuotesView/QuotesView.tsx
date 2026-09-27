@@ -33,8 +33,8 @@ export interface QuotesViewProps {
  */
 /** How long the results skeleton shows before the quotes reveal. */
 const LOAD_MS = 1500;
-/* Case A's banner picks the verification count up from here on arrival. */
-const CASE_A_VERIFY_FROM = 89;
+/* Cases A and B: the banner picks the verification count up from here on arrival. */
+const VERIFY_FROM = 89;
 
 export function QuotesView(props: QuotesViewProps) {
   // Wait for the saved flow (restored before the first paint on a reload), so
@@ -49,16 +49,16 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const reportInterest = result?.reportInterest ?? values?.["reportInterest"] ?? "";
   const caseId = result?.caseId;
   const [detailsCollapsed, setDetailsCollapsed] = useState(false);
-  const [compact, setCompact] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   // Bumped on each Edit Details save → re-runs the loading skeleton.
   const [loadKey, setLoadKey] = useState(0);
   const [loading, setLoading] = useState(true);
   // The Gold Quote waits behind the Reveal slot for the customer to open.
-  // Case B unlocks after (simulated) verification; Case A arrives nearly
-  // verified, so its banner finishes the count from 89% as the page loads
-  // and the slot turns live. Held here so an Edit Details reload keeps it.
-  const [upgradeStage, setUpgradeStage] = useState<UpgradeStage>(() => (caseId === "A" ? "verifying" : "pending"));
+  // Cases A and B arrive nearly verified, so the banner finishes the count
+  // from 89% as the page loads and the slot turns live. Held here so an
+  // Edit Details reload keeps it.
+  const lured = caseId === "A" || caseId === "B";
+  const [upgradeStage, setUpgradeStage] = useState<UpgradeStage>(() => (lured ? "verifying" : "pending"));
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
@@ -72,8 +72,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
 
   return (
     <div className={styles.page}>
-      {/* Experiment: Mail Quotes toggles the compact two-column grid. */}
-      <QuotesHeader content={content.header} onCta={() => setCompact((c) => !c)} ctaPressed={compact} />
+      <QuotesHeader content={content.header} />
       <main className={styles.body}>
         <AnimatePresence mode="wait" initial={false}>
           {loading ? (
@@ -96,7 +95,6 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
               key="content"
               className={styles.swap}
               data-collapsed={detailsCollapsed || undefined}
-              data-compact={compact || undefined}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
@@ -109,11 +107,11 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
                 stage={upgradeStage}
                 noRecords={caseId !== "A" && caseId !== "B"}
-                verifyFrom={caseId === "A" ? CASE_A_VERIFY_FROM : undefined}
+                verifyFrom={lured ? VERIFY_FROM : undefined}
                 onSimulate={() => setUpgradeStage("verifying")}
                 onVerified={() => setUpgradeStage("upgraded")}
                 onReset={
-                  caseId === "A"
+                  lured
                     ? undefined
                     : () => {
                         setUpgradeStage("pending");
@@ -125,7 +123,6 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 unlocked={upgradeStage === "upgraded"}
                 revealed={revealed}
                 onRevealed={() => setRevealed(true)}
-                compact={compact}
                 content={content.feed}
                 caseId={caseId}
                 sumInsured={values?.["coverage"] || undefined}

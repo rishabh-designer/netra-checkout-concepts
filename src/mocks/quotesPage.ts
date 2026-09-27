@@ -28,8 +28,9 @@ const GOLD_QUOTE: QuoteCardData = {
 
 /* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹8,500. */
 const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, price: "₹8,500", originalPrice: "₹10,000" };
-/* Case B's, revealed once verified: a smaller cut (partly verified records). */
-const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, price: "₹7,000", originalPrice: "₹10,000" };
+/* Case B's records are fuzzy, so its Gold Quote carries no price: the button
+   reads Get Quote, like the other unpriced insurers. */
+const CASE_B_GOLD: QuoteCardData = GOLD_QUOTE;
 
 /* Case C premiums at its lower ₹5 Cr Sum Insured. */
 const CASE_C_PRICES: Record<string, string> = {
@@ -213,7 +214,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     quotesByCase: { A: MATCHED_QUOTES, B: MATCHED_QUOTES },
     viewFeaturesLabel: "View All Features",
     featuresDrawer: FEATURES_DRAWER,
-    compareLabel: "Add To Compare",
+    compareLabel: "Compare",
     comparisonUnavailableLabel: "Unavailable",
     getQuoteLabel: "Get Quote",
     sumInsuredLabel: "Sum Insured",

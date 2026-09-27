@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { useQuoteFlow } from "@/lib/quote-flow";
 import { resetCheckoutClock } from "@/components/features/checkout/useCheckoutClock";
@@ -28,9 +28,16 @@ export interface QuotesFeedProps {
   /** Cases A and B: the Gold Quote has been revealed. */
   revealed?: boolean;
   onRevealed?: () => void;
-  /** The Mail Quotes experiment: compact cards in a two-column grid. */
-  compact?: boolean;
 }
+
+/* The feed picks its own layout from the width it gets: the full card, one
+   up, until two compact cards fit side by side, then up to three. Collapsing
+   the details sidebar widens the feed, so it can add a column. */
+const MIN_COMPACT = 320; // three fit on a ~1440–1512 screen with the sidebar collapsed
+const GRID_GAP = 16;
+const MAX_COLS = 3;
+const columnsFor = (width: number) =>
+  Math.max(1, Math.min(MAX_COLS, Math.floor((width + GRID_GAP) / (MIN_COMPACT + GRID_GAP))));
 
 
 const priceOf = (q: QuoteCardData) => (q.price ? Number(q.price.replace(/\D/g, "")) : Infinity);
@@ -64,7 +71,18 @@ function arrange(list: QuoteCardData[], filter: QuoteFilter, sort: QuoteSort, im
  * rest; the reveal slot stays pinned first.
  * Usage: <QuotesFeed content={feed} caseId="B" sumInsured="₹10 Cr" />
  */
-export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed, compact = false }: QuotesFeedProps) {
+export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed }: QuotesFeedProps) {
+  const feedRef = useRef<HTMLDivElement>(null);
+  const [cols, setCols] = useState(1);
+  const compact = cols > 1;
+  useLayoutEffect(() => {
+    const el = feedRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setCols(columnsFor(entry.contentRect.width)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const labels = {
     sumInsured: content.sumInsuredLabel,
     getQuote: content.getQuoteLabel,
@@ -151,7 +169,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
         };
 
   return (
-    <div className={styles.feed} data-compact={compact || undefined}>
+    <div ref={feedRef} className={styles.feed} data-compact={compact || undefined} style={{ "--cols": cols } as CSSProperties}>
       {/* Fixed top */}
       <div className={styles.top}>
         {/* Breadcrumb left, quote count right (601:65042) */}
