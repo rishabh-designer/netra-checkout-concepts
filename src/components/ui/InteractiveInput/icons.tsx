@@ -82,11 +82,12 @@ export function Alert() {
   );
 }
 
-/** Red roundel with a white "×" — an invalid value. */
-export function ErrorMark() {
+/** Red roundel with a white "×" — an invalid value (or, in another colour,
+ *  a muted "nothing found"). */
+export function ErrorMark({ color = "var(--color-error)" }: { color?: string }) {
   return (
     <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <circle cx="8" cy="8" r="8" fill="var(--color-error)" />
+      <circle cx="8" cy="8" r="8" fill={color} />
       <path
         d="m5.5 5.5 5 5m0-5-5 5"
         stroke="var(--color-label-inverse)"

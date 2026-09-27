@@ -23,6 +23,9 @@ export interface DetailsPanelProps {
   onSimulate?: () => void;
   /** The simulated count reached 100%. */
   onVerified?: () => void;
+  /** Verification already under way: the count starts here and only runs the
+   *  last stretch to 100 (Case A, finishing as the page loads). */
+  verifyFrom?: number;
   /** Hidden demo shortcut (click "You're Upgraded!"): back to the start. */
   onReset?: () => void;
   /** Case C: no public records, so no verification to show. */
@@ -50,11 +53,11 @@ function ToggleGlyph() {
  * Usage: <DetailsPanel content={detailsPanel} values={values} onEdit={fn}
  *          collapsed={bool} onToggleCollapse={fn} />
  */
-export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false }: DetailsPanelProps) {
+export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false, verifyFrom }: DetailsPanelProps) {
   const reduced = useReducedMotion();
   const start = Math.max(0, Math.min(100, content.upgrade.percent));
   // One progress value for the banner and the collapsed rail.
-  const progress = useMotionValue(stage === "upgraded" ? 100 : start);
+  const progress = useMotionValue(stage === "upgraded" ? 100 : stage === "verifying" && verifyFrom !== undefined ? verifyFrom : start);
   const railLabel = useTransform(progress, (v) => `${Math.round(v)}%`);
   const railWidth = useTransform(progress, (v) => `${v}%`);
 
@@ -71,14 +74,18 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
   useEffect(() => {
     if (stage !== "verifying") return;
     let done = false;
-    const controls = animate(progress, reduced ? 100 : [start, 68, 71, 89, 91, 100], {
-      duration: reduced ? 0.01 : 2.8,
-      times: reduced ? undefined : [0, 0.34, 0.5, 0.72, 0.84, 1],
+    // Resumed (verifyFrom): just the last stall and the climb to 100.
+    const resumed = verifyFrom !== undefined;
+    const controls = animate(progress, reduced ? 100 : resumed ? [verifyFrom, 91, 100] : [start, 68, 71, 89, 91, 100], {
+      // Resumed: sized so Case A's slot turns live 3s after the page opens
+      // (page boot + 1.5s skeleton + 0.85s count + a 0.2s beat at 100%).
+      duration: reduced ? 0.01 : resumed ? 0.85 : 2.8,
+      times: reduced ? undefined : resumed ? [0, 0.4, 1] : [0, 0.34, 0.5, 0.72, 0.84, 1],
       ease: "easeInOut",
     });
     controls.then(() => {
       if (done) return;
-      window.setTimeout(() => !done && onVerified?.(), reduced ? 0 : 450);
+      window.setTimeout(() => !done && onVerified?.(), reduced ? 0 : resumed ? 200 : 450);
     });
     return () => {
       done = true;

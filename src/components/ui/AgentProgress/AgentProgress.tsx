@@ -13,6 +13,8 @@ export interface AgentProgressProps {
   /** Whether the internal timer advances. */
   running?: boolean;
   className?: string;
+  /** Replaces the label's own type styles (e.g. to keep a heading's look). */
+  labelClassName?: string;
 }
 
 // 3×3 glyph cells, lit in reading order (beui's 0.14s cascade).
@@ -33,7 +35,7 @@ function formatElapsed(total: number) {
  * keeps a gentle opacity pulse.
  * Usage: <AgentProgress label="Fetching" />
  */
-export function AgentProgress({ label, elapsedSeconds, running = true, className }: AgentProgressProps) {
+export function AgentProgress({ label, elapsedSeconds, running = true, className, labelClassName }: AgentProgressProps) {
   const reduce = useReducedMotion() ?? false;
   const [internal, setInternal] = useState(0);
 
@@ -56,7 +58,7 @@ export function AgentProgress({ label, elapsedSeconds, running = true, className
           />
         ))}
       </span>
-      <span className={styles.label}>{label}</span>
+      <span className={labelClassName ?? styles.label}>{label}</span>
       <span aria-hidden className={styles.time}>
         {formatElapsed(elapsedSeconds ?? internal)}
       </span>

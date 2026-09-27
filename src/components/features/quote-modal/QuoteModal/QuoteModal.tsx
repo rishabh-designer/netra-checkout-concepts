@@ -120,6 +120,9 @@ export function QuoteModal({
 
   const [values, setValues] = useState<Record<string, string>>({});
   const [consent, setConsent] = useState(false);
+  /** "Not you?" pressed: the flow restarts from the company name. Only that
+   *  field shows, and the engine canvas goes blank until it's rebuilt. */
+  const [restarting, setRestarting] = useState(false);
   /** Steps whose probe has already resolved — revisiting skips the skeleton. */
   const probedRef = useRef<Set<number>>(new Set());
 
@@ -128,6 +131,7 @@ export function QuoteModal({
     if (!open) return;
     setStepIndex(0);
     setValues({});
+    setRestarting(false);
     probedRef.current = new Set();
   }, [open]);
 
@@ -238,9 +242,9 @@ export function QuoteModal({
 
   const profileFields = content.steps[0].cases[caseId].fields;
   // Case A swaps the typed name for the MCA legal name: say so, and offer a
-  // way back to re-type it.
+  // way to re-type it right here ("Not you?" unlocks the field).
   const matchHelp = content.caseMatches.find((m) => m.caseId === caseId)?.nameHelp;
-  const nameHelp = matchHelp && { text: matchHelp.text, action: { label: matchHelp.actionLabel, onClick: onClose } };
+  const nameHelp = matchHelp && { text: matchHelp.text, actionLabel: matchHelp.actionLabel };
   const profileComplete = allMandatoryFilled(profileFields) && !profileFields.some((f) => errorFor(f));
 
   /** Advance to the next form step (the probe re-runs for it). On the last step
@@ -367,7 +371,7 @@ export function QuoteModal({
 
                 <AnimatePresence mode="wait" initial={false}>
                 <motion.div key={stepIndex} className={styles.fields} {...morphView(reduced)}>
-                  {qc.fields.map((field) => (
+                  {qc.fields.filter((f) => !restarting || f.key === "name").map((field) => (
                     <Fragment key={field.key}>
                       {/* Auto-personalize badge sits between the questions and the
                           coverage field (Insurance cases A + B), preceded by a
@@ -387,6 +391,11 @@ export function QuoteModal({
                         value={values[field.key] ?? ""}
                         error={errorFor(field)}
                         nameHelp={field.key === "name" ? nameHelp : undefined}
+                        retyping={field.key === "name" && restarting}
+                        onRetype={() => {
+                          setRestarting(true);
+                          setValues((s) => ({ ...s, name: "" }));
+                        }}
                         onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
                       />
                     </Fragment>
@@ -431,20 +440,25 @@ export function QuoteModal({
             {!formOnly && (
               <div className={styles.rightGlow}>
                 <div className={styles.right}>
-                  <div className={styles.rightScroll}>
-                    <IntelligenceEngine
-                      engine={content.engine}
-                      stepIndex={stepIndex}
-                      companyName={companyName}
-                      percent={percent}
-                      profileComplete={profileComplete}
-                      research={research}
-                      search={qc.search}
-                      activeTab={step.activeTab}
-                      reduced={!!reduced}
-                    />
-                  </div>
-                  <PanelStepper steps={content.stepperLabels} active={stepIndex} />
+                  {/* Restarting from "Not you?": the canvas stays, empty. */}
+                  {!restarting && (
+                    <>
+                      <div className={styles.rightScroll}>
+                        <IntelligenceEngine
+                          engine={content.engine}
+                          stepIndex={stepIndex}
+                          companyName={companyName}
+                          percent={percent}
+                          profileComplete={profileComplete}
+                          research={research}
+                          search={qc.search}
+                          activeTab={step.activeTab}
+                          reduced={!!reduced}
+                        />
+                      </div>
+                      <PanelStepper steps={content.stepperLabels} active={stepIndex} />
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -492,6 +506,8 @@ function Field({
   value,
   error,
   nameHelp,
+  retyping,
+  onRetype,
   onChange,
 }: {
   field: QuoteModalField;
@@ -503,16 +519,24 @@ function Field({
   value: string;
   /** Format error for the current value; shown once the field is blurred. */
   error: string | null;
-  /** Company name only: where the legal name came from, plus "Not you?". */
-  nameHelp?: { text: string; action: { label: string; onClick: () => void } };
+  /** Company name only: where the legal name came from, plus "Not you?"
+   *  (which clears the field and hands it back to the user, focused). */
+  nameHelp?: { text: string; actionLabel: string };
+  /** The name has been handed back to the user ("Not you?"): live and empty. */
+  retyping?: boolean;
+  onRetype?: () => void;
   onChange: (value: string) => void;
 }) {
   // Errors wait for blur (a half-typed value reads neutral, not wrong); once
   // shown they clear live as the user fixes it. A prefilled value counts as touched.
   const [touched, setTouched] = useState(value !== "");
   const isName = field.key === "name";
+  const locked = isName && !retyping;
   const fetching = !isName && !fetched;
-  const status = displayStatus(field, caseId, value, collectMode, consent);
+  const status = retyping
+    ? value.trim() ? "success" : "empty"
+    : displayStatus(field, caseId, value, collectMode, consent);
+  const nameNote = locked ? nameHelp : undefined;
   const uiStatus: FieldStatus = fetching ? "loading" : status;
   // The coverage field reads "Approximating…" while the probe runs (Figma).
   const fetchingLabel = field.key === "coverage" ? "Approximating…" : "Fetching…";
@@ -564,14 +588,23 @@ function Field({
       options={field.options}
       value={fetching ? "" : shown}
       onChange={(v) => onChange(format(v))}
-      readOnly={isName}
-      clearable={!isName}
+      readOnly={locked}
+      clearable={!locked}
+      autoFocusDesktop={retyping}
       prefix={field.prefix}
       placeholder={fetching ? fetchingLabel : field.placeholder}
       status={shownError ? "error" : error && uiStatus === "success" ? "empty" : uiStatus}
-      helpText={shownError ?? nameHelp?.text ?? visibleHelp}
-      helpAction={nameHelp?.action}
-      helpTone={shownError ? "error" : nameHelp ? "basic" : field.helpTone}
+      helpText={shownError ?? nameNote?.text ?? visibleHelp}
+      helpAction={
+        nameNote && {
+          label: nameNote.actionLabel,
+          onClick: () => {
+            setTouched(false);
+            onRetype?.();
+          },
+        }
+      }
+      helpTone={shownError ? "error" : nameNote ? "basic" : field.helpTone}
       inputMode={field.inputMode}
       maxLength={field.maxLength}
       onFocus={() => !error && setTouched(false)}
@@ -821,8 +854,11 @@ function IntelligenceEngine({
   reduced: boolean;
 }) {
   const message = engine.messageTemplate.replace("{company}", companyName || "your company");
-  // The engine's reply streams in like an agent response.
-  const reply = useStream([message]);
+  const request = engine.requestLabel.replace("{company}", companyName || "your company");
+  // The engine's reply streams in like an agent response, the company name
+  // in brand purple (its own piece, so it's coloured as it types).
+  const [replyBefore, replyAfter = ""] = engine.messageTemplate.split("{company}");
+  const reply = useStream([replyBefore, companyName || "your company", replyAfter]);
   return (
     <motion.div
       className={styles.engine}
@@ -858,12 +894,16 @@ function IntelligenceEngine({
             }
           >
             <div className={styles.requestBubble}>
-              <span>{engine.requestLabel}</span>
+              <span>{request}</span>
               <CheckboxTick />
             </div>
             <div className={styles.engineMessage} aria-busy={!reply.done} aria-label={message}>
               <span className={styles.engineGhost} aria-hidden>{message}</span>
-              <span aria-hidden>{reply.reveal(0)}</span>
+              <span aria-hidden>
+                {reply.reveal(0)}
+                {reply.started(1) && <span className={styles.engineCompany}>{reply.reveal(1)}</span>}
+                {reply.reveal(2)}
+              </span>
             </div>
           </motion.div>
         )}
@@ -882,7 +922,15 @@ function IntelligenceEngine({
         variants={container}
       >
         <motion.div variants={item} className={styles.meterRow}>
-          <span className={styles.meterHeading}>{engine.headingLabel}</span>
+          {/* Agent Progress around the step heading (glyph + live timer), in
+              the heading's own type; the timer restarts per step and stops
+              once the step is ready. */}
+          <AgentProgress
+            key={stepIndex}
+            label={engine.headingLabels[stepIndex] ?? engine.headingLabels[0]}
+            running={stepIndex === 0 ? !profileComplete : !research.done}
+            labelClassName={styles.meterHeading}
+          />
           <div className={styles.meterRight}>
             <motion.span
               key={percent}

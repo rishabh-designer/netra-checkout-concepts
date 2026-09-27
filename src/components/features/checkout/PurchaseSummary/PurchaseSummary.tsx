@@ -81,6 +81,12 @@ export function PurchaseSummary({ content, quote, progress, cta, consent, from =
         </span>
       </div>
 
+      {/* A soft lavender beam circles the card's edge (after the Gold Quote's,
+          but slower and paler): a halo behind, a hairline ring on top. */}
+      <div className={styles.beam}>
+        <span className={styles.beamGlow} aria-hidden>
+          <span className={styles.beamSpin} />
+        </span>
       <section className={styles.card} data-tone={tone === "neutral" ? undefined : tone}>
         {/* Product icon (Figma 635:16096): a 100px mark cropped to its top half
             in a 100×50 window, pinned to the card beside the product name. */}
@@ -175,6 +181,10 @@ export function PurchaseSummary({ content, quote, progress, cta, consent, from =
           </svg>
         </button>
       </section>
+        <span className={styles.beamRing} aria-hidden>
+          <span className={styles.beamSpin} />
+        </span>
+      </div>
 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={content.badgeSrc} alt="" aria-hidden className={styles.badge} />

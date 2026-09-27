@@ -33,6 +33,8 @@ export interface QuotesViewProps {
  */
 /** How long the results skeleton shows before the quotes reveal. */
 const LOAD_MS = 1500;
+/* Case A's banner picks the verification count up from here on arrival. */
+const CASE_A_VERIFY_FROM = 89;
 
 export function QuotesView(props: QuotesViewProps) {
   // Wait for the saved flow (restored before the first paint on a reload), so
@@ -51,11 +53,12 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   // Bumped on each Edit Details save → re-runs the loading skeleton.
   const [loadKey, setLoadKey] = useState(0);
   const [loading, setLoading] = useState(true);
-  // Case B's Gold Quote unlocks after (simulated) verification and a reveal;
-  // Case A arrives verified and revealed. Held here so an Edit Details reload
-  // keeps it.
-  const [upgradeStage, setUpgradeStage] = useState<UpgradeStage>(() => (caseId === "A" ? "upgraded" : "pending"));
-  const [revealed, setRevealed] = useState(() => caseId === "A");
+  // The Gold Quote waits behind the Reveal slot for the customer to open.
+  // Case B unlocks after (simulated) verification; Case A arrives nearly
+  // verified, so its banner finishes the count from 89% as the page loads
+  // and the slot turns live. Held here so an Edit Details reload keeps it.
+  const [upgradeStage, setUpgradeStage] = useState<UpgradeStage>(() => (caseId === "A" ? "verifying" : "pending"));
+  const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -64,7 +67,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   }, [loadKey]);
 
   const feedQuotes = (caseId && content.feed.quotesByCase?.[caseId]) ?? content.feed.quotes;
-  const cardCount = feedQuotes.length + (caseId === "B" ? 1 : 0);
+  const cardCount = feedQuotes.length + (caseId === "A" || caseId === "B" ? 1 : 0);
 
   return (
     <div className={styles.page}>
@@ -103,6 +106,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
                 stage={upgradeStage}
                 noRecords={caseId !== "A" && caseId !== "B"}
+                verifyFrom={caseId === "A" ? CASE_A_VERIFY_FROM : undefined}
                 onSimulate={() => setUpgradeStage("verifying")}
                 onVerified={() => setUpgradeStage("upgraded")}
                 onReset={

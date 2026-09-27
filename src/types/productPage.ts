@@ -53,12 +53,27 @@ export interface MediaContent {
 }
 
 export interface CompanySearchContent {
-  /** Beside the divider above the registry names. */
+  /** The disabled lead row; `{query}` is what's been typed. */
+  noResultLabel: string;
+  /** The link in that row: switches the list to an MCA search request. */
+  newCompanyLabel: string;
+  /** Beside the divider above the matched registry entries. */
   recordsLabel: string;
+  /** Beside the divider above the typed name, once "new company" is chosen. */
+  requestLabel: string;
+  /** Prefix of each record's registered name ("Registered As:"). */
+  registeredLabel: string;
   /** Characters typed before suggestions show. */
   minChars: number;
-  /** One entry per known company: the best match, then its MCA records. */
-  companies: { best: string; records: string[] }[];
+  /** The MCA registry for the prototype: one entry per registered company. */
+  companies: {
+    /** The name people know it by ("Pepe Jeans Innerwear"). */
+    name: string;
+    /** As registered with the MCA ("PEPE JEANS INNERFASHION PRIVATE LIMITED"). */
+    registered: string;
+    /** What picking it fills in: the legal name, in title case. */
+    legalName: string;
+  }[];
 }
 
 export interface KnowMoreContent {
@@ -215,12 +230,14 @@ export interface EngineTask {
 /** The persistent left-panel "Intelligence Engine" — a request bubble, the
  *  engine's reply, a live progress meter and the 3-task runner. */
 export interface IntelligenceEngine {
-  /** The opt-in the user checked on the product page ("Personalize My Quote"). */
+  /** The user's request, echoing the product-page opt-in; `{company}` is
+   *  replaced with the company name. */
   requestLabel: string;
   /** Engine reply; `{company}` is replaced with the typed company name. */
   messageTemplate: string;
-  /** Progress-meter heading ("Getting Started"). */
-  headingLabel: string;
+  /** Progress-meter heading per form step (index-aligned to `steps`):
+   *  "Getting Started", "Assessing Business", "Assessing Risk". */
+  headingLabels: string[];
   /** Agent Progress verb under the result tabs while details load. */
   progressLabel: string;
   tasks: EngineTask[];

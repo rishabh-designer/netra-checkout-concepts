@@ -191,7 +191,7 @@ const PROFILE_CASE: QuoteCase = {
   requiresConsent: false,
   search: SEARCH_MATCHED,
   fields: [
-    { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "", status: "verified" },
+    { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "", placeholder: "Start with your Company's Legal Name", status: "verified" },
     { key: "fullName", label: "Your Full Name", mandatory: true, control: "text", value: "", placeholder: "Enter Full Name", status: "empty" },
     { key: "phone", label: "Your Phone Number", mandatory: true, control: "text", value: "", prefix: "+91", placeholder: "0000 000 000", status: "empty", inputMode: "tel", validate: "phone" },
     { key: "email", label: "Your Email Address", mandatory: true, control: "text", value: "", placeholder: "Enter Email Address", status: "empty", inputMode: "email", validate: "email" },
@@ -270,13 +270,19 @@ export const mockProductPageContent: ProductPageContent = {
       closeLabel: "Close",
     },
     inputPlaceholder: "Start with your Company's Legal Name",
-    // Every name here is also a case alias (quoteModal.caseMatches), so any pick routes.
+    // The prototype's MCA registry: only these companies are registered
+    // (Studio Two Rupees is new, so it has no record). Every legal name is a
+    // case alias (quoteModal.caseMatches), so any pick routes.
     companySearch: {
+      noResultLabel: "No Result for “{query}”.",
+      newCompanyLabel: "Enter New Company?",
       recordsLabel: "MCA Records",
+      requestLabel: "MCA Search Request",
+      registeredLabel: "Registered As:",
       minChars: 3,
       companies: [
-        { best: "Pepe Jeans Innerfashion Private Limited", records: ["Pepe Jeans Innerwear", "PEPE JEANS INNERFASHION PRIVATE LIMITED"] },
-        { best: "Sabyasachi Calcutta LLP", records: ["Sabyasachi Calcutta", "SABYASACHI CALCUTTA LLP"] },
+        { name: "Pepe Jeans Innerwear", registered: "PEPE JEANS INNERFASHION PRIVATE LIMITED", legalName: "Pepe Jeans Innerfashion Private Limited" },
+        { name: "Sabyasachi Calcutta", registered: "SABYASACHI CALCUTTA LLP", legalName: "Sabyasachi Calcutta LLP" },
       ],
     },
     inputTooltip:
@@ -327,7 +333,12 @@ export const mockProductPageContent: ProductPageContent = {
         canonicalName: "Pepe Jeans Innerfashion Private Limited",
         nameHelp: { text: "Retrieved Legal Company Name from MCA.", actionLabel: "Not you?" },
       },
-      { caseId: "B", aliases: ["sabyasachi calcutta llp", "sabyasachi calcutta"] },
+      {
+        caseId: "B",
+        aliases: ["sabyasachi calcutta llp", "sabyasachi calcutta"],
+        canonicalName: "Sabyasachi Calcutta LLP",
+        nameHelp: { text: "Retrieved Legal Company Name from MCA.", actionLabel: "Not you?" },
+      },
       // C is also the fallback for any unmatched name; this alias only swaps in
       // the demo company's legal name.
       { caseId: "C", aliases: ["studio two rupees llp", "studio two rupees"], canonicalName: "Studio Two Rupees LLP" },
@@ -346,9 +357,9 @@ export const mockProductPageContent: ProductPageContent = {
     },
     // The persistent left-panel task-runner; one task per form step (index-aligned).
     engine: {
-      requestLabel: "Personalize My Quote",
+      requestLabel: "Personalize a Directors & Officers Insurance Quote for {company}",
       messageTemplate: "BimaNetra is running 3 Tasks to complete quote Personalization for {company}",
-      headingLabel: "Getting Started",
+      headingLabels: ["Getting Started", "Assessing Business", "Assessing Risk"],
       progressLabel: "Researching",
       tasks: [
         { activeLabel: "Assessing Profile", readyLabel: "Ready to Confirm Profile", doneLabel: "Profile Confirmed", hasSearch: false },

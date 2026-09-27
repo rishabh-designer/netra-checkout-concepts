@@ -1,51 +1,72 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, type PointerEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { CompanySearchContent } from "@/types/productPage";
-import { FilledCheck } from "@/components/ui/InteractiveInput/icons";
+import { ErrorMark, FilledCheck } from "@/components/ui/InteractiveInput/icons";
 import styles from "./CompanySuggest.module.css";
 
-export interface CompanyOption {
-  name: string;
-  /** "best" sits above the divider; "record" rows are MCA registry names. */
-  kind: "best" | "record";
-}
+/**
+ * One row of the type-ahead:
+ * - "new": the disabled lead row ("No Result for …"), whose link switches to
+ *   an MCA search request for the typed name;
+ * - "record": a matched MCA entry (its known name, and what it's registered as);
+ * - "request": the typed name itself, sent as a new-company search request.
+ */
+export type CompanyOption =
+  | { kind: "new" }
+  | { kind: "record"; name: string; registered: string; legalName: string }
+  | { kind: "request"; name: string };
+
+/** "search" lists the registry; "request" echoes what's typed as a new company. */
+export type CompanySuggestMode = "search" | "request";
 
 const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
 
-/** The suggestions for a typed name: the first known company any of whose
- *  names contain it, as its best match then its MCA records. Empty below
- *  `minChars` or with no match (a company with no records gets no list). */
-export function findCompanyOptions(query: string, search: CompanySearchContent): CompanyOption[] {
+/** The rows for a typed name. Search: the "No Result" row, then every MCA
+ *  record whose names contain the query. Request: the typed name alone.
+ *  Empty below `minChars`. */
+export function findCompanyOptions(query: string, search: CompanySearchContent, mode: CompanySuggestMode): CompanyOption[] {
   const q = normalize(query);
   if (q.length < search.minChars) return [];
-  const hit = search.companies.find((c) => [c.best, ...c.records].some((n) => normalize(n).includes(q)));
-  if (!hit) return [];
-  return [{ name: hit.best, kind: "best" }, ...hit.records.map((name) => ({ name, kind: "record" as const }))];
+  if (mode === "request") return [{ kind: "request", name: query.trim() }];
+  const records = search.companies
+    .filter((c) => [c.name, c.registered, c.legalName].some((n) => normalize(n).includes(q)))
+    .map((c) => ({ kind: "record" as const, ...c }));
+  return [{ kind: "new" }, ...records];
+}
+
+/** The row Enter picks by default: the first match, else the lead row. */
+export function defaultCompanyOption(options: CompanyOption[]): number {
+  return Math.max(0, options.findIndex((o) => o.kind !== "new"));
 }
 
 export interface CompanySuggestProps {
   id: string;
   open: boolean;
+  /** What's been typed (echoed in the "No Result" row). */
+  query: string;
   options: CompanyOption[];
   /** The highlighted row (Enter picks it); its tick turns green. */
   active: number;
-  recordsLabel: string;
-  onPick: (name: string) => void;
+  content: CompanySearchContent;
+  onPick: (option: CompanyOption) => void;
   onHover: (index: number) => void;
 }
 
 /**
  * CompanySuggest — the type-ahead under the landing's company-name field, so
- * the customer picks their legal entity before continuing instead of us
- * guessing. The best match leads; a divider labelled "MCA Records" heads the
- * registry names. Rows mirror the DSL SelectMenu (label left, round tick
- * right, green on the highlighted row). The host input owns the keyboard.
- * Usage: <CompanySuggest id={id} open={o} options={opts} active={i} recordsLabel="MCA Records" onPick={pick} onHover={setI} />
+ * the customer picks their registered entity instead of us guessing. It
+ * leads with a disabled "No Result for “…”. Enter New Company?" row, then
+ * "MCA Records": each match with its registered name. "Enter New Company?"
+ * turns the list into an "MCA Search Request" that echoes the name as it's
+ * typed. The host input owns the keyboard.
+ * Usage: <CompanySuggest id={id} open={o} query={q} options={opts} active={i} content={search} onPick={pick} onHover={setI} />
  */
-export function CompanySuggest({ id, open, options, active, recordsLabel, onPick, onHover }: CompanySuggestProps) {
+export function CompanySuggest({ id, open, query, options, active, content, onPick, onHover }: CompanySuggestProps) {
   const reduced = useReducedMotion();
+  const keepFocus = (e: PointerEvent) => e.preventDefault(); // the input keeps focus
+
   return (
     <AnimatePresence>
       {open && options.length > 0 && (
@@ -58,29 +79,67 @@ export function CompanySuggest({ id, open, options, active, recordsLabel, onPick
           exit={{ opacity: 0, transition: { duration: 0.12 } }}
           transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         >
-          {options.map((opt, i) => (
-            <Fragment key={`${opt.kind}-${opt.name}`}>
-              {opt.kind === "record" && options[i - 1]?.kind !== "record" && (
-                <li role="presentation" className={styles.divider}>
-                  <span className={styles.dividerLabel}>{recordsLabel}</span>
-                  <span className={styles.dividerLine} />
-                </li>
-              )}
-              <li
-                id={`${id}-${i}`}
-                role="option"
-                aria-selected={i === active}
-                className={styles.option}
-                data-active={i === active || undefined}
-                onPointerEnter={() => onHover(i)}
-                onPointerDown={(e) => e.preventDefault()} // keep focus in the input
-                onClick={() => onPick(opt.name)}
-              >
-                <span className={styles.label}>{opt.name}</span>
-                <FilledCheck color={i === active ? "var(--color-success)" : "var(--color-input-stroke)"} />
-              </li>
-            </Fragment>
-          ))}
+          {options.map((opt, i) => {
+            const on = i === active;
+            const heading =
+              opt.kind === "record" && options[i - 1]?.kind !== "record"
+                ? content.recordsLabel
+                : opt.kind === "request"
+                  ? content.requestLabel
+                  : null;
+            return (
+              <Fragment key={opt.kind === "new" ? "new" : `${opt.kind}-${opt.name}`}>
+                {heading && (
+                  <li role="presentation" className={styles.divider}>
+                    <span className={styles.dividerLabel}>{heading}</span>
+                    <span className={styles.dividerLine} />
+                  </li>
+                )}
+                {opt.kind === "new" ? (
+                  <li
+                    id={`${id}-${i}`}
+                    role="option"
+                    aria-selected={on}
+                    aria-disabled
+                    className={styles.option}
+                    data-kind="new"
+                    onPointerEnter={() => onHover(i)}
+                    onPointerDown={keepFocus}
+                  >
+                    <span className={styles.label}>
+                      {content.noResultLabel.replace("{query}", query.trim())}{" "}
+                      <button type="button" className={styles.newLink} onClick={() => onPick(opt)}>
+                        {content.newCompanyLabel}
+                      </button>
+                    </span>
+                    <ErrorMark color="var(--color-input-stroke)" />
+                  </li>
+                ) : (
+                  <li
+                    id={`${id}-${i}`}
+                    role="option"
+                    aria-selected={on}
+                    className={styles.option}
+                    data-kind={opt.kind}
+                    data-active={on || undefined}
+                    onPointerEnter={() => onHover(i)}
+                    onPointerDown={keepFocus}
+                    onClick={() => onPick(opt)}
+                  >
+                    <span className={styles.stack}>
+                      <span className={styles.label}>{opt.name}</span>
+                      {opt.kind === "record" && (
+                        <span className={styles.registered}>
+                          <span className={styles.registeredLabel}>{content.registeredLabel}</span> {opt.registered}
+                        </span>
+                      )}
+                    </span>
+                    <FilledCheck color={on ? "var(--color-success)" : "var(--color-input-stroke)"} />
+                  </li>
+                )}
+              </Fragment>
+            );
+          })}
         </motion.ul>
       )}
     </AnimatePresence>

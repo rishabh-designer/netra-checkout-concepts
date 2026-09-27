@@ -1,11 +1,11 @@
 import type { NeedHelpContent, RiskReportBannerContent, TestimonialContent } from "@/types/quotesPage";
 import { RiskReportBanner } from "../RiskReportBanner";
-import { TestimonialCard } from "../TestimonialCard";
 import styles from "./HelpDesk.module.css";
 
 export interface HelpDeskProps {
   content: NeedHelpContent;
-  testimonial: TestimonialContent;
+  /** Unused for now: its slot is held blank for "What happens next". */
+  testimonial?: TestimonialContent;
   riskReport: RiskReportBannerContent;
   /** "Yes" | "No" | "" from the flow; "Yes" starts the risk report as sent. */
   reportInterest?: string;
@@ -13,13 +13,14 @@ export interface HelpDeskProps {
 
 /**
  * HelpDesk — the fixed right column of the Quotes page (Figma 584:44134): a
- * stack of the "Need Help?" card (expert photos + tap-to-call pill), the
- * testimonial and the risk-report offer, split by hairline rules, with a
+ * stack of the "Need Help?" card (expert photos + tap-to-call pill), a blank
+ * slot held for "What happens next" (where the testimonial was) and the
+ * risk-report offer, split by hairline rules, with a
  * "Chat with Us" CTA (593:64948) pinned to the bottom. The stack scrolls on
  * short screens; the CTA stays put.
  * Usage: <HelpDesk content={feed.needHelp} testimonial={feed.testimonial} riskReport={feed.riskReport} />
  */
-export function HelpDesk({ content, testimonial, riskReport, reportInterest }: HelpDeskProps) {
+export function HelpDesk({ content, riskReport, reportInterest }: HelpDeskProps) {
   const tel = content.phone.replace(/[^+\d]/g, "");
   return (
     <aside className={styles.column}>
@@ -44,7 +45,8 @@ export function HelpDesk({ content, testimonial, riskReport, reportInterest }: H
           </a>
         </div>
         <hr className={styles.rule} />
-        <TestimonialCard content={testimonial} />
+        {/* "What happens next" goes here: the testimonial card's footprint, empty. */}
+        <div className={styles.nextSlot} aria-hidden />
         <hr className={styles.rule} />
         <RiskReportBanner content={riskReport} sent={reportInterest === "Yes"} />
       </div>

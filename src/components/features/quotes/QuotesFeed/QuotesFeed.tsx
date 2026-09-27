@@ -22,18 +22,13 @@ export interface QuotesFeedProps {
   /** The Sum Insured the user chose in the flow ("₹10 Cr") — shown on every
    *  card in place of the mock's value. Off-flow, the mock value stays. */
   sumInsured?: string;
-  /** Case B: verification finished, so the Reveal button is live. */
+  /** Cases A and B: verification finished, so the Reveal button is live. */
   unlocked?: boolean;
-  /** Case B: the Gold Quote has been revealed. */
+  /** Cases A and B: the Gold Quote has been revealed. */
   revealed?: boolean;
   onRevealed?: () => void;
 }
 
-/* Case A's Gold Quote plays its reveal once per page load; an Edit Details
-   reload (the skeleton remounts the feed) shows it at rest. */
-let caseARevealPlayed = false;
-/* Case A arrives verified: its reveal plays on its own after this beat. */
-const CASE_A_REVEAL_MS = 800;
 
 const priceOf = (q: QuoteCardData) => (q.price ? Number(q.price.replace(/\D/g, "")) : Infinity);
 
@@ -60,10 +55,10 @@ function arrange(list: QuoteCardData[], filter: QuoteFilter, sort: QuoteSort, im
  * QuotesFeed — the middle column (Figma 564:32970). A fixed top (breadcrumb + count,
  * controls, ikkat rule) over a scroll area that holds the vertical quote stack
  * (480 wide). Only the scroll area moves. (The testimonial and risk report now
- * live in the Help Desk column.) Fuzzy (Case B) leads the stack with
- * a ghost "Reveal Quote" card; exact match (A) leads with the Gold Quote.
- * Filtering, sorting and "Immediate Purchase Only" rearrange the rest; the
- * Gold Quote (or Case B's reveal slot) stays pinned first.
+ * live in the Help Desk column.) Matched cases (A and B) lead the stack with
+ * a ghost "Reveal Quote" card that the customer opens to unveil their Gold
+ * Quote. Filtering, sorting and "Immediate Purchase Only" rearrange the
+ * rest; the reveal slot stays pinned first.
  * Usage: <QuotesFeed content={feed} caseId="B" sumInsured="₹10 Cr" />
  */
 export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed }: QuotesFeedProps) {
@@ -81,13 +76,15 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   };
 
   const reduced = useReducedMotion();
-  // Case B leads with a locked slot that reveals the Gold Quote once verified.
-  const ghostFirst = caseId === "B";
+  // Cases A and B both lead with the Reveal slot: the customer unveils their
+  // own Gold Quote (A's unlocks moments after load, B's once verified).
+  const ghostFirst = caseId === "A" || caseId === "B";
+  const gold = (caseId && content.goldQuoteByCase?.[caseId]) ?? content.goldQuote;
   const base = (caseId && content.quotesByCase?.[caseId]) ?? content.quotes;
-  const list = ghostFirst && revealed ? [content.goldQuote, ...base] : base;
+  const list = ghostFirst && revealed ? [gold, ...base] : base;
   // Ratings ripple down the feed only at the moment of the reveal.
   const [ripple, setRipple] = useState(false);
-  // Case B: the revealed Gold Quote's price strikes down once the card lands.
+  // The revealed Gold Quote's price strikes down once the card lands.
   const [revealIntro, setRevealIntro] = useState<PriceIntro>(() => (revealed ? "done" : "idle"));
   useEffect(() => {
     if (revealed) return;
@@ -123,12 +120,9 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           router.push(content.checkoutHref);
         }
       : undefined;
-  // Case A: the Gold Quote enters on its own beat, then its price morphs.
-  const [caseAPlayed] = useState(() => caseARevealPlayed);
-  const [goldIntro, setGoldIntro] = useState<PriceIntro>(() => (caseAPlayed ? "done" : "idle"));
   const [countBefore, countAfter = ""] = content.availableLabel.split("{count}");
-  // For Case B the Gold card lives in the reveal slot; the rest follow it.
-  const goldCard: QuoteCardData = { ...content.goldQuote, rating: "excellent", ...(sumInsured ? { sumInsured } : {}) };
+  // The Gold card lives in the reveal slot; the rest follow it.
+  const goldCard: QuoteCardData = { ...gold, rating: "excellent", ...(sumInsured ? { sumInsured } : {}) };
   const rest = ghostFirst && revealed ? quotes.slice(1) : quotes;
   const [filter, setFilter] = useState<QuoteFilter>("all");
   const [sort, setSort] = useState<QuoteSort>("default");
@@ -236,29 +230,8 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                   }}
                   onSelect={checkoutFor(quote)}
                   ratingDelay={ripple ? 0.35 + i * 0.07 : undefined}
-                  priceIntro={quote.gold ? goldIntro : undefined}
                 />
               );
-              // Case A's Gold: the same reveal as Case B's button, played on
-              // its own once the feed has settled.
-              if (quote.gold && caseId === "A") {
-                return (
-                  <div key={quote.insurer} className={styles.cell}>
-                    <RevealCard
-                      unlocked
-                      revealed={caseAPlayed}
-                      autoRevealDelay={CASE_A_REVEAL_MS}
-                      labels={{ reveal: content.revealQuoteLabel, lockedHint: content.revealLockedHint, readyHint: content.revealReadyHint }}
-                      onRevealed={() => {
-                        caseARevealPlayed = true;
-                      }}
-                      onSettled={() => setGoldIntro((p) => (p === "idle" ? "play" : p))}
-                    >
-                      {card}
-                    </RevealCard>
-                  </div>
-                );
-              }
               // Keyed by insurer so a re-sort slides cards to their new slots.
               return (
                 <motion.div

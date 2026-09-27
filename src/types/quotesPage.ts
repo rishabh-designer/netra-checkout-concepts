@@ -186,6 +186,8 @@ export interface QuotesFeedContent {
   revealReadyHint: string;
   /** The Gold Quote a fuzzy match (Case B) reveals once verified. */
   goldQuote: QuoteCardData;
+  /** A case's own Gold Quote where it differs (A's offer); else `goldQuote`. */
+  goldQuoteByCase?: Partial<Record<QuoteCaseId, QuoteCardData>>;
   topCoveragesLabel: string;
   /** Rating chip copy (shown beside "Top Coverages" when a Gold Quote leads). */
   ratingLabels: Record<QuoteRating, string>;

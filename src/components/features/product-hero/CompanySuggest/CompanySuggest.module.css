@@ -36,11 +36,54 @@
   background: var(--color-card-sunken);
 }
 
+/* The lead "No Result" row: always greyed and never picked itself; only its
+   link acts (Figma 636:16625). */
+.option[data-kind="new"] {
+  background: var(--color-card-sunken);
+  cursor: default;
+}
+
+.newLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--color-info);
+  text-decoration: underline;
+  text-underline-position: from-font;
+  cursor: pointer;
+}
+
+/* An MCA record: its known name over what it's registered as (636:16641). */
+.option[data-kind="record"] {
+  padding: var(--spacing-16);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+  line-height: 1;
+}
+
 .label {
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.registered {
+  overflow: hidden;
+  font-size: var(--font-size-75);
+  color: var(--color-label-tertiary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.registeredLabel {
+  color: var(--color-label-placeholder);
 }
 
 /* "MCA Records" — 12px tertiary, then a hairline to the edge. */

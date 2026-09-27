@@ -12,7 +12,7 @@ import { InteractiveInput } from "@/components/ui/InteractiveInput";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { CtaButton } from "@/components/ui/CtaButton";
 import { SideDrawer } from "@/components/ui/SideDrawer";
-import { CompanySuggest, findCompanyOptions } from "../CompanySuggest";
+import { CompanySuggest, defaultCompanyOption, findCompanyOptions, type CompanyOption, type CompanySuggestMode } from "../CompanySuggest";
 import {
   QuoteModal,
   preloadQuoteModal,
@@ -64,11 +64,22 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
   // before continuing. Enter picks the highlighted row (then submits).
   const suggestId = useId();
   const [suggestOpen, setSuggestOpen] = useState(false);
-  const [active, setActive] = useState(0);
-  const options = findCompanyOptions(companyName, content.companySearch);
+  // "Enter New Company?" switches the list to an MCA search request for what's
+  // typed; clearing the field goes back to the registry.
+  const [suggestMode, setSuggestMode] = useState<CompanySuggestMode>("search");
+  // -1 = the default row (the first match, else the lead row).
+  const [hovered, setHovered] = useState(-1);
+  const options = findCompanyOptions(companyName, content.companySearch, suggestMode);
+  const active = hovered < 0 ? defaultCompanyOption(options) : hovered;
   const listShown = suggestOpen && options.length > 0;
-  const pickCompany = (name: string) => {
-    setCompanyName(name);
+  const pickCompany = (opt: CompanyOption | undefined) => {
+    if (!opt) return;
+    if (opt.kind === "new") {
+      setSuggestMode("request");
+      setHovered(-1);
+      return;
+    }
+    if (opt.kind === "record") setCompanyName(opt.legalName);
     setSuggestOpen(false);
     emitHeroPulse("typing");
   };
@@ -77,10 +88,10 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       const step = e.key === "ArrowDown" ? 1 : -1;
-      setActive((i) => (i + step + options.length) % options.length);
+      setHovered((active + step + options.length) % options.length);
     } else if (e.key === "Enter") {
       e.preventDefault();
-      pickCompany(options[active]?.name ?? companyName);
+      pickCompany(options[active]);
     } else if (e.key === "Escape") {
       setSuggestOpen(false);
     }
@@ -95,6 +106,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
     const next = (demoIndex + 1) % names.length;
     setDemoIndex(next);
     setCompanyName(names[next]);
+    setSuggestMode("search");
     setSuggestOpen(false);
   };
 
@@ -157,7 +169,8 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
             setCompanyName(v);
             setEmptyError(false);
             setSuggestOpen(true);
-            setActive(0);
+            setHovered(-1);
+            if (!v.trim()) setSuggestMode("search");
             emitHeroPulse("typing");
           }}
           status={emptyError ? "error" : companyName.trim().length >= 4 ? "success" : "empty"}
@@ -165,7 +178,10 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
           helpTone="error"
           showHelp={emptyError}
           clearable
-          onClear={() => setDemoIndex(-1)}
+          onClear={() => {
+            setDemoIndex(-1);
+            setSuggestMode("search");
+          }}
           infoTooltip={content.inputTooltip}
           onInfoClick={cycleDemoName}
           onSubmit={handleSubmit}
@@ -176,11 +192,12 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
           <CompanySuggest
             id={suggestId}
             open={suggestOpen}
+            query={companyName}
             options={options}
             active={active}
-            recordsLabel={content.companySearch.recordsLabel}
+            content={content.companySearch}
             onPick={pickCompany}
-            onHover={setActive}
+            onHover={setHovered}
           />
         </div>
         <div className={styles.actions}>

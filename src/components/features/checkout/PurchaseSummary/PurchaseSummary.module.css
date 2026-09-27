@@ -334,3 +334,80 @@
   margin-top: calc(-1 * var(--spacing-16));
   pointer-events: none;
 }
+
+/*
+ * Summary beam: the Gold Quote's border beam, calmed down. One pale lavender
+ * comet (no twin) takes 14s a lap, so it drifts rather than chases; the ring
+ * is a hairline over the card's stroke and the halo a faint blur behind it.
+ * Transform-only rotation (composited).
+ */
+.beam {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-24);
+  isolation: isolate;
+}
+
+.beamRing,
+.beamGlow {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.beamRing {
+  inset: 0;
+  z-index: 2;
+  padding: var(--border-hairline);
+  border-radius: var(--radius-24);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+.beamGlow {
+  inset: -2px;
+  z-index: 0;
+  border-radius: calc(var(--radius-24) + 2px);
+  filter: blur(10px);
+  opacity: 0.55;
+}
+
+.beamSpin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1400px;
+  height: 1400px;
+  background: conic-gradient(
+    transparent 0% 62%,
+    var(--color-brand-primary-subtle-bold) 72%,
+    var(--color-brand-primary-border) 82%,
+    color-mix(in srgb, var(--color-brand-primary) 45%, var(--color-brand-primary-border)) 90%,
+    transparent 97% 100%
+  );
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: summary-beam 14s linear infinite;
+  will-change: transform;
+}
+
+@keyframes summary-beam {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Reduced motion: no sweep, just a faint lavender rim. */
+@media (prefers-reduced-motion: reduce) {
+  .beamSpin {
+    animation: none;
+    background: var(--color-brand-primary-border);
+  }
+  .beamRing {
+    opacity: 0.5;
+  }
+  .beamGlow {
+    opacity: 0.2;
+  }
+}

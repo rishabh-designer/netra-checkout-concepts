@@ -16,7 +16,7 @@ const EMERGENCY = "Emergency Costs";
 const CRISIS = "Crisis Management";
 const EXTRADITION = "Extradition Costs";
 
-/* Exact match (A): the Gold Quote is revealed on arrival and leads the stack. */
+/* The Gold Quote (A and B): unveiled from the Reveal slot that leads the stack. */
 const GOLD_QUOTE: QuoteCardData = {
   insurer: "Your Personalized Insurance Quote",
   logoSrc: GENERALI,
@@ -26,8 +26,8 @@ const GOLD_QUOTE: QuoteCardData = {
   coverages: [DEFENCE, EPL, REGULATORY, ASSETS],
 };
 
-/* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹6,500. */
-const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, price: "₹6,500", originalPrice: "₹10,000" };
+/* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹8,500. */
+const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, price: "₹8,500", originalPrice: "₹10,000" };
 /* Case B's, revealed once verified: a smaller cut (partly verified records). */
 const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, price: "₹7,000", originalPrice: "₹10,000" };
 
@@ -39,8 +39,8 @@ const CASE_C_PRICES: Record<string, string> = {
 };
 
 /* Cases A and B share this sequence (Figma 571 stack): two immediate
-   purchases, one priced quote, then the unpriced "Get Quote" insurers. A leads
-   it with the Gold Quote; B with the ghost "Reveal Quote" card. */
+   purchases, one priced quote, then the unpriced "Get Quote" insurers. Both
+   lead it with the ghost "Reveal Quote" card. */
 const MATCHED_QUOTES: QuoteCardData[] = [
   { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, coverages: [DEFENCE, REGULATORY, ASSETS, EXTRADITION] },
   { insurer: "HDFC ERGO General Insurance", logoSrc: HDFC, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, coverages: [DEFENCE, EPL, EMERGENCY] },
@@ -210,7 +210,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     },
     switchLabel: "Immediate Purchase Only",
     quotes: QUOTES,
-    quotesByCase: { A: [CASE_A_GOLD, ...MATCHED_QUOTES], B: MATCHED_QUOTES },
+    quotesByCase: { A: MATCHED_QUOTES, B: MATCHED_QUOTES },
     viewFeaturesLabel: "View All Features",
     featuresDrawer: FEATURES_DRAWER,
     compareLabel: "Add To Compare",
@@ -222,6 +222,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     revealLockedHint: "Unlocks once we've verified your business",
     revealReadyHint: "Your Gold Quote is ready",
     goldQuote: CASE_B_GOLD,
+    goldQuoteByCase: { A: CASE_A_GOLD },
     topCoveragesLabel: "Top Coverages",
     ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },
     poweredByLabel: "Powered by BimaNetra",

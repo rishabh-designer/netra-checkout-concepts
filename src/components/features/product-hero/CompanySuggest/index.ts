@@ -1,1 +1,8 @@
-export { CompanySuggest, findCompanyOptions, type CompanyOption, type CompanySuggestProps } from "./CompanySuggest";
+export {
+  CompanySuggest,
+  defaultCompanyOption,
+  findCompanyOptions,
+  type CompanyOption,
+  type CompanySuggestMode,
+  type CompanySuggestProps,
+} from "./CompanySuggest";
