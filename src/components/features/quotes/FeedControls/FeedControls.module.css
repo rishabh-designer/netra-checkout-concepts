@@ -1,46 +1,44 @@
-/* Centred controls row (Figma 564:32971): two 226×32 dropdowns + the toggle box. */
-/* One row at Figma width; on a narrow feed column the toggle box drops
-   under the two dropdowns instead of overflowing the panel. */
+/* Controls row (Figma 658:45930): the two labelled fields left, 32 apart;
+   the Immediate Purchase switch right, bottom-aligned with the fields. On a
+   narrow feed the switch drops under the fields. */
 .row {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: space-between;
   flex-wrap: wrap;
+  gap: var(--spacing-16) var(--spacing-32);
   width: 100%;
-  gap: var(--spacing-12);
 }
 
-.row[data-align="start"] {
-  justify-content: flex-start;
-}
-
-/* The two dropdowns shrink together (never split); only the toggle wraps. */
 .dropdowns {
   display: flex;
-  gap: var(--spacing-12);
-  /* 464 in Figma; 4px slack so sub-pixel rounding never wraps the toggle at 691 */
-  flex: 0 1 460px;
+  gap: var(--spacing-32);
   min-width: 0;
 }
 
-.dropdown,
-.toggleBox {
-  display: inline-flex;
-  align-items: center;
-  height: 32px;
-  padding: var(--spacing-8) var(--spacing-12);
-  border: var(--border-hairline) solid rgba(169, 172, 177, 0.6);
-  border-radius: var(--radius-8);
-  background: var(--color-card);
+/* Label over an underlined input (interactive.input/alphanumeric/inactive). */
+.field {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  min-width: 0;
+  max-width: 100%;
 }
 
-/* 226 wide in Figma; shrink (never wrap) when the feed column is narrower.
-   Positioned so the option list anchors under the box. */
+.fieldLabel {
+  padding: var(--spacing-6) var(--spacing-8);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-basic);
+}
+
+/* Positioned so the option list anchors under the field. */
 .dropdown {
   position: relative;
-  flex: 0 1 226px;
-  min-width: 150px;
-  padding: 0;
+  display: flex;
+  border-bottom: var(--border-hairline) solid rgba(169, 172, 177, 0.6);
+  background: var(--color-card);
   transition: background 0.15s ease;
 }
 
@@ -48,7 +46,7 @@
   background: var(--color-card-sunken);
 }
 
-/* The SelectMenu trigger fills the box: label left, chevron + glyph right.
+/* The SelectMenu trigger fills the field: value left, chevron + glyph right.
    Scoped under .dropdown so it outranks SelectMenu's own trigger reset
    (padding 0, 16px) whatever order the two stylesheets load in. */
 .dropdown .trigger {
@@ -56,11 +54,11 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-8);
-  height: 100%;
   padding: var(--spacing-8) var(--spacing-12);
   font-size: var(--font-size-100);
+  font-weight: 500;
   line-height: 1;
-  color: var(--color-label-secondary);
+  color: var(--color-label-placeholder);
 }
 
 .suffix {
@@ -75,8 +73,13 @@
   background: var(--color-label-tertiary);
 }
 
-/* The switch label uses the basic ink, 14px Medium. */
+/* Switch box: 32 high, r8, the dropdowns' old hairline. */
 .toggleBox {
-  flex: 0 0 215px;
-  justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-hairline) solid rgba(169, 172, 177, 0.6);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
 }

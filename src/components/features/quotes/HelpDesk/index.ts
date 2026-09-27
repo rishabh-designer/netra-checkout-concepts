@@ -1,2 +1,2 @@
-export { HelpDesk } from "./HelpDesk";
-export type { HelpDeskProps } from "./HelpDesk";
+export { NeedHelpCard } from "./HelpDesk";
+export type { NeedHelpCardProps } from "./HelpDesk";

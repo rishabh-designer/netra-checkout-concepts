@@ -130,10 +130,10 @@ export function Clear() {
 }
 
 /** Chevron for a select control. */
-export function ChevronDown() {
+export function ChevronDown({ size = 14, color = "var(--color-label-tertiary)" }: { size?: number; color?: string }) {
   return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
-      <path d="m4 6 4 4 4-4" stroke="var(--color-label-tertiary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 16 16" width={size} height={size} fill="none" aria-hidden>
+      <path d="m4 6 4 4 4-4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

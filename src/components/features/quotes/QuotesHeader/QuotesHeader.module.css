@@ -42,3 +42,17 @@
   display: inline-flex;
   flex-shrink: 0;
 }
+
+/* Secondary 500 fill (Ask BimaNetra on the Quotes page). */
+.cta[data-tone="secondary"] {
+  border-color: var(--color-brand-secondary);
+  border-radius: var(--radius-16); /* one step rounder than the r12 CTA */
+  background: var(--color-brand-secondary);
+}
+
+.cta[data-tone="secondary"]:hover {
+  background: var(--color-brand-secondary);
+  border-color: var(--color-brand-secondary-subtle-bold);
+  box-shadow: var(--shadow-button-secondary-hover);
+  filter: brightness(0.96);
+}

@@ -270,6 +270,8 @@ export interface QuoteModalContent {
   validationMessages: Partial<Record<CheckoutValidator, string>>;
   /** Footer-stepper pills — labels only; the last ("Quotes") is a future step
    *  with no form. Earlier than the current step = done/green. */
+  /** The form's title on every step (clicking it is the demo auto-fill). */
+  formTitle: string;
   stepperLabels: string[];
   ctaLabel: string;
   /** Help-row error under the company name when the form is sent empty. */
@@ -283,9 +285,18 @@ export interface FocusHeroContent {
   eyebrow: string;
   /** Product icon between the pills (shown top half, shimmering). */
   plpIconSrc: string;
-  /** Headline in two parts: the cover (orange, small) + the price (purple). */
-  headlineCover: string;
-  headlinePrice: string;
+  /** Headline in two parts: the cover (orange, small, a dropdown) + the
+   *  starting price for that cover (purple). */
+  coverOptions: { cover: string; price: string }[];
+  /** The cover shown first (one of coverOptions). */
+  defaultCover: string;
+  /** Word after the cover amount ("₹25 Lakh Cover"). */
+  coverSuffix: string;
+  /** Price line; `{cover}` / `{price}` are swapped for the chosen cover and its price. */
+  priceTemplate: string;
+  coverPickerLabel: string;
+  /** Hide the cover line (and its dropdown); the price keeps defaultCover's. */
+  hideCover?: boolean;
   /** What the policy covers — rotated in the chip under the subtitle. */
   coveredChips: string[];
   /** Green tick shared with the Quote Card coverage chips. */

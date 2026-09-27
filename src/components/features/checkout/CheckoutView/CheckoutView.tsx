@@ -134,11 +134,13 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
         <div className={styles.formPanel}>
           <main className={styles.content}>
             <div className={styles.head}>
-              <Link href={quotesHref} className={styles.back}>
+              {/* Back goes one step at a time: the previous step, or the
+                  quotes from the first. */}
+              <Link href={i > 0 ? hrefFor(steps[i - 1]) : quotesHref} className={styles.back}>
                 <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
                   <path d="M10 6H2m3-3L2 6l3 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                {content.backLabel}
+                {i > 0 ? content.backToStepLabel.replace("{step}", content.stepperLabels[steps[i - 1]]) : content.backLabel}
               </Link>
               {/* Title and stepper share one row (Figma 639:24325), closed by a
                   hairline; they stack on narrower screens. */}

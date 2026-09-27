@@ -114,6 +114,9 @@ export interface CheckoutContent {
   /** Page title (every step) and the back chip to the quotes. */
   title: string;
   backLabel: string;
+  /** The back chip after the first step: `{step}` is the previous step's
+   *  stepper label ("Back to Billing"). */
+  backToStepLabel: string;
   /** Agent Progress above the summary: runs from checkout's first step until
    *  the final CTA is pressed. */
   preparingLabel: string;

@@ -54,3 +54,13 @@
   line-height: 1;
   color: var(--color-label-muted-primary);
 }
+
+/* Current page as a toggle: reads exactly like the plain current item. */
+.currentButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-feature-settings: inherit;
+  cursor: pointer;
+}

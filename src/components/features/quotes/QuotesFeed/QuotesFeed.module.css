@@ -1,53 +1,71 @@
-/* Middle column (Figma 564:32970): fixed top over a scrolling stack. */
-/* The feed always spans its track (it measures that width to pick a layout);
-   the one-up list keeps its top row at 691 instead. */
+/* Feed column (Figma 658:45849): the top section, then the controls over
+   the quote grid. The whole column scrolls (the page and sidebar stay put);
+   scrollbar hidden to match the Figma frame. Scrolling is on this box, which
+   bleeds 24px into the gutter (padding puts the content back) so card glows
+   and the Gold beam aren't clipped at the edge. */
 .feed {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-24);
   width: 100%;
   height: 100%;
   min-height: 0;
-  margin: 0 auto;
+  overflow-y: auto;
+  scrollbar-width: none;
+  margin-inline: calc(-1 * var(--spacing-24));
+  padding: var(--spacing-16) var(--spacing-24) 96px;
+  box-sizing: content-box;
 }
 
-/* Fixed top (571:39337): 16px vertical padding, centred, gap 16. Its fill is
-   the page's own viewport gradient pinned to the viewport, so it reads as the
-   background behind it while still masking cards that scroll underneath. */
-.feed:not([data-compact]) .top {
-  width: 100%;
-  max-width: 691px;
-  margin-inline: auto;
+.feed::-webkit-scrollbar {
+  display: none;
 }
 
+/* Top section (658:45850): heading left, Need Help right, rule under, 16 apart. */
 .top {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: var(--spacing-16);
-  padding: var(--spacing-16) 0;
-  background: var(--gradient-quotes-hero);
-  background-attachment: fixed;
   flex-shrink: 0;
 }
 
-/* Breadcrumb left-aligned, "7 Quotes Available" right (601:65042). */
-.crumbRow {
+.topRow {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  gap: var(--spacing-16);
-  width: 100%;
+  gap: var(--spacing-24);
 }
 
-.available {
+/* Breadcrumb at the top, the title at the foot of the card's height. */
+.heading {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  min-width: 0;
+  padding-top: var(--spacing-12);
+}
+
+/* "7 Director's & Officer's Insurance Quotes" (658:45854): 32px mark, serif 32. */
+.title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
-  font-size: var(--font-size-heading-sm);
+  font-size: var(--font-size-heading-lg);
   font-style: italic;
   font-weight: 400;
   line-height: 1;
-  color: var(--color-label-primary);
-  white-space: nowrap;
+  color: var(--color-label-basic);
+}
+
+/* Hidden for now (markup kept); delete `display: none` to bring it back. */
+.titleIcon {
+  display: none;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
 }
 
 /* Odometer: the count rolls when the Gold Quote joins the feed. */
@@ -58,63 +76,50 @@
   vertical-align: bottom;
   padding-bottom: 0.1em;
   margin-bottom: -0.1em;
+  /* The italic digit leans past its box; side room keeps it unclipped
+     without moving the text. */
+  padding-inline: 0.15em;
+  margin-inline: -0.15em;
 }
 
 .countDigit {
   display: inline-block;
 }
 
-/* Page-width rule: 8×4 marks, 8/12 padding (564:36087). */
+/* Full-width rule: 8×4 marks, 8/12 padding (658:50340). */
 .rule {
   width: 100%;
   padding: var(--spacing-8) var(--spacing-12);
 }
 
-/* Only this area scrolls. Scrollbar hidden to match the Figma frame.
-   A scroll box clips at its edges, so it bleeds 24px into the column gutters
-   (padding puts the content back) to give card glows room at the sides, and
-   its top edge fades rather than cuts — glows and cards dissolve under the
-   feed header instead of meeting a hard line. */
-.scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: none;
-  margin-inline: calc(-1 * var(--spacing-24));
-  padding-inline: var(--spacing-24);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--spacing-24));
-  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--spacing-24));
-}
-
-.scroll::-webkit-scrollbar {
-  display: none;
-}
-
-/* 480-wide centred stack (564:32996). */
-.column {
+/* Controls over the grid, 32 apart (658:45875). */
+.results {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-32);
-  width: 480px;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: var(--spacing-24) 0 var(--spacing-32);
 }
 
+/* The grid (658:45979): --cols from the feed's width, 24 apart; cells in a
+   row stretch to one height; the Reveal slot takes the first cell. */
 .stack {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
+  align-items: stretch;
   gap: var(--spacing-24);
 }
 
-/* Reveal wrapper — the card fills it. */
 .cell {
   display: flex;
   min-width: 0;
 }
 
+.cell > * {
+  flex: 1;
+}
+
 /* No quotes left after filtering: a quiet note and a reset. */
 .empty {
+  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -153,43 +158,23 @@
   background: var(--color-brand-primary-subtle);
 }
 
-
-
-
-/* Below the 3-column breakpoint the page scrolls naturally. */
+/* Below the 2-column breakpoint the page scrolls naturally. */
 @media (max-width: 1100px) {
   .feed {
     height: auto;
-  }
-  .scroll {
     overflow: visible;
     margin-inline: 0;
     padding-inline: 0;
-    -webkit-mask-image: none;
-    mask-image: none;
+    box-sizing: border-box;
   }
 }
 
-/* ── Compact grid ──────────────────────────────────────────────────────
-   Two or three up (--cols, set from the feed's width): cells in a row
-   stretch to one height; the Reveal slot takes the first cell like any
-   quote. */
-.feed[data-compact] .column {
-  width: 100%;
-}
-
-.feed[data-compact] .stack {
-  display: grid;
-  /* The compact card is drawn at ~399 (Figma 640:24913). */
-  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
-  align-items: stretch;
-  gap: var(--spacing-16);
-}
-
-.feed[data-compact] .cell {
-  display: flex;
-}
-
-.feed[data-compact] .cell > * {
-  flex: 1;
+/* Narrow: Need Help drops under the heading. */
+@media (max-width: 760px) {
+  .topRow {
+    flex-direction: column;
+  }
+  .title {
+    font-size: var(--font-size-heading-sm);
+  }
 }

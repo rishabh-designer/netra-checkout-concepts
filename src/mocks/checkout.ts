@@ -73,6 +73,7 @@ export const mockCheckoutContent: CheckoutContent = {
   },
   title: "Checkout",
   backLabel: "Back to Quotes",
+  backToStepLabel: "Back to {step}",
   preparingLabel: "Preparing Checkout",
   saveLabel: "Save & Continue",
   verifyText: "I confirm these details are correct. The insurer issues my policy using them, so I have checked them carefully.",
@@ -115,8 +116,8 @@ export const mockCheckoutContent: CheckoutContent = {
       sectionTitle: "KYC Details",
       otherPerson: "hidden",
       uploads: [
-        { key: "gstinFile", label: "Upload Company GST Certificate - Image or PDF", reviewLabel: "GSTIN Upload", title: "Upload Company GST" },
-        { key: "panFile", label: "Upload Company PAN Card - Image or PDF", reviewLabel: "Company Pan Card Upload", title: "Upload Company PAN Card" },
+        { key: "gstinFile", label: "Upload a PDF or an Image of your Company GST Certificate", reviewLabel: "GSTIN Upload", title: "Upload Company GST" },
+        { key: "panFile", label: "Upload a PDF or an Image of your Company PAN Card", reviewLabel: "Company Pan Card Upload", title: "Upload Company PAN Card" },
       ],
       cases: {
         A: kycFields({ value: "29AAJCP5565B1Z5", status: "verified" }, { value: "AAJCP5565B", status: "verified" }),

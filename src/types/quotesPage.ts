@@ -7,6 +7,8 @@ export interface QuotesHeaderContent {
   logoSrc: string;
   logoAlt: string;
   ctaLabel: string;
+  /** The CTA once pressed, when it is a one-shot action (Send Risk Report). */
+  ctaSentLabel?: string;
 }
 
 /** One "Your Details" row. `key` (a flow field key) overrides `value` with the
@@ -120,8 +122,13 @@ export interface FeatureTab {
 
 /** "View All Features" drawer (Figma 587:63725). */
 export interface FeaturesDrawerContent {
+  /** Labels the modal for screen readers (the design shows no title). */
   title: string;
   closeLabel: string;
+  /** Foot of the modal's summary card: the D&O mark over the product name
+   *  (two lines, split at the newline). */
+  productIconSrc: string;
+  productName: string;
   /** Tab key opened first — the card's "Top Coverages" leads into coverages. */
   defaultTab: string;
   tabs: FeatureTab[];
@@ -158,10 +165,15 @@ export type QuoteSort = "default" | "priceLow" | "priceHigh" | "coverage";
 export interface QuotesFeedContent {
   /** Where a quote's price button leads (checkout, first step). */
   checkoutHref: string;
-  /** Right of the breadcrumb (601:65040); `{count}` is the number of quotes. */
+  /** Feed title under the breadcrumb (658:45856); `{count}` is the number of quotes. */
   availableLabel: string;
+  /** D&O product mark before the title (32px). */
+  titleIconSrc: string;
   breadcrumb: BreadcrumbItem[];
   needHelp: NeedHelpContent;
+  /** Labels over the two dropdowns (658:50289 / 50311). */
+  filterFieldLabel: string;
+  sortFieldLabel: string;
   /** Dropdown trigger copy; `{option}` is the chosen option's label. */
   filterLabel: string;
   filterOptions: { id: QuoteFilter; label: string }[];
@@ -193,6 +205,10 @@ export interface QuotesFeedContent {
    *  modal (schedule a call, or proceed online), then Additional Details. */
   goldGateByCase?: Partial<Record<QuoteCaseId, GoldGateContent>>;
   topCoveragesLabel: string;
+  /** Card coverages chip; `{count}` is the number of coverages. */
+  coverageCountLabel: string;
+  /** The Gold Quote's chip ("4 Personalized Coverages"). */
+  personalizedCountLabel: string;
   /** Compact grid: the coverage box of an offline quote (no coverages). */
   coveragesUnavailableLabel: string;
   /** Rating chip copy (shown beside "Top Coverages" when a Gold Quote leads). */

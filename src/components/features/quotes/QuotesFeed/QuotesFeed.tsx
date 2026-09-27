@@ -10,9 +10,10 @@ import { BreadcrumbTrail } from "@/components/ui/BreadcrumbTrail";
 import type { QuoteCardData, QuoteFilter, QuoteRating, QuoteSort, QuotesFeedContent } from "@/types/quotesPage";
 import type { QuoteCaseId } from "@/lib/quote-flow";
 import { FeedControls } from "../FeedControls";
-import { FeaturesDrawer, type QuoteTone } from "../FeaturesDrawer";
+import { FeaturesModal, type QuoteTone } from "../FeaturesModal";
 import { AdditionalDetailsDrawer, GoldGateModal } from "../GoldGate";
-import { QuoteCard } from "../QuoteCard";
+import { QuoteCard, type QuoteCardView } from "../QuoteCard";
+import { NeedHelpCard } from "../HelpDesk";
 import { RevealCard } from "../RevealCard";
 import type { PriceIntro } from "../PriceMorph";
 import styles from "./QuotesFeed.module.css";
@@ -31,11 +32,12 @@ export interface QuotesFeedProps {
   onRevealed?: () => void;
 }
 
-/* The feed picks its own layout from the width it gets: the full card, one
-   up, until two compact cards fit side by side, then up to three. Collapsing
-   the details sidebar widens the feed, so it can add a column. */
-const MIN_COMPACT = 320; // three fit on a ~1440–1512 screen with the sidebar collapsed
-const GRID_GAP = 16;
+/* The grid picks its column count from the feed's width: one up, until two
+   cards fit side by side, then up to three (Figma 658:45979: 346-wide cards,
+   24 apart). QuotesSkeleton mirrors these breakpoints in CSS (664 / 1008px)
+   - keep them in step. */
+const MIN_COMPACT = 320;
+const GRID_GAP = 24;
 const MAX_COLS = 3;
 /* The gated Gold Quote (Case B) remembers its Additional Details for the run. */
 const readGoldDetails = () => {
@@ -84,7 +86,6 @@ function arrange(list: QuoteCardData[], filter: QuoteFilter, sort: QuoteSort, im
 export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed }: QuotesFeedProps) {
   const feedRef = useRef<HTMLDivElement>(null);
   const [cols, setCols] = useState(1);
-  const compact = cols > 1;
   useLayoutEffect(() => {
     const el = feedRef.current;
     if (!el) return;
@@ -96,16 +97,20 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   const labels = {
     sumInsured: content.sumInsuredLabel,
     getQuote: content.getQuoteLabel,
-    viewFeatures: content.viewFeaturesLabel,
     compare: content.compareLabel,
     comparisonUnavailable: content.comparisonUnavailableLabel,
     immediatePurchase: content.immediatePurchaseLabel,
-    revealQuote: content.revealQuoteLabel,
-    topCoverages: content.topCoveragesLabel,
-    coveragesUnavailable: content.coveragesUnavailableLabel,
     poweredBy: content.poweredByLabel,
+    topCoverages: content.topCoveragesLabel,
+    coverageCount: content.coverageCountLabel,
+    personalizedCount: content.personalizedCountLabel,
+    viewFeatures: content.viewFeaturesLabel,
+    coveragesUnavailable: content.coveragesUnavailableLabel,
     ratings: content.ratingLabels,
   };
+  // Card view: the current card, or the previous Top Coverages card
+  // (LIVE QUOTES in the breadcrumb swaps them).
+  const [cardView, setCardView] = useState<QuoteCardView>("compact");
 
   const reduced = useReducedMotion();
   // Cases A and B both lead with the Reveal slot: the customer unveils their
@@ -119,18 +124,14 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   const gold = (caseId && content.goldQuoteByCase?.[caseId]) ?? content.goldQuote;
   const base = (caseId && content.quotesByCase?.[caseId]) ?? content.quotes;
   const list = ghostFirst && revealed ? [gold, ...base] : base;
-  // Ratings ripple down the feed only at the moment of the reveal.
-  const [ripple, setRipple] = useState(false);
   // The revealed Gold Quote's price strikes down once the card lands.
   const [revealIntro, setRevealIntro] = useState<PriceIntro>(() => (revealed ? "done" : "idle"));
   useEffect(() => {
     if (revealed) return;
-    setRipple(false);
     setRevealIntro("idle");
   }, [revealed]);
-  // With a Gold Quote in the feed, every quote is rated against it (Netra's
-  // Gold covers everything the user needs): gold Excellent, immediate Good,
-  // priced Average, offline Get Quote N/A.
+  // Top Coverages view: with a Gold Quote in the feed, every quote is rated
+  // against it — gold Excellent, immediate Good, priced Average, offline N/A.
   const hasGold = list.some((q) => q.gold);
   const rate = (q: QuoteCardData): QuoteRating =>
     q.gold ? "excellent" : q.immediate ? "good" : q.price ? "average" : "na";
@@ -139,8 +140,8 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   const toneOf = (q: QuoteCardData): QuoteTone =>
     q.gold ? "gold" : q.immediate ? "immediate" : q.price ? "priced" : "quote";
 
-  // "View All Features" drawer — remembers the card it opened from so the
-  // footer mirrors it (and stays filled while the drawer slides out).
+  // Policy details modal — remembers the card it opened from so it mirrors
+  // it (and stays filled while the modal fades out).
   const [featuresQuote, setFeaturesQuote] = useState<QuoteCardData | null>(null);
   const [featuresOpen, setFeaturesOpen] = useState(false);
   const closeFeatures = useCallback(() => setFeaturesOpen(false), []);
@@ -202,33 +203,51 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
         };
 
   return (
-    <div ref={feedRef} className={styles.feed} data-compact={compact || undefined} style={{ "--cols": cols } as CSSProperties}>
-      {/* Fixed top */}
+    <div ref={feedRef} className={styles.feed} style={{ "--cols": cols } as CSSProperties}>
+      {/* Top section (658:45850): breadcrumb over the titled count, the Need
+          Help card on the right, and a full-width ikkat rule. */}
       <div className={styles.top}>
-        {/* Breadcrumb left, quote count right (601:65042) */}
-        <div className={styles.crumbRow}>
-          <BreadcrumbTrail items={content.breadcrumb} variant="slash" />
-          <p className={styles.available}>
-            {countBefore}
-            <span className={styles.count}>
-              <AnimatePresence mode="popLayout" initial={false}>
-                <motion.span
-                  key={shownCount}
-                  className={styles.countDigit}
-                  initial={reduced ? { opacity: 0 } : { y: "100%", opacity: 0, filter: "blur(4px)" }}
-                  animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
-                  exit={reduced ? { opacity: 0 } : { y: "-100%", opacity: 0, filter: "blur(4px)" }}
-                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  {shownCount}
-                </motion.span>
-              </AnimatePresence>
-            </span>
-            {countAfter}
-          </p>
+        <div className={styles.topRow}>
+          <div className={styles.heading}>
+            <BreadcrumbTrail
+              items={content.breadcrumb}
+              variant="slash"
+              onCurrentClick={() => setCardView((v) => (v === "compact" ? "features" : "compact"))}
+              currentPressed={cardView === "features"}
+            />
+            <h1 className={styles.title}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={content.titleIconSrc} alt="" aria-hidden className={styles.titleIcon} />
+              <span>
+                {countBefore}
+                <span className={styles.count}>
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    <motion.span
+                      key={shownCount}
+                      className={styles.countDigit}
+                      initial={reduced ? { opacity: 0 } : { y: "100%", opacity: 0, filter: "blur(4px)" }}
+                      animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
+                      exit={reduced ? { opacity: 0 } : { y: "-100%", opacity: 0, filter: "blur(4px)" }}
+                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      {shownCount}
+                    </motion.span>
+                  </AnimatePresence>
+                </span>
+                {countAfter}
+              </span>
+            </h1>
+          </div>
+          <NeedHelpCard content={content.needHelp} />
         </div>
+        <IkkatDivider unit={23.8} height={4} className={styles.rule} />
+      </div>
+
+      {/* Controls over the grid, 32 apart (658:45875). */}
+      <div className={styles.results}>
         <FeedControls
-          alignStart={compact}
+          filterFieldLabel={content.filterFieldLabel}
+          sortFieldLabel={content.sortFieldLabel}
           filterLabel={content.filterLabel}
           filterOptions={content.filterOptions}
           filter={filter}
@@ -241,12 +260,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           immediateOnly={immediateOnly}
           onImmediateOnlyChange={setImmediateOnly}
         />
-        <IkkatDivider unit={23.8} height={4} className={styles.rule} />
-      </div>
 
-      {/* Scrolls: the quote stack */}
-      <div className={styles.scroll}>
-        <div className={styles.column}>
           <div className={styles.stack}>
             {ghostFirst && (
               <motion.div key="reveal-slot" className={styles.cell} {...reveal(0)}>
@@ -254,16 +268,13 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                   unlocked={unlocked}
                   revealed={revealed}
                   labels={{ reveal: content.revealQuoteLabel, lockedHint: content.revealLockedHint, readyHint: content.revealReadyHint }}
-                  onRevealed={() => {
-                    setRipple(true);
-                    onRevealed?.();
-                  }}
+                  onRevealed={() => onRevealed?.()}
                   // The price strikes down once the card sits still, so the
                   // morph never restarts when the reveal layer hands over.
                   onSettled={() => setRevealIntro("play")}
                 >
                   <QuoteCard
-                    compact={compact}
+                    view={cardView}
                     quote={goldCard}
                     labels={labels}
                     onViewFeatures={() => {
@@ -280,7 +291,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
             {shown.map((quote, i) => {
               const card = (
                 <QuoteCard
-                  compact={compact}
+                  view={cardView}
                   quote={quote}
                   labels={labels}
                   onViewFeatures={() => {
@@ -288,7 +299,6 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                     setFeaturesOpen(true);
                   }}
                   onSelect={checkoutFor(quote)}
-                  ratingDelay={ripple ? 0.35 + i * 0.07 : undefined}
                 />
               );
               // Keyed by insurer so a re-sort slides cards to their new slots.
@@ -315,16 +325,15 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
               </div>
             )}
           </div>
-        </div>
       </div>
 
-      <FeaturesDrawer
+      <FeaturesModal
         open={featuresOpen}
         onClose={closeFeatures}
         content={content.featuresDrawer}
         quote={featuresQuote}
         tone={featuresQuote ? toneOf(featuresQuote) : "quote"}
-        labels={{ sumInsured: content.sumInsuredLabel, getQuote: content.getQuoteLabel }}
+        labels={labels}
         onSelect={featuresQuote ? (featuresQuote.gold ? selectGold(goldCard) : checkoutFor(featuresQuote)) : undefined}
       />
 

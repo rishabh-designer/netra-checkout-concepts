@@ -20,6 +20,8 @@ export interface SelectMenuProps {
   /** Rendered inside the trigger after its text (chevron, glyphs). */
   adornment?: ReactNode;
   triggerClassName?: string;
+  /** Extra class on the floating option list (width, max height). */
+  listClassName?: string;
 }
 
 /**
@@ -43,6 +45,7 @@ export function SelectMenu({
   triggerLabel,
   adornment,
   triggerClassName,
+  listClassName,
 }: SelectMenuProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -116,7 +119,7 @@ export function SelectMenu({
       </button>
 
       {open && (
-        <ul ref={listRef} id={listId} role="listbox" className={styles.list}>
+        <ul ref={listRef} id={listId} role="listbox" className={cn(styles.list, listClassName)}>
           {options.map((opt, i) => {
             const selected = opt === value;
             return (

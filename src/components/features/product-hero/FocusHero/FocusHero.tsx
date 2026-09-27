@@ -1,12 +1,15 @@
 "use client";
 
-import { Fragment, type CSSProperties } from "react";
+import { Fragment, useState, type CSSProperties } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { FocusHeroContent, ProductPageContent } from "@/types/productPage";
 import type { QuotesPreview } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
 import { IkkatMark } from "@/components/ui/IkkatMark";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { InsurerLogoShowcase } from "@/components/ui/InsurerLogoShowcase";
+import { SelectMenu } from "@/components/ui/SelectMenu";
+import { ChevronDown } from "@/components/ui/InteractiveInput/icons";
 import { EyeIcon } from "@/components/icons/EyeIcon";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import { LeadFormCard } from "../LeadFormCard";
@@ -32,41 +35,60 @@ export interface FocusHeroProps {
 const beat = (i: number) => ({ "--i": i }) as CSSProperties;
 
 export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
+  const reduced = useReducedMotion();
+  const [cover, setCover] = useState(focus.defaultCover);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const price = focus.coverOptions.find((o) => o.cover === cover)?.price ?? focus.coverOptions[0].price;
+
   return (
     <main className={styles.column}>
-      {/* Top stack (Figma 626:15872): pills around the half-cropped product
-          icon, sat on the PLP name rule. */}
+      {/* Top stack (Figma 626:15872): the half-cropped product icon sat on
+          the PLP name rule (its pills now head the form card). */}
       <div className={`${styles.top} ${styles.enter}`} style={beat(1)}>
         <div className={styles.pills}>
-          {content.tags.map((tag, i) => (
-            <Fragment key={tag.label}>
-              {i === 1 && (
-                <PlpMark src={focus.plpIconSrc} />
-              )}
-              <TagPill
-                label={tag.label}
-                variant={tag.variant}
-                className={styles.pill}
-                icon={
-                  tag.icon === "shoppingBag" ? (
-                    <ShoppingBagIcon size={12} color="var(--color-success)" />
-                  ) : tag.icon === "eye" ? (
-                    <EyeIcon size={12} color="var(--color-brand-secondary)" />
-                  ) : undefined
-                }
-              />
-            </Fragment>
-          ))}
+          <PlpMark src={focus.plpIconSrc} />
         </div>
         <p className={styles.plpName}>{focus.eyebrow}</p>
       </div>
 
-      {/* Offer-led headline: the cover as a warm lead-in, the price as the hero. */}
+      {/* Offer-led headline: the cover as a warm lead-in (a dropdown), the
+          starting price for it as the hero. */}
       <div className={styles.heading}>
-        <h1 className={styles.title}>
-          <span className={`${styles.cover} ${styles.enter}`} style={beat(2)}>{focus.headlineCover}</span>{" "}
-          <span className={`${styles.price} ${styles.enter}`} style={beat(3)}>{focus.headlinePrice}</span>
-        </h1>
+        <div className={styles.titleBlock}>
+          {!focus.hideCover && (
+            <div className={`${styles.coverPick} ${styles.enter}`} style={beat(2)} data-open={pickerOpen || undefined}>
+              <SelectMenu
+                value={cover}
+                options={focus.coverOptions.map((o) => o.cover)}
+                onChange={setCover}
+                onOpenChange={setPickerOpen}
+                ariaLabel={focus.coverPickerLabel}
+                triggerLabel={`${cover} ${focus.coverSuffix}`}
+                adornment={
+                  <span className={styles.coverChevron}>
+                    <ChevronDown size={20} color="currentColor" />
+                  </span>
+                }
+                triggerClassName={styles.coverTrigger}
+                listClassName={styles.coverList}
+              />
+            </div>
+          )}
+          <h1 className={`${styles.title} ${styles.enter}`} style={beat(3)}>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={price}
+                className={styles.price}
+                initial={reduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {focus.priceTemplate.replace("{cover}", cover).replace("{price}", price)}
+              </motion.span>
+            </AnimatePresence>
+          </h1>
+        </div>
         <p className={`${styles.subtitle} ${styles.enter}`} style={beat(4)}>{content.subtitle}</p>
         <div className={styles.enter} style={beat(5)}>
           <CoverageTicker items={focus.coveredChips} iconSrc={focus.coveredIconSrc} />
@@ -84,6 +106,25 @@ export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
             quoteModal={content.quoteModal}
             focus={{ privacyLine: focus.privacyLine }}
             quotesPreview={quotesPreview}
+            topSlot={
+              <div className={styles.cardPills}>
+                {content.tags.map((tag) => (
+                  <TagPill
+                    key={tag.label}
+                    label={tag.label}
+                    variant={tag.variant}
+                    className={styles.pill}
+                    icon={
+                      tag.icon === "shoppingBag" ? (
+                        <ShoppingBagIcon size={12} color="var(--color-success)" />
+                      ) : tag.icon === "eye" ? (
+                        <EyeIcon size={12} color="var(--color-brand-secondary)" />
+                      ) : undefined
+                    }
+                  />
+                ))}
+              </div>
+            }
           />
         </div>
 

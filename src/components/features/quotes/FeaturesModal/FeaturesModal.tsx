@@ -1,0 +1,229 @@
+"use client";
+
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import type { FeatureTab, FeaturesDrawerContent, QuoteCardData } from "@/types/quotesPage";
+import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
+import { EyeIcon } from "@/components/icons/EyeIcon";
+import { SideDrawer } from "@/components/ui/SideDrawer";
+import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
+import { coverageChipLabel, type QuoteCardLabels } from "../QuoteCard";
+import styles from "./FeaturesModal.module.css";
+
+export type QuoteTone = "gold" | "immediate" | "priced" | "quote";
+
+export interface FeaturesModalProps {
+  open: boolean;
+  onClose: () => void;
+  content: FeaturesDrawerContent;
+  /** The card the modal was opened from — its tag, logo, coverages, Sum
+   *  Insured and button are mirrored. Kept while closing so the exit doesn't
+   *  blank. */
+  quote: QuoteCardData | null;
+  tone: QuoteTone;
+  labels: QuoteCardLabels;
+  /** Footer price button: same action as the card's (starts checkout). */
+  onSelect?: () => void;
+}
+
+/** Item marker per tab tone: blue tick (658:50478), red cross, purple dot. */
+function Marker({ tone }: { tone: FeatureTab["tone"] }) {
+  if (tone === "covered") return <SquareCheckbox tone="info" state="checked" size={16} className={styles.marker} />;
+  if (tone === "excluded") {
+    return (
+      <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden className={styles.marker}>
+        <rect width="16" height="16" rx="4" fill="var(--color-error)" />
+        <path d="m5.3 5.3 5.4 5.4m0-5.4-5.4 5.4" stroke="var(--color-label-inverse)" strokeWidth="1.4" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  return <span className={styles.dot} aria-hidden />;
+}
+
+/**
+ * FeaturesModal — the policy details popover (Figma 658:50425), opened from a
+ * card's coverages chip. A 1200-wide panel: on the left, the quote's summary
+ * card (tag, logo, insurer, its coverages as ticked chips, and the D&O mark
+ * over the product name); on the right, the tab row (the active tab takes a
+ * tinted fill and purple underline), a scrolling list of titled
+ * explanations, and a raised footer mirroring the card's Sum Insured and
+ * price / Get Quote button.
+ * Usage: <FeaturesModal open={o} onClose={c} content={c} quote={q} tone="immediate" labels={…} />
+ */
+export function FeaturesModal({ open, onClose, content, quote, tone, labels, onSelect }: FeaturesModalProps) {
+  const reduced = useReducedMotion();
+  const [active, setActive] = useState(content.defaultTab);
+  const arrowRef = useRef<MoveRightIconHandle>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const baseId = useId();
+
+  // Each opening starts on the default tab, with focus on ×.
+  useEffect(() => {
+    if (!open) return;
+    setActive(content.defaultTab);
+    const id = window.setTimeout(() => closeRef.current?.focus(), 60);
+    return () => window.clearTimeout(id);
+  }, [open, content.defaultTab]);
+
+  const tab = content.tabs.find((t) => t.key === active) ?? content.tabs[0];
+
+  // Arrow keys move between tabs (WAI-ARIA tabs pattern).
+  const onTabKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const i = content.tabs.findIndex((t) => t.key === active);
+    const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    e.preventDefault();
+    const next = (i + step + content.tabs.length) % content.tabs.length;
+    setActive(content.tabs[next].key);
+    tabRefs.current[next]?.focus();
+  };
+
+  const filled = tone === "gold" || !!quote?.price;
+  const [nameTop, nameBottom] = content.productName.split("\n");
+
+  return (
+    <SideDrawer
+      open={open && !!quote}
+      onClose={onClose}
+      title={content.title}
+      closeLabel={content.closeLabel}
+      placement="center"
+      bare
+      width={1200}
+      className={styles.shell}
+    >
+      {quote && (
+        <div className={styles.modal} data-tone={tone}>
+          <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={content.closeLabel}>
+            <svg viewBox="0 0 12 12" width="10" height="10" fill="none" aria-hidden>
+              <path d="m3 3 6 6M9 3 3 9" stroke="var(--color-label-secondary)" strokeWidth="1.2" strokeLinecap="round" />
+            </svg>
+          </button>
+
+          {/* Summary card (658:50427) */}
+          <aside className={styles.summary}>
+            <div className={styles.summaryTop}>
+              <div className={styles.identity}>
+                <div className={styles.tagRow}>
+                  {tone === "gold" ? (
+                    <span className={styles.tag} data-tone="gold">
+                      <EyeIcon size={10} color="var(--color-brand-secondary)" />
+                      {labels.poweredBy}
+                    </span>
+                  ) : tone === "immediate" ? (
+                    <span className={styles.tag}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/media/quote-card/lightning.svg" alt="" aria-hidden className={styles.tagIcon} />
+                      {labels.immediatePurchase}
+                    </span>
+                  ) : null}
+                </div>
+                {quote.logoSrc && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={quote.logoSrc} alt="" aria-hidden className={styles.logo} />
+                )}
+                <p className={styles.insurer}>{quote.insurer}</p>
+              </div>
+
+              <div className={styles.coverages}>
+                <p className={styles.coveragesTitle}>{coverageChipLabel(quote, labels)}</p>
+                {!!quote.coverages?.length && (
+                  <ul className={styles.coverageList}>
+                    {quote.coverages.map((c) => (
+                      <li key={c} className={styles.coverage}>
+                        <SquareCheckbox tone="info" state="checked" size={12} />
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.product}>
+              <hr className={styles.productRule} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={content.productIconSrc} alt="" aria-hidden className={styles.productIcon} />
+              <p className={styles.productName}>
+                {nameTop}
+                {nameBottom && <br />}
+                {nameBottom}
+              </p>
+            </div>
+          </aside>
+
+          {/* Details (658:50476): tabs, the tab's list, the price footer. */}
+          <div className={styles.panel}>
+            <div className={styles.tabs} role="tablist" aria-label={content.title} onKeyDown={onTabKey}>
+              {content.tabs.map((t, i) => (
+                <button
+                  key={t.key}
+                  ref={(el) => {
+                    tabRefs.current[i] = el;
+                  }}
+                  type="button"
+                  role="tab"
+                  id={`${baseId}-tab-${t.key}`}
+                  aria-selected={t.key === tab.key}
+                  aria-controls={`${baseId}-panel`}
+                  tabIndex={t.key === tab.key ? 0 : -1}
+                  className={styles.tab}
+                  onClick={() => setActive(t.key)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            <div
+              id={`${baseId}-panel`}
+              role="tabpanel"
+              aria-labelledby={`${baseId}-tab-${tab.key}`}
+              className={styles.content}
+              tabIndex={0}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.ul
+                  key={tab.key}
+                  className={styles.list}
+                  initial={reduced ? false : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduced ? undefined : { opacity: 0, y: -4 }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  {tab.items.map((item) => (
+                    <li key={item.title} className={styles.item}>
+                      <p className={styles.itemTitle} data-tone={tab.tone}>
+                        <Marker tone={tab.tone} />
+                        {item.title}
+                      </p>
+                      <p className={styles.itemBody}>{item.body}</p>
+                    </li>
+                  ))}
+                </motion.ul>
+              </AnimatePresence>
+            </div>
+
+            <div className={styles.footer}>
+              <div className={styles.sum}>
+                <span className={styles.sumLabel}>{labels.sumInsured}</span>
+                <span className={styles.sumValue}>{quote.sumInsured}</span>
+              </div>
+              <button
+                type="button"
+                className={filled ? styles.buttonFilled : styles.buttonOutline}
+                onClick={onSelect}
+                onMouseEnter={() => arrowRef.current?.startAnimation()}
+                onMouseLeave={() => arrowRef.current?.stopAnimation()}
+              >
+                {quote.price ?? labels.getQuote}
+                <MoveRightIcon ref={arrowRef} size={16} loop className={styles.arrow} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </SideDrawer>
+  );
+}

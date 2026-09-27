@@ -8,6 +8,10 @@ export interface BreadcrumbTrailProps {
   /** ikkat = grey diamond separators (landing); slash = "/" separators in
    *  muted purple with a purple current page (Quotes feed, Figma 564:32971). */
   variant?: "ikkat" | "slash";
+  /** Makes the current page a toggle button (the Quotes page swaps its card
+   *  view from LIVE QUOTES); `currentPressed` is its state. */
+  onCurrentClick?: () => void;
+  currentPressed?: boolean;
 }
 
 /**
@@ -18,6 +22,8 @@ export interface BreadcrumbTrailProps {
 export function BreadcrumbTrail({
   items = [{ label: "HOME", href: "#" }, { label: "Current Page" }],
   variant = "ikkat",
+  onCurrentClick,
+  currentPressed,
 }: BreadcrumbTrailProps) {
   return (
     <nav aria-label="Breadcrumb" className={cn(styles.trail, variant === "slash" && styles.slash)}>
@@ -31,7 +37,17 @@ export function BreadcrumbTrail({
               ) : (
                 <IkkatMark color="var(--color-label-tertiary)" className={styles.sep} />
               ))}
-            {isLast ? (
+            {isLast && onCurrentClick ? (
+              <button
+                type="button"
+                className={cn(styles.current, styles.currentButton)}
+                aria-current="page"
+                aria-pressed={currentPressed}
+                onClick={onCurrentClick}
+              >
+                {item.label}
+              </button>
+            ) : isLast ? (
               <span className={styles.current} aria-current="page">
                 {item.label}
               </span>

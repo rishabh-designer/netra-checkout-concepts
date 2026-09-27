@@ -7,8 +7,9 @@ import type { QuoteFilter, QuoteSort } from "@/types/quotesPage";
 import styles from "./FeedControls.module.css";
 
 export interface FeedControlsProps {
-  /** Start-aligned (the compact grid, so the row lines up with the cards). */
-  alignStart?: boolean;
+  /** Field labels over the dropdowns ("Filter Insurance Brokers", "Sort Quotes"). */
+  filterFieldLabel: string;
+  sortFieldLabel: string;
   /** Trigger copy with an `{option}` slot ("Filtering: {option}"). */
   filterLabel: string;
   filterOptions: { id: QuoteFilter; label: string }[];
@@ -49,14 +50,17 @@ function Chevron() {
   );
 }
 
-/** One Filtering / Sorting dropdown: the DSL SelectMenu behind the box trigger. */
+/** One Filtering / Sorting field: a label over the DSL SelectMenu, drawn as
+ *  an underlined input (Figma 658:50287). */
 function Dropdown<T extends string>({
+  fieldLabel,
   label,
   options,
   value,
   onChange,
   icon,
 }: {
+  fieldLabel: string;
   label: string;
   options: { id: T; label: string }[];
   value: T;
@@ -66,42 +70,46 @@ function Dropdown<T extends string>({
   const current = options.find((o) => o.id === value) ?? options[0];
   const trigger = label.replace("{option}", current?.label ?? "");
   return (
-    <div className={styles.dropdown}>
-      <SelectMenu
-        value={current?.label ?? ""}
-        options={options.map((o) => o.label)}
-        onChange={(picked) => {
-          const next = options.find((o) => o.label === picked);
-          if (next) onChange(next.id);
-        }}
-        ariaLabel={trigger}
-        triggerLabel={trigger}
-        triggerClassName={styles.trigger}
-        adornment={
-          <span className={styles.suffix}>
-            <Chevron />
-            <span className={styles.divider} />
-            {icon}
-          </span>
-        }
-      />
+    <div className={styles.field}>
+      <span className={styles.fieldLabel}>{fieldLabel}</span>
+      <div className={styles.dropdown}>
+        <SelectMenu
+          value={current?.label ?? ""}
+          options={options.map((o) => o.label)}
+          onChange={(picked) => {
+            const next = options.find((o) => o.label === picked);
+            if (next) onChange(next.id);
+          }}
+          ariaLabel={trigger}
+          triggerLabel={trigger}
+          triggerClassName={styles.trigger}
+          adornment={
+            <span className={styles.suffix}>
+              <Chevron />
+              <span className={styles.divider} />
+              {icon}
+            </span>
+          }
+        />
+      </div>
     </div>
   );
 }
 
 /**
- * FeedControls — the centred row above the quote stack (Figma 564:32971): a
- * Filtering and a Sorting dropdown (226×32; label, chevron, divider, glyph) and
- * the "Immediate Purchase Only" switch in a matching bordered box. Controlled:
- * the feed owns the filter, sort and switch state.
+ * FeedControls — the row above the quote grid (Figma 658:45930): a labelled
+ * Filtering and Sorting field on the left (260 wide, underlined; value,
+ * chevron, divider, glyph) and the "Immediate Purchase Only" switch in a
+ * bordered box on the right. Controlled: the feed owns the filter, sort and
+ * switch state.
  * Usage: <FeedControls filterLabel filterOptions filter onFilterChange sortLabel … />
  */
 export function FeedControls(props: FeedControlsProps) {
   return (
-    <div className={styles.row} data-align={props.alignStart ? "start" : undefined}>
+    <div className={styles.row}>
       <div className={styles.dropdowns}>
-        <Dropdown label={props.filterLabel} options={props.filterOptions} value={props.filter} onChange={props.onFilterChange} icon={<FilterIcon />} />
-        <Dropdown label={props.sortLabel} options={props.sortOptions} value={props.sort} onChange={props.onSortChange} icon={<SortIcon />} />
+        <Dropdown fieldLabel={props.filterFieldLabel} label={props.filterLabel} options={props.filterOptions} value={props.filter} onChange={props.onFilterChange} icon={<FilterIcon />} />
+        <Dropdown fieldLabel={props.sortFieldLabel} label={props.sortLabel} options={props.sortOptions} value={props.sort} onChange={props.onSortChange} icon={<SortIcon />} />
       </div>
       <div className={styles.toggleBox}>
         <ToggleSwitch checked={props.immediateOnly} onChange={props.onImmediateOnlyChange} label={props.switchLabel} size="sm" />

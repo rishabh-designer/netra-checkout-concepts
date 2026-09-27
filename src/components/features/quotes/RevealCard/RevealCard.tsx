@@ -74,7 +74,17 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
   // The reveal sequence runs once the Gold layer is in the DOM.
   useEffect(() => {
     if (phase !== "revealing" || !goldRef.current || !scope.current) return;
-    const h = goldRef.current.offsetHeight;
+    // Land at the height the slot keeps once done: in the grid it stretches
+    // to its row, so take the taller of the Gold card and the other cards in
+    // that row (none in a one-up list). Holding the Gold layer at it too
+    // stops the slot shrinking to the card and then springing back.
+    const cell = scope.current.parentElement;
+    const rowPeers = cell?.parentElement
+      ? [...cell.parentElement.children].filter((el) => el !== cell && (el as HTMLElement).offsetTop === cell.offsetTop)
+      : [];
+    const rowH = Math.max(0, ...rowPeers.map((el) => (el as HTMLElement).offsetHeight));
+    const h = Math.max(goldRef.current.offsetHeight, rowH);
+    goldRef.current.style.minHeight = `${h}px`;
     const land = window.setTimeout(onRevealed, 1650);
     let cancelled = false;
 

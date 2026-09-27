@@ -1,0 +1,197 @@
+/*
+ * The previous "Top Coverages" card layout (Figma 640:24913 / 25533 / 25701),
+ * kept as the second card view (swap with the breadcrumb's LIVE QUOTES).
+ * Only its own layout lives here; tone gradients, the tag, the price button
+ * and the Gold beam come from QuoteCard.module.css, so both views share them.
+ * Logo beside the name, a Top Coverages box (rating, chips or an Unavailable
+ * block, ikkat rule, View All Features), and the bar at the foot:
+ * Add To Compare left, Sum Insured and the price right.
+ */
+.mark {
+  position: absolute;
+  top: 31.5px;
+  right: 28.66px;
+  width: 89.68px;
+  height: 89.68px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Same as the compact view: only the Gold Quote keeps the mark's colour. */
+article:not([data-tone="gold"]) > .mark {
+  mix-blend-mode: luminosity;
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  /* The header starts 12px below the ~25px tab, clear of it. */
+  padding: calc(25px + var(--spacing-12)) 0 var(--spacing-8);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: 0 var(--spacing-4);
+}
+
+.logo {
+  flex-shrink: 0;
+  height: 24px;
+  width: auto;
+  max-width: 100px;
+  object-fit: contain;
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-brand-primary);
+}
+
+.nameLine {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.coverage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+}
+
+/* "Top Coverages" row — label left, rating chip right (584:45342). */
+.coverageHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+}
+
+.coverageLabel {
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1.7;
+  color: var(--color-success);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+  width: 100%;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-6);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-6);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-label-primary);
+}
+
+.chipCheck {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+
+/* Offline: a sunken block holds the space the chips would. */
+.unavailable {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  min-height: 60px;
+  border-radius: var(--radius-8);
+  background: var(--color-card-sunken);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.12px;
+  color: var(--color-label-tertiary);
+}
+
+.rule {
+  align-self: stretch;
+}
+
+.rule > div {
+  padding: 0;
+}
+
+/* View All Features pill (587:62126): success tint, 12px SemiBold green. */
+.viewFeatures {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: 4.5px 6.5px;
+  border: var(--border-hairline) solid var(--color-success-border);
+  border-radius: var(--radius-8); /* one step rounder than Figma's r6 (house rule) */
+  background: var(--color-success-tint);
+  color: var(--color-success);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.12px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.viewFeatures:hover {
+  background: var(--color-success-subtle);
+  border-color: var(--color-success);
+}
+
+.viewFeatures svg {
+  transition: transform 0.2s ease;
+}
+
+.viewFeatures:hover svg {
+  transform: translateX(2px);
+}
+
+/* Bottom bar: compare left; Sum Insured + button right. */
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: var(--spacing-6) var(--spacing-8);
+  border-radius: var(--radius-8);
+  background: var(--bar-fill);
+}
+
+.barRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+}
+
+.rating {
+  display: inline-flex;
+}

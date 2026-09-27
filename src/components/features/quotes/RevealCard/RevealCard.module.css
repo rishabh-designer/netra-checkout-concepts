@@ -6,6 +6,11 @@
   width: 100%;
 }
 
+/* The revealed Gold card fills the slot, so it matches its row's height. */
+.slot > * {
+  flex: 1;
+}
+
 .slot[data-phase="revealing"] {
   overflow: visible;
 }

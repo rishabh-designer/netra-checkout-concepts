@@ -12,6 +12,10 @@ export interface QuotesHeaderProps {
   /** Leading CTA icon; defaults to the animated mail icon (Mail Quotes). */
   icon?: ReactNode;
   onCta?: () => void;
+  /** CTA copy in place of `content.ctaLabel` (e.g. once a one-shot is done). */
+  label?: string;
+  /** CTA fill: brand primary (default) or brand secondary (Ask BimaNetra). */
+  tone?: "primary" | "secondary";
   /** The CTA reads as pressed (a toggle, e.g. the grid experiment). */
   ctaPressed?: boolean;
   /** Put `icon` after the label (an arrow, e.g. "Speak to an Expert →"). */
@@ -25,7 +29,7 @@ export interface QuotesHeaderProps {
  * Checkout reuses it with "Contact Support" and a headset icon.
  * Usage: <QuotesHeader content={content.header} />
  */
-export function QuotesHeader({ content, logoHref = "/directors-and-officers-insurance", icon, onCta, ctaPressed, iconAfter = false }: QuotesHeaderProps) {
+export function QuotesHeader({ content, logoHref = "/directors-and-officers-insurance", icon, onCta, ctaPressed, iconAfter = false, label, tone = "primary" }: QuotesHeaderProps) {
   const mailRef = useRef<MailIconHandle>(null);
   return (
     <header className={styles.bar}>
@@ -36,13 +40,14 @@ export function QuotesHeader({ content, logoHref = "/directors-and-officers-insu
       <button
         type="button"
         className={styles.cta}
+        data-tone={tone === "secondary" ? "secondary" : undefined}
         onClick={onCta}
         aria-pressed={ctaPressed}
         onMouseEnter={() => mailRef.current?.startAnimation()}
         onMouseLeave={() => mailRef.current?.stopAnimation()}
       >
         {!iconAfter && (icon ?? <MailIcon ref={mailRef} size={12} aria-hidden className={styles.ctaIcon} />)}
-        <span>{content.ctaLabel}</span>
+        <span>{label ?? content.ctaLabel}</span>
         {iconAfter && icon}
       </button>
     </header>

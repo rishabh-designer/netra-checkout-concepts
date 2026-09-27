@@ -133,7 +133,7 @@ export function PurchaseSummary({ content, quote }: PurchaseSummaryProps) {
                 <div className={styles.row} data-offer>
                   <dt>{content.offerLabel}</dt>
                   <dd>
-                    {formatInr(saving)} <span className={styles.offerPct}>{content.offerPercent.replace("{pct}", String(pct))}</span>
+                    <span className={styles.offerPct}>{content.offerPercent.replace("{pct}", String(pct))}</span> {formatInr(saving)}
                   </dd>
                 </div>
                 <div className={styles.row} data-final>

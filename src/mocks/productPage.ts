@@ -343,6 +343,7 @@ export const mockProductPageContent: ProductPageContent = {
       // the demo company's legal name.
       { caseId: "C", aliases: ["studio two rupees llp", "studio two rupees"], canonicalName: "Studio Two Rupees LLP" },
     ],
+    formTitle: "Get Started",
     stepperLabels: ["Profile", "Business", "Risk"],
     ctaLabel: "Get Instant Quotes",
     // Steps before the last only move the flow on.
@@ -486,8 +487,25 @@ export const mockProductPageContent: ProductPageContent = {
   focusHero: {
     eyebrow: "Director’s & Officer’s Insurance",
     plpIconSrc: "/media/plp-icon.svg",
-    headlineCover: "₹25 Lakh Cover",
-    headlinePrice: "Starting At ₹3,000/Year",
+    // Starting (lowest) yearly premium per cover. Mock numbers: ₹10 Crore at
+    // ₹10,000 matches the feed's priced quotes.
+    coverOptions: [
+      { cover: "₹10 Lakh", price: "₹2,000" },
+      { cover: "₹25 Lakh", price: "₹3,000" },
+      { cover: "₹50 Lakh", price: "₹3,800" },
+      { cover: "₹1 Crore", price: "₹4,500" },
+      { cover: "₹2 Crore", price: "₹5,500" },
+      { cover: "₹5 Crore", price: "₹6,800" },
+      { cover: "₹10 Crore", price: "₹10,000" },
+      { cover: "₹25 Crore", price: "₹14,000" },
+      { cover: "₹50 Crore", price: "₹22,000" },
+      { cover: "₹100 Crore", price: "₹38,000" },
+    ],
+    defaultCover: "₹10 Crore",
+    coverSuffix: "Cover",
+    priceTemplate: "Get {cover} Cover at {price}/Year.",
+    coverPickerLabel: "Choose your cover amount",
+    hideCover: true,
     coveredIconSrc: "/media/coverage-check.svg",
     coveredChips: [
       "Covers legal & defence costs",

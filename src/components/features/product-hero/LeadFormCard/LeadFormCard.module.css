@@ -16,6 +16,11 @@
   gap: var(--spacing-8);
 }
 
+/* Focus hero: the product pills sit 16 over the promo banner. */
+.cardFocus .top {
+  gap: var(--spacing-16);
+}
+
 .priceBlock {
   display: flex;
   flex-direction: column;
@@ -175,6 +180,7 @@
 /* ---- Focus landing concept ---- */
 /* A raised white card so the form reads as the page's single destination. */
 .cardFocus {
+  padding-top: var(--spacing-16);
   background: var(--color-card);
   border: var(--border-hairline) solid var(--color-card);
   box-shadow: var(--shadow-raised-wide);

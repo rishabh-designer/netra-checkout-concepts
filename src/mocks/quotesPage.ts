@@ -98,8 +98,10 @@ const QUOTES: QuoteCardData[] = MATCHED_QUOTES.map((q) =>
 /** "View All Features" drawer copy (Figma 587:63725): standard Indian D&O
  *  cover in plain language, shared by every quote in this mock. */
 const FEATURES_DRAWER: FeaturesDrawerContent = {
-  title: "View All Features",
-  closeLabel: "Close features",
+  title: "Policy Details",
+  closeLabel: "Close policy details",
+  productIconSrc: "/media/checkout/product-icon.svg",
+  productName: "Director’s & Officer’s\nInsurance",
   defaultTab: "coverages",
   tabs: [
     {
@@ -172,7 +174,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
   header: {
     logoSrc: "/figma/logotype.svg",
     logoAlt: "BimaKavach",
-    ctaLabel: "Mail Quotes",
+    ctaLabel: "Ask BimaNetra",
   },
   detailsPanel: {
     title: "Your Details",
@@ -213,7 +215,8 @@ export const mockQuotesPageContent: QuotesPageContent = {
   },
   feed: {
     checkoutHref: "/directors-and-officers-insurance/checkout/billing",
-    availableLabel: "{count} Quotes Available",
+    availableLabel: "{count} Director’s & Officer’s Insurance Quotes",
+    titleIconSrc: "/media/checkout/product-icon.svg",
     breadcrumb: [
       { label: "HOME", href: "/directors-and-officers-insurance" },
       { label: "DIRECTOR’S & OFFICER’S INSURANCE", href: "/directors-and-officers-insurance" },
@@ -228,15 +231,17 @@ export const mockQuotesPageContent: QuotesPageContent = {
       chatLabel: "Chat with Us",
       chatIconSrc: "/media/chat-sparkle.svg",
     },
+    filterFieldLabel: "Filter Insurance Brokers",
     filterLabel: "Filtering: {option}",
     filterOptions: [
       { id: "all", label: "All" },
       { id: "priced", label: "Priced" },
       { id: "onRequest", label: "On Request" },
     ],
-    sortLabel: "Sorting: {option}",
+    sortFieldLabel: "Sort Quotes",
+    sortLabel: "Sort By {option}",
     sortOptions: [
-      { id: "default", label: "Default" },
+      { id: "default", label: "Relevancy" },
       { id: "priceLow", label: "Lowest Price" },
       { id: "priceHigh", label: "Highest Price" },
       { id: "coverage", label: "Widest Cover" },
@@ -251,18 +256,20 @@ export const mockQuotesPageContent: QuotesPageContent = {
     quotesByCase: { A: MATCHED_QUOTES, B: MATCHED_QUOTES },
     viewFeaturesLabel: "View All Features",
     featuresDrawer: FEATURES_DRAWER,
-    compareLabel: "Compare",
+    compareLabel: "Add To Compare",
     comparisonUnavailableLabel: "Unavailable",
     getQuoteLabel: "Get Quote",
     sumInsuredLabel: "Sum Insured",
     immediatePurchaseLabel: "Immediate Purchase",
     revealQuoteLabel: "Reveal Quote",
     revealLockedHint: "Unlocks once we've verified your business",
-    revealReadyHint: "Your Gold Quote is ready",
+    revealReadyHint: "Your Personalized Gold Quote is ready",
     goldQuote: CASE_B_GOLD,
     goldQuoteByCase: { A: CASE_A_GOLD },
     goldGateByCase: { B: CASE_B_GOLD_GATE },
     topCoveragesLabel: "Top Coverages",
+    coverageCountLabel: "{count} Top Coverages",
+    personalizedCountLabel: "{count} Personalized Coverages",
     coveragesUnavailableLabel: "Unavailable",
     ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },
     poweredByLabel: "Powered by BimaNetra",

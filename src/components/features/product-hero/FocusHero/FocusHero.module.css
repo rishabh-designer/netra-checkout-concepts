@@ -65,7 +65,14 @@
   gap: var(--spacing-8);
 }
 
-/* Both pills 148 wide so the icon sits dead centre. */
+/* Product pills at the head of the form card, right-aligned over the promo banner. */
+.cardPills {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-8);
+}
+
 .pill {
   width: 148px;
 }
@@ -87,21 +94,62 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-12);
+  /* 16 under the product name, not the column's 24. */
+  margin-top: calc(var(--spacing-16) - var(--spacing-24));
 }
 
 .title {
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
-  font-size: var(--font-size-display-xs);
+  font-size: var(--font-size-heading-xl);
   font-weight: 400;
   line-height: 1;
 }
 
-/* Cover: a small warm lead-in over the price. */
-.cover {
-  display: block;
+/* Cover over price, stacked tight (the heading's 12 gap sits below). */
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Cover: a small warm lead-in over the price, and a dropdown. The option
+   list anchors here, centred under the trigger. */
+.coverPick {
+  position: relative;
+  display: inline-flex;
+}
+
+.coverPick .coverTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
   font-size: var(--font-size-heading-md);
+  font-weight: 400;
+  line-height: 1;
   color: var(--color-brand-secondary);
+  overflow: visible;
+}
+
+.coverChevron {
+  display: inline-flex;
+  transition: transform 0.2s ease;
+}
+
+.coverPick[data-open] .coverChevron {
+  transform: rotate(180deg);
+}
+
+.coverPick .coverList {
+  left: 50%;
+  right: auto;
+  width: 200px;
+  max-height: 288px;
+  overflow-y: auto;
+  transform: translateX(-50%);
+  z-index: 40;
 }
 
 /* Price on its own line — the headline always breaks cover / price. */
@@ -116,9 +164,9 @@
 }
 
 .subtitle {
-  font-size: var(--font-size-300);
+  font-size: var(--font-size-100);
   font-weight: 500;
-  color: var(--color-label-secondary);
+  color: var(--color-label-muted-primary);
 }
 
 /* Form + its proof line, grouped 16 apart (tighter than the column's 24). */
@@ -151,7 +199,7 @@
 .statValue {
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
-  font-size: var(--font-size-heading-sm);
+  font-size: var(--font-size-heading-lg);
   font-style: italic;
   font-weight: 400;
   line-height: 1;

@@ -29,6 +29,8 @@ export interface SideDrawerProps {
   /** Centre only: no padding, title row or pinned footer; the children draw
    *  the whole panel (their own close control; `title` still labels it). */
   bare?: boolean;
+  /** Extra class on the panel (e.g. a bare modal's own radius). */
+  className?: string;
 }
 
 /**
@@ -41,7 +43,7 @@ export interface SideDrawerProps {
  * scales in (Know More).
  * Usage: <SideDrawer open={o} onClose={c} title="KYC" closeLabel="Close" footer={…}>…</SideDrawer>
  */
-export function SideDrawer({ open, onClose, title, closeLabel, children, footer, width = 624, placement = "right", headGap, bare = false }: SideDrawerProps) {
+export function SideDrawer({ open, onClose, title, closeLabel, children, footer, width = 624, placement = "right", headGap, bare = false, className }: SideDrawerProps) {
   const centered = placement === "center";
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
@@ -79,7 +81,7 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
           transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
         >
           <motion.div
-            className={styles.drawer}
+            className={className ? `${styles.drawer} ${className}` : styles.drawer}
             data-bare={bare || undefined}
             role="dialog"
             aria-modal="true"

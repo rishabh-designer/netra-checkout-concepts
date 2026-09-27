@@ -250,9 +250,6 @@ export function QuoteModal({
     if (stepIndex < lastStep) setStepIndex((i) => i + 1);
     else onComplete?.(values);
   };
-  const handleBack = () => {
-    if (stepIndex > 0) setStepIndex((i) => i - 1);
-  };
 
   return (
     <AnimatePresence>
@@ -324,25 +321,14 @@ export function QuoteModal({
               {/* Title/nav + fields stack (Figma 503:14942) fills the height; only
                   the fields scroll, so the footer below never leaves the screen. */}
               <div className={styles.formStack}>
-                {/* No-stepper header (Figma 306:5068): back-chevron + title in one
-                    lead stack, close control on the right. */}
+                {/* Header (Figma 306:5068): title + step pills in one lead
+                    stack, close control on the right. */}
                 <header className={styles.header}>
                   <div className={styles.headerLead}>
-                    <button
-                      type="button"
-                      className={styles.ctrl}
-                      aria-label="Back"
-                      onClick={handleBack}
-                      disabled={stepIndex === 0}
-                    >
-                      <ChevronLeft />
-                    </button>
-                    {/* Demo shortcut: a case with `demoFill` fills its fields
-                        when the title is clicked. */}
-                    <AnimatePresence mode="wait" initial={false}>
-                    <motion.h2
-                      key={stepIndex}
-                      {...morphView(reduced)}
+                    {/* One title for every step. Hidden demo shortcut: on a
+                        step whose case has `demoFill`, clicking it fills the
+                        fields. The step pills sit right beside it. */}
+                    <h2
                       className={cn(styles.title, qc.demoFill && styles.titleFill)}
                       onClick={
                         qc.demoFill
@@ -350,9 +336,9 @@ export function QuoteModal({
                           : undefined
                       }
                     >
-                      {step.title}
-                    </motion.h2>
-                    </AnimatePresence>
+                      {content.formTitle}
+                    </h2>
+                    <StepPills steps={content.stepperLabels} active={stepIndex} />
                   </div>
                   <button
                     type="button"
@@ -443,7 +429,6 @@ export function QuoteModal({
                       reduced={!!reduced}
                     />
                   </div>
-                  <PanelStepper steps={content.stepperLabels} active={stepIndex} />
                 </div>
               </div>
             )}
@@ -691,12 +676,15 @@ function SearchResult({
         </div>
       </motion.div>
 
+      {/* Only the step's own tab shows (BimaNetra for Business, News for Risk). */}
       <motion.div variants={item} className={styles.tabs}>
-        {search.tabs.map((tab) => (
-          <span key={tab} className={cn(styles.tab, tab === activeTab && styles.tabActive)}>
-            {tab}
-          </span>
-        ))}
+        {search.tabs
+          .filter((tab) => tab === activeTab)
+          .map((tab) => (
+            <span key={tab} className={cn(styles.tab, styles.tabActive)}>
+              {tab}
+            </span>
+          ))}
       </motion.div>
 
       {/* The scan: Agent Progress (beui Agent Loading States, left-aligned
@@ -1086,35 +1074,31 @@ function CheckboxTick() {
   );
 }
 
-/* ---- panel-footer stepper (Figma 306:5036, pinned to the bottom of the
-   result panel) — divider line then the flow steps. Steps before `active` read
-   as completed (green), `active` is current (purple), the rest upcoming (grey).
-   Labels come from content, never hard-coded. */
-function PanelStepper({ steps, active }: { steps: string[]; active: number }) {
+/* ---- step pills (Figma 306:5036), beside the form title: steps before
+   `active` read as completed (green), `active` is current (purple), the rest
+   upcoming (grey). Labels come from content, never hard-coded. */
+function StepPills({ steps, active }: { steps: string[]; active: number }) {
   return (
-    <div className={styles.panelStepper}>
-      <span className={styles.stepperDivider} aria-hidden />
-      <ol className={styles.stepRow}>
-        {steps.map((label, i) => {
-          const state = i < active ? "done" : i === active ? "current" : "todo";
-          return (
-            <li
-              key={label}
-              className={cn(
-                styles.stepPill,
-                state === "current" && styles.stepCurrent,
-                state === "done" && styles.stepDone,
-                state === "todo" && styles.stepTodo,
-              )}
-              aria-current={state === "current" ? "step" : undefined}
-            >
-              <StepBullet state={state} />
-              <span className={styles.stepLabel}>{label}</span>
-            </li>
-          );
-        })}
-      </ol>
-    </div>
+    <ol className={styles.stepRow}>
+      {steps.map((label, i) => {
+        const state = i < active ? "done" : i === active ? "current" : "todo";
+        return (
+          <li
+            key={label}
+            className={cn(
+              styles.stepPill,
+              state === "current" && styles.stepCurrent,
+              state === "done" && styles.stepDone,
+              state === "todo" && styles.stepTodo,
+            )}
+            aria-current={state === "current" ? "step" : undefined}
+          >
+            <StepBullet state={state} />
+            <span className={styles.stepLabel}>{label}</span>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -1142,21 +1126,6 @@ function splitHighlight(sentence: string, highlight: string): [string, string, s
 
 /* ---- inline icons ---- (status roundels/affordances now live in
    ui/InteractiveInput/icons; FilledCheck, ChevronDown, SearchIcon imported above) */
-
-/* Header back-chevron (Figma 306:5068, 16px in a 24px box, hint grey #6f7378). */
-function ChevronLeft() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <path
-        d="M10.5 13 5.5 8l5-5"
-        stroke="var(--color-label-secondary)"
-        strokeWidth="1.65"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 /* Header close X (Figma 306:5068, 16px in a 24px box, hint grey #6f7378). */
 function HeaderClose() {

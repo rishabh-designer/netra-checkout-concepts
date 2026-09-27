@@ -7,8 +7,10 @@
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  /* Figma fold-hero (571:38795): pale blue → white across the viewport. */
-  background: var(--gradient-quotes-hero);
+  /* Pale blue → white (Figma fold-hero, 571:38795), but fully white by
+     260px, so the white controls and cards below the top section sit on
+     white instead of reading as boxes on a blue ground. */
+  background: linear-gradient(180deg, var(--color-info-subtle) 0, var(--color-card) 260px);
 }
 
 .body {
@@ -21,12 +23,12 @@
   padding: 17px var(--spacing-32) var(--spacing-32);
 }
 
-/* Skeleton ↔ content swap layer: carries the 3-column grid
-   (sidebar 240 | feed | help desk 240, 40px gaps). */
+/* Skeleton ↔ content swap layer: carries the 2-column grid
+   (sidebar 280 | feed, 41 apart; Figma 658:45796). */
 .swap {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr) 240px;
-  column-gap: 40px;
+  grid-template-columns: 280px minmax(0, 1fr);
+  column-gap: 41px;
   width: 100%;
   height: 100%;
   min-height: 0;
@@ -34,7 +36,7 @@
 }
 
 .swap[data-collapsed] {
-  grid-template-columns: 70px minmax(0, 1fr) 240px;
+  grid-template-columns: 70px minmax(0, 1fr);
 }
 
 /* Narrower desktops: tighten the 40px gutters so the feed keeps its width. */
@@ -55,7 +57,7 @@
   min-height: 0;
 }
 
-/* Below the 3-column width: natural page scroll, columns stacked. */
+/* Below the 2-column width: natural page scroll, columns stacked. */
 @media (max-width: 1100px) {
   .page {
     height: auto;
@@ -76,4 +78,16 @@
   .body {
     padding: var(--spacing-16);
   }
+}
+
+/* Header CTA's sparkle: the Chat with Us icon as a mask, so it takes the
+   button's white label colour on the primary fill. */
+.sparkle {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
 }

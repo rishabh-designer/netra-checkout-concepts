@@ -66,13 +66,11 @@ export function GoldInquiryView({ content, header, feed, quotesHref }: GoldInqui
     getQuote: feed.getQuoteLabel,
     compare: feed.compareLabel,
     comparisonUnavailable: feed.comparisonUnavailableLabel,
-    viewFeatures: feed.viewFeaturesLabel,
     immediatePurchase: feed.immediatePurchaseLabel,
-    revealQuote: feed.revealQuoteLabel,
-    topCoverages: feed.topCoveragesLabel,
-    coveragesUnavailable: feed.coveragesUnavailableLabel,
     poweredBy: feed.poweredByLabel,
-    ratings: feed.ratingLabels,
+    topCoverages: feed.topCoveragesLabel,
+    coverageCount: feed.coverageCountLabel,
+    personalizedCount: feed.personalizedCountLabel,
   };
   // Priced quotes still check out from here; Get Quote stays put.
   const checkoutFor = (q: QuoteCardData) =>

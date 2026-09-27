@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useState, type KeyboardEvent } from "react";
+import { useCallback, useId, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { LeadFormContent, QuoteCaseMatch, QuoteModalContent } from "@/types/productPage";
 import type { QuotesPreview } from "@/types/quotesPage";
@@ -9,7 +9,6 @@ import { useQuoteFlow } from "@/lib/quote-flow";
 import { cn } from "@/lib/utils";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { InteractiveInput } from "@/components/ui/InteractiveInput";
-import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { CtaButton } from "@/components/ui/CtaButton";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { CompanySuggest, defaultCompanyOption, findCompanyOptions, type CompanyOption, type CompanySuggestMode } from "../CompanySuggest";
@@ -29,6 +28,8 @@ export interface LeadFormCardProps {
   focus?: { privacyLine: string };
   /** When given, the Quotes page skeleton loads behind the modal's lightbox. */
   quotesPreview?: QuotesPreview;
+  /** A row over the promo banner (the Focus hero's product pills). */
+  topSlot?: ReactNode;
 }
 
 /** Route the typed name to an outcome via the content's alias table (trimmed,
@@ -49,7 +50,7 @@ function resolveCase(name: string, matches: QuoteCaseMatch[]): { caseId: QuoteCa
  * fires a toast instead of opening the modal.
  * Usage: <LeadFormCard content={leadForm} quoteModal={quoteModal} />
  */
-export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: LeadFormCardProps) {
+export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlot }: LeadFormCardProps) {
   const router = useRouter();
   const { setResult } = useQuoteFlow();
   const [companyName, setCompanyName] = useState("");
@@ -144,6 +145,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
             <p className={styles.headline}>{content.priceHeadline}</p>
           </div>
         )}
+        {topSlot}
         <div className={styles.promoBanner}>
           <div className={styles.promoLeft}>
             <IndicatorBadge label={content.promoBadge} />
@@ -153,7 +155,6 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview }: Lead
             <button type="button" className={styles.promoLink} onClick={() => setKnowMoreOpen(true)} aria-haspopup="dialog">
               {content.promoLinkLabel}
             </button>
-            <SquareCheckbox tone="info" state="checked" />
           </div>
         </div>
       </div>

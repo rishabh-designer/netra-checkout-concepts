@@ -51,7 +51,7 @@
 .thanks {
   display: flex;
   flex-direction: column;
-  gap: 56px;
+  gap: var(--spacing-32);
   padding: var(--spacing-24);
   border: var(--border-hairline) solid var(--color-brand-primary-border);
   border-radius: var(--radius-16);
@@ -251,14 +251,14 @@
 }
 
 .statLabel {
-  font-size: var(--font-size-100);
+  font-size: var(--font-size-75);
   font-weight: 500;
   color: var(--color-label-disabled);
 }
 
 .statValue,
 .statPending {
-  font-size: var(--font-size-300);
+  font-size: var(--font-size-200);
   font-weight: 500;
   color: var(--color-label-primary);
 }

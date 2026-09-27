@@ -1,0 +1,429 @@
+/* Policy details popover (Figma 658:50425): a 1200 × 720 panel, lavender
+   washed top and bottom, r24; the summary card left, the details right. */
+.shell {
+  max-width: 100%;
+  border-radius: var(--radius-24);
+  overflow: hidden;
+}
+
+.modal {
+  position: relative;
+  display: flex;
+  gap: var(--spacing-24);
+  height: min(720px, calc(100vh - 64px));
+  height: min(720px, calc(100dvh - 64px));
+  padding: var(--spacing-32) var(--spacing-24);
+  border: 1px solid var(--color-brand-primary-subtle-bold);
+  border-radius: var(--radius-24);
+  background: linear-gradient(
+    to bottom,
+    var(--color-brand-primary-subtle) 0%,
+    var(--color-card) 15%,
+    var(--color-card) 80%,
+    var(--color-brand-primary-subtle) 100%
+  );
+}
+
+/* Boxed × (chevron.controls, 659:50843): 20px, r6.67. */
+.close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-6);
+  background: var(--color-card);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--color-card-sunken);
+}
+
+/* Summary card (658:50427): 400 wide, white, info-ring stroke, r24. */
+.summary {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  flex: 0 0 400px;
+  min-height: 0;
+  padding: var(--spacing-12);
+  border: 1px solid var(--color-info-ring);
+  border-radius: var(--radius-24);
+  background: var(--color-card);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.summaryTop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.tagRow {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 29px;
+}
+
+/* card/product-homepage/tag: white → success wash, r12. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-6) var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-success-border);
+  border-radius: var(--radius-12);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-success-subtle));
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.12px;
+  white-space: nowrap;
+  color: var(--color-success);
+}
+
+.tag[data-tone="gold"] {
+  border-color: var(--color-brand-secondary-subtle-bold);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-secondary-subtle));
+  color: var(--color-brand-secondary);
+}
+
+.tagIcon {
+  width: 10px;
+  height: 10px;
+}
+
+.logo {
+  height: 48px;
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.insurer {
+  font-size: var(--font-size-300);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-label-primary);
+}
+
+/* Coverages box (658:50732): info wash, the count as a 20px heading. */
+.coverages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-20);
+  padding: var(--spacing-12);
+  border-radius: var(--radius-12);
+  background: linear-gradient(to bottom, var(--color-info-subtle), var(--color-card));
+}
+
+.coveragesTitle {
+  font-size: var(--font-size-400);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-info);
+}
+
+.coverageList {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-16);
+  list-style: none;
+}
+
+.coverage {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6) var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-6);
+  background: var(--color-card);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-primary);
+}
+
+/* Foot: hairline, the D&O mark (80), the product in serif. */
+.product {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: 0 var(--spacing-12);
+}
+
+.productRule {
+  width: 100%;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: var(--border-hairline) solid var(--color-brand-primary-border);
+}
+
+.productIcon {
+  width: 80px;
+  height: 80px;
+}
+
+.productName {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-heading-sm);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--color-label-basic);
+}
+
+/* Details column (658:50476): tabs, list, footer, 24 apart. */
+.panel {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding-bottom: var(--spacing-12);
+}
+
+/* Tab row (587:64696): edge to edge over a 0.5px lilac baseline. */
+.tabs {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: var(--border-hairline) solid var(--color-brand-primary-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex-shrink: 0;
+  margin-bottom: calc(-1 * var(--border-hairline));
+  padding: 8.25px var(--spacing-12);
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-brand-primary-muted);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  font-feature-settings: "zero" 1, "dlig" 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--color-brand-primary);
+}
+
+/* Active: tinted fill, 1px purple underline. */
+.tab[aria-selected="true"] {
+  background: var(--color-brand-primary-tint);
+  border-bottom-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}
+
+/* Content (587:63851): scrolls; slim lilac scrollbar (587:64671). */
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-primary-subtle-bold) var(--color-brand-primary-subtle);
+  outline: none;
+}
+
+.content:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--color-brand-primary-border);
+  border-radius: var(--radius-8);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  padding: 0 var(--spacing-16);
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.itemTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  min-height: 24px;
+  padding: 0 var(--spacing-2);
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-info);
+}
+
+.itemTitle[data-tone="excluded"] {
+  color: var(--color-error);
+}
+
+.itemTitle[data-tone="info"] {
+  color: var(--color-brand-primary);
+}
+
+.marker {
+  flex-shrink: 0;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin: 0 3px;
+  border-radius: 50%;
+  corner-shape: round;
+  background: var(--color-brand-primary);
+}
+
+.itemBody {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-label-primary);
+}
+
+/* Footer (659:50792): a raised white bar — Sum Insured left, the card's
+   price / Get Quote button right. */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  flex-shrink: 0;
+  padding: var(--spacing-12);
+  border-top: 1px solid var(--color-border-neutral);
+  border-radius: var(--radius-16);
+  background: var(--color-card);
+  box-shadow: 0 -8px 12px rgba(169, 172, 177, 0.32);
+}
+
+.sum {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  white-space: nowrap;
+}
+
+.sumLabel {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-subtle-primary);
+}
+
+.sumValue {
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-brand-primary);
+}
+
+/* button/primary.fill at 16/28, r16, 16px label + 16px arrow. */
+.buttonFilled,
+.buttonOutline {
+  --btn: var(--color-brand-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-16);
+  flex-shrink: 0;
+  padding: var(--spacing-16) 28px;
+  border: var(--border-hairline) solid var(--btn);
+  border-radius: var(--radius-24); /* one step rounder than Figma's r16 (house rule) */
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.buttonFilled {
+  background: var(--btn);
+  color: var(--color-label-inverse);
+}
+
+.buttonFilled:hover {
+  background: var(--color-brand-primary-hover);
+  border-color: var(--color-brand-primary-subtle);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.modal[data-tone="gold"] .buttonFilled {
+  --btn: var(--color-brand-secondary);
+}
+
+.modal[data-tone="gold"] .buttonFilled:hover {
+  background: var(--color-brand-secondary);
+  border-color: var(--color-brand-secondary-subtle-bold);
+  box-shadow: var(--shadow-button-secondary-hover);
+}
+
+.buttonOutline {
+  border-color: var(--color-border-subtle);
+  background: var(--color-card);
+  color: var(--btn);
+}
+
+.buttonOutline:hover {
+  background: var(--color-brand-primary-subtle);
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.arrow {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+
+/* Narrow screens: the summary stacks over the details and the panel scrolls. */
+@media (max-width: 900px) {
+  .modal {
+    flex-direction: column;
+    height: auto;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+  }
+  .summary {
+    flex: none;
+    overflow: visible;
+  }
+  .panel {
+    min-height: 480px;
+  }
+}

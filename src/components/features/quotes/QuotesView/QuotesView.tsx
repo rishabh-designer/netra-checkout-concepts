@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { QuotesPageContent } from "@/types/quotesPage";
 import type { QuoteModalContent } from "@/types/productPage";
@@ -11,7 +11,6 @@ import { DetailsPanel } from "../DetailsPanel";
 import type { UpgradeStage } from "../UpgradeBanner";
 import { QuotesFeed } from "../QuotesFeed";
 import { QuotesSkeleton } from "../QuotesSkeleton";
-import { HelpDesk } from "../HelpDesk";
 import styles from "./QuotesView.module.css";
 
 export interface QuotesViewProps {
@@ -21,10 +20,11 @@ export interface QuotesViewProps {
 }
 
 /**
- * QuotesView — client shell for the Quotes page (Figma 564:32915): a pinned
- * header over a viewport-height 3-column body — Your Details | the quote feed |
- * Help Desk. The page never scrolls; only the feed's quote stack does. Reads the carried flow result so Your Details
- * shows live entries and the risk-report banner reflects the Yes/No answer; falls
+ * QuotesView — client shell for the Quotes page (Figma 658:40879): a pinned
+ * header ("Chat with Us") over a viewport-height 2-column body — Your
+ * Details | the quote feed (Need Help lives in its top section). The page and
+ * sidebar never scroll; only the feed does. Reads the carried flow result so
+ * Your Details shows live entries; falls
  * back to the mock when visited off-flow. Edit Details opens the quote form as a
  * form-only lightbox on this page (no navigation) and saves back to the store.
  * Results "load" behind a staggered skeleton for LOAD_MS — on arrival and again
@@ -46,7 +46,6 @@ export function QuotesView(props: QuotesViewProps) {
 function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const { result, setResult } = useQuoteFlow();
   const values = result?.values;
-  const reportInterest = result?.reportInterest ?? values?.["reportInterest"] ?? "";
   const caseId = result?.caseId;
   const [detailsCollapsed, setDetailsCollapsed] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -72,7 +71,13 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
 
   return (
     <div className={styles.page}>
-      <QuotesHeader content={content.header} />
+      {/* Header CTA: Chat with Us, the sparkle after the label (in white). */}
+      <QuotesHeader
+        content={content.header}
+        icon={<span className={styles.sparkle} style={{ "--icon": `url(${content.feed.needHelp.chatIconSrc})` } as CSSProperties} aria-hidden />}
+        iconAfter
+        tone="secondary"
+      />
       <main className={styles.body}>
         <AnimatePresence mode="wait" initial={false}>
           {loading ? (
@@ -126,12 +131,6 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 content={content.feed}
                 caseId={caseId}
                 sumInsured={values?.["coverage"] || undefined}
-              />
-              <HelpDesk
-                content={content.feed.needHelp}
-                testimonial={content.feed.testimonial}
-                riskReport={content.feed.riskReport}
-                reportInterest={reportInterest}
               />
             </motion.div>
           )}
