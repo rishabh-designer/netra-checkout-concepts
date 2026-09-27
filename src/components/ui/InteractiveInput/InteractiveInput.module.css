@@ -53,6 +53,13 @@
   border-bottom-color: var(--color-label-secondary);
   --check-ink: var(--color-label-secondary);
 }
+/* Idle (empty, not typing): a hairline, so the field doesn't read as a
+   divider. The extra half-pixel of padding keeps the height fixed when focus
+   or a status brings the full 1px stroke back. */
+.wrapper[data-status="empty"]:not(:focus-within):not([data-active="true"]) {
+  border-bottom-width: var(--border-hairline);
+  padding-bottom: calc(var(--spacing-12) + 0.5px);
+}
 .wrapper[data-status="empty"]:focus-within {
   border-bottom-color: var(--color-brand-primary);
   background: var(--color-input-fill);
@@ -217,7 +224,7 @@
 
 .divider {
   width: 1px;
-  height: 16px;
+  height: 14px;
   background: var(--color-input-stroke);
 }
 
@@ -287,6 +294,10 @@
   align-items: center;
   height: 28px;
   padding: 0 var(--spacing-8);
+}
+
+.help[data-align="end"] {
+  justify-content: flex-end;
 }
 
 .helpText {

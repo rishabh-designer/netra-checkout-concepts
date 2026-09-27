@@ -250,9 +250,8 @@ export interface QuoteCaseMatch {
   aliases: string[];
   /** Replaces the typed name in the modal + Quotes page (e.g. the legal name). */
   canonicalName?: string;
-  /** Help line under the company name when it was swapped for the legal name,
-   *  with an action that closes the modal so the name can be re-typed. */
-  nameHelp?: { text: string; actionLabel: string };
+  /** Tertiary help line under the company name saying it's the MCA legal name. */
+  nameHelp?: { text: string };
 }
 
 export interface QuoteModalContent {

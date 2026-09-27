@@ -191,7 +191,7 @@ const PROFILE_CASE: QuoteCase = {
   requiresConsent: false,
   search: SEARCH_MATCHED,
   fields: [
-    { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "", placeholder: "Start with your Company's Legal Name", status: "verified" },
+    { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "", status: "verified" },
     { key: "fullName", label: "Your Full Name", mandatory: true, control: "text", value: "", placeholder: "Enter Full Name", status: "empty" },
     { key: "phone", label: "Your Phone Number", mandatory: true, control: "text", value: "", prefix: "+91", placeholder: "0000 000 000", status: "empty", inputMode: "tel", validate: "phone" },
     { key: "email", label: "Your Email Address", mandatory: true, control: "text", value: "", placeholder: "Enter Email Address", status: "empty", inputMode: "email", validate: "email" },
@@ -288,7 +288,7 @@ export const mockProductPageContent: ProductPageContent = {
     inputTooltip:
       "To verify you're running a registered business, we need the legal entity name registered against your PAN.",
     // Hidden demo shortcut: each click on the input's info icon cycles A → B → C.
-    demoNames: ["Pepe Jeans Innerwear", "Sabyasachi Calcutta", "Studio Two Rupees"],
+    demoNames: ["Pepe Jeans Innerfashion Private Limited", "Sabyasachi Calcutta LLP", "Studio Two Rupees LLP"],
     ctaLabel: "Get My Quote",
     ctaMeta: "In 2 Minutes",
     providersHeading: "Policy Provided By",
@@ -331,13 +331,13 @@ export const mockProductPageContent: ProductPageContent = {
         caseId: "A",
         aliases: ["pepe jeans innerfashion private limited", "pepe jeans innerfashion", "pepe jeans innerwear"],
         canonicalName: "Pepe Jeans Innerfashion Private Limited",
-        nameHelp: { text: "Retrieved Legal Company Name from MCA.", actionLabel: "Not you?" },
+        nameHelp: { text: "Retrieved Legal Company Name from MCA." },
       },
       {
         caseId: "B",
         aliases: ["sabyasachi calcutta llp", "sabyasachi calcutta"],
         canonicalName: "Sabyasachi Calcutta LLP",
-        nameHelp: { text: "Retrieved Legal Company Name from MCA.", actionLabel: "Not you?" },
+        nameHelp: { text: "Retrieved Legal Company Name from MCA." },
       },
       // C is also the fallback for any unmatched name; this alias only swaps in
       // the demo company's legal name.

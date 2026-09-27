@@ -120,9 +120,6 @@ export function QuoteModal({
 
   const [values, setValues] = useState<Record<string, string>>({});
   const [consent, setConsent] = useState(false);
-  /** "Not you?" pressed: the flow restarts from the company name. Only that
-   *  field shows, and the engine canvas goes blank until it's rebuilt. */
-  const [restarting, setRestarting] = useState(false);
   /** Steps whose probe has already resolved — revisiting skips the skeleton. */
   const probedRef = useRef<Set<number>>(new Set());
 
@@ -131,7 +128,6 @@ export function QuoteModal({
     if (!open) return;
     setStepIndex(0);
     setValues({});
-    setRestarting(false);
     probedRef.current = new Set();
   }, [open]);
 
@@ -241,10 +237,9 @@ export function QuoteModal({
   }, [evidence, instant, runKey]);
 
   const profileFields = content.steps[0].cases[caseId].fields;
-  // Case A swaps the typed name for the MCA legal name: say so, and offer a
-  // way to re-type it right here ("Not you?" unlocks the field).
+  // Cases A and B swap the typed name for the MCA legal name: say so.
   const matchHelp = content.caseMatches.find((m) => m.caseId === caseId)?.nameHelp;
-  const nameHelp = matchHelp && { text: matchHelp.text, actionLabel: matchHelp.actionLabel };
+  const nameHelp = matchHelp?.text;
   const profileComplete = allMandatoryFilled(profileFields) && !profileFields.some((f) => errorFor(f));
 
   /** Advance to the next form step (the probe re-runs for it). On the last step
@@ -371,7 +366,7 @@ export function QuoteModal({
 
                 <AnimatePresence mode="wait" initial={false}>
                 <motion.div key={stepIndex} className={styles.fields} {...morphView(reduced)}>
-                  {qc.fields.filter((f) => !restarting || f.key === "name").map((field) => (
+                  {qc.fields.map((field) => (
                     <Fragment key={field.key}>
                       {/* Auto-personalize badge sits between the questions and the
                           coverage field (Insurance cases A + B), preceded by a
@@ -391,11 +386,6 @@ export function QuoteModal({
                         value={values[field.key] ?? ""}
                         error={errorFor(field)}
                         nameHelp={field.key === "name" ? nameHelp : undefined}
-                        retyping={field.key === "name" && restarting}
-                        onRetype={() => {
-                          setRestarting(true);
-                          setValues((s) => ({ ...s, name: "" }));
-                        }}
                         onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
                       />
                     </Fragment>
@@ -440,25 +430,20 @@ export function QuoteModal({
             {!formOnly && (
               <div className={styles.rightGlow}>
                 <div className={styles.right}>
-                  {/* Restarting from "Not you?": the canvas stays, empty. */}
-                  {!restarting && (
-                    <>
-                      <div className={styles.rightScroll}>
-                        <IntelligenceEngine
-                          engine={content.engine}
-                          stepIndex={stepIndex}
-                          companyName={companyName}
-                          percent={percent}
-                          profileComplete={profileComplete}
-                          research={research}
-                          search={qc.search}
-                          activeTab={step.activeTab}
-                          reduced={!!reduced}
-                        />
-                      </div>
-                      <PanelStepper steps={content.stepperLabels} active={stepIndex} />
-                    </>
-                  )}
+                  <div className={styles.rightScroll}>
+                    <IntelligenceEngine
+                      engine={content.engine}
+                      stepIndex={stepIndex}
+                      companyName={companyName}
+                      percent={percent}
+                      profileComplete={profileComplete}
+                      research={research}
+                      search={qc.search}
+                      activeTab={step.activeTab}
+                      reduced={!!reduced}
+                    />
+                  </div>
+                  <PanelStepper steps={content.stepperLabels} active={stepIndex} />
                 </div>
               </div>
             )}
@@ -506,8 +491,6 @@ function Field({
   value,
   error,
   nameHelp,
-  retyping,
-  onRetype,
   onChange,
 }: {
   field: QuoteModalField;
@@ -519,24 +502,17 @@ function Field({
   value: string;
   /** Format error for the current value; shown once the field is blurred. */
   error: string | null;
-  /** Company name only: where the legal name came from, plus "Not you?"
-   *  (which clears the field and hands it back to the user, focused). */
-  nameHelp?: { text: string; actionLabel: string };
-  /** The name has been handed back to the user ("Not you?"): live and empty. */
-  retyping?: boolean;
-  onRetype?: () => void;
+  /** Company name only: the (tertiary) note that its legal name came from
+   *  the MCA, so a swapped-in legal name never reads as a glitch. */
+  nameHelp?: string;
   onChange: (value: string) => void;
 }) {
   // Errors wait for blur (a half-typed value reads neutral, not wrong); once
   // shown they clear live as the user fixes it. A prefilled value counts as touched.
   const [touched, setTouched] = useState(value !== "");
   const isName = field.key === "name";
-  const locked = isName && !retyping;
   const fetching = !isName && !fetched;
-  const status = retyping
-    ? value.trim() ? "success" : "empty"
-    : displayStatus(field, caseId, value, collectMode, consent);
-  const nameNote = locked ? nameHelp : undefined;
+  const status = displayStatus(field, caseId, value, collectMode, consent);
   const uiStatus: FieldStatus = fetching ? "loading" : status;
   // The coverage field reads "Approximating…" while the probe runs (Figma).
   const fetchingLabel = field.key === "coverage" ? "Approximating…" : "Fetching…";
@@ -588,23 +564,14 @@ function Field({
       options={field.options}
       value={fetching ? "" : shown}
       onChange={(v) => onChange(format(v))}
-      readOnly={locked}
-      clearable={!locked}
-      autoFocusDesktop={retyping}
+      readOnly={isName}
+      clearable={!isName}
       prefix={field.prefix}
       placeholder={fetching ? fetchingLabel : field.placeholder}
       status={shownError ? "error" : error && uiStatus === "success" ? "empty" : uiStatus}
-      helpText={shownError ?? nameNote?.text ?? visibleHelp}
-      helpAction={
-        nameNote && {
-          label: nameNote.actionLabel,
-          onClick: () => {
-            setTouched(false);
-            onRetype?.();
-          },
-        }
-      }
-      helpTone={shownError ? "error" : nameNote ? "basic" : field.helpTone}
+      helpText={shownError ?? nameHelp ?? visibleHelp}
+      helpTone={shownError ? "error" : nameHelp ? "neutral" : field.helpTone}
+      helpAlign={nameHelp && !shownError ? "end" : "start"}
       inputMode={field.inputMode}
       maxLength={field.maxLength}
       onFocus={() => !error && setTouched(false)}

@@ -3,7 +3,8 @@ import styles from "./icons.module.css";
 /**
  * Shared field icons for the Peetal DSL input components (InteractiveInput,
  * SegmentedField) and the quote modal. One source of truth so every field
- * across the app renders the same status roundels, spinner, and affordances.
+ * across the app renders the same status roundels, spinner, and affordances,
+ * all drawn at 14px (on a 16-unit viewBox).
  */
 
 /** Canonical status of a DSL field (drives the suffix icon + accent theming). */
@@ -42,7 +43,7 @@ export function StatusIcon({ status }: { status: FieldStatus }) {
 export function Spinner() {
   return (
     <span className={styles.spinner} role="status" aria-label="Loading">
-      <svg viewBox="0 0 16 16" width="16" height="16" fill="none">
+      <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
         <circle cx="8" cy="8" r="6.5" stroke="var(--color-input-stroke)" strokeWidth="2" />
         <path
           d="M8 1.5a6.5 6.5 0 0 1 6.5 6.5"
@@ -58,7 +59,7 @@ export function Spinner() {
 /** Filled roundel with a white tick, in an arbitrary colour. */
 export function FilledCheck({ color }: { color: string }) {
   return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="8" fill={color} />
       <path
         d="m4.8 8.2 2 2 4-4.4"
@@ -74,7 +75,7 @@ export function FilledCheck({ color }: { color: string }) {
 /** Orange roundel with a "!" — a fuzzy / web-guessed value. */
 export function Alert() {
   return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="8" fill="var(--color-brand-secondary)" />
       <path d="M8 4.2v4.4" stroke="var(--color-label-inverse)" strokeWidth="1.6" strokeLinecap="round" />
       <circle cx="8" cy="11.2" r="0.95" fill="var(--color-label-inverse)" />
@@ -86,7 +87,7 @@ export function Alert() {
  *  a muted "nothing found"). */
 export function ErrorMark({ color = "var(--color-error)" }: { color?: string }) {
   return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="8" fill={color} />
       <path
         d="m5.5 5.5 5 5m0-5-5 5"
@@ -102,7 +103,7 @@ export function ErrorMark({ color = "var(--color-error)" }: { color?: string }) 
  *  pill darken it to "hint"; falls back to the input stroke otherwise. */
 export function MutedDot() {
   return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="7" stroke="var(--dot-ink, var(--color-input-stroke))" strokeWidth="1.4" />
     </svg>
   );
@@ -111,7 +112,7 @@ export function MutedDot() {
 /** Info "(i)" affordance. */
 export function Info() {
   return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="7" stroke="var(--color-info)" strokeWidth="1.3" />
       <circle cx="8" cy="5" r="0.9" fill="var(--color-info)" />
       <path d="M8 7.5v4" stroke="var(--color-info)" strokeWidth="1.3" strokeLinecap="round" />
@@ -122,7 +123,7 @@ export function Info() {
 /** Clear "×" (small, for the clear-input button). */
 export function Clear() {
   return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
       <path d="m4.5 4.5 7 7m0-7-7 7" stroke="var(--color-label-basic)" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
@@ -131,7 +132,7 @@ export function Clear() {
 /** Chevron for a select control. */
 export function ChevronDown() {
   return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
       <path d="m4 6 4 4 4-4" stroke="var(--color-label-tertiary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -140,7 +141,7 @@ export function ChevronDown() {
 /** Magnifier for a search control. */
 export function SearchIcon() {
   return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
       <circle cx="7" cy="7" r="5" stroke="var(--color-label-tertiary)" strokeWidth="1.5" />
       <path d="m11 11 3 3" stroke="var(--color-label-tertiary)" strokeWidth="1.5" strokeLinecap="round" />
     </svg>

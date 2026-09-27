@@ -24,9 +24,11 @@ export interface InteractiveInputProps {
   /** Fixed affix ("+91", "₹") — always label-disabled grey with a right divider. */
   prefix?: string;
   helpText?: string;
-  /** Inline link after the help text (e.g. "Not you?"). */
+  /** Inline link after the help text. */
   helpAction?: { label: string; onClick: () => void };
   helpTone?: HelpTone;
+  /** "end" right-aligns the help line (a quiet nudge, not a warning). */
+  helpAlign?: "start" | "end";
   /** Reserve the help row (28px). Its text toggles, but the row never shifts height. */
   showHelp?: boolean;
   /** "textarea" = multi-line (e.g. an address); icons pin to the top. */
@@ -93,6 +95,7 @@ export function InteractiveInput({
   helpText,
   helpAction,
   helpTone = "neutral",
+  helpAlign = "start",
   showHelp = false,
   control = "text",
   options,
@@ -280,7 +283,7 @@ export function InteractiveInput({
       </div>
 
       {showHelp && (
-        <div className={styles.help} data-tone={effectiveTone}>
+        <div className={styles.help} data-tone={effectiveTone} data-align={helpAlign === "end" && !validationError ? "end" : undefined}>
           {effectiveHelp && (
             <p id={helpId} className={styles.helpText}>
               {effectiveHelp}
