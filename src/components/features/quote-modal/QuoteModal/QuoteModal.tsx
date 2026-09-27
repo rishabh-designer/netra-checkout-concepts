@@ -30,11 +30,11 @@ import styles from "./QuoteModal.module.css";
 /** Research timeline per probed step (one clock, useResearchTimeline): the
  *  query types in, Agent Progress + the sources scan for PROBE_MS, the
  *  findings type out over TYPE_OUT_MS, then the evidence wave resolves each
- *  field (≈3.5s in), the meter climbs with it and the verdict lands. */
-const PROBE_MS = 1500;
-const TYPE_OUT_MS = 2000;
-const QUERY_TYPE_MS = 400;
-const FIELD_WAVE_MS = 110;
+ *  field (≈2s in), the meter climbs with it and the verdict lands. */
+const PROBE_MS = 800;
+const TYPE_OUT_MS = 1000;
+const QUERY_TYPE_MS = 300;
+const FIELD_WAVE_MS = 80;
 /** No records (Case C): say so quickly instead of a full research beat. */
 const EMPTY_PROBE_MS = 700;
 

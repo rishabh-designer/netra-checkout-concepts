@@ -19,7 +19,7 @@ export interface ResearchSourcesProps {
 type ChipState = "pending" | "querying" | "returned";
 
 const FIRST_RETURN_MS = 350; // the first source answers here…
-const LAST_RETURN_MS = 1400; // …the last by here (inside the 1.5s probe)
+const LAST_RETURN_MS = 1400; // …the last by here (capped just inside the probe)
 const QUERY_MS = 300; // each source is "querying" this long before it answers
 
 /** When source i answers, spread evenly between the first and last return

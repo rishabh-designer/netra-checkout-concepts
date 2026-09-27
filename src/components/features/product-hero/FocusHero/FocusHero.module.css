@@ -161,7 +161,7 @@
 .statLabel {
   font-size: var(--font-size-75);
   font-weight: 500;
-  color: var(--color-label-warm);
+  color: var(--color-label-primary);
 }
 
 /* Bottom stack (Figma 626:16095): ikkat rule + insurer logos, pinned to the
