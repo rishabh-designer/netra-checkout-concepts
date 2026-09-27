@@ -3,7 +3,7 @@
 import { useId, useRef, useState, type DragEvent, type ReactNode } from "react";
 import styles from "./UploadField.module.css";
 
-export type UploadState = "default" | "success" | "failure" | "disabled";
+export type UploadState = "default" | "success" | "failure" | "disabled" | "fetched";
 
 export interface UploadFieldCopy {
   hint: string;
@@ -16,6 +16,10 @@ export interface UploadFieldCopy {
   retryLabel: string;
   disabledTitle: string;
   disabledBody: string;
+  /** A document fetched on the customer's behalf (e.g. from the MCA). */
+  fetchedTitle: string;
+  fetchedBody: string;
+  fetchedAction: string;
   maxBytes: number;
 }
 
@@ -32,6 +36,9 @@ export interface UploadFieldProps {
   disabled?: boolean;
   /** MIME / extension filter for the picker. */
   accept?: string;
+  /** `fileName` was fetched for the customer, not uploaded: the purple
+   *  "Successfully Fetched!" state, with a button to upload their own. */
+  fetched?: boolean;
 }
 
 const ILLUSTRATION: Record<UploadState, string> = {
@@ -39,6 +46,7 @@ const ILLUSTRATION: Record<UploadState, string> = {
   success: "/media/upload/success.webp",
   failure: "/media/upload/failure.webp",
   disabled: "/media/upload/disabled.webp",
+  fetched: "/media/upload/success.webp",
 };
 
 /** Renders `{file}` in a template with the file name emphasised. */
@@ -63,17 +71,19 @@ function isAccepted(file: File): boolean {
  * dropped file is checked (image or PDF, at most `copy.maxBytes`) → Success
  * (green, "file has been uploaded", "Replace File": the current file stays
  * until a new one is picked) or Failure
- * (red, the reason, "Try Again"). Disabled is dashed grey. Only the file name
- * is kept; nothing is sent anywhere.
+ * (red, the reason, "Try Again"). Disabled is dashed grey. Fetched (a document
+ * we already have, e.g. from the MCA) is purple, "Upload New". Once a file is
+ * in (success, failure, fetched) the illustration shrinks from 80 to 48 to
+ * make room for the button. Only the file name is kept; nothing is sent.
  * Usage: <UploadField label="…" title="Upload Company GST" fileName={f} onChange={setF} copy={upload} />
  */
-export function UploadField({ label, title, mandatory, fileName, onChange, copy, disabled, accept = "image/*,.pdf,application/pdf" }: UploadFieldProps) {
+export function UploadField({ label, title, mandatory, fileName, onChange, copy, disabled, accept = "image/*,.pdf,application/pdf", fetched = false }: UploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const id = useId();
   const [failure, setFailure] = useState<{ file: string; reason: string } | null>(null);
   const [dragging, setDragging] = useState(false);
 
-  const state: UploadState = disabled ? "disabled" : fileName ? "success" : failure ? "failure" : "default";
+  const state: UploadState = disabled ? "disabled" : fileName ? (fetched ? "fetched" : "success") : failure ? "failure" : "default";
 
   const take = (file: File | undefined) => {
     if (!file) return;
@@ -148,19 +158,21 @@ export function UploadField({ label, title, mandatory, fileName, onChange, copy,
               )}
               {state === "default" && title}
               {state === "success" && copy.successTitle}
+              {state === "fetched" && copy.fetchedTitle}
               {state === "failure" && copy.failureTitle}
               {state === "disabled" && copy.disabledTitle}
             </p>
             <p className={styles.sub}>
               {state === "default" && copy.hint}
               {state === "success" && withFile(copy.successBody, fileName, styles.fileOk)}
+              {state === "fetched" && withFile(copy.fetchedBody, fileName, styles.fileOk)}
               {state === "failure" && failure && withFile(failure.reason, failure.file, styles.fileBad)}
               {state === "disabled" && copy.disabledBody}
             </p>
           </div>
-          {(state === "success" || state === "failure") && (
-            <button type="button" className={styles.again} onClick={state === "success" ? browse : reset}>
-              {state === "success" ? copy.cancelLabel : copy.retryLabel}
+          {(state === "success" || state === "failure" || state === "fetched") && (
+            <button type="button" className={styles.again} onClick={state === "failure" ? reset : browse}>
+              {state === "success" ? copy.cancelLabel : state === "fetched" ? copy.fetchedAction : copy.retryLabel}
             </button>
           )}
         </div>

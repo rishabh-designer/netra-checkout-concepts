@@ -49,9 +49,16 @@
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.edit:hover {
+.edit:hover:not(:disabled) {
   border-color: var(--color-brand-primary-border);
   background: var(--color-brand-primary-subtle);
+}
+
+/* Billing's locked edit: grey fill, faint label. */
+.edit:disabled {
+  background: var(--color-fill-disabled);
+  color: var(--color-label-disabled);
+  cursor: not-allowed;
 }
 
 

@@ -224,6 +224,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     goldQuote: CASE_B_GOLD,
     goldQuoteByCase: { A: CASE_A_GOLD },
     topCoveragesLabel: "Top Coverages",
+    coveragesUnavailableLabel: "Unavailable",
     ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },
     poweredByLabel: "Powered by BimaNetra",
     riskReport: {

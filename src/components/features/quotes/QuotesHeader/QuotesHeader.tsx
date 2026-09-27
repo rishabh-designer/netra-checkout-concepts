@@ -11,6 +11,9 @@ export interface QuotesHeaderProps {
   logoHref?: string;
   /** Leading CTA icon; defaults to the animated mail icon (Mail Quotes). */
   icon?: ReactNode;
+  onCta?: () => void;
+  /** The CTA reads as pressed (a toggle, e.g. the grid experiment). */
+  ctaPressed?: boolean;
 }
 
 /**
@@ -20,7 +23,7 @@ export interface QuotesHeaderProps {
  * Checkout reuses it with "Contact Support" and a headset icon.
  * Usage: <QuotesHeader content={content.header} />
  */
-export function QuotesHeader({ content, logoHref = "/directors-and-officers-insurance", icon }: QuotesHeaderProps) {
+export function QuotesHeader({ content, logoHref = "/directors-and-officers-insurance", icon, onCta, ctaPressed }: QuotesHeaderProps) {
   const mailRef = useRef<MailIconHandle>(null);
   return (
     <header className={styles.bar}>
@@ -31,6 +34,8 @@ export function QuotesHeader({ content, logoHref = "/directors-and-officers-insu
       <button
         type="button"
         className={styles.cta}
+        onClick={onCta}
+        aria-pressed={ctaPressed}
         onMouseEnter={() => mailRef.current?.startAnimation()}
         onMouseLeave={() => mailRef.current?.stopAnimation()}
       >

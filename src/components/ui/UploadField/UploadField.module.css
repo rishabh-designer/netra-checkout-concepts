@@ -54,16 +54,29 @@
   box-shadow: 0 0 0 4px var(--color-info-ring);
 }
 
+/* Filled states (Figma 638:23694 / 638:23674): a hairline solid stroke. */
 .zone[data-state="success"] {
   --zone-ink: var(--color-success);
   --zone-tint: var(--color-success-subtle);
   border-style: solid;
+  border-width: var(--border-hairline);
+  border-radius: var(--radius-16);
+}
+
+/* Fetched for the customer (the MCA): purple, r24. */
+.zone[data-state="fetched"] {
+  --zone-ink: var(--color-brand-primary);
+  --zone-tint: var(--color-brand-primary-subtle);
+  border-style: solid;
+  border-width: var(--border-hairline);
 }
 
 .zone[data-state="failure"] {
   --zone-ink: var(--color-error);
   --zone-tint: var(--color-error-tint);
   border-style: solid;
+  border-width: var(--border-hairline);
+  border-radius: var(--radius-16);
 }
 
 .zone[data-state="disabled"] {
@@ -78,6 +91,14 @@
   object-fit: contain;
   flex-shrink: 0;
   pointer-events: none;
+}
+
+/* With a file in, the illustration drops to 48 (Figma 638:23696). */
+.zone[data-state="success"] .art,
+.zone[data-state="failure"] .art,
+.zone[data-state="fetched"] .art {
+  width: 48px;
+  height: 48px;
 }
 
 .text {
@@ -99,6 +120,10 @@
 
 .zone[data-state="success"] .title {
   color: var(--color-success-deep);
+}
+
+.zone[data-state="fetched"] .title {
+  color: var(--color-brand-primary);
 }
 
 .zone[data-state="failure"] .title {
@@ -136,17 +161,17 @@
   font-weight: 600;
 }
 
-/* Secondary button: white, neutral stroke, 12/16 (r12 → 16, house rule). */
+/* Secondary button (Figma 638:23703): white, hairline subtle stroke, 10/14,
+   r10 → 12 (house rule), 12px SemiBold. */
 .again {
-  padding: var(--spacing-12) var(--spacing-16);
-  border: 1px solid var(--color-border-neutral);
-  border-radius: var(--radius-16);
+  padding: var(--spacing-10) 14px;
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-12);
   background: var(--color-card);
-  color: var(--color-label-basic);
+  color: var(--color-label-primary);
   font-size: var(--font-size-75);
   font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: 0.12px;
+  line-height: 1;
   cursor: pointer;
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }

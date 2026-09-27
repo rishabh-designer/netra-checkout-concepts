@@ -7,6 +7,8 @@ import type { QuoteFilter, QuoteSort } from "@/types/quotesPage";
 import styles from "./FeedControls.module.css";
 
 export interface FeedControlsProps {
+  /** Start-aligned (the compact grid, so the row lines up with the cards). */
+  alignStart?: boolean;
   /** Trigger copy with an `{option}` slot ("Filtering: {option}"). */
   filterLabel: string;
   filterOptions: { id: QuoteFilter; label: string }[];
@@ -96,7 +98,7 @@ function Dropdown<T extends string>({
  */
 export function FeedControls(props: FeedControlsProps) {
   return (
-    <div className={styles.row}>
+    <div className={styles.row} data-align={props.alignStart ? "start" : undefined}>
       <div className={styles.dropdowns}>
         <Dropdown label={props.filterLabel} options={props.filterOptions} value={props.filter} onChange={props.onFilterChange} icon={<FilterIcon />} />
         <Dropdown label={props.sortLabel} options={props.sortOptions} value={props.sort} onChange={props.onSortChange} icon={<SortIcon />} />

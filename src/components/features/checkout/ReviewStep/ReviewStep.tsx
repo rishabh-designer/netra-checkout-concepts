@@ -26,7 +26,7 @@ const EMPTY = "-";
 /**
  * ReviewStep — the three read-back sections of Review (Figma 484:28949):
  * each a lilac header strip (Instrument Serif title + "Edit Details") over a
- * label/value grid. Billing is locked (no edit button, values greyed);
+ * label/value grid. Billing is locked (a disabled edit button, values greyed);
  * Company and KYC open their edit drawer.
  * Usage: <ReviewStep content={review} billing={…} company={…} kyc={…} uploads={…} valueOf={…} fileOf={…} onEdit={…} />
  */
@@ -61,12 +61,16 @@ export function ReviewStep({ content, billing, company, kyc, uploads, valueOf, f
         <section key={s.id} className={styles.section} data-locked={s.locked || undefined}>
           <header className={styles.strip}>
             <h3 className={styles.stripTitle}>{content.sectionTitles[s.id]}</h3>
-            {/* Billing is locked after the first checkout step: no edit. */}
-            {!s.locked && (
-              <button type="button" className={styles.edit} onClick={() => onEdit(s.id as "company" | "kyc")}>
-                {content.editLabel}
-              </button>
-            )}
+            {/* Billing is locked after the first checkout step: its button
+                shows, disabled (Figma 638:22646). */}
+            <button
+              type="button"
+              className={styles.edit}
+              disabled={s.locked}
+              onClick={s.locked ? undefined : () => onEdit(s.id as "company" | "kyc")}
+            >
+              {content.editLabel}
+            </button>
           </header>
           <dl className={styles.rows}>
             {s.rows.map((r) => (

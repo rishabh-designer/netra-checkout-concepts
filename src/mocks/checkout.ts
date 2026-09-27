@@ -15,19 +15,21 @@ const PLACES = [
   "Pune, Maharashtra",
 ];
 
-/* Company step fields (Figma 484:26443): Pincode + Place side by side, then
-   Address full width. Values and states differ per case. */
+/* Company step fields (Figma 638:20126 exact / 638:18865 fuzzy): Pincode +
+   Place side by side and Address full width. An exact match (A) leads with
+   the pincode; a guess (B) leads with the address, the part to check first.
+   Values and states differ per case. */
 function companyFields(
   status: CheckoutField["status"],
   pincode: string,
   place: string,
   address: string,
+  addressFirst = false,
 ): CheckoutField[] {
-  return [
-    { key: "pincode", label: "Pincode", mandatory: true, control: "text", value: pincode, status, placeholder: "Enter Pincode", inputMode: "numeric", maxLength: 6, validate: "pincode" },
-    { key: "place", label: "Place of Incorporation", mandatory: true, control: "select", value: place, status, placeholder: "Select Place of Incorporation", options: PLACES },
-    { key: "address", label: "Address", mandatory: true, control: "textarea", value: address, status, placeholder: "Enter your company's registered address" },
-  ];
+  const pin: CheckoutField = { key: "pincode", label: "Pincode", mandatory: true, control: "text", value: pincode, status, placeholder: "Enter Pincode", inputMode: "numeric", maxLength: 6, validate: "pincode" };
+  const plc: CheckoutField = { key: "place", label: "Place of Incorporation", mandatory: true, control: "select", value: place, status, placeholder: "Select Place of Incorporation", options: PLACES };
+  const addr: CheckoutField = { key: "address", label: "Address", mandatory: true, control: "textarea", value: address, status, placeholder: "Enter your company's registered address" };
+  return addressFirst ? [addr, pin, plc] : [pin, plc, addr];
 }
 
 /* KYC number fields (Figma 484:26922), index-aligned with the uploads above
@@ -67,75 +69,77 @@ export const mockCheckoutContent: CheckoutContent = {
     supportLabel: "Contact Support",
     supportIconSrc: "/media/checkout/headset.svg",
     cautionIconSrc: "/media/checkout/caution.webp",
-    watermarkSrc: "/media/checkout/kolam.svg",
+    kolamSrc: "/media/checkout/kozam.svg",
   },
+  title: "Checkout",
+  backLabel: "Back to Quotes",
+  preparingLabel: "Preparing Checkout",
+  saveLabel: "Save & Continue",
+  verifyText: "I confirm these details are correct. The insurer issues my policy using them, so I have checked them carefully.",
   stepperLabels: { billing: "Billing", company: "Company", kyc: "KYC", review: "Review" },
   stepperAriaLabel: "Checkout progress",
   otherPersonLabel: "Buy in Another Person's Name",
   steps: {
     billing: {
       title: "Billing",
-      backLabel: "Back to Quotes",
       banner:
         "These details will be shown on your policy & used for communication. You can purchase the policy in another person's name by selecting the option below.",
       sectionTitle: "Primary Policy Details",
-      bannerCompact: true,
-      progress: { percent: 35, timeLeft: "4 Mins. Left" },
       otherPerson: "live",
+      // Figma 638:16876: the company (locked, it's what's being insured), then
+      // the buyer's name, phone and email, labelled, 2 × 2.
       fields: [
-        { key: "fullName", label: "Your Full Name", mandatory: true, hideLabel: true, control: "text", seedFrom: "fullName", status: "verified", placeholder: "Full Name" },
-        { key: "companyName", label: "Company Name", mandatory: true, hideLabel: true, control: "text", seedFrom: "companyName", status: "verified", placeholder: "Company Name", keepForOtherPerson: true },
-        { key: "phone", label: "Your Phone Number", mandatory: true, hideLabel: true, control: "text", seedFrom: "phone", status: "verified", prefix: "+91", placeholder: "0000 000 000", inputMode: "tel", validate: "phone" },
-        { key: "email", label: "Your Email Address", mandatory: true, hideLabel: true, control: "text", seedFrom: "email", status: "verified", placeholder: "Email Address", inputMode: "email", validate: "email" },
+        { key: "companyName", label: "Enter Company Name", reviewLabel: "Company Name", control: "text", seedFrom: "companyName", status: "verified", placeholder: "Company Name", keepForOtherPerson: true, locked: true },
+        { key: "fullName", label: "Your Full Name", mandatory: true, control: "text", seedFrom: "fullName", status: "verified", placeholder: "Enter Full Name" },
+        { key: "phone", label: "Your Phone Number", mandatory: true, control: "text", seedFrom: "phone", status: "verified", prefix: "+91", placeholder: "0000 000 000", inputMode: "tel", validate: "phone" },
+        { key: "email", label: "Your Email Address", mandatory: true, control: "text", seedFrom: "email", status: "verified", placeholder: "Enter Email Address", inputMode: "email", validate: "email" },
       ],
     },
     company: {
       title: "Company",
-      backLabel: "Back to Billing",
       banner: "These company details will be shown on your policy & used for policy communication.",
       sectionTitle: "Company Registration Details",
-      progress: { percent: 42, timeLeft: "3 Mins. Left" },
       otherPerson: "hidden",
       cases: {
-        // A: registry match, filled and green.
-        A: companyFields("success", "560095", "Bengaluru, Karnataka", "2nd Floor, Pepe Jeans House, 18 Hosur Road, Koramangala, Bengaluru, Karnataka 560095"),
+        // A: registry match, filled and verified (purple, Figma 638:20126).
+        A: companyFields("verified", "560095", "Bengaluru, Karnataka", "2nd Floor, Pepe Jeans House, 18 Hosur Road, Koramangala, Bengaluru, Karnataka 560095"),
         // B: web guess, orange until the user edits it.
-        B: companyFields("fuzzy", "700029", "Kolkata, West Bengal", "1st Floor, 4B Panditia Road, Ballygunge, Kolkata, West Bengal 700029"),
+        B: companyFields("fuzzy", "700029", "Kolkata, West Bengal", "1st Floor, 4B Panditia Road, Ballygunge, Kolkata, West Bengal 700029", true),
         // C: nothing found, entered by hand.
         C: companyFields("empty", "", "", ""),
       },
     },
     kyc: {
       title: "KYC",
-      backLabel: "Back to Company",
       banner: "As per IRDAI guidelines, completing KYC is mandatory to issue your policy.",
       sectionTitle: "KYC Details",
-      progress: { percent: 58, timeLeft: "2 Mins. Left" },
       otherPerson: "hidden",
       uploads: [
         { key: "gstinFile", label: "Upload Company GST Certificate - Image or PDF", reviewLabel: "GSTIN Upload", title: "Upload Company GST" },
         { key: "panFile", label: "Upload Company PAN Card - Image or PDF", reviewLabel: "Company Pan Card Upload", title: "Upload Company PAN Card" },
       ],
       cases: {
-        A: kycFields({ value: "29AAJCP5565B1Z5", status: "success" }, { value: "AAJCP5565B", status: "success" }),
+        A: kycFields({ value: "29AAJCP5565B1Z5", status: "verified" }, { value: "AAJCP5565B", status: "verified" }),
         // B: the PAN was MCA-confirmed in Business; the GSTIN is a web guess.
         B: kycFields({ value: "19AATFS4271L1ZQ", status: "fuzzy" }, { value: "AATFS4271L", status: "success" }),
         // C: the PAN the user typed in Business; no GSTIN yet.
         C: kycFields({ value: "", status: "empty" }, { seedFrom: "cin", status: "userFilled" }),
       },
+      // A: both documents came back from the MCA with the registry match.
+      fetched: {
+        A: { gstinFile: "PepeJeans-GST-Certificate.pdf", panFile: "PepeJeans-PAN-Card.pdf" },
+      },
     },
     review: {
       title: "Review",
-      backLabel: "Back to KYC",
       banner: "Please check your details once more before purchase.",
       sectionTitle: "Details Shown On Policy",
-      progress: { percent: 98, timeLeft: "1 Min. Left" },
       otherPerson: "hidden",
       sectionTitles: { billing: "Billing", company: "Company", kyc: "KYC" },
-      editLabel: "Edit",
+      editLabel: "Edit Details",
       uploadedLabel: "Uploaded",
       consentText:
-        "I confirm these details are correct. The insurer issues my policy using them, so I have checked them carefully.",
+        "I confirm all details provided are correct. I understand the broker is not responsible for policy creation errors, as this depends on the insurance company.",
       // `{price}` is the chosen quote's total (GST included).
       payLabel: "Pay {price}",
       requestLabel: "Request Quote",
@@ -152,10 +156,13 @@ export const mockCheckoutContent: CheckoutContent = {
     failureTitle: "Upload Failed",
     tooLarge: "{file} is larger than 2MB",
     wrongType: "{file} isn't an image or a PDF",
-    cancelLabel: "Replace File",
+    cancelLabel: "Try Again",
     retryLabel: "Try Again",
     disabledTitle: "Unable to Upload",
     disabledBody: "Please Refresh or Try Again Later",
+    fetchedTitle: "Successfully Fetched!",
+    fetchedBody: "{file} has been fetched from MCA.",
+    fetchedAction: "Upload New",
     maxBytes: 2 * 1024 * 1024,
   },
   summary: {
@@ -169,8 +176,9 @@ export const mockCheckoutContent: CheckoutContent = {
     gstLabel: "GST (18%)",
     totalLabel: "Total Cost",
     gstRate: 0.18,
-    saveLabel: "Save & Continue",
-    badgeSrc: "/media/checkout/badge.webp",
+    offerLabel: "BimaNetra Offer",
+    offerPercent: "({pct}% Off)",
+    finalLabel: "Final Cost",
     insurerInfoLabel: "About this insurer",
   },
   disclaimer: {

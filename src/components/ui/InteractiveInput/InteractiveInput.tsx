@@ -39,6 +39,8 @@ export interface InteractiveInputProps {
   onClear?: () => void;
   /** Render the value as read-only text (e.g. a system-known company name). */
   readOnly?: boolean;
+  /** Read-only and greyed (Figma disabled field): shown, not editable. */
+  locked?: boolean;
   clearable?: boolean;
   status?: FieldStatus;
   /** Returns an error message (→ error status + red help) or null when valid. */
@@ -103,6 +105,7 @@ export function InteractiveInput({
   onChange,
   onClear,
   readOnly = false,
+  locked = false,
   clearable = false,
   status = "empty",
   validate,
@@ -168,6 +171,7 @@ export function InteractiveInput({
         data-active={active || undefined}
         data-open={(isSelect && menuOpen) || undefined}
         data-multiline={isTextarea || undefined}
+        data-locked={locked || undefined}
       >
         {prefix && (
           <span className={styles.prefix} aria-hidden>
@@ -175,7 +179,7 @@ export function InteractiveInput({
           </span>
         )}
 
-        {readOnly ? (
+        {readOnly || locked ? (
           <span className={styles.value}>{value}</span>
         ) : isSelect ? (
           <SelectMenu

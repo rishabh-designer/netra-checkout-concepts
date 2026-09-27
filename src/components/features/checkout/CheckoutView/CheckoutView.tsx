@@ -6,19 +6,20 @@ import { useRouter } from "next/navigation";
 import type { CheckoutContent, CheckoutStepId } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
 import { Toast } from "@/components/ui/Toast";
-import { TextCascade } from "@/components/ui/TextCascade";
+import { AgentProgress } from "@/components/ui/AgentProgress";
 import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
 import { useQuoteFlow } from "@/lib/quote-flow";
 import { useCheckout } from "../useCheckout";
+import { useCheckoutClock } from "../useCheckoutClock";
 import { CheckoutStepper } from "../CheckoutStepper";
 import { FormCard } from "../FormCard";
 import { StepForm } from "../StepForm";
 import { ReviewStep } from "../ReviewStep";
+import { StepActions } from "../StepActions";
 import { CheckoutEditDrawer } from "../CheckoutEditDrawer";
 import { PurchaseSummary } from "../PurchaseSummary";
 import { Disclaimer } from "../Disclaimer";
 import { readLastCheckout, writeLastCheckout } from "../lastStep";
-import { HANDOFF } from "../handoff";
 import styles from "./CheckoutView.module.css";
 
 export interface CheckoutViewProps {
@@ -32,14 +33,18 @@ export interface CheckoutViewProps {
 }
 
 /**
- * CheckoutView — one checkout step (Figma 484:25856 Billing, 484:26420
- * Company, 484:26922 KYC, 484:27578 Review). The Quotes page's megamenu bar
- * (logo + Contact Support) spans the top. Below it, left: back chip, serif
- * title + stepper, the form card and the disclaimer over a lavender wash with a
- * kolam watermark (the only part that scrolls). Right: progress and the
- * Purchase Summary with the step CTA (fixed). Save & Continue unlocks once the step is
- * complete; Review's final CTA ("Make Payment" / "Request Quote") unlocks on
- * consent.
+ * CheckoutView — one checkout step (Figma 638:16876 Billing, 638:20126 /
+ * 638:18865 Company exact / fuzzy, 638:22763 KYC, 638:21971 Review). The
+ * Quotes page's megamenu bar (logo + Contact Support) spans the top. Below it,
+ * the conventional checkout split: left (scrolls), the task — back chip, the
+ * serif "Checkout" title with the stepper on the same row, the step's form, then an ikkat rule
+ * over the consent (when the step needs one) and the CTA, and the disclaimer.
+ * Right (515, fixed), the reference: a lavender panel with the "Preparing
+ * Checkout" Agent Progress (it runs from the first step until the final CTA)
+ * over the Purchase Summary, and a kolam trailing below.
+ * Steps with guessed details (Case B) need the verification ticked before
+ * Save & Continue; Review's final CTA ("Pay ₹X" / "Request Quote") needs its
+ * disclaimer ticked.
  * Usage: <CheckoutView step="kyc" steps={…} basePath="…" quotesHref="…" content={c} fallbackQuote={q} />
  */
 export function CheckoutView(props: CheckoutViewProps) {
@@ -52,35 +57,52 @@ export function CheckoutView(props: CheckoutViewProps) {
 function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQuote }: CheckoutViewProps) {
   const router = useRouter();
   const co = useCheckout(content, fallbackQuote);
+  const clock = useCheckoutClock();
   const [consent, setConsent] = useState(false);
   const [editing, setEditing] = useState<"company" | "kyc" | null>(null);
   const [toast, setToast] = useState(false);
-  // The step we arrived from, so the bar and stepper animate the hand-off.
+  // The step we arrived from, so the stepper animates the hand-off.
   const [from] = useState(() => readLastCheckout());
 
   const i = steps.indexOf(step);
   const chrome = content.steps[step];
-  // Title cascade: start on the previous step's title, then roll to this one
-  // (first arrival lands the letters in from below).
-  const [shownTitle, setShownTitle] = useState(() => (from ? content.steps[from.step].title : chrome.title));
-  useEffect(() => setShownTitle(chrome.title), [chrome.title]);
   useEffect(() => {
-    writeLastCheckout({ step, percent: chrome.progress.percent, timeLeft: chrome.progress.timeLeft });
-  }, [step, chrome.progress]);
-  const backHref = i === 0 ? quotesHref : `${basePath}/${steps[i - 1]}`;
+    writeLastCheckout({ step });
+  }, [step]);
   const { kyc } = content.steps;
+  const hrefFor = (s: CheckoutStepId) => `${basePath}/${s}`;
 
+  const formStep = step === "review" ? null : step;
+  // The current step's bar follows what's done (fields, uploads, the
+  // verification; on Review the three sections and the consent), from 8% to
+  // 95%. The last stretch fills, green, on Save & Continue.
+  const progress =
+    step === "review"
+      ? {
+          done: (["billing", "company", "kyc"] as const).filter((s) => co.isComplete(s)).length + (consent ? 1 : 0),
+          total: 4,
+        }
+      : co.progressOf(step);
+  const barPercent = Math.round(8 + (progress.total ? progress.done / progress.total : 1) * 87);
   const cta =
     step === "review"
       ? {
           label: co.quote.price ? content.steps.review.payLabel.replace("{price}", co.quote.price) : content.steps.review.requestLabel,
           enabled: consent,
           onClick: () => {
+            clock.stop();
             setToast(false);
             requestAnimationFrame(() => setToast(true));
           },
         }
-      : { label: content.summary.saveLabel, enabled: co.isComplete(step), onClick: () => router.push(`${basePath}/${steps[i + 1]}`) };
+      : { label: content.saveLabel, enabled: co.isComplete(formStep!), onClick: () => router.push(hrefFor(steps[i + 1])) };
+
+  const stepConsent =
+    step === "review"
+      ? { text: content.steps.review.consentText, checked: consent, onToggle: () => setConsent((c) => !c), tone: "review" as const }
+      : co.needsVerify(formStep!)
+        ? { text: content.verifyText, checked: co.verified(formStep!), onToggle: () => co.setVerified(formStep!, !co.verified(formStep!)), tone: "verify" as const }
+        : undefined;
 
   // Live value of a Company field by key (seed or edit), for the pincode autofill.
   const live = (key: string) => {
@@ -93,6 +115,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
     status: (f: Parameters<typeof co.statusOf>[0]) => co.statusOf(f),
     error: (f: Parameters<typeof co.errorOf>[0]) => co.errorOf(f),
     file: co.get,
+    fetched: co.isFetched,
     onChange: (key: string, v: string) => co.set(co.patchFor(key, v, live)),
   };
 
@@ -108,41 +131,36 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
         }
       />
       <div className={styles.body}>
-        <div className={styles.left}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={content.header.watermarkSrc} alt="" aria-hidden className={styles.watermark} />
-
+        <div className={styles.formPanel}>
           <main className={styles.content}>
-            <div className={styles.titleRow}>
-              <div className={styles.titleLead}>
-                <Link href={backHref} className={styles.back}>
-                  <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-                    <path d="M10 6H2m3-3L2 6l3 3" stroke="var(--color-label-secondary)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  {chrome.backLabel}
-                </Link>
-                <h1 className={styles.title}>
-                <TextCascade
-                  text={shownTitle}
-                  appear={!from}
-                  timing={{
-                    delay: HANDOFF.land,
-                    exitDelay: HANDOFF.begin,
-                    stagger: HANDOFF.letterStagger,
-                    enter: HANDOFF.letterEnter,
-                    exit: HANDOFF.letterExit,
-                    ease: HANDOFF.ease,
-                  }}
-                />
-              </h1>
+            <div className={styles.head}>
+              <Link href={quotesHref} className={styles.back}>
+                <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
+                  <path d="M10 6H2m3-3L2 6l3 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {content.backLabel}
+              </Link>
+              {/* Title and stepper share one row (Figma 639:24325), closed by a
+                  hairline; they stack on narrower screens. */}
+              <div className={styles.titleRow}>
+                <h1 className={styles.title}>{content.title}</h1>
+                <div className={styles.stepperSlot}>
+                  <CheckoutStepper
+                    steps={steps}
+                    current={step}
+                    labels={content.stepperLabels}
+                    ariaLabel={content.stepperAriaLabel}
+                    from={from?.step ?? null}
+                    barPercent={barPercent}
+                    hrefFor={hrefFor}
+                  />
+                </div>
               </div>
-              <CheckoutStepper steps={steps} current={step} labels={content.stepperLabels} ariaLabel={content.stepperAriaLabel} from={from?.step ?? null} />
             </div>
 
             <FormCard
               banner={chrome.banner}
               bannerIconSrc={content.header.cautionIconSrc}
-              bannerCompact={chrome.bannerCompact}
               sectionTitle={chrome.sectionTitle}
               otherPerson={{ mode: chrome.otherPerson, label: content.otherPersonLabel, checked: co.otherPerson, onChange: co.setOtherPerson }}
             >
@@ -162,20 +180,30 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
               )}
             </FormCard>
 
+            <StepActions cta={cta} consent={stepConsent} />
+
             <Disclaimer {...content.disclaimer} />
           </main>
         </div>
-
-        <aside className={styles.right}>
-          <PurchaseSummary
-            content={content.summary}
-            quote={co.quote}
-            progress={chrome.progress}
-          from={from ? { percent: from.percent, timeLeft: from.timeLeft } : null}
-            cta={cta}
-            consent={step === "review" ? { text: content.steps.review.consentText, checked: consent, onToggle: () => setConsent((c) => !c) } : undefined}
-          />
+        {/* Summary panel (638:17106): the timer, the summary, and a kolam
+            trailing below it. */}
+        <aside className={styles.summaryPanel}>
+          <div className={styles.summaryStack}>
+            <AgentProgress
+              label={content.preparingLabel}
+              elapsedSeconds={clock.seconds}
+              running={clock.running}
+              // The count still runs (and stops on Pay); it's just not shown.
+              hideTime
+              className={styles.preparing}
+              labelClassName={styles.preparingLabel}
+            />
+            <PurchaseSummary content={content.summary} quote={co.quote} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={content.header.kolamSrc} alt="" aria-hidden className={styles.kolam} />
+          </div>
         </aside>
+
       </div>
 
       <CheckoutEditDrawer

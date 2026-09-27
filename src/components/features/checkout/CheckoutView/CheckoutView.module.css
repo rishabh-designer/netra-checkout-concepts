@@ -1,5 +1,5 @@
-/* The Quotes megamenu bar on top; below it two columns (1512 frame): left
-   997 scrolls over a lavender wash, right 515 stays put on white. */
+/* The Quotes megamenu bar on top; below it two columns (1512 frame): the
+   form (fills, scrolls) and the summary panel (515, fixed). */
 .page {
   display: flex;
   flex-direction: column;
@@ -18,51 +18,112 @@
   overflow: clip;
 }
 
-.left {
+/* ── Summary panel (638:17106) ─────────────────────────────────────────── */
+/* Lavender fading to white, a kolam above the summary (flipped) and one
+   below (turned), never scrolls. */
+.summaryPanel {
   position: relative;
   min-height: 0;
-  overflow-y: auto;
-  background: linear-gradient(to bottom, var(--color-brand-primary-subtle) 0%, var(--color-card) 100%);
+  overflow: clip;
+  background: linear-gradient(to bottom, var(--color-brand-primary-subtle), var(--color-card));
   isolation: isolate;
 }
 
-/* Kolam line art behind the card, centred. */
-.watermark {
-  position: absolute;
-  top: 118px;
-  left: 50%;
+/* Timer centred over the card, then the card, then the kolam hanging off
+   its foot (turned, so its loops point down). */
+.summaryStack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-32);
+  padding: 36px var(--spacing-32) var(--spacing-32);
+}
+
+.kolam {
   z-index: -1;
-  width: 734px;
-  max-width: 90%;
+  /* 0.75× the Figma 407 × 207.5, its top tucked just under the card's foot. */
+  width: 305px;
+  max-width: 100%;
   height: auto;
-  transform: translateX(-50%);
-  opacity: 0.6;
+  margin-top: calc(-1 * var(--spacing-32) - 3px);
+  transform: scaleX(-1);
   pointer-events: none;
 }
 
+/* "Preparing Checkout" (638:18460): 24 tall, 12 padding. */
+.preparing {
+  height: 24px;
+  padding: 0 var(--spacing-12);
+}
+
+.preparingLabel {
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-label-primary);
+}
+
+/* ── Form panel ────────────────────────────────────────────────────────── */
+.formPanel {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* container-form (638:16879): 32/12 padding; head, form and actions 48
+   apart (638:16925), content 933 wide. */
 .content {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-24);
+  gap: var(--spacing-48);
   max-width: 997px;
   margin: 0 auto;
-  padding: 0 var(--spacing-32);
+  padding: var(--spacing-12) var(--spacing-32) 0;
 }
 
-/* Title row (484:25864): back chip + serif title left, stepper right. */
-.titleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-24);
-  padding-top: var(--spacing-24);
-}
-
-.titleLead {
+/* Head (639:24325): the back chip, then the title and stepper on one row
+   over a hairline; the form starts 24 below it (not the column's 48). */
+.head {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-12);
+  padding-top: var(--spacing-24);
+}
+
+.head + * {
+  margin-top: calc(-1 * var(--spacing-24));
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-64);
+  width: 100%;
+  padding-bottom: var(--spacing-16);
+  border-bottom: var(--border-hairline) solid var(--color-divider);
+}
+
+.title {
+  flex-shrink: 0;
+}
+
+/* The stepper takes the rest of the row, its pills level with the title. */
+.stepperSlot {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Narrower screens: the stepper drops under the title, full width. */
+@media (max-width: 1200px) {
+  .titleRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-16);
+  }
+  .stepperSlot {
+    width: 100%;
+  }
 }
 
 /* Back chip: 0.5 lilac stroke, 8/10, r8 → 12 (house rule). */
@@ -82,11 +143,11 @@
 }
 
 .back:hover {
-  background: var(--color-card);
+  background: var(--color-brand-primary-subtle);
   color: var(--color-brand-primary);
 }
 
-/* Instrument Serif italic 48 / 1.2, brand purple. */
+/* "Checkout": Instrument Serif italic 48 / 1.2, brand purple. */
 .title {
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
@@ -96,20 +157,6 @@
   line-height: 1.2;
   letter-spacing: -0.28px;
   color: var(--color-brand-primary);
-}
-
-.right {
-  height: 100%;
-  overscroll-behavior: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-24);
-  min-height: 0;
-  padding: var(--spacing-24) var(--spacing-32);
-  /* Fixed panel: never scrolls (clip, not hidden, so neither the wheel, focus
-     nor script can move it); the decorative badge simply crops at the foot. */
-  overflow: clip;
 }
 
 .supportIcon {
@@ -125,10 +172,8 @@
   .body {
     grid-template-columns: minmax(0, 1fr);
   }
-  .left {
-    overflow: visible;
-  }
-  .right {
+  .summaryPanel,
+  .formPanel {
     overflow: visible;
   }
 }

@@ -16,8 +16,6 @@ export interface CheckoutField {
   /** Label on the Review page (defaults to `label`). */
   reviewLabel?: string;
   mandatory?: boolean;
-  /** Hide the label row on the step page (Billing, per Figma). */
-  hideLabel?: boolean;
   control: "text" | "select" | "textarea";
   value?: string;
   seedFrom?: string;
@@ -33,6 +31,8 @@ export interface CheckoutField {
   /** Stays put when "Buy in Another Person's Name" is on (the company is
    *  still the one being insured). */
   keepForOtherPerson?: boolean;
+  /** Shown but not editable (greyed): the company name on Billing. */
+  locked?: boolean;
 }
 
 /** A document upload (KYC). The stored value is the uploaded file's name. */
@@ -55,24 +55,20 @@ export interface CheckoutUploadCopy {
   retryLabel: string;
   disabledTitle: string;
   disabledBody: string;
+  /** Auto-fetched from the MCA (Case A's KYC): title, body (`{file}`), and
+   *  the button that swaps in the customer's own file. */
+  fetchedTitle: string;
+  fetchedBody: string;
+  fetchedAction: string;
   /** Largest accepted file, in bytes. */
   maxBytes: number;
-}
-
-export interface CheckoutProgress {
-  percent: number;
-  timeLeft: string;
 }
 
 /** Shared chrome of a form step. */
 export interface CheckoutStepChrome {
   title: string;
-  backLabel: string;
   banner: string;
   sectionTitle: string;
-  progress: CheckoutProgress;
-  /** Smaller banner (16px icon, 12px text) for long copy (Billing). */
-  bannerCompact?: boolean;
   /** "Buy in Another Person's Name": live on Billing, faded on Review, hidden elsewhere. */
   otherPerson: "live" | "faded" | "hidden";
 }
@@ -101,20 +97,39 @@ export interface CheckoutSummaryContent {
   totalLabel: string;
   /** GST rate as a fraction (0.18). */
   gstRate: number;
-  saveLabel: string;
-  badgeSrc: string;
+  /** The BimaNetra offer (quotes with an original price): label, and the
+   *  percent note after the saving ("{pct}" is the rounded percent off). */
+  offerLabel: string;
+  offerPercent: string;
+  finalLabel: string;
   insurerInfoLabel: string;
 }
 
 export interface CheckoutContent {
-  header: { logoSrc: string; logoAlt: string; supportLabel: string; supportIconSrc: string; cautionIconSrc: string; watermarkSrc: string };
+  header: { logoSrc: string; logoAlt: string; supportLabel: string; supportIconSrc: string; cautionIconSrc: string; kolamSrc: string };
+  /** Page title (every step) and the back chip to the quotes. */
+  title: string;
+  backLabel: string;
+  /** Agent Progress above the summary: runs from checkout's first step until
+   *  the final CTA is pressed. */
+  preparingLabel: string;
+  /** Step CTA (Billing, Company, KYC). */
+  saveLabel: string;
+  /** Verification for guessed (fuzzy) details: steps with a guessed field
+   *  need this ticked before Save & Continue (Case B). */
+  verifyText: string;
   stepperLabels: Record<CheckoutStepId, string>;
   stepperAriaLabel: string;
   otherPersonLabel: string;
   steps: {
     billing: CheckoutStepChrome & { fields: CheckoutField[] };
     company: CheckoutStepChrome & { cases: Record<QuoteCaseId, CheckoutField[]> };
-    kyc: CheckoutStepChrome & { uploads: CheckoutUpload[]; cases: Record<QuoteCaseId, CheckoutField[]> };
+    kyc: CheckoutStepChrome & {
+      uploads: CheckoutUpload[];
+      cases: Record<QuoteCaseId, CheckoutField[]>;
+      /** Documents already fetched from the MCA, by upload key (Case A). */
+      fetched?: Partial<Record<QuoteCaseId, Record<string, string>>>;
+    };
     review: CheckoutReviewContent;
   };
   upload: CheckoutUploadCopy;

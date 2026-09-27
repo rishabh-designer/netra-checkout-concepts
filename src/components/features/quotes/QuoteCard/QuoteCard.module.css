@@ -534,3 +534,159 @@
     animation: none;
   }
 }
+
+/* ── Compact grid (the Mail Quotes experiment, Figma 640:24913) ─────────
+   Logo beside the name, the tag as a tab hanging off the top edge, the
+   product mark behind the coverage box, the rule and a View All Features
+   pill inside the box, and the bar at the foot so cards in a row align.
+   Offline quotes fill the box with an "Unavailable" block (640:25701). */
+.card[data-compact] {
+  height: 100%;
+}
+
+.compactMark {
+  position: absolute;
+  top: 31.5px;
+  right: 28.66px;
+  width: 89.68px;
+  height: 89.68px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Tab: white, tone hairline, rounded foot only, flush with the top edge. */
+.tab {
+  position: absolute;
+  top: -0.5px;
+  right: 7.5px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4) var(--spacing-8) var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-success-border);
+  border-radius: 0 0 var(--radius-16) var(--radius-16);
+  background: var(--color-card);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-success);
+}
+
+.tab[data-tone="gold"] {
+  border-color: var(--color-brand-secondary-subtle-bold);
+  color: var(--color-brand-secondary);
+}
+
+.tabIcon {
+  width: 10px;
+  height: 10px;
+}
+
+.compactInner {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16) 0 var(--spacing-8);
+}
+
+.compactHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: 0 var(--spacing-4);
+  /* leave room for the tab on the right */
+  padding-right: 120px;
+}
+
+.compactLogo {
+  flex-shrink: 0;
+  height: 32px;
+  width: auto;
+  max-width: 100px;
+  object-fit: contain;
+}
+
+.compactName {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: var(--font-size-300);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-brand-primary);
+}
+
+.compactCoverage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+}
+
+.card[data-compact] .chipCheck {
+  width: 8px;
+  height: 8px;
+}
+
+/* Offline: a sunken block holds the space the chips would. */
+.unavailable {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  min-height: 60px;
+  border-radius: var(--radius-8);
+  background: var(--color-card-sunken);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.12px;
+  color: var(--color-label-tertiary);
+}
+
+.compactRule {
+  align-self: stretch;
+}
+
+.compactRule > div {
+  padding: 0;
+}
+
+/* View All Features pill: white → secondary tint, hairline, fully round. */
+.featuresPill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6) var(--spacing-10) var(--spacing-6) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-brand-secondary-border);
+  border-radius: 1000px;
+  corner-shape: round;
+  background: linear-gradient(254.5deg, var(--color-card) 51.9%, var(--color-brand-secondary-subtle) 95.3%);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -0.12px;
+  color: var(--color-label-primary);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.featuresPill:hover {
+  border-color: var(--color-brand-secondary);
+}
+
+/* Bar: Sum Insured reads left-aligned beside the button. */
+.card[data-compact] .sum {
+  align-items: flex-start;
+  text-align: left;
+}

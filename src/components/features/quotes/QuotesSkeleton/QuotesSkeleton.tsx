@@ -17,7 +17,7 @@ const d = (n: number) => Math.min(n * STEP, MAX_DELAY);
 
 /**
  * QuotesSkeleton — the Quotes body while results "load", shaped like the
- * 3-column page (sidebar 280 | feed | help desk 290): the details rail with its
+ * 3-column page (sidebar 240 | feed | help desk 240): the details rail with its
  * banner pinned to the bottom, the feed's fixed top (breadcrumb, controls,
  * rule) over a 480-wide vertical stack of card placeholders, and the help card.
  * Blocks stagger in top-left → bottom-right and the shimmer cascades.

@@ -15,6 +15,8 @@ export interface AgentProgressProps {
   className?: string;
   /** Replaces the label's own type styles (e.g. to keep a heading's look). */
   labelClassName?: string;
+  /** Keep the timer running but out of sight (the glyph and label stay). */
+  hideTime?: boolean;
 }
 
 // 3×3 glyph cells, lit in reading order (beui's 0.14s cascade).
@@ -35,7 +37,7 @@ function formatElapsed(total: number) {
  * keeps a gentle opacity pulse.
  * Usage: <AgentProgress label="Fetching" />
  */
-export function AgentProgress({ label, elapsedSeconds, running = true, className, labelClassName }: AgentProgressProps) {
+export function AgentProgress({ label, elapsedSeconds, running = true, className, labelClassName, hideTime = false }: AgentProgressProps) {
   const reduce = useReducedMotion() ?? false;
   const [internal, setInternal] = useState(0);
 
@@ -59,7 +61,7 @@ export function AgentProgress({ label, elapsedSeconds, running = true, className
         ))}
       </span>
       <span className={labelClassName ?? styles.label}>{label}</span>
-      <span aria-hidden className={styles.time}>
+      <span aria-hidden className={styles.time} hidden={hideTime}>
         {formatElapsed(elapsedSeconds ?? internal)}
       </span>
     </span>

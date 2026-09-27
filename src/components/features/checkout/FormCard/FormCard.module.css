@@ -1,43 +1,39 @@
-/* White card: 1px subtle stroke, r24, p24, 24 gap. */
+/* The step form: banner, then the section, 24 apart; no card chrome. */
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-24);
-  padding: var(--spacing-24);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-24);
-  background: var(--color-card);
 }
 
-/* Caution banner: r8, p8, 20px icon + 16px copy (compact: 16 + 12). */
+/* Caution banner (638:17733): hairline, r8, p12, 16px icon + 14px copy. */
 .banner {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacing-8);
-  padding: var(--spacing-8);
+  padding: var(--spacing-12);
   border: var(--border-hairline) solid var(--color-caution-border);
   border-radius: var(--radius-8);
   background: var(--color-caution-subtle);
-  font-size: var(--font-size-200);
+  font-size: var(--font-size-100);
   font-weight: 500;
   line-height: 1.5;
   color: var(--color-caution-label);
 }
 
 .bannerIcon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
+  margin-top: 2.5px;
   flex-shrink: 0;
 }
 
-.banner[data-compact] {
-  font-size: var(--font-size-75);
-}
-
-.banner[data-compact] .bannerIcon {
-  width: 16px;
-  height: 16px;
+/* Section (638:16939): p12, 16 gap: title row, hairline, fields. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding: var(--spacing-12);
 }
 
 .section {
@@ -50,22 +46,30 @@
 
 .sectionTitle {
   font-size: var(--font-size-100);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1;
-  color: var(--color-brand-primary-muted);
+  color: var(--color-label-primary);
 }
 
-/* "Buy in Another Person's Name" chip: white, 0.5 neutral stroke, r12, 8/12. */
+.divider {
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: var(--border-hairline) solid var(--color-divider);
+}
+
+/* "Buy in Another Person's Name" chip (638:16946): white, hairline, r8 → 12,
+   6/8, 14px SemiBold. */
 .chip {
   display: inline-flex;
-  padding: var(--spacing-8) var(--spacing-12);
+  padding: var(--spacing-6) var(--spacing-8);
   border: var(--border-hairline) solid rgba(169, 172, 177, 0.6);
   border-radius: var(--radius-12);
   background: var(--color-card);
   font-size: var(--font-size-100);
   font-weight: 600;
   letter-spacing: -0.14px;
-  color: var(--color-label-basic);
+  color: var(--color-label-primary);
 }
 
 .chip[data-faded] {

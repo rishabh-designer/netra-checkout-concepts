@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import type { CheckoutStepId } from "@/types/checkout";
 import { HANDOFF } from "../handoff";
@@ -13,6 +14,11 @@ export interface CheckoutStepperProps {
   /** The step the user just left (null on arrival): pills that changed state
    *  animate from their previous look. */
   from?: CheckoutStepId | null;
+  /** How far the current step's bar fills (0–100, live as the step is
+   *  completed); done steps fill green. */
+  barPercent: number;
+  /** Finished steps link back to themselves. */
+  hrefFor: (step: CheckoutStepId) => string;
 }
 
 type PillState = "done" | "current" | "upcoming";
@@ -46,14 +52,15 @@ function Glyph({ state }: { state: PillState }) {
 }
 
 /**
- * CheckoutStepper — the four-step pill row beside the page title (Figma
- * 484:25864 / 613:65314): done steps green with a tick, the current step
- * lilac with a purple dot, upcoming steps grey with their label.
- * On Save & Continue the step just finished pops green with its tick, then the
- * next pill blooms: its dot grows and its label brightens.
- * Usage: <CheckoutStepper steps={…} current="company" labels={…} from="billing" />
+ * CheckoutStepper — four equal columns under the title (Figma 638:18119): a
+ * pill (done green with a tick, current lilac with a purple dot, upcoming
+ * grey) over a 3px bar. Done steps' bars run full green; the current step's
+ * fills purple to its `barPercent`; upcoming bars are empty. Done pills link
+ * back to their step. On Save & Continue the step just finished pops green,
+ * then the next pill blooms and its bar fills.
+ * Usage: <CheckoutStepper steps={…} current="company" labels={…} from="billing" barPercent={50} hrefFor={(s) => …} />
  */
-export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null }: CheckoutStepperProps) {
+export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null, barPercent, hrefFor }: CheckoutStepperProps) {
   const reduced = useReducedMotion();
   const at = steps.indexOf(current);
   const was = from ? steps.indexOf(from) : -1;
@@ -64,12 +71,11 @@ export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null
         const changed = !reduced && stateAt(i, was) !== state;
         const justDone = changed && state === "done";
         const justCurrent = changed && state === "current";
-        return (
-          <motion.li
-            key={s}
+        const fill = state === "done" ? 100 : state === "current" ? barPercent : 0;
+        const pill = (
+          <motion.span
             className={styles.pill}
             data-state={state}
-            aria-current={state === "current" ? "step" : undefined}
             initial={justDone ? { scale: 0.9 } : justCurrent ? { scale: 0.85, opacity: 0.6 } : false}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "tween", duration: HANDOFF.pill, ease: POP, delay: justCurrent ? HANDOFF.land : HANDOFF.begin }}
@@ -90,7 +96,27 @@ export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null
             >
               {labels[s]}
             </motion.span>
-          </motion.li>
+          </motion.span>
+        );
+        return (
+          <li key={s} className={styles.step} aria-current={state === "current" ? "step" : undefined}>
+            {state === "done" ? (
+              <Link href={hrefFor(s)} className={styles.pillLink}>
+                {pill}
+              </Link>
+            ) : (
+              pill
+            )}
+            <span className={styles.track} aria-hidden>
+              <motion.span
+                className={styles.fill}
+                data-state={state}
+                initial={changed || !from ? { width: 0 } : false}
+                animate={{ width: `${fill}%` }}
+                transition={{ type: "tween", duration: reduced ? 0 : HANDOFF.bar, ease: EASE, delay: justCurrent || !from ? HANDOFF.land : HANDOFF.begin }}
+              />
+            </span>
+          </li>
         );
       })}
     </ol>

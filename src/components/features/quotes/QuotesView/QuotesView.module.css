@@ -22,11 +22,11 @@
 }
 
 /* Skeleton ↔ content swap layer: carries the 3-column grid
-   (sidebar 280 | feed | help desk 290, 72px gaps). */
+   (sidebar 240 | feed | help desk 240, 40px gaps). */
 .swap {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 290px;
-  column-gap: 72px;
+  grid-template-columns: 240px minmax(0, 1fr) 240px;
+  column-gap: 40px;
   width: 100%;
   height: 100%;
   min-height: 0;
@@ -34,10 +34,15 @@
 }
 
 .swap[data-collapsed] {
-  grid-template-columns: 70px minmax(0, 1fr) 290px;
+  grid-template-columns: 70px minmax(0, 1fr) 240px;
 }
 
-/* Narrower desktops: tighten the 72px gutters so the feed keeps its width. */
+/* Compact grid experiment: 32px gutters, so the feed has room for three. */
+.swap[data-compact] {
+  column-gap: var(--spacing-32);
+}
+
+/* Narrower desktops: tighten the 40px gutters so the feed keeps its width. */
 @media (max-width: 1440px) {
   .swap {
     column-gap: var(--spacing-24);

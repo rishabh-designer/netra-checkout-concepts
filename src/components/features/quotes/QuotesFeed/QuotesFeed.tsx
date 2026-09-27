@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuoteFlow } from "@/lib/quote-flow";
+import { resetCheckoutClock } from "@/components/features/checkout/useCheckoutClock";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { BreadcrumbTrail } from "@/components/ui/BreadcrumbTrail";
@@ -27,6 +28,8 @@ export interface QuotesFeedProps {
   /** Cases A and B: the Gold Quote has been revealed. */
   revealed?: boolean;
   onRevealed?: () => void;
+  /** The Mail Quotes experiment: compact cards in a two-column grid. */
+  compact?: boolean;
 }
 
 
@@ -61,7 +64,7 @@ function arrange(list: QuoteCardData[], filter: QuoteFilter, sort: QuoteSort, im
  * rest; the reveal slot stays pinned first.
  * Usage: <QuotesFeed content={feed} caseId="B" sumInsured="₹10 Cr" />
  */
-export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed }: QuotesFeedProps) {
+export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed, compact = false }: QuotesFeedProps) {
   const labels = {
     sumInsured: content.sumInsuredLabel,
     getQuote: content.getQuoteLabel,
@@ -71,6 +74,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     immediatePurchase: content.immediatePurchaseLabel,
     revealQuote: content.revealQuoteLabel,
     topCoverages: content.topCoveragesLabel,
+    coveragesUnavailable: content.coveragesUnavailableLabel,
     poweredBy: content.poweredByLabel,
     ratings: content.ratingLabels,
   };
@@ -117,6 +121,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
       ? () => {
           setSelectedQuote(q);
           setCheckout({});
+          resetCheckoutClock();
           router.push(content.checkoutHref);
         }
       : undefined;
@@ -146,7 +151,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
         };
 
   return (
-    <div className={styles.feed}>
+    <div className={styles.feed} data-compact={compact || undefined}>
       {/* Fixed top */}
       <div className={styles.top}>
         {/* Breadcrumb left, quote count right (601:65042) */}
@@ -172,6 +177,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           </p>
         </div>
         <FeedControls
+          alignStart={compact}
           filterLabel={content.filterLabel}
           filterOptions={content.filterOptions}
           filter={filter}
@@ -206,6 +212,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                   onSettled={() => setRevealIntro("play")}
                 >
                   <QuoteCard
+                    compact={compact}
                     quote={goldCard}
                     labels={labels}
                     onViewFeatures={() => {
@@ -222,6 +229,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
             {shown.map((quote, i) => {
               const card = (
                 <QuoteCard
+                  compact={compact}
                   quote={quote}
                   labels={labels}
                   onViewFeatures={() => {

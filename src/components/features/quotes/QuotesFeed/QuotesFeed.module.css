@@ -162,3 +162,32 @@
     mask-image: none;
   }
 }
+
+/* ── Compact grid (the Mail Quotes experiment) ───────────────────────────
+   The feed opens up to the full column, and the stack becomes a two-up
+   grid: cells in a row stretch to one height; the Reveal slot takes the
+   first cell like any quote. */
+.feed[data-compact] {
+  max-width: none;
+}
+
+.feed[data-compact] .column {
+  width: 100%;
+}
+
+.feed[data-compact] .stack {
+  display: grid;
+  /* Two up: the compact card is drawn at ~399 (Figma 640:24913); at 1512
+     the feed gives each column ~427–444. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: var(--spacing-16);
+}
+
+.feed[data-compact] .cell {
+  display: flex;
+}
+
+.feed[data-compact] .cell > * {
+  flex: 1;
+}

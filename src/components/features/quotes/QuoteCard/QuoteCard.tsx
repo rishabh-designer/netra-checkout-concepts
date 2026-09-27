@@ -38,6 +38,8 @@ export interface QuoteCardLabels {
   immediatePurchase: string;
   revealQuote: string;
   topCoverages: string;
+  /** Coverage box for an offline quote in the compact grid. */
+  coveragesUnavailable: string;
   poweredBy: string;
   ratings: Record<QuoteRating, string>;
 }
@@ -63,6 +65,11 @@ export interface QuoteCardProps {
   /** Offer prices (`originalPrice` set): where the strike → roll story is.
    *  Defaults to "done" (the offer at rest). */
   priceIntro?: PriceIntro;
+  /** Grid view (the Mail Quotes experiment, Figma 640:24913 / 25533 /
+   *  25701): logo beside the name, the tag as a tab off the top edge, the
+   *  rule and a View All Features pill inside the coverage box, and an
+   *  "Unavailable" block for offline quotes so every card keeps its height. */
+  compact?: boolean;
 }
 
 const BEAM_MS = 9000; // one revolution; matches beam-rotate in the CSS
@@ -87,7 +94,7 @@ function lockBeam(el: HTMLElement | null) {
  * `data-reveal` hooks let RevealCard choreograph the Gold card's entrance.
  * Usage: <QuoteCard quote={q} labels={…} />
  */
-export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay, priceIntro = "done" }: QuoteCardProps) {
+export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay, priceIntro = "done", compact = false }: QuoteCardProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<EyeIconHandle>(null);
   const arrowRef = useRef<MoveRightIconHandle>(null);
@@ -96,7 +103,38 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay
   const tone = quote.gold ? "gold" : quote.immediate ? "immediate" : quote.price ? "priced" : "quote";
   const filled = tone === "gold" || !!quote.price;
 
-  const card = (
+  // The price bar (Add To Compare · Sum Insured · price), shared by both layouts.
+  const bar = (
+    <div className={styles.bar} data-reveal="bar">
+      {quote.comparable ? (
+        <span className={styles.compare} data-reveal="item">
+          <span className={styles.checkbox} aria-hidden />
+          {labels.compare}
+        </span>
+      ) : (
+        <span className={styles.compareOff} data-reveal="item">
+          <span className={styles.checkboxOff} aria-hidden />
+          {labels.comparisonUnavailable}
+        </span>
+      )}
+      <div className={styles.barRight}>
+        <div className={styles.sum} data-reveal="item">
+          <span className={styles.sumLabel}>{labels.sumInsured}</span>
+          <span className={styles.sumValue}>{quote.sumInsured}</span>
+        </div>
+        <button type="button" className={filled ? styles.buttonFilled : styles.buttonOutline} onClick={onSelect} data-reveal="item">
+          {quote.price && quote.originalPrice ? (
+            <PriceMorph from={quote.originalPrice} to={quote.price} intro={priceIntro} />
+          ) : (
+            (quote.price ?? labels.getQuote)
+          )}
+          <MoveRightIcon ref={arrowRef} size={12} loop className={styles.arrow} />
+        </button>
+      </div>
+    </div>
+  );
+
+  const standard = (
     <article
       className={styles.card}
       data-tone={tone}
@@ -179,37 +217,96 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay
             </button>
           </div>
 
-          <div className={styles.bar} data-reveal="bar">
-            {quote.comparable ? (
-              <span className={styles.compare} data-reveal="item">
-                <span className={styles.checkbox} aria-hidden />
-                {labels.compare}
-              </span>
-            ) : (
-              <span className={styles.compareOff} data-reveal="item">
-                <span className={styles.checkboxOff} aria-hidden />
-                {labels.comparisonUnavailable}
-              </span>
-            )}
-            <div className={styles.barRight}>
-              <div className={styles.sum} data-reveal="item">
-                <span className={styles.sumLabel}>{labels.sumInsured}</span>
-                <span className={styles.sumValue}>{quote.sumInsured}</span>
-              </div>
-              <button type="button" className={filled ? styles.buttonFilled : styles.buttonOutline} onClick={onSelect} data-reveal="item">
-                {quote.price && quote.originalPrice ? (
-                  <PriceMorph from={quote.originalPrice} to={quote.price} intro={priceIntro} />
-                ) : (
-                  (quote.price ?? labels.getQuote)
-                )}
-                <MoveRightIcon ref={arrowRef} size={12} loop className={styles.arrow} />
-              </button>
-            </div>
-          </div>
+          {bar}
         </div>
       </div>
     </article>
   );
+
+  // Compact (grid): the same parts and data-reveal hooks, laid out tighter.
+  const tag =
+    tone === "gold" ? (
+      <span className={styles.tab} data-tone="gold" data-reveal="pill">
+        <EyeIcon ref={eyeRef} size={10} color="var(--color-brand-secondary)" />
+        {labels.poweredBy}
+      </span>
+    ) : tone === "immediate" ? (
+      <span className={styles.tab} data-tone="immediate" data-reveal="pill">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/media/quote-card/lightning.svg" alt="" aria-hidden className={styles.tabIcon} />
+        {labels.immediatePurchase}
+      </span>
+    ) : null;
+
+  const compactCard = (
+    <article
+      className={styles.card}
+      data-tone={tone}
+      data-compact
+      onMouseEnter={() => arrowRef.current?.startAnimation()}
+      onMouseLeave={() => arrowRef.current?.stopAnimation()}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/media/checkout/product-icon.svg" alt="" aria-hidden className={styles.compactMark} />
+      {tag}
+      <div className={styles.compactInner}>
+        <div className={styles.compactHead}>
+          {quote.logoSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={quote.logoSrc} alt="" aria-hidden className={styles.compactLogo} />
+          ) : (
+            <span className={styles.logoSlot} aria-hidden />
+          )}
+          <h3 className={styles.compactName} title={quote.insurer}>
+            {splitName(quote.insurer).map((line, i) => (
+              <span key={i} className={styles.insurerLine} data-reveal="item">{line}</span>
+            ))}
+          </h3>
+        </div>
+
+        <div className={styles.compactCoverage} data-reveal="coverage">
+          <div className={styles.coverageHead}>
+            <p className={styles.coverageLabel} data-reveal="item">{labels.topCoverages}</p>
+            {quote.rating && (
+              <span
+                data-reveal="rating"
+                className={ratingDelay !== undefined ? styles.ratingPop : styles.rating}
+                style={ratingDelay !== undefined ? ({ "--rating-delay": `${ratingDelay}s` } as CSSProperties) : undefined}
+              >
+                <IndicatorBadge label={labels.ratings[quote.rating]} tone={RATING_TONE[quote.rating]} size="sm" />
+              </span>
+            )}
+          </div>
+          {quote.coverages?.length ? (
+            <ul className={styles.chips}>
+              {quote.coverages.map((c, i) => (
+                <li key={`${c}-${i}`} className={styles.chip} data-reveal="chip">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/media/coverage-check.svg" alt="" aria-hidden className={styles.chipCheck} />
+                  {c}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className={styles.unavailable} data-reveal="item">{labels.coveragesUnavailable}</p>
+          )}
+          <div className={styles.compactRule} data-reveal="rule">
+            <IkkatDivider height={2} unit={19} color={DIVIDER_COLOR[tone]} />
+          </div>
+          <button type="button" className={styles.featuresPill} onClick={onViewFeatures} aria-haspopup="dialog" data-reveal="item">
+            {labels.viewFeatures}
+            <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
+              <path d="M4.125 2.25 7.875 6 4.125 9.75" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+        {bar}
+      </div>
+    </article>
+  );
+
+  const card = compact ? compactCard : standard;
 
   // Gold: a golden beam circles the border (overlay only — card CSS untouched).
   // Two masked layers share one rotating conic sweep: a crisp ring on top and

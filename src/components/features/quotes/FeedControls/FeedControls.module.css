@@ -10,6 +10,10 @@
   gap: var(--spacing-12);
 }
 
+.row[data-align="start"] {
+  justify-content: flex-start;
+}
+
 /* The two dropdowns shrink together (never split); only the toggle wraps. */
 .dropdowns {
   display: flex;

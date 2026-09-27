@@ -34,7 +34,7 @@ export function CheckoutField({ field, value, status, error, onChange, variant =
       size="lg"
       variant={variant}
       label={field.label}
-      showLabel={!field.hideLabel}
+
       ariaLabel={field.label}
       mandatory={field.mandatory}
       control={field.control}
@@ -45,8 +45,9 @@ export function CheckoutField({ field, value, status, error, onChange, variant =
       maxLength={field.maxLength}
       value={value}
       onChange={(v) => onChange(format(v))}
-      clearable
-      status={shown ? "error" : error ? "empty" : status}
+      clearable={!field.locked}
+      locked={field.locked}
+      status={field.locked ? "empty" : shown ? "error" : error ? "empty" : status}
       helpText={shown ?? undefined}
       helpTone={shown ? "error" : "neutral"}
       showHelp={reserveHelp || !!shown}

@@ -5,8 +5,6 @@ import styles from "./FormCard.module.css";
 export interface FormCardProps {
   banner: string;
   bannerIconSrc: string;
-  /** Smaller banner for long copy (Billing). */
-  bannerCompact?: boolean;
   sectionTitle: string;
   /** "Buy in Another Person's Name" chip. */
   otherPerson: { mode: "live" | "faded" | "hidden"; label: string; checked: boolean; onChange: (on: boolean) => void };
@@ -14,19 +12,21 @@ export interface FormCardProps {
 }
 
 /**
- * FormCard — the white checkout card (Figma 484:25880 / 27601): a caution
- * banner, the section title with the "Buy in Another Person's Name" chip
- * (live on Billing, faded on Review, hidden elsewhere), then the step body.
+ * FormCard — a checkout step's form (Figma 638:16937): a caution banner, then
+ * the section (12 padding) — its title with the "Buy in Another Person's
+ * Name" chip (live on Billing, faded on Review, hidden elsewhere), a hairline,
+ * and the step body. It sits straight on the page (no card chrome).
  * Usage: <FormCard banner="…" bannerIconSrc="…" sectionTitle="…" otherPerson={…}>…</FormCard>
  */
-export function FormCard({ banner, bannerIconSrc, bannerCompact, sectionTitle, otherPerson, children }: FormCardProps) {
+export function FormCard({ banner, bannerIconSrc, sectionTitle, otherPerson, children }: FormCardProps) {
   return (
     <section className={styles.card}>
-      <p className={styles.banner} data-compact={bannerCompact || undefined}>
+      <p className={styles.banner}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={bannerIconSrc} alt="" aria-hidden className={styles.bannerIcon} />
         {banner}
       </p>
+      <div className={styles.body}>
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>{sectionTitle}</h2>
         {otherPerson.mode !== "hidden" && (
@@ -40,7 +40,9 @@ export function FormCard({ banner, bannerIconSrc, bannerCompact, sectionTitle, o
           </div>
         )}
       </div>
+      <hr className={styles.divider} />
       {children}
+      </div>
     </section>
   );
 }

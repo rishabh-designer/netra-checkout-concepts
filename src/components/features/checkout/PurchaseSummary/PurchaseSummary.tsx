@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
-import type { CheckoutProgress, CheckoutSummaryContent } from "@/types/checkout";
+import { useRef } from "react";
+import type { CheckoutSummaryContent } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
@@ -10,19 +9,11 @@ import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/
 import { EyeIcon, type EyeIconHandle } from "@/components/icons/EyeIcon";
 import { formatInr, splitPrice } from "@/lib/checkout";
 import { splitName } from "@/lib/utils";
-import { HANDOFF } from "../handoff";
 import styles from "./PurchaseSummary.module.css";
 
 export interface PurchaseSummaryProps {
   content: CheckoutSummaryContent;
   quote: QuoteCardData;
-  progress: CheckoutProgress;
-  /** Where the bar stood on the step just left (null on arrival): the bar
-   *  fills and the percent counts up from there. */
-  from?: CheckoutProgress | null;
-  cta: { label: string; enabled: boolean; onClick: () => void };
-  /** Review only: the confirmation that unlocks the final CTA (613:69388). */
-  consent?: { text: string; checked: boolean; onToggle: () => void };
 }
 
 /* The ikkat rule under the title, in the chosen quote's colour (as on its card). */
@@ -33,54 +24,27 @@ const RULE_COLOR = {
 } as const;
 
 /**
- * PurchaseSummary — the checkout's right column (Figma 484:26250 / 613:69256):
- * a progress bar with time left, then the summary card (Immediate Purchase tag,
- * dotted rule, product name + icon, insurer box, price split at 18% GST, the
- * optional Review consent) and the step CTA. Premium + GST always add up to the
- * card's price.
- * Usage: <PurchaseSummary content={summary} quote={q} progress={p} cta={{…}} />
+ * PurchaseSummary — the summary card in checkout's left panel (Figma
+ * 638:17307): the quote's pill, dotted rule, product name + icon, insurer box
+ * and the price split at 18% GST. A quote with an offer (the Gold Quotes)
+ * prices its original, then the BimaNetra Offer (saving and % off) and the
+ * Final Cost in serif; others end on the Total Cost. The step CTA and any
+ * consent live on the form side.
+ * Usage: <PurchaseSummary content={summary} quote={q} />
  */
-export function PurchaseSummary({ content, quote, progress, cta, consent, from = null }: PurchaseSummaryProps) {
+export function PurchaseSummary({ content, quote }: PurchaseSummaryProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<EyeIconHandle>(null);
-  const reduced = useReducedMotion();
-  // Count the percent and fill the bar from the previous step's value.
-  const pct = useMotionValue(reduced ? progress.percent : (from?.percent ?? 0));
-  const pctLabel = useTransform(pct, (v) => `${Math.round(v)}%`);
-  const pctWidth = useTransform(pct, (v) => `${v}%`);
-  useEffect(() => {
-    const controls = animate(pct, progress.percent, {
-      type: "tween",
-      duration: reduced ? 0 : HANDOFF.bar,
-      ease: HANDOFF.ease as unknown as [number, number, number, number],
-      delay: reduced ? 0 : HANDOFF.begin,
-    });
-    return () => controls.stop();
-  }, [pct, progress.percent, reduced]);
-  const timeChanged = !reduced && !!from && from.timeLeft !== progress.timeLeft;
-  const price = splitPrice(quote.price ?? "", content.gstRate);
+  // An offer prices the original, then takes the saving off it.
+  const base = splitPrice(quote.originalPrice ?? quote.price ?? "", content.gstRate);
+  const final = splitPrice(quote.price ?? "", content.gstRate).total;
+  const saving = quote.originalPrice ? base.total - final : 0;
+  const pct = base.total ? Math.round((saving / base.total) * 100) : 0;
   const tone = quote.gold ? "gold" : quote.immediate ? "immediate" : "neutral";
   const [line1, line2] = splitName(quote.insurer);
 
   return (
     <div className={styles.column}>
-      <div className={styles.progress}>
-        <motion.span className={styles.percent}>{pctLabel}</motion.span>
-        <span className={styles.track} role="progressbar" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}>
-          <motion.span className={styles.fill} style={{ width: pctWidth }} />
-        </span>
-        <span className={styles.timeWrap}>
-          <motion.span
-            className={styles.time}
-            initial={timeChanged ? { y: 10, opacity: 0 } : false}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ type: "tween", duration: HANDOFF.time, ease: HANDOFF.ease as unknown as [number, number, number, number], delay: HANDOFF.land + 0.3 }}
-          >
-            {progress.timeLeft}
-          </motion.span>
-        </span>
-      </div>
-
       {/* A soft lavender beam circles the card's edge (after the Gold Quote's,
           but slower and paler): a halo behind, a hairline ring on top. */}
       <div className={styles.beam}>
@@ -154,40 +118,37 @@ export function PurchaseSummary({ content, quote, progress, cta, consent, from =
           <dl className={styles.rows}>
             <div className={styles.row}>
               <dt>{content.premiumLabel}</dt>
-              <dd>{formatInr(price.premium)}</dd>
+              <dd>{formatInr(base.premium)}</dd>
             </div>
             <div className={styles.row}>
               <dt>{content.gstLabel}</dt>
-              <dd>{formatInr(price.gst)}</dd>
+              <dd>{formatInr(base.gst)}</dd>
             </div>
-            <div className={styles.row} data-total>
+            <div className={styles.row} data-total={saving ? "plain" : "final"}>
               <dt>{content.totalLabel}</dt>
-              <dd>{formatInr(price.total)}</dd>
+              <dd>{formatInr(base.total)}</dd>
             </div>
+            {saving > 0 && (
+              <>
+                <div className={styles.row} data-offer>
+                  <dt>{content.offerLabel}</dt>
+                  <dd>
+                    {formatInr(saving)} <span className={styles.offerPct}>{content.offerPercent.replace("{pct}", String(pct))}</span>
+                  </dd>
+                </div>
+                <div className={styles.row} data-final>
+                  <dt>{content.finalLabel}</dt>
+                  <dd>{formatInr(final)}</dd>
+                </div>
+              </>
+            )}
           </dl>
         </div>
-
-        {consent && (
-          <label className={styles.consent}>
-            <input type="checkbox" className={styles.check} checked={consent.checked} onChange={consent.onToggle} />
-            <span>{consent.text}</span>
-          </label>
-        )}
-
-        <button type="button" className={styles.cta} disabled={!cta.enabled} onClick={cta.onClick}>
-          <span>{cta.label}</span>
-          <svg viewBox="0 0 18 18" width="18" height="18" fill="none" aria-hidden className={styles.ctaArrow}>
-            <path d="M3 9h12m-4.5-4.5L15 9l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
       </section>
         <span className={styles.beamRing} aria-hidden>
           <span className={styles.beamSpin} />
         </span>
       </div>
-
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={content.badgeSrc} alt="" aria-hidden className={styles.badge} />
     </div>
   );
 }

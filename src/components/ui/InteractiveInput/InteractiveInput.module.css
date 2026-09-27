@@ -336,3 +336,12 @@
 .help[data-tone="basic"] .helpText {
   color: var(--color-label-basic);
 }
+
+/* Locked (disabled) field: grey fill, faint ink and tick, no hover or focus
+   accent (Figma 638:16876, Billing's company name). */
+.wrapper[data-locked] {
+  --field-ink: var(--color-label-disabled);
+  --check-ink: var(--color-input-stroke);
+  border-bottom-color: var(--color-input-stroke);
+  background: var(--color-fill-disabled);
+}

@@ -1,8 +1,61 @@
+/* Four equal columns, 24 apart (Figma 638:18120). */
 .stepper {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-12);
+  align-items: flex-start;
+  gap: var(--spacing-24);
+  width: 100%;
   list-style: none;
+}
+
+/* Each step: its pill over a 3px bar, 8 apart. */
+.step {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+.pillLink {
+  display: inline-flex;
+  border-radius: 1000px;
+  corner-shape: round;
+  text-decoration: none;
+}
+
+.pillLink:focus-visible {
+  outline: 2px solid var(--color-brand-primary-border);
+  outline-offset: 2px;
+}
+
+.pillLink:hover .pill {
+  border-color: var(--color-success);
+}
+
+/* Bar: 3px recessed track with a soft shadow; the fill is green when done,
+   purple on the current step. */
+.track {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 1000px;
+  corner-shape: round;
+  background: var(--color-card-recessed);
+  box-shadow: 0 2px 16px rgba(169, 172, 177, 0.24);
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 1000px;
+  corner-shape: round;
+  background: var(--color-brand-primary);
+}
+
+.fill[data-state="done"] {
+  background: var(--color-success);
 }
 
 /* Pill: r-full, 0.5 border, 6/8 padding, 4 gap. */
@@ -43,12 +96,19 @@
   color: var(--color-label-secondary);
 }
 
+/* Current reads 14px primary, done 14px secondary, upcoming 12px faint. */
+.pill[data-state="current"] .label,
+.pill[data-state="done"] .label {
+  font-size: var(--font-size-100);
+  letter-spacing: -0.14px;
+}
+
 .pill[data-state="current"] .label {
   color: var(--color-label-primary);
 }
 
 .pill[data-state="upcoming"] .label {
-  color: var(--color-label-tertiary);
+  color: var(--color-label-disabled);
 }
 
 .ring {

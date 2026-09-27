@@ -49,6 +49,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const reportInterest = result?.reportInterest ?? values?.["reportInterest"] ?? "";
   const caseId = result?.caseId;
   const [detailsCollapsed, setDetailsCollapsed] = useState(false);
+  const [compact, setCompact] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   // Bumped on each Edit Details save → re-runs the loading skeleton.
   const [loadKey, setLoadKey] = useState(0);
@@ -71,7 +72,8 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
 
   return (
     <div className={styles.page}>
-      <QuotesHeader content={content.header} />
+      {/* Experiment: Mail Quotes toggles the compact two-column grid. */}
+      <QuotesHeader content={content.header} onCta={() => setCompact((c) => !c)} ctaPressed={compact} />
       <main className={styles.body}>
         <AnimatePresence mode="wait" initial={false}>
           {loading ? (
@@ -94,6 +96,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
               key="content"
               className={styles.swap}
               data-collapsed={detailsCollapsed || undefined}
+              data-compact={compact || undefined}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
@@ -122,6 +125,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 unlocked={upgradeStage === "upgraded"}
                 revealed={revealed}
                 onRevealed={() => setRevealed(true)}
+                compact={compact}
                 content={content.feed}
                 caseId={caseId}
                 sumInsured={values?.["coverage"] || undefined}

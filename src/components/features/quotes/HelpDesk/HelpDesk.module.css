@@ -6,7 +6,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--spacing-12);
-  width: 290px;
+  width: 240px;
   height: 100%;
   min-height: 0;
   padding: var(--spacing-8);
@@ -141,7 +141,7 @@
 }
 
 /* Placeholder for "What happens next": the testimonial card's shell and
-   footprint (274 × 179), with nothing inside yet. */
+   footprint (224 × 179), with nothing inside yet. */
 .nextSlot {
   flex-shrink: 0;
   width: 100%;

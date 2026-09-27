@@ -7,60 +7,6 @@
   max-width: 449px;
 }
 
-/* Progress row (484:29238): % · 3px track · time left, centred over the card. */
-.progress {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-8);
-}
-
-.percent {
-  padding: 0 var(--spacing-2);
-  font-size: var(--font-size-300);
-  font-weight: 500;
-  line-height: 1;
-  color: var(--color-brand-primary);
-}
-
-.track {
-  position: relative;
-  width: 201px;
-  height: 3px;
-  border-radius: 999px;
-  corner-shape: round;
-  background: var(--color-brand-primary-subtle-bold);
-  box-shadow: 0 2px 8px rgba(169, 172, 177, 0.24);
-  overflow: hidden;
-}
-
-.fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  border-radius: inherit;
-  background: var(--color-brand-primary);
-}
-
-.percent {
-  min-width: 3ch;
-  font-variant-numeric: tabular-nums;
-}
-
-.timeWrap {
-  display: inline-flex;
-  overflow: hidden;
-}
-
-.time {
-  display: inline-block;
-  font-size: var(--font-size-75);
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: 0.12px;
-  white-space: nowrap;
-  color: var(--color-brand-primary-muted);
-}
-
 /* Card (484:26250): 24/20, r24, hairline, lilac foot. The top tint and the
    ikkat rule follow the chosen quote: green for Immediate Purchase, gold for
    the Gold Quote, neutral otherwise. */
@@ -221,12 +167,13 @@
 
 .row dd {
   margin: 0;
-  font-size: var(--font-size-400);
+  font-size: var(--font-size-300);
   font-weight: 500;
   color: var(--color-label-primary);
 }
 
-/* Total: a lilac rule above, dark label, bold purple value. */
+/* Total: a lilac rule above. With no offer it's the final price (bold
+   purple); with one it's the plain subtotal before the saving. */
 .row[data-total] {
   padding-top: var(--spacing-24);
   border-top: var(--border-hairline) solid var(--color-brand-primary-border);
@@ -236,103 +183,49 @@
   color: var(--color-label-primary);
 }
 
-.row[data-total] dd {
+.row[data-total="final"] dd {
   font-weight: 700;
   color: var(--color-brand-primary);
 }
 
-/* Consent (613:69388): caution tint, r12, 8/12, 16px checkbox + 12px copy. */
-.consent {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-8);
-  padding: var(--spacing-8) var(--spacing-12);
-  border: var(--border-hairline) solid var(--color-caution-border);
-  border-radius: var(--radius-12);
-  background: var(--color-caution-subtle);
-  font-size: var(--font-size-75);
-  font-weight: 500;
-  line-height: 1.4;
-  color: var(--color-caution-label);
-  cursor: pointer;
+/* BimaNetra Offer (Figma 638:18153): between two rules, orange label, the
+   saving in green with a faint "(15% Off)". */
+.row[data-offer] {
+  padding: var(--spacing-24) 0;
+  border-top: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-bottom: var(--border-hairline) solid var(--color-brand-primary-border);
 }
 
-.check {
-  flex-shrink: 0;
-  appearance: none;
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  margin: 1px 0 0;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-  background: var(--color-card) center / 10px no-repeat;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+.row[data-offer] dt {
+  color: var(--color-brand-secondary);
 }
 
-.check:checked {
-  border-color: var(--color-brand-primary);
-  background-color: var(--color-brand-primary);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='m2 5.2 2 2 4-4.4' fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+.row[data-offer] dd {
+  color: var(--color-success-deep);
 }
 
-.check:focus-visible {
-  outline: 2px solid var(--color-brand-primary-border);
-  outline-offset: 2px;
-}
-
-/* CTA: full width, 20/36, r20 → 24 (house rule), 18px label, arrow right. */
-.cta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: var(--spacing-20) 36px;
-  border: var(--border-hairline) solid var(--color-brand-primary);
-  border-radius: var(--radius-24);
-  background: var(--color-brand-primary);
-  color: var(--color-label-inverse);
-  font-size: var(--font-size-300);
-  font-weight: 600;
-  line-height: 1;
-  cursor: pointer;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.12s ease;
-}
-
-.cta:hover:not(:disabled) {
-  background: var(--color-brand-primary-hover);
-  box-shadow: var(--shadow-button-primary-hover);
-}
-
-.cta:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.cta:hover:not(:disabled) .ctaArrow {
-  transform: translateX(3px);
-}
-
-.ctaArrow {
-  transition: transform 0.2s ease;
-}
-
-.cta:disabled {
-  border-color: var(--color-input-stroke);
-  background: var(--color-fill-disabled);
+.offerPct {
   color: var(--color-label-disabled);
-  cursor: not-allowed;
 }
 
-/* Decorative "Savings Speed Service" badge under the card (the export
-   already carries Figma's 10% fade). */
-.badge {
-  align-self: center;
-  width: 100%;
-  max-width: 483px;
-  height: auto;
-  margin-top: calc(-1 * var(--spacing-16));
-  pointer-events: none;
+/* Final Cost: dark label, the price in Instrument Serif italic 24, purple. */
+.row[data-final] {
+  align-items: center;
+}
+
+.row[data-final] dt {
+  color: var(--color-label-primary);
+}
+
+.row[data-final] dd {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-heading-sm);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.32px;
+  color: var(--color-brand-primary);
 }
 
 /*
