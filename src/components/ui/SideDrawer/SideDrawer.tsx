@@ -24,6 +24,11 @@ export interface SideDrawerProps {
   width?: number;
   /** "right" (default) docks the drawer; "center" floats it as a popup. */
   placement?: "right" | "center";
+  /** Space between the title row and the content, in px (default 32). */
+  headGap?: number;
+  /** Centre only: no padding, title row or pinned footer; the children draw
+   *  the whole panel (their own close control; `title` still labels it). */
+  bare?: boolean;
 }
 
 /**
@@ -36,7 +41,7 @@ export interface SideDrawerProps {
  * scales in (Know More).
  * Usage: <SideDrawer open={o} onClose={c} title="KYC" closeLabel="Close" footer={…}>…</SideDrawer>
  */
-export function SideDrawer({ open, onClose, title, closeLabel, children, footer, width = 624, placement = "right" }: SideDrawerProps) {
+export function SideDrawer({ open, onClose, title, closeLabel, children, footer, width = 624, placement = "right", headGap, bare = false }: SideDrawerProps) {
   const centered = placement === "center";
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
@@ -75,9 +80,11 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
         >
           <motion.div
             className={styles.drawer}
+            data-bare={bare || undefined}
             role="dialog"
             aria-modal="true"
-            aria-labelledby={titleId}
+            aria-labelledby={bare ? undefined : titleId}
+            aria-label={bare ? title : undefined}
             style={{ width }}
             onClick={(e) => e.stopPropagation()}
             initial={centered ? { opacity: 0, y: reduced ? 0 : 12, scale: reduced ? 1 : 0.97 } : { x: reduced ? 0 : "calc(100% + 32px)" }}
@@ -85,7 +92,9 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
             exit={centered ? { opacity: 0, y: reduced ? 0 : 8, scale: reduced ? 1 : 0.98 } : { x: reduced ? 0 : "calc(100% + 32px)" }}
             transition={{ duration: centered ? 0.35 : 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className={styles.body}>
+            {bare ? children : (
+            <>
+            <div className={styles.body} style={headGap !== undefined ? { gap: headGap } : undefined}>
               <div className={styles.head}>
                 <h2 id={titleId} className={styles.title}>{title}</h2>
                 <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={closeLabel}>
@@ -97,6 +106,8 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
               <div className={styles.content}>{children}</div>
             </div>
             {footer}
+            </>
+            )}
           </motion.div>
         </motion.div>
       )}

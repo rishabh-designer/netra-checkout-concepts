@@ -1,4 +1,5 @@
-import type { FeaturesDrawerContent, QuotesPageContent, QuoteCardData } from "@/types/quotesPage";
+import type { FeaturesDrawerContent, GoldGateContent, QuotesPageContent, QuoteCardData } from "@/types/quotesPage";
+import { mockCheckoutContent } from "./checkout";
 
 const ICICI = "/Insurance.Comp/ICICI.webp";
 const GENERALI = "/Insurance.Comp/Generali.webp";
@@ -28,9 +29,45 @@ const GOLD_QUOTE: QuoteCardData = {
 
 /* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹8,500. */
 const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, price: "₹8,500", originalPrice: "₹10,000" };
-/* Case B's records are fuzzy, so its Gold Quote carries no price: the button
-   reads Get Quote, like the other unpriced insurers. */
-const CASE_B_GOLD: QuoteCardData = GOLD_QUOTE;
+/* Case B's records are fuzzy, so its Gold Quote can't be mapped to an insurer
+   or a price yet: no logo, and the button reads Get Quote. */
+const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "" };
+
+/* Case B's gate: the Additional Details go to an expert, who calls to price
+   and finish the Gold Quote (the Gold Inquiry page). */
+const CASE_B_GOLD_GATE: GoldGateContent = {
+  modal: {
+    title: "Almost There",
+    body: "Your Gold Quote opens up for Immediate Purchase once your customized Risk Report is ready. Till then, schedule a quick call and our experts will put it together with you, or share a few more details online.",
+    visualSrc: "/media/gold-inquiry/risk-report.png",
+    visualAlt: "BimaNetra Security Risk Report preview",
+    callLabel: "Schedule A Call",
+    onlineLabel: "Proceed Online",
+    closeLabel: "Close",
+  },
+  drawer: {
+    title: "Additional Details",
+    intro: "We've filled in what we could find. Check it, add the rest, and your Gold Quote is ready to buy.",
+    ctaLabel: "Unlock Quote",
+    closeLabel: "Close",
+    fields: [
+      { key: "directorsCount", label: "Number of Directors & Officers", mandatory: true, control: "text", value: "6", status: "verified", inputMode: "numeric", maxLength: 3 },
+      { key: "incorporatedOn", label: "Date of Incorporation", mandatory: true, control: "text", value: "12/02/2021", status: "verified", placeholder: "DD/MM/YYYY", inputMode: "numeric", maxLength: 10 },
+      { key: "listingStatus", label: "Listing Status", mandatory: true, control: "select", value: "Unlisted", status: "verified", options: ["Unlisted", "Listed on NSE / BSE", "Listed Overseas"] },
+      { key: "operations", label: "Countries of Operation", mandatory: true, control: "select", value: "India Only", status: "fuzzy", options: ["India Only", "India + 1 to 3 Countries", "India + 4 or More Countries"] },
+      { key: "netWorth", label: "Net Worth (Last Financial Year)", mandatory: true, control: "text", status: "empty", prefix: "₹", placeholder: "Amount in Rupees", inputMode: "numeric", maxLength: 21, amountWords: { template: "Rupees {amount}", crore: "Crore", lakh: "Lakh", thousand: "Thousand" } },
+      { key: "litigation", label: "Any Pending Claims Against Directors?", mandatory: true, control: "select", status: "empty", placeholder: "Select", options: ["No", "Yes"] },
+    ],
+    upload: {
+      key: "auditedFinancials",
+      label: "Latest Audited Financial Statement",
+      reviewLabel: "Audited Financials",
+      title: "Upload Financial Statement",
+    },
+    uploadCopy: mockCheckoutContent.upload,
+  },
+  inquiryHref: "/directors-and-officers-insurance/quotes/gold-inquiry",
+};
 
 /* Case C premiums at its lower ₹5 Cr Sum Insured. */
 const CASE_C_PRICES: Record<string, string> = {
@@ -224,6 +261,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     revealReadyHint: "Your Gold Quote is ready",
     goldQuote: CASE_B_GOLD,
     goldQuoteByCase: { A: CASE_A_GOLD },
+    goldGateByCase: { B: CASE_B_GOLD_GATE },
     topCoveragesLabel: "Top Coverages",
     coveragesUnavailableLabel: "Unavailable",
     ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },

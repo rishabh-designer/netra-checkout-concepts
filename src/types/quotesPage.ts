@@ -1,5 +1,6 @@
 import type { BreadcrumbItem } from "./productPage";
 import type { QuoteCaseId } from "@/lib/quote-flow";
+import type { CheckoutField, CheckoutUpload, CheckoutUploadCopy } from "./checkout";
 
 /** Minimal page header: logotype + a single right-side CTA ("Chat with Us"). */
 export interface QuotesHeaderContent {
@@ -188,6 +189,9 @@ export interface QuotesFeedContent {
   goldQuote: QuoteCardData;
   /** A case's own Gold Quote where it differs (A's offer); else `goldQuote`. */
   goldQuoteByCase?: Partial<Record<QuoteCaseId, QuoteCardData>>;
+  /** Cases whose Gold Quote is gated (B, fuzzy): its Get Quote opens a
+   *  modal (schedule a call, or proceed online), then Additional Details. */
+  goldGateByCase?: Partial<Record<QuoteCaseId, GoldGateContent>>;
   topCoveragesLabel: string;
   /** Compact grid: the coverage box of an offline quote (no coverages). */
   coveragesUnavailableLabel: string;
@@ -196,6 +200,34 @@ export interface QuotesFeedContent {
   poweredByLabel: string;
   riskReport: RiskReportBannerContent;
   testimonial: TestimonialContent;
+}
+
+/** The gate on an unpriced Gold Quote (Case B): a centred modal, then the
+ *  Additional Details drawer. Proceeding prices the Gold Quote for checkout. */
+export interface GoldGateContent {
+  modal: {
+    /** Labels the popup for screen readers (the design shows no title). */
+    title: string;
+    body: string;
+    visualSrc: string;
+    visualAlt: string;
+    callLabel: string;
+    onlineLabel: string;
+    closeLabel: string;
+  };
+  drawer: {
+    title: string;
+    intro: string;
+    ctaLabel: string;
+    closeLabel: string;
+    /** Prefilled ones carry a `value`; the rest are the customer's to fill. */
+    fields: CheckoutField[];
+    upload: CheckoutUpload;
+    uploadCopy: CheckoutUploadCopy;
+  };
+  /** Where "Schedule A Call" and "Unlock Quote" go: the Gold Inquiry page
+   *  (an expert calls to finish the quote). */
+  inquiryHref: string;
 }
 
 /** Fixture for the Quotes results page (Figma node 309:33542). */

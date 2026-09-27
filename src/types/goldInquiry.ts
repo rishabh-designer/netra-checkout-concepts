@@ -1,0 +1,58 @@
+import type { BreadcrumbItem } from "./productPage";
+
+/** One contact button in the Need Help card. */
+export interface GoldInquiryContact {
+  label: string;
+  href: string;
+  iconSrc: string;
+  /** The filled purple one (Schedule a Call). */
+  primary?: boolean;
+}
+
+/** The page after "Unlock Price" (Figma 642:30248): the Gold Quote is held
+ *  for the customer while an expert calls to finish it. */
+export interface GoldInquiryContent {
+  headerCtaLabel: string;
+  /** Tapping the header's "Speak to an Expert". */
+  expertHref: string;
+  backLabel: string;
+  breadcrumb: BreadcrumbItem[];
+  title: string;
+  intro: string;
+  /** "What happens next", each with a green tick. */
+  steps: string[];
+  tickSrc: string;
+  /** "Have questions? Reach out to us on {email}". */
+  questions: { text: string; email: string };
+  inquiry: {
+    title: string;
+    ctaLabel: string;
+    policyLabel: string;
+    policyValue: string;
+    sumInsuredLabel: string;
+    riskReportLabel: string;
+    riskReportValue: string;
+    /** Case B's Additional Details: missing (a call was scheduled instead of
+     *  the form) or verifying (the form was sent with Unlock Quote). */
+    detailsLabel: string;
+    detailsMissing: string;
+    detailsVerifying: string;
+  };
+  /** `showing` fills {shown} (cards fully in view, up to the last) and {total}. */
+  otherQuotes: { title: string; showing: string; prevLabel: string; nextLabel: string };
+  needHelp: {
+    title: string;
+    subtitle: string;
+    avatarsSrc: string;
+    avatarsAlt: string;
+    contacts: GoldInquiryContact[];
+  };
+  rate: {
+    title: string;
+    subtitle: string;
+    badgeSrc: string;
+    options: string[];
+    submitLabel: string;
+    thanks: string;
+  };
+}

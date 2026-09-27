@@ -1,4 +1,5 @@
 import type { QuoteCaseId } from "@/lib/quote-flow";
+import type { AmountWords } from "@/lib/utils";
 
 export type CheckoutStepId = "billing" | "company" | "kyc" | "review";
 
@@ -33,6 +34,9 @@ export interface CheckoutField {
   keepForOtherPerson?: boolean;
   /** Shown but not editable (greyed): the company name on Billing. */
   locked?: boolean;
+  /** A rupee amount: digits only, Indian grouping as they type, and the
+   *  amount in words under the field ("Rupees 800 Crore"). */
+  amountWords?: AmountWords;
 }
 
 /** A document upload (KYC). The stored value is the uploaded file's name. */

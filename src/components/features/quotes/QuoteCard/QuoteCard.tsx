@@ -70,6 +70,10 @@ export interface QuoteCardProps {
    *  rule and a View All Features pill inside the coverage box, and an
    *  "Unavailable" block for offline quotes so every card keeps its height. */
   compact?: boolean;
+  /** Slim grid card ("Other Quotes", Figma 642:35456): the compact card with
+   *  just the tab, the logo over the name and the price bar (no coverages or
+   *  compare). */
+  mini?: boolean;
 }
 
 const BEAM_MS = 9000; // one revolution; matches beam-rotate in the CSS
@@ -94,7 +98,7 @@ function lockBeam(el: HTMLElement | null) {
  * `data-reveal` hooks let RevealCard choreograph the Gold card's entrance.
  * Usage: <QuoteCard quote={q} labels={…} />
  */
-export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay, priceIntro = "done", compact = false }: QuoteCardProps) {
+export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay, priceIntro = "done", compact = false, mini = false }: QuoteCardProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<EyeIconHandle>(null);
   const arrowRef = useRef<MoveRightIconHandle>(null);
@@ -106,7 +110,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay
   // The price bar (Add To Compare · Sum Insured · price), shared by both layouts.
   const bar = (
     <div className={styles.bar} data-reveal="bar">
-      {quote.comparable ? (
+      {mini ? null : quote.comparable ? (
         <span className={styles.compare} data-reveal="item">
           <span className={styles.checkbox} aria-hidden />
           {labels.compare}
@@ -243,6 +247,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay
       className={styles.card}
       data-tone={tone}
       data-compact
+      data-mini={mini || undefined}
       onMouseEnter={() => arrowRef.current?.startAnimation()}
       onMouseLeave={() => arrowRef.current?.stopAnimation()}
     >
@@ -251,11 +256,10 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay
       {tag}
       <div className={styles.compactInner}>
         <div className={styles.compactHead}>
-          {quote.logoSrc ? (
+          {/* No insurer yet (Case B's locked Gold): the name starts the row. */}
+          {quote.logoSrc && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={quote.logoSrc} alt="" aria-hidden className={styles.compactLogo} />
-          ) : (
-            <span className={styles.logoSlot} aria-hidden />
           )}
           <h3 className={styles.compactName} title={quote.insurer}>
             {splitName(quote.insurer).map((line, i) => (
@@ -264,6 +268,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay
           </h3>
         </div>
 
+        {!mini && (
         <div className={styles.compactCoverage} data-reveal="coverage">
           <div className={styles.coverageHead}>
             <p className={styles.coverageLabel} data-reveal="item">{labels.topCoverages}</p>
@@ -298,13 +303,14 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, ratingDelay
             <FeaturesChevron />
           </button>
         </div>
+        )}
 
         {bar}
       </div>
     </article>
   );
 
-  const card = compact ? compactCard : standard;
+  const card = compact || mini ? compactCard : standard;
 
   // Gold: a golden beam circles the border (overlay only — card CSS untouched).
   // Two masked layers share one rotating conic sweep: a crisp ring on top and

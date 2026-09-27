@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useLayoutEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 import type { QuoteCardData } from "@/types/quotesPage";
 
 /** The A/B/C outcome resolved from the typed company name. */
@@ -37,6 +37,9 @@ interface Saved {
 }
 
 const STORAGE_KEY = "bimanetra.flow";
+/** Case B's Additional Details (the gated Gold Quote). They belong to one
+ *  quote run: a new result clears them, so its first Get Quote opens the gate. */
+export const GOLD_DETAILS_KEY = "bimanetra.goldDetails";
 
 function readSaved(): Saved | null {
   try {
@@ -61,6 +64,14 @@ export function QuoteFlowProvider({ children }: { children: ReactNode }) {
   const [selectedQuote, setSelectedQuote] = useState<QuoteCardData | null>(null);
   const [checkout, setCheckout] = useState<Record<string, string>>({});
   const [hydrated, setHydrated] = useState(false);
+  const startResult = useCallback((next: QuoteFlowResult | null) => {
+    try {
+      window.sessionStorage.removeItem(GOLD_DETAILS_KEY);
+    } catch {
+      /* storage unavailable: nothing was saved */
+    }
+    setResult(next);
+  }, []);
 
   // Read the saved flow back before the first paint (a layout effect), so the
   // restored details replace the server render without a visible swap.
@@ -86,7 +97,7 @@ export function QuoteFlowProvider({ children }: { children: ReactNode }) {
   }, [hydrated, result, selectedQuote, checkout]);
 
   return (
-    <QuoteFlowContext.Provider value={{ result, setResult, selectedQuote, setSelectedQuote, checkout, setCheckout, hydrated }}>
+    <QuoteFlowContext.Provider value={{ result, setResult: startResult, selectedQuote, setSelectedQuote, checkout, setCheckout, hydrated }}>
       {children}
     </QuoteFlowContext.Provider>
   );

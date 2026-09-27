@@ -1,0 +1,615 @@
+/* A viewport-tall shell (1512 frame): the Quotes header on top; below it the
+   thank-you card and the other quotes on the left (the only part that
+   scrolls) and a 284 help column on the right, fixed to the viewport, 56
+   apart. */
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: clip;
+  background: var(--color-card);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 284px;
+  /* One viewport-tall row: neither column can grow the page. */
+  grid-template-rows: minmax(0, 1fr);
+  column-gap: 56px;
+  width: 100%;
+  max-width: 1512px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-32);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-28);
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 31px 0 var(--spacing-48);
+}
+
+.main::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sections keep their height; the column scrolls instead. */
+.main > *,
+.aside > * {
+  flex-shrink: 0;
+}
+
+/* ── Thank-you card (642:32710) ──────────────────────────────────────── */
+/* Lavender hairline, r16, a lavender wash in two corners, 24 padding; the
+   top row sits 56 above the content. */
+.thanks {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  padding: var(--spacing-24);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-16);
+  background: linear-gradient(
+    49.33deg,
+    var(--color-brand-primary-subtle) 0%,
+    var(--color-card) 7%,
+    var(--color-card) 76%,
+    var(--color-brand-primary-subtle) 100%
+  );
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+}
+
+/* Back to Quotes: the checkout back chip (8/10, r8 → 12, house rule). */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-10);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-12);
+  color: var(--color-brand-primary-muted);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.back:hover {
+  background: var(--color-brand-primary-subtle);
+  color: var(--color-brand-primary);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
+}
+
+/* Page-width ikkat rule: 8×4 marks, 8/12 padding. */
+.rule {
+  padding: var(--spacing-8) var(--spacing-12);
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+/* Instrument Serif italic 32. */
+.title {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-heading-lg);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--color-label-primary);
+}
+
+.intro {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-secondary);
+}
+
+/* What happens next: 16 ticks, 16 Medium, 16 apart. */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-primary);
+}
+
+.tick {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+/* Questions pill (642:36336): full width, lavender, r12, 8/12, 16 text,
+   chevron at the far right. */
+.questions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  padding: var(--spacing-8) var(--spacing-12);
+  border: 1px solid var(--color-brand-primary-border);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-primary-subtle);
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-secondary);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.questions svg {
+  flex-shrink: 0;
+  color: var(--color-label-primary);
+  transition: transform 0.2s ease;
+}
+
+.questions:hover {
+  border-color: var(--color-brand-primary);
+}
+
+.questions:hover svg {
+  transform: translateX(2px);
+}
+
+.email {
+  color: var(--color-info-fill);
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+/* Your Gold Quote Inquiry (647:37032): a warm tab under the title. */
+.inquiryHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  padding: var(--spacing-12) var(--spacing-16);
+  border: var(--border-hairline) solid var(--color-card);
+  border-radius: var(--radius-16);
+  background: linear-gradient(to right, var(--color-brand-secondary-subtle), var(--color-card));
+}
+
+.inquiryTitle {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-heading-md);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--color-brand-secondary);
+}
+
+/* Speak to an Expert: orange, 12/20, r12 → 16 (house rule), 14px. */
+.expert {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) var(--spacing-20);
+  border: var(--border-hairline) solid var(--color-brand-secondary);
+  border-radius: var(--radius-16);
+  background: var(--color-brand-secondary);
+  color: var(--color-label-inverse);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.expert:hover {
+  box-shadow: var(--shadow-button-secondary-hover);
+  filter: brightness(0.96);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-16) var(--spacing-64);
+  padding: 0 18px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  min-width: 132px;
+  line-height: 1.5;
+}
+
+.statLabel {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  color: var(--color-label-disabled);
+}
+
+.statValue,
+.statPending {
+  font-size: var(--font-size-300);
+  font-weight: 500;
+  color: var(--color-label-primary);
+}
+
+.statPending {
+  color: var(--color-caution-label);
+}
+
+/* ── Other Quotes (642:32815) ────────────────────────────────────────── */
+.others {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
+  padding: var(--spacing-12);
+}
+
+.othersHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-32);
+  padding-bottom: var(--spacing-12);
+  border-bottom: var(--border-hairline) solid var(--color-border-subtle);
+}
+
+/* 18 SemiBold, 1 line height (647:36736). */
+.othersTitle {
+  font-size: var(--font-size-300);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-label-primary);
+}
+
+/* Pagination (642:32821): the count, then the two chevrons, 8 apart. */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-4) 0;
+}
+
+.showing {
+  margin-right: var(--spacing-4);
+  padding: 3px var(--spacing-4);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-label-secondary);
+}
+
+/* chevron.controls: 18 square, r6 → 8 (house rule), subtle hairline, 12
+   chevron in the hint grey; at the row's end only the chevron fades. */
+.navBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
+  color: var(--color-label-tertiary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.navBtn:hover:not(:disabled) {
+  border-color: var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+  color: var(--color-brand-primary);
+}
+
+.navBtn:disabled {
+  color: var(--color-label-disabled);
+  cursor: default;
+}
+
+/* The row scrolls sideways under the arrows; its right edge fades out. */
+.row {
+  display: flex;
+  gap: var(--spacing-24);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 77px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 77px), transparent);
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.cell {
+  display: flex;
+  flex: 0 0 347px;
+  scroll-snap-align: start;
+}
+
+.cell > * {
+  flex: 1;
+}
+
+/* ── Side column ─────────────────────────────────────────────────────── */
+/* Need Help up top, Rate Your Experience at the foot of the column. */
+.aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 31px 0 var(--spacing-32);
+}
+
+.aside::-webkit-scrollbar {
+  display: none;
+}
+
+/* Need Help (642:32448): white → warm, warm hairline, r12, 16/12. */
+.help {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-brand-secondary-border);
+  border-radius: var(--radius-12);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-secondary-subtle));
+}
+
+.helpTop {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+}
+
+.helpText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  line-height: 1.1;
+}
+
+.helpTitle {
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  color: var(--color-label-primary);
+}
+
+.helpSub {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: 0.12px;
+  color: var(--color-label-warm);
+}
+
+.avatars {
+  flex-shrink: 0;
+  height: 24px;
+  width: auto;
+}
+
+.helpRule,
+.rateRule {
+  width: 100%;
+  height: 0;
+  border: 0;
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+}
+
+.contacts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+/* Contact buttons: 10/14, r10 → 12 (house rule), 12px SemiBold, icon right. */
+.contact,
+.contactPrimary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-10) 14px;
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.contact:hover {
+  border-color: var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+}
+
+.contactPrimary {
+  margin-top: var(--spacing-4);
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+}
+
+.contactPrimary:hover {
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+/* Rate Your Experience (642:32530): white, subtle hairline, r16, 20/12. */
+.rate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding: var(--spacing-20) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-16);
+  background: var(--color-card);
+}
+
+.rateTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+}
+
+.rateText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.1;
+}
+
+.rateTitle {
+  font-size: var(--font-size-200);
+  font-weight: 650;
+  color: var(--color-label-primary);
+}
+
+.rateSub {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: 0.12px;
+  color: var(--color-label-tertiary);
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+}
+
+/* Rating chips: 8 padding, r10 → 12 (house rule), 14 SemiBold. */
+.option {
+  padding: var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+  color: var(--color-label-secondary);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.option:hover {
+  border-color: var(--color-brand-primary-border);
+}
+
+.option[data-on] {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary-subtle);
+  color: var(--color-brand-primary);
+}
+
+/* Submit Feedback: outline, 12/20, r12 → 16 (house rule), 14px purple. */
+.submit {
+  width: 100%;
+  padding: var(--spacing-12) var(--spacing-20);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-16);
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.submit:hover:not(:disabled) {
+  border-color: var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+}
+
+.submit:disabled {
+  color: var(--color-label-disabled);
+  cursor: not-allowed;
+}
+
+.rateThanks {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color-success);
+}
+
+/* Narrower screens: one column; the help cards follow the quotes. */
+@media (max-width: 1100px) {
+  .page {
+    height: auto;
+    overflow: visible;
+  }
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    row-gap: var(--spacing-32);
+  }
+  .main,
+  .aside {
+    overflow: visible;
+  }
+  .aside {
+    padding-top: 0;
+  }
+  .topRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .body {
+    padding: var(--spacing-16);
+  }
+  .step {
+    align-items: flex-start;
+  }
+  .step .tick {
+    margin-top: 4px;
+  }
+  .inquiryHead {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -554,6 +554,12 @@
   pointer-events: none;
 }
 
+/* Offline quotes: the D&O icon drops its colour (luminosity blend). */
+.card[data-tone="quote"] .compactMark,
+.card[data-tone="quote"] .watermark {
+  mix-blend-mode: luminosity;
+}
+
 /* Tab: white, tone hairline, rounded foot only, flush with the top edge. */
 .tab {
   position: absolute;
@@ -665,4 +671,43 @@
 .card[data-compact] .sum {
   align-items: flex-start;
   text-align: left;
+}
+
+/* ── Mini (Other Quotes, Figma 642:35456) ─────────────────────────────
+   No tab above it, so the header starts 16 down; the logo sits over the
+   name (16 apart), and the bar puts Sum Insured left, the button right. */
+.card[data-mini] .compactInner {
+  padding-top: var(--spacing-16);
+  gap: var(--spacing-12);
+}
+
+.card[data-mini] .compactHead {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-16);
+}
+
+/* The watermark: the 132 product icon, only its top half showing, tucked
+   into the right edge 50 down (642:35747). */
+.card[data-mini] .compactMark {
+  top: 50px;
+  right: 0;
+  width: 132px;
+  height: 66px;
+  object-fit: cover;
+  object-position: top;
+}
+
+.card[data-mini] .compactLogo {
+  height: 32px;
+  max-width: 120px;
+}
+
+.card[data-mini] .compactName {
+  font-size: var(--font-size-300);
+}
+
+.card[data-mini] .barRight {
+  flex: 1;
+  justify-content: space-between;
 }

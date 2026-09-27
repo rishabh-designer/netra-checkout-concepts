@@ -1,0 +1,170 @@
+/* ── Gate modal (647:36737) ─────────────────────────────────────────── */
+/* Art (20/16 inset), the copy (24 sides), then a grey footer; 12 apart. */
+.modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+/* × : 24 square, white, subtle hairline, r8, 15.5 from the corner. */
+.close {
+  position: absolute;
+  top: 15.5px;
+  right: 15.5px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
+  color: var(--color-label-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.close:hover {
+  border-color: var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+}
+
+.art {
+  width: 100%;
+  padding: var(--spacing-20) var(--spacing-16) 0;
+}
+
+/* The report art, 484 × 300 (exported as drawn). */
+.visual {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.body {
+  width: 100%;
+  padding: 0 var(--spacing-24);
+  font-size: var(--font-size-300);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-primary);
+}
+
+/* Footer: card-sunken, hairline on top, buttons right, 16 apart. */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-16);
+  width: 100%;
+  padding: var(--spacing-12) var(--spacing-16);
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+  background: var(--color-card-sunken);
+}
+
+/* Both buttons: 16/28, r16 → 24 (house rule), 16px SemiBold. */
+.primary,
+.secondary {
+  padding: var(--spacing-16) var(--spacing-28);
+  border: var(--border-hairline) solid var(--color-brand-primary);
+  border-radius: var(--radius-24);
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primary {
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+}
+
+.primary:hover {
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.secondary {
+  border-color: var(--color-border-subtle);
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+}
+
+.secondary:hover {
+  border-color: var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+}
+
+/* ── Additional Details drawer ─────────────────────────────── */
+/* Fields scroll under the pinned CTA. */
+.scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  overflow-y: auto;
+  padding-right: var(--spacing-4);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-secondary-subtle-bold) transparent;
+}
+
+.intro {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color-label-secondary);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+/* Unlock Price: the quote modal's Continue (label left, arrow right) in the
+   Gold tone's orange. */
+.proceed {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  width: 100%;
+  padding: var(--spacing-16) var(--spacing-28);
+  border: var(--border-hairline) solid var(--color-brand-secondary);
+  border-radius: var(--radius-24);
+  background: var(--color-brand-secondary);
+  color: var(--color-label-inverse);
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.proceed:hover:not(:disabled) {
+  box-shadow: var(--shadow-button-secondary-hover);
+  filter: brightness(0.96);
+}
+
+.proceedArrow {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.proceed:hover:not(:disabled) .proceedArrow {
+  transform: translateX(3px);
+}
+
+.proceed:disabled {
+  border-color: var(--color-input-stroke);
+  background: var(--color-fill-disabled);
+  color: var(--color-label-disabled);
+  cursor: not-allowed;
+}

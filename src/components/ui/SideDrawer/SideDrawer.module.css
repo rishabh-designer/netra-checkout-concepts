@@ -104,3 +104,10 @@
     padding: var(--spacing-8) var(--spacing-16) var(--spacing-16);
   }
 }
+
+/* Bare popup: the children draw the panel (r16, soft grey glow, clipped). */
+.drawer[data-bare] {
+  padding: 0;
+  border-radius: var(--radius-16);
+  box-shadow: 0 0 32px rgba(169, 172, 177, 0.6);
+}

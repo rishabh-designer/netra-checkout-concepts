@@ -14,6 +14,8 @@ export interface QuotesHeaderProps {
   onCta?: () => void;
   /** The CTA reads as pressed (a toggle, e.g. the grid experiment). */
   ctaPressed?: boolean;
+  /** Put `icon` after the label (an arrow, e.g. "Speak to an Expert →"). */
+  iconAfter?: boolean;
 }
 
 /**
@@ -23,7 +25,7 @@ export interface QuotesHeaderProps {
  * Checkout reuses it with "Contact Support" and a headset icon.
  * Usage: <QuotesHeader content={content.header} />
  */
-export function QuotesHeader({ content, logoHref = "/directors-and-officers-insurance", icon, onCta, ctaPressed }: QuotesHeaderProps) {
+export function QuotesHeader({ content, logoHref = "/directors-and-officers-insurance", icon, onCta, ctaPressed, iconAfter = false }: QuotesHeaderProps) {
   const mailRef = useRef<MailIconHandle>(null);
   return (
     <header className={styles.bar}>
@@ -39,8 +41,9 @@ export function QuotesHeader({ content, logoHref = "/directors-and-officers-insu
         onMouseEnter={() => mailRef.current?.startAnimation()}
         onMouseLeave={() => mailRef.current?.stopAnimation()}
       >
-        {icon ?? <MailIcon ref={mailRef} size={12} aria-hidden className={styles.ctaIcon} />}
+        {!iconAfter && (icon ?? <MailIcon ref={mailRef} size={12} aria-hidden className={styles.ctaIcon} />)}
         <span>{content.ctaLabel}</span>
+        {iconAfter && icon}
       </button>
     </header>
   );

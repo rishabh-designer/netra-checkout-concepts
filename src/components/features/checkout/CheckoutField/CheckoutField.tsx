@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { InteractiveInput, type FieldStatus } from "@/components/ui/InteractiveInput";
-import { formatPhone } from "@/lib/utils";
+import { formatINR, formatPhone, inrInWords } from "@/lib/utils";
 import type { CheckoutField as Field } from "@/types/checkout";
 
 export interface CheckoutFieldProps {
@@ -28,7 +28,10 @@ export function CheckoutField({ field, value, status, error, onChange, variant =
   // A prefilled value counts as touched, so a bad seed still shows its error.
   const [touched, setTouched] = useState(value !== "");
   const shown = touched ? error : null;
-  const format = (v: string) => (field.validate === "phone" ? formatPhone(v) : field.upper ? v.toUpperCase() : v);
+  const format = (v: string) =>
+    field.validate === "phone" ? formatPhone(v) : field.amountWords ? formatINR(v) : field.upper ? v.toUpperCase() : v;
+  // Amounts read back in words as they're typed.
+  const words = field.amountWords && value ? inrInWords(value, field.amountWords) : "";
   return (
     <InteractiveInput
       size="lg"
@@ -48,9 +51,9 @@ export function CheckoutField({ field, value, status, error, onChange, variant =
       clearable={!field.locked}
       locked={field.locked}
       status={field.locked ? "empty" : shown ? "error" : error ? "empty" : status}
-      helpText={shown ?? undefined}
+      helpText={shown ?? (words || undefined)}
       helpTone={shown ? "error" : "neutral"}
-      showHelp={reserveHelp || !!shown}
+      showHelp={reserveHelp || !!shown || !!field.amountWords}
       onFocus={() => !error && setTouched(false)}
       onBlur={() => setTouched(true)}
     />

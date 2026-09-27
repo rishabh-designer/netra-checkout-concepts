@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import { useQuoteFlow } from "@/lib/quote-flow";
+import { GOLD_DETAILS_KEY, useQuoteFlow } from "@/lib/quote-flow";
 import { resetCheckoutClock } from "@/components/features/checkout/useCheckoutClock";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
@@ -11,6 +11,7 @@ import type { QuoteCardData, QuoteFilter, QuoteRating, QuoteSort, QuotesFeedCont
 import type { QuoteCaseId } from "@/lib/quote-flow";
 import { FeedControls } from "../FeedControls";
 import { FeaturesDrawer, type QuoteTone } from "../FeaturesDrawer";
+import { AdditionalDetailsDrawer, GoldGateModal } from "../GoldGate";
 import { QuoteCard } from "../QuoteCard";
 import { RevealCard } from "../RevealCard";
 import type { PriceIntro } from "../PriceMorph";
@@ -36,6 +37,15 @@ export interface QuotesFeedProps {
 const MIN_COMPACT = 320; // three fit on a ~1440–1512 screen with the sidebar collapsed
 const GRID_GAP = 16;
 const MAX_COLS = 3;
+/* The gated Gold Quote (Case B) remembers its Additional Details for the run. */
+const readGoldDetails = () => {
+  try {
+    return window.sessionStorage.getItem(GOLD_DETAILS_KEY) !== null;
+  } catch {
+    return false;
+  }
+};
+
 const columnsFor = (width: number) =>
   Math.max(1, Math.min(MAX_COLS, Math.floor((width + GRID_GAP) / (MIN_COMPACT + GRID_GAP))));
 
@@ -101,6 +111,11 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   // Cases A and B both lead with the Reveal slot: the customer unveils their
   // own Gold Quote (A's unlocks moments after load, B's once verified).
   const ghostFirst = caseId === "A" || caseId === "B";
+  // Case B's Gold Quote is gated: unpriced until the Additional Details are in.
+  const gate = caseId ? content.goldGateByCase?.[caseId] : undefined;
+  const [goldDetailsIn, setGoldDetailsIn] = useState(readGoldDetails);
+  const [gateStep, setGateStep] = useState<"modal" | "drawer" | null>(null);
+  const closeGate = useCallback(() => setGateStep(null), []);
   const gold = (caseId && content.goldQuoteByCase?.[caseId]) ?? content.goldQuote;
   const base = (caseId && content.quotesByCase?.[caseId]) ?? content.quotes;
   const list = ghostFirst && revealed ? [gold, ...base] : base;
@@ -143,6 +158,24 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           router.push(content.checkoutHref);
         }
       : undefined;
+  // The Gold Quote's button: the gate (or, once the details are in, the Gold
+  // Inquiry page) for a gated case; else checkout.
+  const selectGold = (q: QuoteCardData) =>
+    !gate
+      ? checkoutFor(q)
+      : goldDetailsIn
+        ? () => router.push(gate.inquiryHref)
+        : () => {
+            setFeaturesOpen(false);
+            setGateStep("modal");
+          };
+  const proceedWithGold = (values: Record<string, string>) => {
+    try {
+      window.sessionStorage.setItem(GOLD_DETAILS_KEY, JSON.stringify(values));
+    } catch {}
+    setGoldDetailsIn(true);
+    router.push(gate!.inquiryHref);
+  };
   const [countBefore, countAfter = ""] = content.availableLabel.split("{count}");
   // The Gold card lives in the reveal slot; the rest follow it.
   const goldCard: QuoteCardData = { ...gold, rating: "excellent", ...(sumInsured ? { sumInsured } : {}) };
@@ -237,7 +270,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                       setFeaturesQuote(goldCard);
                       setFeaturesOpen(true);
                     }}
-                    onSelect={revealed ? checkoutFor(goldCard) : undefined}
+                    onSelect={revealed ? selectGold(goldCard) : undefined}
                     priceIntro={revealIntro}
                   />
                 </RevealCard>
@@ -292,8 +325,23 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
         quote={featuresQuote}
         tone={featuresQuote ? toneOf(featuresQuote) : "quote"}
         labels={{ sumInsured: content.sumInsuredLabel, getQuote: content.getQuoteLabel }}
-        onSelect={featuresQuote ? checkoutFor(featuresQuote) : undefined}
+        onSelect={featuresQuote ? (featuresQuote.gold ? selectGold(goldCard) : checkoutFor(featuresQuote)) : undefined}
       />
+
+      {gate && (
+        <>
+          <GoldGateModal
+            open={gateStep === "modal"}
+            content={gate.modal}
+            onClose={closeGate}
+            // A call instead of the form: the inquiry page shows the
+            // Additional Details as Missing.
+            onCall={() => router.push(gate.inquiryHref)}
+            onOnline={() => setGateStep("drawer")}
+          />
+          <AdditionalDetailsDrawer open={gateStep === "drawer"} content={gate.drawer} onClose={closeGate} onProceed={proceedWithGold} />
+        </>
+      )}
     </div>
   );
 }
