@@ -58,6 +58,8 @@ export interface GoldInquiryContent {
     pricedSteps: string[];
     priceLabel: string;
     inquiryTitle: string;
+    /** A priced request's CTA beside the title, in place of Speak to an Expert. */
+    paymentLinkLabel: string;
     insurerLabel: string;
     statusLabel: string;
     statusValue: string;

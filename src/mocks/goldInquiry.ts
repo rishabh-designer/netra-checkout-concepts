@@ -61,6 +61,7 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
     ],
     priceLabel: "Quoted Price",
     inquiryTitle: "Your Quote Request",
+    paymentLinkLabel: "Request Payment Link",
     insurerLabel: "Insurer",
     statusLabel: "Quote Status",
     statusValue: "Requested",

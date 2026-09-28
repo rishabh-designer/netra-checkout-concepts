@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { priceFeed } from "@/lib/pricing";
+import { useDemoNotice } from "@/lib/demo-notice";
 import { GOLD_DETAILS_KEY, useQuoteFlow } from "@/lib/quote-flow";
 import { resetCheckoutClock } from "@/components/features/checkout/useCheckoutClock";
 import { BreadcrumbTrail } from "@/components/ui/BreadcrumbTrail";
@@ -61,6 +62,7 @@ const noSubscribe = () => () => {};
 export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, variant = "gold" }: GoldInquiryViewProps) {
   const { result, selectedQuote, setSelectedQuote, setCheckout } = useQuoteFlow();
   const router = useRouter();
+  const notify = useDemoNotice();
   const caseId = result?.caseId;
   const sumInsured = result?.values?.["coverage"] || undefined;
   // Priced for this business, as on the Quotes page.
@@ -175,10 +177,18 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
               </div>
               <div className={styles.inquiryHead} data-variant={isRequest ? "quote" : undefined}>
                 <h2 className={styles.inquiryTitle}>{isRequest ? quoteRequest.inquiryTitle : inquiry.title}</h2>
-                <a href={content.expertHref} className={styles.expert}>
-                  {inquiry.ctaLabel}
-                  <Arrow />
-                </a>
+                {/* A priced request (e.g. Royal Sundaram) only waits on payment. */}
+                {isRequest && requested?.price ? (
+                  <button type="button" className={styles.expert} onClick={() => notify("paymentLink")}>
+                    {quoteRequest.paymentLinkLabel}
+                    <Arrow />
+                  </button>
+                ) : (
+                  <a href={content.expertHref} className={styles.expert}>
+                    {inquiry.ctaLabel}
+                    <Arrow />
+                  </a>
+                )}
               </div>
               <ul className={styles.steps}>
                 {steps.map((step) => (

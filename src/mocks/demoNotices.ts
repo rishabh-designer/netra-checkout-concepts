@@ -6,6 +6,10 @@ export const mockDemoNotices: DemoNoticeContent = {
     title: "Schedule a Call is next",
     description: "Google Meet API to plug in and set the meeting!",
   },
+  paymentLink: {
+    title: "Payment link requested",
+    description: "An IRDAI-certified Bima Expert will reach out to you shortly.",
+  },
   mailQuotes: {
     title: "Mail Quotes is next",
     description: "This emails the quotes you're comparing to you, side by side. We haven't built it yet.",
