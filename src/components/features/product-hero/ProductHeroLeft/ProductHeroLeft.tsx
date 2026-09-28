@@ -1,96 +1,47 @@
 "use client";
 
-import { useRef } from "react";
 import type { ProductTag, TrustStat } from "@/types/productPage";
-import { TagPill } from "@/components/ui/TagPill";
-import { StatSignal } from "@/components/ui/StatSignal";
-import { IkkatMark } from "@/components/ui/IkkatMark";
-import { EyeIcon, type EyeIconHandle } from "@/components/icons/EyeIcon";
-import {
-  ShoppingBagIcon,
-  type ShoppingBagIconHandle,
-} from "@/components/icons/ShoppingBagIcon";
+import { ProductTagPills } from "../ProductTagPills";
+import { ProofRow } from "../ProofRow";
+import { CoverageChips } from "../CoverageChips";
+import { Highlight } from "@/components/ui/Highlight";
 import styles from "./ProductHeroLeft.module.css";
 
 export interface ProductHeroLeftProps {
-  tags: ProductTag[];
+  /** Product name over the title (the focus hero's PLP-name style). */
+  eyebrow: string;
+  /** Tag pills beside the product name. */
+  tags?: ProductTag[];
   title: string;
   subtitle: string;
   stats: TrustStat[];
+  /** Under the subtitle: every coverage line as a chip. */
+  coverage?: { items: string[]; iconSrc: string };
 }
 
 /**
- * ProductHeroLeft — tag pills (each animated icon plays on hover of its own
- * pill: shopping bag on "Immediate Purchase", eye on "Powered by BimaNetra"),
- * the serif page title, subtitle, and the trust-signal stat band.
- * Usage: <ProductHeroLeft tags={tags} title={title} subtitle={sub} stats={stats} />
+ * ProductHeroLeft — the product name in small caps with the tag pills beside
+ * it, the serif page title and subtitle, the coverage chips, then a divider
+ * over the proof row (packed from the left).
+ * Usage: <ProductHeroLeft eyebrow={name} title={title} subtitle={sub} stats={stats} />
  */
-export function ProductHeroLeft({ tags, title, subtitle, stats }: ProductHeroLeftProps) {
-  const bagRef = useRef<ShoppingBagIconHandle>(null);
-  const eyeRef = useRef<EyeIconHandle>(null);
-
+export function ProductHeroLeft({ eyebrow, tags, title, subtitle, stats, coverage }: ProductHeroLeftProps) {
   return (
     <div className={styles.column}>
       <div className={styles.heading}>
-        <div className={styles.pillStack}>
-          {tags.map((tag) => {
-            const iconRef =
-              tag.icon === "shoppingBag"
-                ? bagRef
-                : tag.icon === "eye"
-                  ? eyeRef
-                  : null;
-
-            return (
-              <TagPill
-                key={tag.label}
-                label={tag.label}
-                variant={tag.variant}
-                icon={
-                  tag.icon === "shoppingBag" ? (
-                    <ShoppingBagIcon
-                      ref={bagRef}
-                      size={12}
-                      color="var(--color-success)"
-                    />
-                  ) : tag.icon === "eye" ? (
-                    <EyeIcon
-                      ref={eyeRef}
-                      size={12}
-                      color="var(--color-brand-secondary)"
-                    />
-                  ) : undefined
-                }
-                onMouseEnter={
-                  iconRef ? () => iconRef.current?.startAnimation() : undefined
-                }
-                onMouseLeave={
-                  iconRef ? () => iconRef.current?.stopAnimation() : undefined
-                }
-              />
-            );
-          })}
+        <div className={styles.eyebrowRow}>
+          <p className={styles.eyebrow}>{eyebrow}</p>
+          {tags && <ProductTagPills tags={tags} />}
         </div>
-        <h1 className={styles.title}>{title}</h1>
+        <h1 className={styles.title}>
+          <Highlight text={title} />
+        </h1>
         <p className={styles.subtitle}>{subtitle}</p>
+        {coverage && <CoverageChips items={coverage.items} iconSrc={coverage.iconSrc} />}
       </div>
       <section className={styles.trustSignals} aria-label="Trust signals">
         <div className={styles.dividerLine} />
-        <div className={styles.signalStack}>
-          {stats.map((stat, i) => (
-            <span key={stat.label} className={styles.signalEntry}>
-              {i > 0 && (
-                <IkkatMark
-                  pattern={1}
-                  width={20}
-                  color="var(--color-brand-secondary)"
-                  className={styles.signalSep}
-                />
-              )}
-              <StatSignal value={stat.value} label={stat.label} />
-            </span>
-          ))}
-        </div>
+        <ProofRow stats={stats} align="start" markColor="var(--color-brand-primary)" />
       </section>
     </div>
   );

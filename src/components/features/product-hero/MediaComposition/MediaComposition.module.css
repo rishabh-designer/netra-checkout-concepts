@@ -6,7 +6,8 @@
   aspect-ratio: 540 / 320;
   overflow: hidden;
   border: var(--border-hairline) solid var(--color-card-recessed);
-  border-radius: 2px;
+  /* Concentric with the lead card (r32 less its 20 padding). */
+  border-radius: var(--radius-12);
 }
 
 .comp {

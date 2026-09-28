@@ -15,6 +15,7 @@ import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import { LeadFormCard } from "../LeadFormCard";
 import { CoverageTicker } from "../CoverageTicker";
 import { PlpMark } from "../PlpMark";
+import { Highlight } from "@/components/ui/Highlight";
 import styles from "./FocusHero.module.css";
 
 export interface FocusHeroProps {
@@ -84,7 +85,7 @@ export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
                 exit={reduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
                 transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               >
-                {focus.priceTemplate.replace("{cover}", cover).replace("{price}", price)}
+                <Highlight text={focus.priceTemplate.replace("{cover}", cover).replace("{price}", price)} />
               </motion.span>
             </AnimatePresence>
           </h1>

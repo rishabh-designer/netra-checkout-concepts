@@ -1,4 +1,8 @@
+/* The rings sit 500 down at the 1512 frame. As the viewport narrows the
+   left column wraps and grows taller, so the rings (and their fade) sink by
+   0.6px per px lost, up to 760, to stay clear of the stats. */
 .stage {
+  --ring-top: clamp(500px, calc(500px + (1512px - 100vw) * 0.6), 760px);
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -16,7 +20,7 @@
 .rings {
   position: absolute;
   left: -695.6px;
-  top: 500px;
+  top: var(--ring-top);
   width: 1384px;
   height: 1384px;
   max-width: none;
@@ -25,7 +29,7 @@
 .fade {
   position: absolute;
   left: -711.6px;
-  top: 652px;
+  top: calc(var(--ring-top) + 152px);
   width: 1416px;
   height: 536px;
   background: linear-gradient(

@@ -153,10 +153,11 @@
 }
 
 /* Price on its own line — the headline always breaks cover / price. */
+/* Italic, neutral primary, with the cover and the price in brand purple. */
 .price {
   display: block;
   font-style: italic;
-  color: var(--color-brand-primary);
+  color: var(--color-label-primary);
 }
 
 .divider {

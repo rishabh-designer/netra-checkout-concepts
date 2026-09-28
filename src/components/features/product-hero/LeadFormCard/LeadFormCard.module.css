@@ -7,7 +7,11 @@
      compact lifts the "Policy Provided By" stack into the fold. */
   gap: var(--spacing-20);
   padding: var(--spacing-24) var(--spacing-20);
+  /* A raised white box on both heroes: white hairline, wide soft shadow. */
+  border: var(--border-hairline) solid var(--color-card);
   border-radius: var(--radius-32);
+  background: var(--color-card);
+  box-shadow: var(--shadow-raised-wide);
 }
 
 .top {
@@ -19,28 +23,6 @@
 /* Focus hero: the product pills sit 16 over the promo banner. */
 .cardFocus .top {
   gap: var(--spacing-16);
-}
-
-.priceBlock {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.kicker {
-  font-size: var(--font-size-400);
-  font-weight: 500;
-  line-height: 1;
-  color: var(--color-brand-secondary);
-  white-space: nowrap;
-}
-
-.headline {
-  font-size: var(--font-size-heading-lg);
-  font-weight: 600;
-  line-height: 1;
-  color: var(--color-brand-primary);
-  white-space: nowrap;
 }
 
 .promoBanner {
@@ -147,14 +129,6 @@
     padding: 0;
   }
 
-  .headline {
-    font-size: var(--font-size-heading-md);
-    white-space: normal;
-  }
-
-  .kicker {
-    white-space: normal;
-  }
 }
 
 .bottom {
@@ -177,9 +151,6 @@
 /* A raised white card so the form reads as the page's single destination. */
 .cardFocus {
   padding-top: var(--spacing-16);
-  background: var(--color-card);
-  border: var(--border-hairline) solid var(--color-card);
-  box-shadow: var(--shadow-raised-wide);
 }
 
 /* Reassurance at the point of commitment. */
@@ -187,5 +158,5 @@
   font-size: var(--font-size-75);
   font-weight: 500;
   color: var(--color-label-secondary);
-  text-align: center;
+  text-align: left;
 }

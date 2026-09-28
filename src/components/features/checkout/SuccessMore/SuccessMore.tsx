@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { CheckoutSuccessContent } from "@/types/checkout";
 import { useDemoNotice } from "@/lib/demo-notice";
@@ -40,8 +41,8 @@ export function RmCard({ rm, delay = 0 }: RmCardProps) {
       <p className={styles.rmBody}>{rm.body}</p>
       <a href={rm.phoneHref} className={styles.phone}>
         {rm.phone}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={rm.phoneIconSrc} alt="" aria-hidden width={12} height={12} />
+        {/* The call glyph as a mask, so it takes the link's purple. */}
+        <span className={styles.phoneIcon} style={{ "--icon": `url(${rm.phoneIconSrc})` } as CSSProperties} aria-hidden />
       </a>
     </motion.aside>
   );
@@ -69,7 +70,9 @@ export function Suggestions({ suggestions, delay = 0 }: SuggestionsProps) {
       </motion.h2>
       <ul className={styles.grid}>
         {suggestions.items.map((item, i) => (
-          <motion.li key={item.name} className={styles.card} {...rise(1 + i)}>
+          // The whole card is the hover and click target; Find a Quote is its
+          // keyboard-reachable action.
+          <motion.li key={item.name} className={styles.card} onClick={() => notify("findQuote")} {...rise(1 + i)}>
             <div className={styles.cardHead}>
               <div className={styles.cardText}>
                 <p className={styles.cardName}>{item.name}</p>
@@ -87,7 +90,14 @@ export function Suggestions({ suggestions, delay = 0 }: SuggestionsProps) {
               ) : (
                 <span />
               )}
-              <button type="button" className={styles.find} onClick={() => notify("findQuote")}>
+              <button
+                type="button"
+                className={styles.find}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  notify("findQuote");
+                }}
+              >
                 {suggestions.ctaLabel}
                 <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
                   <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />

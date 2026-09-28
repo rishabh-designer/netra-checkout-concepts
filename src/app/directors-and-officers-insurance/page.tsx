@@ -46,16 +46,20 @@ export default async function DirectorsAndOfficersInsurancePage() {
             </div>
             <div className={styles.columns}>
               <ProductHeroLeft
+                eyebrow={content.focusHero.eyebrow}
                 tags={content.tags}
                 title={content.title}
                 subtitle={content.subtitle}
                 stats={content.stats}
+                coverage={{ items: content.focusHero.coveredChips, iconSrc: content.focusHero.coveredIconSrc }}
               />
               <div className={styles.rightCol}>
-                <div className={styles.mediaArea}>
-                  <MediaComposition media={content.media} />
-                </div>
-                <LeadFormCard content={content.leadForm} quoteModal={content.quoteModal} quotesPreview={quotesPreview} />
+                <LeadFormCard
+                  content={content.leadForm}
+                  quoteModal={content.quoteModal}
+                  quotesPreview={quotesPreview}
+                  topSlot={<MediaComposition media={content.media} />}
+                />
                 <div className={styles.providersArea}>
                   <p className={styles.providersHeading}>{content.leadForm.providersHeading}</p>
                   <InsurerLogoShowcase slots={content.leadForm.providerShowcase} />

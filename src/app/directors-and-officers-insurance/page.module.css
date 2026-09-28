@@ -67,12 +67,6 @@
   flex-shrink: 0;
 }
 
-.mediaArea {
-  grid-area: media;
-  /* matches the old right-column top offset so media sits just below the text */
-  padding-top: var(--spacing-32);
-}
-
 .providersArea {
   grid-area: logos;
   display: flex;
@@ -111,7 +105,7 @@
   }
 }
 
-/* Below web (<1000): single column — text, form, logos, media, stats. */
+/* Below web (<1000): single column: text, form (with the media inside), logos, stats. */
 @media (max-width: 999px) {
   .body {
     padding: var(--spacing-16);
@@ -126,17 +120,11 @@
       "text"
       "form"
       "logos"
-      "media"
       "stats";
   }
 
   .rightCol {
     display: contents;
-  }
-
-  .mediaArea {
-    grid-area: media;
-    padding-top: 0;
   }
 
   .providersArea {

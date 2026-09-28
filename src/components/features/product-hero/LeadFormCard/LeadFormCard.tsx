@@ -139,12 +139,6 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
   return (
     <div className={cn(styles.card, focus && styles.cardFocus)}>
       <div className={styles.top}>
-        {!focus && (
-          <div className={styles.priceBlock}>
-            <p className={styles.kicker}>{content.priceKicker}</p>
-            <p className={styles.headline}>{content.priceHeadline}</p>
-          </div>
-        )}
         {topSlot}
         <div className={styles.promoBanner}>
           <div className={styles.promoLeft}>

@@ -19,19 +19,34 @@
   padding: var(--spacing-24) var(--spacing-20) 0;
 }
 
-.pillStack {
+/* Product name with the tag pills beside it. */
+.eyebrowRow {
   display: flex;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--spacing-12);
+}
+
+/* Product name (the focus hero's PLP name): 14 SemiBold caps. */
+.eyebrow {
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.14px;
+  text-transform: uppercase;
+  color: var(--color-label-primary);
 }
 
 .title {
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
   font-weight: 400;
-  font-size: var(--font-size-display-md);
+  font-size: var(--font-size-display-xs);
+  /* Italic at 48, in the focus hero's price-line style: neutral primary, with
+     the cover and the price highlighted in brand purple. */
+  font-style: italic;
   line-height: 1;
-  color: var(--color-label-basic);
+  color: var(--color-label-primary);
   /* Wraps to a second line rather than overflowing into the media when the
      left column is narrow (small-desktop widths); stays one line when wide. */
   text-wrap: balance;
@@ -41,7 +56,8 @@
   font-size: var(--font-size-300);
   font-weight: 500;
   line-height: 1.5;
-  color: var(--color-label-tertiary);
+  /* Muted primary, as the focus hero's subtitle. */
+  color: var(--color-label-muted-primary);
 }
 
 .trustSignals {
@@ -60,27 +76,8 @@
   height: var(--border-hairline);
   background: var(--color-divider);
   opacity: 0.5;
-  margin-left: var(--spacing-20);
 }
 
-.signalStack {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-48);
-  /* No inset on web so the stats left-align with the title/subtitle above
-     (tablet/mobile already zero this in the max-width:1199 block). */
-  padding: 0;
-}
-
-.signalEntry {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-48);
-}
-
-.signalSep {
-  flex-shrink: 0;
-}
 
 /* Below web (<1000): the text box flattens so `.heading` (text) and
    `.trustSignals` (stats) become independent grid areas. Title → display/sm
@@ -113,32 +110,6 @@
     margin-left: 0;
   }
 
-  .signalStack {
-    gap: var(--spacing-12);
-    justify-content: space-between;
-    padding: 0;
-  }
-
-  .signalEntry {
-    gap: var(--spacing-12);
-  }
-}
-
-/* Narrow web (1000–1340): the left column is narrow beside the fixed 540px
-   form, so let the three stats share it evenly (labels wrap) instead of the
-   wide clustered gap-48 band overflowing into the form. */
-@media (min-width: 1000px) and (max-width: 1340px) {
-  .signalStack {
-    justify-content: space-between;
-    gap: var(--spacing-12);
-  }
-
-  .signalEntry {
-    flex: 1 1 0;
-    min-width: 0;
-    justify-content: center;
-    gap: var(--spacing-12);
-  }
 }
 
 /* Narrow phones: title to display/xsmall (34); tighter stat gaps. */
@@ -147,11 +118,4 @@
     font-size: var(--font-size-display-2xs);
   }
 
-  .signalStack {
-    gap: var(--spacing-4);
-  }
-
-  .signalEntry {
-    gap: var(--spacing-4);
-  }
 }

@@ -11,6 +11,9 @@ export interface CoverageTickerProps {
   iconSrc: string;
   /** Hold time per item (ms). */
   interval?: number;
+  /** Extra ms before each swap, so a row of tickers can change one after
+   *  another (a stagger). */
+  delay?: number;
 }
 
 const EASE = [0.4, 0, 0.2, 1] as const;
@@ -25,7 +28,7 @@ const EASE = [0.4, 0, 0.2, 1] as const;
  * under reduced motion.
  * Usage: <CoverageTicker items={["Covers legal & defence costs", …]} iconSrc="/media/coverage-check.svg" />
  */
-export function CoverageTicker({ items, iconSrc, interval = 2200 }: CoverageTickerProps) {
+export function CoverageTicker({ items, iconSrc, interval = 2200, delay = 0 }: CoverageTickerProps) {
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [widths, setWidths] = useState<number[]>([]);
@@ -46,17 +49,25 @@ export function CoverageTicker({ items, iconSrc, interval = 2200 }: CoverageTick
   useEffect(() => {
     if (reduced || items.length < 2) return;
     let id = 0;
+    let lead = 0;
     const start = () => {
       window.clearInterval(id);
-      if (!document.hidden) id = window.setInterval(() => setIndex((i) => (i + 1) % items.length), interval);
+      window.clearTimeout(lead);
+      if (document.hidden) return;
+      // The first swap waits `delay` longer; later ones keep that offset.
+      lead = window.setTimeout(() => {
+        setIndex((i) => (i + 1) % items.length);
+        id = window.setInterval(() => setIndex((i) => (i + 1) % items.length), interval);
+      }, interval + delay);
     };
     start();
     document.addEventListener("visibilitychange", start);
     return () => {
       window.clearInterval(id);
+      window.clearTimeout(lead);
       document.removeEventListener("visibilitychange", start);
     };
-  }, [reduced, items.length, interval]);
+  }, [reduced, items.length, interval, delay]);
 
   // Measured in a layout effect, so the first paint already has the width;
   // CSS can't transition from auto, so it snaps in, and later changes ease.

@@ -84,8 +84,6 @@ export interface KnowMoreContent {
 }
 
 export interface LeadFormContent {
-  priceKicker: string;
-  priceHeadline: string;
   promoBadge: string;
   promoLabel: string;
   promoLinkLabel: string;
