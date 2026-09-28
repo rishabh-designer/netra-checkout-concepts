@@ -50,9 +50,15 @@ export function QuotesView(props: QuotesViewProps) {
 function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const { result, setResult } = useQuoteFlow();
   const values = result?.values;
-  // Every price on the page follows this business's cover and turnover.
+  // Every price on the page follows this business's cover and turnover: the
+  // flow's answers, else the Your Details defaults (off-flow), so the prices
+  // always match the Sum Insured the cards show.
+  const detail = (key: string) =>
+    values?.[key]?.trim() || content.detailsPanel.rows.find((r) => r.key === key)?.value;
+  const sumInsured = detail("coverage");
   const feed = useMemo(
-    () => priceFeed(content.feed, { sumInsured: values?.["coverage"], turnover: values?.["turnover"] }),
+    () => priceFeed(content.feed, { sumInsured, turnover: detail("turnover") }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [content.feed, values],
   );
   const caseId = result?.caseId;
@@ -196,7 +202,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 onRevealed={() => setRevealed(true)}
                 content={feed}
                 caseId={caseId}
-                sumInsured={values?.["coverage"] || undefined}
+                sumInsured={sumInsured}
                 onComparingChange={setComparing}
                 helpHidden={chatOpen}
               />
