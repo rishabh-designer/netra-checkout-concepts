@@ -79,7 +79,7 @@
 }
 
 .tile[data-tone="gold"] {
-  /* Room for the Powered by BimaNetra tag. */
+  /* Room for the Secured with BimaNetra tag. */
   padding-top: 40px;
   border-color: var(--color-brand-secondary-border);
   background: linear-gradient(180deg, var(--color-brand-secondary-subtle) 0, var(--color-card) 70%);

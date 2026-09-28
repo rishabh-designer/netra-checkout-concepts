@@ -100,13 +100,13 @@ export interface QuoteCardData {
   /** "Top Coverages" chips; omitted on unpriced Get Quote cards. */
   coverages?: string[];
   /** The revealed exact-match "Gold Quote" (Figma 553:29978): caution-gold card,
-   *  "Powered by BimaNetra" pill, orange Get Quote. */
+   *  "Secured with BimaNetra" pill, orange Get Quote. */
   gold?: boolean;
   /** How this quote compares against the Gold Quote — set by the feed only
    *  when a Gold Quote is present (exact match). */
   rating?: QuoteRating;
   /** Where the policy covers you — a purple tag on the card, left of
-   *  Immediate Purchase / Powered by BimaNetra. */
+   *  Immediate Purchase / Secured with BimaNetra. */
   territory?: QuoteTerritory;
   /** This quote's own policy wording for the details modal (Overview,
    *  Coverages/Extensions, Exclusions); the other tabs stay standard. */

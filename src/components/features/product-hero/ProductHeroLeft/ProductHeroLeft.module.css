@@ -52,6 +52,18 @@
   text-wrap: balance;
 }
 
+/* The copy's break after "Cover" is for narrower columns only: where the
+   whole line fits (the heading is ~800 wide or more), it runs on one line. */
+.heading {
+  container-type: inline-size;
+}
+
+@container (min-width: 800px) {
+  .title br {
+    display: none;
+  }
+}
+
 .subtitle {
   font-size: var(--font-size-300);
   font-weight: 500;

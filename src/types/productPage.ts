@@ -25,7 +25,7 @@ export interface ProductTag {
   label: string;
   variant: "success" | "special" | "secondary";
   /** Which animated icon fills the tag's icon slot; "placeholder" keeps the grey square. */
-  icon: "placeholder" | "shoppingBag" | "eye";
+  icon: "placeholder" | "shoppingBag" | "badgeCheck";
 }
 
 export interface TrustStat {

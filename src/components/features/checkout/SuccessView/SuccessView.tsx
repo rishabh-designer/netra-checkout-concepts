@@ -10,7 +10,7 @@ import { formatInr, splitPrice } from "@/lib/checkout";
 import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
-import { EyeIcon, type EyeIconHandle } from "@/components/icons/EyeIcon";
+import { BadgeCheckIcon, type BadgeCheckIconHandle } from "@/components/icons/BadgeCheckIcon";
 import { DitherBurst } from "@/components/ui/DitherBurst";
 import { Toast } from "@/components/ui/Toast";
 import { useCheckoutClock } from "../useCheckoutClock";
@@ -133,8 +133,8 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   // pill sits where the row's status would.
   const expert = !quote.gold && !quote.immediate;
   const bagRef = useRef<ShoppingBagIconHandle>(null);
-  const eyeRef = useRef<EyeIconHandle>(null);
-  // The Gold Quote's Quote Selected row carries Powered by BimaNetra.
+  const eyeRef = useRef<BadgeCheckIconHandle>(null);
+  // The Gold Quote's Quote Selected row carries Secured with BimaNetra.
   const goldTag = quote.gold ? (
     <span
       className={styles.tag}
@@ -142,7 +142,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
       onMouseEnter={() => eyeRef.current?.startAnimation()}
       onMouseLeave={() => eyeRef.current?.stopAnimation()}
     >
-      <EyeIcon ref={eyeRef} size={10} color="var(--color-brand-secondary)" />
+      <BadgeCheckIcon ref={eyeRef} size={10} color="var(--color-brand-secondary)" />
       {content.summary.poweredByLabel}
     </span>
   ) : undefined;

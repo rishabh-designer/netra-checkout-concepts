@@ -27,6 +27,13 @@
   padding: var(--spacing-32) var(--spacing-32) var(--spacing-32);
 }
 
+/* Widest screens: a roomier 40 inset. */
+@media (min-width: 1440px) {
+  .body {
+    padding: var(--spacing-40);
+  }
+}
+
 .breadcrumbRow {
   display: flex;
   align-items: center;

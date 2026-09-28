@@ -376,7 +376,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     personalizedCountLabel: "{count} Personalized Coverages",
     coveragesUnavailableLabel: "Unavailable",
     ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },
-    poweredByLabel: "Powered by BimaNetra",
+    poweredByLabel: "Secured with BimaNetra",
     riskReport: {
       question: "Are you Interested in a customized Risk Report?",
       emphasis: "customized Risk Report?",

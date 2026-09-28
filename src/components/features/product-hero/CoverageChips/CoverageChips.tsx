@@ -14,24 +14,24 @@ export interface CoverageChipsProps {
 }
 
 /** ms between one chip's morph and the next. */
-const STAGGER = 180;
+const STAGGER = 400;
 
 /**
- * CoverageChips — `visible` coverage chips in a row, each a CoverageTicker
- * (the focus hero's chip: the label lifts out as the next rises in, and the
- * chip eases to its new width). Chip i cycles items i, i + visible, …, and
- * each morphs a beat after the one before it, so the row changes one chip
- * after another.
+ * CoverageChips — `visible` coverage chips in a row, each a steady
+ * CoverageTicker: all fixed at the widest of every line (one shared width,
+ * so the row never reflows), its
+ * label cross-fading with a 3px drift. Chip i cycles items i, i + visible, …,
+ * a beat after the one before it, slowly enough to stay in the background.
  * Usage: <CoverageChips items={focus.coveredChips} iconSrc={focus.coveredIconSrc} />
  */
-export function CoverageChips({ items, iconSrc, visible = 3, interval = 3200 }: CoverageChipsProps) {
+export function CoverageChips({ items, iconSrc, visible = 3, interval = 5200 }: CoverageChipsProps) {
   const slots = Array.from({ length: Math.min(visible, items.length) }, (_, i) =>
     items.filter((_, k) => k % visible === i),
   );
   return (
     <div className={styles.chips}>
       {slots.map((slotItems, i) => (
-        <CoverageTicker key={i} items={slotItems} iconSrc={iconSrc} interval={interval} delay={i * STAGGER} />
+        <CoverageTicker key={i} items={slotItems} sizeTo={items} iconSrc={iconSrc} interval={interval} delay={i * STAGGER} steady />
       ))}
     </div>
   );

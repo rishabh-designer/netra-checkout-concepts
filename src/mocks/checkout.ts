@@ -165,7 +165,7 @@ export const mockCheckoutContent: CheckoutContent = {
   summary: {
     title: "Purchase Summary",
     immediateLabel: "Immediate Purchase",
-    poweredByLabel: "Powered by BimaNetra",
+    poweredByLabel: "Secured with BimaNetra",
     productLines: ["Director’s & Officer’s", "Insurance"],
     productIconSrc: "/media/checkout/product-icon.svg",
     priceTitle: "Price Details",

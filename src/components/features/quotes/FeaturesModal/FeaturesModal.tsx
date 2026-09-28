@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { FeatureItem, FeatureTab, FeaturesDrawerContent, QuoteCardData } from "@/types/quotesPage";
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
-import { EyeIcon } from "@/components/icons/EyeIcon";
+import { BadgeCheckIcon } from "@/components/icons/BadgeCheckIcon";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { coverageChipLabel, type QuoteCardLabels } from "../QuoteCard";
@@ -133,7 +133,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                   )}
                   {tone === "gold" ? (
                     <span className={styles.tag} data-tone="gold">
-                      <EyeIcon size={10} color="var(--color-brand-secondary)" />
+                      <BadgeCheckIcon size={10} color="var(--color-brand-secondary)" />
                       {labels.poweredBy}
                     </span>
                   ) : tone === "immediate" ? (

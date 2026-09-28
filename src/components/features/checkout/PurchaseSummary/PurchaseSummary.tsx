@@ -6,7 +6,7 @@ import type { QuoteCardData } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
-import { EyeIcon, type EyeIconHandle } from "@/components/icons/EyeIcon";
+import { BadgeCheckIcon, type BadgeCheckIconHandle } from "@/components/icons/BadgeCheckIcon";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { formatInr, splitPrice } from "@/lib/checkout";
@@ -48,7 +48,7 @@ const RULE_COLOR = {
  */
 export function PurchaseSummary({ content, quote, coverages, paid, company, beam = true }: PurchaseSummaryProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
-  const eyeRef = useRef<EyeIconHandle>(null);
+  const eyeRef = useRef<BadgeCheckIconHandle>(null);
   // An offer prices the original, then takes the saving off it.
   const base = splitPrice(quote.originalPrice ?? quote.price ?? "", content.gstRate);
   const final = splitPrice(quote.price ?? "", content.gstRate).total;
@@ -74,7 +74,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={content.productIconSrc} alt="" className={styles.productIcon} />
         </span>
-        {/* Pills: Powered by BimaNetra on the Gold Quote, Immediate Purchase on
+        {/* Pills: Secured with BimaNetra on the Gold Quote, Immediate Purchase on
             anything bought online (a priced Gold Quote carries both). Once
             paid they sit above the title (Figma 670:51168); in checkout,
             beside it. */}
@@ -97,7 +97,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
                   variant="secondary"
                   className={styles.tag}
                   label={content.poweredByLabel}
-                  icon={<EyeIcon ref={eyeRef} size={12} color="var(--color-brand-secondary)" />}
+                  icon={<BadgeCheckIcon ref={eyeRef} size={12} color="var(--color-brand-secondary)" />}
                   onMouseEnter={() => eyeRef.current?.startAnimation()}
                   onMouseLeave={() => eyeRef.current?.stopAnimation()}
                 />

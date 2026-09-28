@@ -39,7 +39,7 @@
   color: var(--color-special);
 }
 
-/* Brand-secondary (orange) — "Powered by BimaNetra" (Figma 348:27531) */
+/* Brand-secondary (orange) — "Secured with BimaNetra" (Figma 348:27531) */
 .secondary {
   border-color: var(--color-brand-secondary-border);
   background: linear-gradient(

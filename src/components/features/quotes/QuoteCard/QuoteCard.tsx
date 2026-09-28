@@ -5,7 +5,7 @@ import type { QuoteCardData, QuoteRating, QuoteTerritory } from "@/types/quotesP
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
-import { EyeIcon } from "@/components/icons/EyeIcon";
+import { BadgeCheckIcon } from "@/components/icons/BadgeCheckIcon";
 import { splitName } from "@/lib/utils";
 import { PriceMorph, type PriceIntro } from "../PriceMorph";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
@@ -116,7 +116,7 @@ function lockBeam(el: HTMLElement | null) {
 /**
  * QuoteCard — one insurer quote in the grid (Figma 658:47652 immediate /
  * 658:49729 priced / 658:49915 offline). The tag hangs off the top edge
- * (Immediate Purchase, or Powered by BimaNetra on the Gold Quote), the logo
+ * (Immediate Purchase, or Secured with BimaNetra on the Gold Quote), the logo
  * sits over the two-line insurer name with the D&O mark half-cropped behind,
  * then a tinted price bar (Sum Insured · price / Get Quote), an ikkat rule,
  * and a footer with the coverages chip (→ the policy details modal) and Add
@@ -145,7 +145,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
   const toneTag =
     tone === "gold" ? (
       <span className={styles.tab} data-tone="gold" data-reveal="pill">
-        <EyeIcon size={10} color="var(--color-brand-secondary)" />
+        <BadgeCheckIcon size={10} color="var(--color-brand-secondary)" />
         {labels.poweredBy}
       </span>
     ) : tone === "immediate" ? (

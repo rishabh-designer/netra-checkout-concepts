@@ -14,6 +14,12 @@ export interface CoverageTickerProps {
   /** Extra ms before each swap, so a row of tickers can change one after
    *  another (a stagger). */
   delay?: number;
+  /** Calm mode: the chip holds its widest item's width (no resizing, so a
+   *  row of chips never reflows) and labels cross-fade with a small drift. */
+  steady?: boolean;
+  /** Steady mode: size to the widest of these instead of `items`, so a row
+   *  of tickers can share one width. */
+  sizeTo?: string[];
 }
 
 const EASE = [0.4, 0, 0.2, 1] as const;
@@ -28,7 +34,7 @@ const EASE = [0.4, 0, 0.2, 1] as const;
  * under reduced motion.
  * Usage: <CoverageTicker items={["Covers legal & defence costs", …]} iconSrc="/media/coverage-check.svg" />
  */
-export function CoverageTicker({ items, iconSrc, interval = 2200, delay = 0 }: CoverageTickerProps) {
+export function CoverageTicker({ items, iconSrc, interval = 2200, delay = 0, steady = false, sizeTo }: CoverageTickerProps) {
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [widths, setWidths] = useState<number[]>([]);
@@ -43,7 +49,7 @@ export function CoverageTicker({ items, iconSrc, interval = 2200, delay = 0 }: C
     };
     measure();
     document.fonts?.ready.then(measure).catch(() => {});
-  }, [items]);
+  }, [items, sizeTo]);
 
   // Rotate while the tab is visible.
   useEffect(() => {
@@ -71,7 +77,8 @@ export function CoverageTicker({ items, iconSrc, interval = 2200, delay = 0 }: C
 
   // Measured in a layout effect, so the first paint already has the width;
   // CSS can't transition from auto, so it snaps in, and later changes ease.
-  const width = widths[index];
+  const width = steady ? (widths.length ? Math.max(...widths) : undefined) : widths[index];
+  const drift = steady ? 3 : 8;
 
   return (
     <div className={styles.ticker}>
@@ -82,10 +89,10 @@ export function CoverageTicker({ items, iconSrc, interval = 2200, delay = 0 }: C
           <motion.span
             key={index}
             className={styles.label}
-            initial={{ y: 8, opacity: 0 }}
+            initial={{ y: drift, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -8, opacity: 0 }}
-            transition={{ duration: 0.35, ease: EASE }}
+            exit={{ y: -drift, opacity: 0 }}
+            transition={{ duration: steady ? 0.7 : 0.35, ease: EASE }}
           >
             {items[index]}
           </motion.span>
@@ -94,7 +101,7 @@ export function CoverageTicker({ items, iconSrc, interval = 2200, delay = 0 }: C
 
       {/* Off-screen sizer: one span per item, same type styles. */}
       <span ref={sizerRef} className={styles.sizer} aria-hidden>
-        {items.map((item) => (
+        {(steady && sizeTo ? sizeTo : items).map((item) => (
           <span key={item} className={styles.label}>
             {item}
           </span>

@@ -10,7 +10,7 @@ import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { InsurerLogoShowcase } from "@/components/ui/InsurerLogoShowcase";
 import { SelectMenu } from "@/components/ui/SelectMenu";
 import { ChevronDown } from "@/components/ui/InteractiveInput/icons";
-import { EyeIcon } from "@/components/icons/EyeIcon";
+import { BadgeCheckIcon } from "@/components/icons/BadgeCheckIcon";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import { LeadFormCard } from "../LeadFormCard";
 import { CoverageTicker } from "../CoverageTicker";
@@ -118,8 +118,8 @@ export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
                     icon={
                       tag.icon === "shoppingBag" ? (
                         <ShoppingBagIcon size={12} color="var(--color-success)" />
-                      ) : tag.icon === "eye" ? (
-                        <EyeIcon size={12} color="var(--color-brand-secondary)" />
+                      ) : tag.icon === "badgeCheck" ? (
+                        <BadgeCheckIcon size={12} color="var(--color-brand-secondary)" />
                       ) : undefined
                     }
                   />

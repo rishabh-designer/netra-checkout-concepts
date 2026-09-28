@@ -13,7 +13,7 @@ export interface SuccessTimelineItem {
   body: ReactNode;
   /** Beside the title when there's no tag: what finished, and how long it took. */
   status?: { label: string; time: string };
-  /** Beside the row's title (Immediate Purchase, Powered by BimaNetra). */
+  /** Beside the row's title (Immediate Purchase, Secured with BimaNetra). */
   tag?: ReactNode;
   /** Under the copy: a plain underlined text link. */
   link?: { label: string; onClick?: () => void };

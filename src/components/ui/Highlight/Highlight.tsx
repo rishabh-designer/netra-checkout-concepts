@@ -11,7 +11,14 @@ export interface HighlightProps {
 function lines(text: string, key: number) {
   return text.split("\n").map((line, j) => (
     <Fragment key={`${key}-${j}`}>
-      {j > 0 && <br />}
+      {/* A space before the break, so it still reads right if the break is
+          hidden (CSS) and the line runs on. */}
+      {j > 0 && (
+        <>
+          {" "}
+          <br />
+        </>
+      )}
       {line}
     </Fragment>
   ));

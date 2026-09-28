@@ -4,7 +4,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSPropert
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { CompareRow, CompareViewContent, FeatureTab, QuoteCardData } from "@/types/quotesPage";
-import { EyeIcon } from "@/components/icons/EyeIcon";
+import { BadgeCheckIcon } from "@/components/icons/BadgeCheckIcon";
 import { BackButton } from "@/components/ui/BackButton";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
@@ -180,7 +180,7 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
                       <div className={styles.tags}>
                         {q.gold && (
                           <span className={styles.tag} data-tone="gold">
-                            <EyeIcon size={10} color="var(--color-brand-secondary)" />
+                            <BadgeCheckIcon size={10} color="var(--color-brand-secondary)" />
                             {labels.poweredBy}
                           </span>
                         )}
