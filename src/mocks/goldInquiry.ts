@@ -46,6 +46,19 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
       { label: "Schedule a Call", href: EXPERT_PHONE, iconSrc: "/media/gold-inquiry/call.svg", primary: true },
     ],
   },
+  quoteRequest: {
+    breadcrumbCurrent: "REQUEST QUOTE",
+    title: "Quote Requested! Sit Back While We Call You.",
+    steps: [
+      "We will ask {insurer} for your price",
+      "Our IRDAI-certified expert will call you with the quote",
+      "Once it is in, your quote will be locked for 45 days",
+    ],
+    inquiryTitle: "Your Quote Request",
+    insurerLabel: "Insurer",
+    statusLabel: "Quote Status",
+    statusValue: "Requested",
+  },
   rate: {
     title: "Rate Your Experience",
     subtitle: "Your rating will help us do better",

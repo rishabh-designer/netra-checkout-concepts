@@ -72,27 +72,6 @@
 }
 
 /* Back to Quotes: the checkout back chip (8/10, r8 → 12, house rule). */
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-8);
-  padding: var(--spacing-8) var(--spacing-10);
-  border: var(--border-hairline) solid var(--color-brand-primary-border);
-  border-radius: var(--radius-12);
-  color: var(--color-brand-primary-muted);
-  font-size: var(--font-size-75);
-  font-weight: 600;
-  line-height: 1;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.back:hover {
-  background: var(--color-brand-primary-subtle);
-  color: var(--color-brand-primary);
-}
-
 .content {
   display: flex;
   flex-direction: column;
@@ -236,18 +215,25 @@
   filter: brightness(0.96);
 }
 
+/* Stats wrap as a grid; each spans a shared label row and value row
+   (subgrid), so if one label wraps, the whole line's values stay level. */
 .stats {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, max-content));
   gap: var(--spacing-16) var(--spacing-64);
   padding: 0 18px;
 }
 
 .stat {
-  display: flex;
-  flex-direction: column;
-  min-width: 132px;
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  row-gap: 0;
   line-height: 1.5;
+}
+
+.stat > dt {
+  align-self: end;
 }
 
 .statLabel {

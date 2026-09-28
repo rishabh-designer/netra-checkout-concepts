@@ -1,0 +1,210 @@
+/* 484 × 300 stage (683:56607); the sheets run off its foot. */
+.stage {
+  position: relative;
+  width: 484px;
+  max-width: 100%;
+  height: 300px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* A sheet: white, grey hairline, r15, the faintest shadow, 20/13 inset. */
+.sheet,
+.backSheet {
+  position: absolute;
+  z-index: 1;
+  top: 2px;
+  left: 35px;
+  display: flex;
+  flex-direction: column;
+  width: 402px;
+  padding: 20px 13px;
+  border: 0.63px solid var(--color-border-subtle);
+  border-radius: 15px;
+  background: var(--color-card);
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.05);
+}
+
+/* Figma places it by its top-left corner (91, 0), turned 11° about it. */
+.backSheet {
+  top: 0;
+  left: 91px;
+  z-index: 0;
+  transform: rotate(11deg);
+  transform-origin: top left;
+}
+
+/* Header: mark, title, the policy line pushed right; purple rule under. */
+.head,
+.backHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 0.5px solid var(--color-brand-primary);
+}
+
+/* The BimaKavach mark: the logotype's first 21px (its BK roundel). */
+.mark {
+  flex-shrink: 0;
+  width: 21px;
+  height: 20px;
+  background: url(/figma/logotype.svg) left center / auto 20px no-repeat;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-brand-primary);
+}
+
+.for {
+  max-width: 160px;
+  margin-left: auto;
+  font-size: 7.75px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--color-label-secondary);
+}
+
+.backEyebrow {
+  font-size: 8.75px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--color-label-secondary);
+}
+
+.backTitle {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-label-primary);
+}
+
+/* A section: lilac head bar, then its rows, in a hairline box. */
+.section {
+  margin-top: 17px;
+  border: 0.31px solid var(--color-border-subtle);
+  border-radius: 2.5px;
+  background: var(--color-card);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  padding: 7.5px 11px;
+  border-bottom: 0.5px solid var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  padding: 11px;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7.5px;
+  height: 24px;
+  border-bottom: 0.5px solid var(--color-brand-primary-subtle-bold);
+}
+
+.bar,
+.barLight,
+.barLilac {
+  display: block;
+  flex-shrink: 0;
+  max-width: 100%;
+  height: 10px;
+  border-radius: 7.5px;
+  background: var(--color-card-recessed);
+}
+
+.barLight {
+  background: var(--color-card-sunken);
+}
+
+.barLilac {
+  background: var(--color-brand-primary-subtle-bold);
+}
+
+/* The typing caret (683:56636): a pale blue highlight led by a blue bar. */
+.typing {
+  position: absolute;
+  top: 1px;
+  left: 170px;
+  width: 53px;
+  height: 21px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--color-card), var(--color-info-subtle));
+  animation: typing 2.4s ease-in-out infinite;
+  transform-origin: left;
+}
+
+.caret {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 21px;
+  border-radius: 4px;
+  background: var(--color-info-fill);
+  animation: blink 1s steps(1) infinite;
+}
+
+.summaryLabel {
+  font-size: 8.75px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-brand-primary-muted);
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 7.5px;
+  padding: 11px;
+}
+
+.summary .bar,
+.summary .barLight {
+  height: 8px;
+}
+
+/* The orange pointer (683:56655), just under the typed row. */
+.pointer {
+  position: absolute;
+  top: 227px;
+  left: 218px;
+  /* The path's tip is top right; mirrored, it points up-left as in Figma. */
+  transform: scaleX(-1);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes typing {
+  0%,
+  100% {
+    transform: scaleX(0.4);
+  }
+  50% {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typing,
+  .caret {
+    animation: none;
+  }
+}

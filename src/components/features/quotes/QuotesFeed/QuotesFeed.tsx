@@ -14,6 +14,8 @@ import { FeaturesModal, type QuoteTone } from "../FeaturesModal";
 import { AdditionalDetailsDrawer, GoldGateModal } from "../GoldGate";
 import { QuoteCard, type QuoteCardView } from "../QuoteCard";
 import { NeedHelpCard } from "../HelpDesk";
+import { CompareSheet } from "../CompareSheet";
+import { CompareView } from "../CompareView";
 import { RevealCard } from "../RevealCard";
 import type { PriceIntro } from "../PriceMorph";
 import styles from "./QuotesFeed.module.css";
@@ -100,6 +102,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     compare: content.compareLabel,
     comparisonUnavailable: content.comparisonUnavailableLabel,
     immediatePurchase: content.immediatePurchaseLabel,
+    territory: content.territoryLabels,
     poweredBy: content.poweredByLabel,
     topCoverages: content.topCoveragesLabel,
     coverageCount: content.coverageCountLabel,
@@ -147,7 +150,8 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   const closeFeatures = useCallback(() => setFeaturesOpen(false), []);
 
   // Any priced quote opens checkout (the "additional questions" drawer never
-  // applies in our flows), including Case A's priced Gold. Get Quote stays put.
+  // applies in our flows), including Case A's priced Gold. An offline quote's
+  // Get Quote requests it instead: the quote request page for that insurer.
   const router = useRouter();
   const { setSelectedQuote, setCheckout } = useQuoteFlow();
   const checkoutFor = (q: QuoteCardData) =>
@@ -158,7 +162,10 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           resetCheckoutClock();
           router.push(content.checkoutHref);
         }
-      : undefined;
+      : () => {
+          setSelectedQuote(q);
+          router.push(content.quoteInquiryHref);
+        };
   // The Gold Quote's button: the gate (or, once the details are in, the Gold
   // Inquiry page) for a gated case; else checkout.
   const selectGold = (q: QuoteCardData) =>
@@ -177,10 +184,33 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     setGoldDetailsIn(true);
     router.push(gate!.inquiryHref);
   };
+  // Add To Compare: quotes in the order picked, up to the bar's max. Keyed
+  // by insurer, with the Gold Quote apart (Case A's shares Generali's name).
+  const [picked, setPicked] = useState<string[]>([]);
+  const compareMax = content.compareSheet.max;
+  const compareKey = (q: QuoteCardData) => (q.gold ? "gold" : q.insurer);
+  const toggleCompare = (key: string) =>
+    setPicked((p) => (p.includes(key) ? p.filter((x) => x !== key) : p.length < compareMax ? [...p, key] : p));
+  const compareProps = (q: QuoteCardData) => ({
+    compared: picked.includes(compareKey(q)),
+    onToggleCompare: () => toggleCompare(compareKey(q)),
+    compareFull: picked.length >= compareMax,
+  });
   const [countBefore, countAfter = ""] = content.availableLabel.split("{count}");
   // The Gold card lives in the reveal slot; the rest follow it.
   const goldCard: QuoteCardData = { ...gold, rating: "excellent", ...(sumInsured ? { sumInsured } : {}) };
   const rest = ghostFirst && revealed ? quotes.slice(1) : quotes;
+  const pickedQuotes = picked
+    .map((key) => (key === "gold" ? (ghostFirst && revealed ? goldCard : undefined) : quotes.find((q) => !q.gold && q.insurer === key)))
+    .filter((q): q is QuoteCardData => !!q);
+  // Compare Now opens the side-by-side view; removing the last quote closes it.
+  const [comparing, setComparing] = useState(false);
+  const closeCompare = useCallback(() => setComparing(false), [setComparing]);
+  const removeCompare = (q: QuoteCardData) => {
+    const next = picked.filter((x) => x !== compareKey(q));
+    setPicked(next);
+    if (next.length === 0) setComparing(false);
+  };
   const [filter, setFilter] = useState<QuoteFilter>("all");
   const [sort, setSort] = useState<QuoteSort>("default");
   const [immediateOnly, setImmediateOnly] = useState(false);
@@ -203,7 +233,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
         };
 
   return (
-    <div ref={feedRef} className={styles.feed} style={{ "--cols": cols } as CSSProperties}>
+    <div ref={feedRef} className={styles.feed} data-comparing={picked.length > 0 || undefined} style={{ "--cols": cols } as CSSProperties}>
       {/* Top section (658:45850): breadcrumb over the titled count, the Need
           Help card on the right, and a full-width ikkat rule. */}
       <div className={styles.top}>
@@ -275,6 +305,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                 >
                   <QuoteCard
                     view={cardView}
+                    {...compareProps(goldCard)}
                     quote={goldCard}
                     labels={labels}
                     onViewFeatures={() => {
@@ -292,6 +323,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
               const card = (
                 <QuoteCard
                   view={cardView}
+                  {...compareProps(quote)}
                   quote={quote}
                   labels={labels}
                   onViewFeatures={() => {
@@ -326,6 +358,24 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
             )}
           </div>
       </div>
+
+      <CompareSheet
+        content={content.compareSheet}
+        picked={comparing ? [] : pickedQuotes}
+        onRemove={removeCompare}
+        onCompare={() => setComparing(true)}
+      />
+
+      <CompareView
+        open={comparing}
+        content={content.compareView}
+        quotes={pickedQuotes}
+        columns={compareMax}
+        labels={labels}
+        onClose={closeCompare}
+        onRemove={removeCompare}
+        onSelect={(q) => (q.gold ? selectGold(goldCard) : checkoutFor(q))}
+      />
 
       <FeaturesModal
         open={featuresOpen}

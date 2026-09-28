@@ -2,12 +2,13 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import type { FeatureTab, FeaturesDrawerContent, QuoteCardData } from "@/types/quotesPage";
+import type { FeatureItem, FeatureTab, FeaturesDrawerContent, QuoteCardData } from "@/types/quotesPage";
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
 import { EyeIcon } from "@/components/icons/EyeIcon";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { coverageChipLabel, type QuoteCardLabels } from "../QuoteCard";
+import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./FeaturesModal.module.css";
 
 export type QuoteTone = "gold" | "immediate" | "priced" | "quote";
@@ -25,6 +26,12 @@ export interface FeaturesModalProps {
   /** Footer price button: same action as the card's (starts checkout). */
   onSelect?: () => void;
 }
+
+/** The tabs a quote's own policy fills; the rest (territory, deductibles)
+ *  are standard. */
+const POLICY_TABS = ["overview", "coverages", "exclusions"] as const;
+type PolicyTab = (typeof POLICY_TABS)[number];
+const isPolicyTab = (key: string): key is PolicyTab => (POLICY_TABS as readonly string[]).includes(key);
 
 /** Item marker per tab tone: blue tick (658:50478), red cross, purple dot. */
 function Marker({ tone }: { tone: FeatureTab["tone"] }) {
@@ -67,6 +74,19 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
   }, [open, content.defaultTab]);
 
   const tab = content.tabs.find((t) => t.key === active) ?? content.tabs[0];
+  // Overview, coverages and exclusions come from the quote's own policy; its
+  // top coverages carry the Top Feature (or, on Gold, Personalized) pill.
+  const top = new Set(quote?.coverages ?? quote?.policy?.top ?? []);
+  const own =
+    quote?.policy && isPolicyTab(tab.key)
+      ? quote.policy[tab.key]
+      : tab.key === "territory" && quote?.territory
+        ? content.territoryItems[quote.territory]
+        : null;
+  const items: (FeatureItem & { top?: boolean })[] = (own ?? tab.items).map((it) =>
+    tab.key === "coverages" ? { ...it, top: top.has(it.title) } : it,
+  );
+  const summary = quote?.coverages ?? quote?.policy?.top ?? [];
 
   // Arrow keys move between tabs (WAI-ARIA tabs pattern).
   const onTabKey = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -106,6 +126,11 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
             <div className={styles.summaryTop}>
               <div className={styles.identity}>
                 <div className={styles.tagRow}>
+                  {quote.territory && labels.territory && (
+                    <span className={styles.tag} data-tone="territory">
+                      {labels.territory[quote.territory]}
+                    </span>
+                  )}
                   {tone === "gold" ? (
                     <span className={styles.tag} data-tone="gold">
                       <EyeIcon size={10} color="var(--color-brand-secondary)" />
@@ -113,8 +138,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                     </span>
                   ) : tone === "immediate" ? (
                     <span className={styles.tag}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/media/quote-card/lightning.svg" alt="" aria-hidden className={styles.tagIcon} />
+                      <ShoppingBagIcon size={10} color="var(--color-success)" />
                       {labels.immediatePurchase}
                     </span>
                   ) : null}
@@ -128,9 +152,9 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
 
               <div className={styles.coverages}>
                 <p className={styles.coveragesTitle}>{coverageChipLabel(quote, labels)}</p>
-                {!!quote.coverages?.length && (
+                {!!summary.length && (
                   <ul className={styles.coverageList}>
-                    {quote.coverages.map((c) => (
+                    {summary.map((c) => (
                       <li key={c} className={styles.coverage}>
                         <SquareCheckbox tone="info" state="checked" size={12} />
                         {c}
@@ -192,11 +216,14 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                   exit={reduced ? undefined : { opacity: 0, y: -4 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  {tab.items.map((item) => (
+                  {items.map((item) => (
                     <li key={item.title} className={styles.item}>
                       <p className={styles.itemTitle} data-tone={tab.tone}>
                         <Marker tone={tab.tone} />
                         {item.title}
+                        {item.top && (
+                          <span className={styles.topPill}>{quote.gold ? content.personalizedLabel : content.topFeatureLabel}</span>
+                        )}
                       </p>
                       <p className={styles.itemBody}>{item.body}</p>
                     </li>

@@ -1,0 +1,22 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-10);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-12);
+  background: transparent;
+  color: var(--color-brand-primary-muted);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.back:hover {
+  background: var(--color-brand-primary-subtle);
+  color: var(--color-brand-primary);
+}

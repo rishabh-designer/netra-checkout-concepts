@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { QuoteCardData, QuoteRating } from "@/types/quotesPage";
+import type { QuoteCardData, QuoteRating, QuoteTerritory } from "@/types/quotesPage";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
 import { EyeIcon } from "@/components/icons/EyeIcon";
 import { splitName } from "@/lib/utils";
 import { PriceMorph, type PriceIntro } from "../PriceMorph";
+import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./QuoteCard.module.css";
 import fx from "./QuoteCardFeatures.module.css";
 
@@ -53,6 +54,8 @@ export interface QuoteCardLabels {
   /** Offline quotes: the greyed compare slot ("Unavailable"). */
   comparisonUnavailable: string;
   immediatePurchase: string;
+  /** Territory tags; omit to hide them. */
+  territory?: Record<QuoteTerritory, string>;
   poweredBy: string;
   /** Coverages chip with no count (offline quotes): "Top Coverages". */
   topCoverages: string;
@@ -85,6 +88,12 @@ export interface QuoteCardProps {
    *  just the tag, logo, name and price bar (no rule or footer). */
   mini?: boolean;
   view?: QuoteCardView;
+  /** Add To Compare, controlled by the feed (its compare bar). Without
+   *  `onToggleCompare` the tick is local. */
+  compared?: boolean;
+  onToggleCompare?: () => void;
+  /** The compare bar is full: an unpicked card can't be added. */
+  compareFull?: boolean;
 }
 
 /** The coverages chip copy for a quote (count first, or the bare label). */
@@ -116,14 +125,24 @@ function lockBeam(el: HTMLElement | null) {
  * border beam. `data-reveal` hooks let RevealCard choreograph its entrance.
  * Usage: <QuoteCard quote={q} labels={…} onViewFeatures={open} onSelect={buy} />
  */
-export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro = "done", mini = false, view = "compact" }: QuoteCardProps) {
+export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro = "done", mini = false, view = "compact", compared: comparedProp, onToggleCompare, compareFull = false }: QuoteCardProps) {
   const arrowRef = useRef<MoveRightIconHandle>(null);
-  const [compared, setCompared] = useState(false);
+  const [comparedLocal, setComparedLocal] = useState(false);
+  const compared = onToggleCompare ? !!comparedProp : comparedLocal;
+  const toggleCompare = onToggleCompare ?? (() => setComparedLocal((v) => !v));
+  const compareLocked = compareFull && !compared;
 
   const tone = quote.gold ? "gold" : quote.immediate ? "immediate" : quote.price ? "priced" : "quote";
   const filled = tone === "gold" || !!quote.price;
 
-  const tag =
+  // Territory tag (purple, text only), then the tone tag.
+  const territoryTag =
+    quote.territory && labels.territory ? (
+      <span className={styles.tab} data-tone="territory" data-reveal="pill">
+        {labels.territory[quote.territory]}
+      </span>
+    ) : null;
+  const toneTag =
     tone === "gold" ? (
       <span className={styles.tab} data-tone="gold" data-reveal="pill">
         <EyeIcon size={10} color="var(--color-brand-secondary)" />
@@ -131,9 +150,15 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
       </span>
     ) : tone === "immediate" ? (
       <span className={styles.tab} data-tone="immediate" data-reveal="pill">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/media/quote-card/lightning.svg" alt="" aria-hidden className={styles.tabIcon} />
+        <ShoppingBagIcon size={10} color="var(--color-success)" />
         {labels.immediatePurchase}
+      </span>
+    ) : null;
+  const tag =
+    territoryTag || toneTag ? (
+      <span className={styles.tabs}>
+        {territoryTag}
+        {toneTag}
       </span>
     ) : null;
 
@@ -150,7 +175,13 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
   );
 
   const compare = quote.comparable ? (
-    <button type="button" className={styles.compare} aria-pressed={compared} onClick={() => setCompared((v) => !v)}>
+    <button
+      type="button"
+      className={styles.compare}
+      aria-pressed={compared}
+      disabled={compareLocked}
+      onClick={toggleCompare}
+    >
       <span className={styles.checkbox} data-checked={compared || undefined} aria-hidden>
         {compared && (
           <svg viewBox="0 0 12 12" width="12" height="12" fill="none">

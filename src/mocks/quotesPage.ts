@@ -1,5 +1,6 @@
-import type { FeaturesDrawerContent, GoldGateContent, QuotesPageContent, QuoteCardData } from "@/types/quotesPage";
+import type { CompareViewContent, FeaturesDrawerContent, GoldGateContent, QuotesPageContent, QuoteCardData } from "@/types/quotesPage";
 import { mockCheckoutContent } from "./checkout";
+import { GOLD_A_POLICY, GOLD_B_POLICY, INSURER_POLICIES } from "./policies";
 
 const ICICI = "/Insurance.Comp/ICICI.webp";
 const GENERALI = "/Insurance.Comp/Generali.webp";
@@ -8,15 +9,6 @@ const ROYAL = "/Insurance.Comp/Royal.webp";
 const BAJAJ = "/Insurance.Comp/Bajaj.webp";
 const SBI = "/Insurance.Comp/SBI.webp";
 
-/* Standard D&O heads of cover, mixed per insurer for the "Top Coverages" chips. */
-const DEFENCE = "Defence Costs";
-const EPL = "Entity Employment Practices";
-const REGULATORY = "Regulatory Investigations";
-const ASSETS = "Personal Asset Protection";
-const EMERGENCY = "Emergency Costs";
-const CRISIS = "Crisis Management";
-const EXTRADITION = "Extradition Costs";
-
 /* The Gold Quote (A and B): unveiled from the Reveal slot that leads the stack. */
 const GOLD_QUOTE: QuoteCardData = {
   insurer: "Your Personalized Insurance Quote",
@@ -24,14 +16,15 @@ const GOLD_QUOTE: QuoteCardData = {
   sumInsured: "₹5 Crore",
   gold: true,
   comparable: true,
-  coverages: [DEFENCE, EPL, REGULATORY, ASSETS],
+  territory: "worldwide",
 };
 
-/* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹8,500. */
-const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, price: "₹8,500", originalPrice: "₹10,000" };
+/* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹8,500. Its
+   insurer and price are known, so it's named for Generali. */
+const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, insurer: "Generali Central Insurance", price: "₹8,500", originalPrice: "₹10,000", coverages: GOLD_A_POLICY.top, policy: GOLD_A_POLICY };
 /* Case B's records are fuzzy, so its Gold Quote can't be mapped to an insurer
    or a price yet: no logo, and the button reads Get Quote. */
-const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "" };
+const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "", coverages: GOLD_B_POLICY.top, policy: GOLD_B_POLICY };
 
 /* Case B's gate: the Additional Details go to an expert, who calls to price
    and finish the Gold Quote (the Gold Inquiry page). */
@@ -79,14 +72,20 @@ const CASE_C_PRICES: Record<string, string> = {
 /* Cases A and B share this sequence (Figma 571 stack): two immediate
    purchases, one priced quote, then the unpriced "Get Quote" insurers. Both
    lead it with the ghost "Reveal Quote" card. */
-const MATCHED_QUOTES: QuoteCardData[] = [
-  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, coverages: [DEFENCE, REGULATORY, ASSETS, EXTRADITION] },
-  { insurer: "HDFC ERGO General Insurance", logoSrc: HDFC, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, coverages: [DEFENCE, EPL, EMERGENCY] },
-  { insurer: "Royal Sundaram General Insurance", logoSrc: ROYAL, sumInsured: "₹5 Crore", price: "₹12,000", comparable: true, coverages: [DEFENCE, EPL, CRISIS] },
+const MATCHED_ROWS: QuoteCardData[] = [
+  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, territory: "worldwide" },
+  { insurer: "HDFC ERGO General Insurance", logoSrc: HDFC, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, territory: "worldwide" },
+  { insurer: "Royal Sundaram General Insurance", logoSrc: ROYAL, sumInsured: "₹5 Crore", price: "₹12,000", comparable: true, territory: "india" },
   { insurer: "Bajaj General Insurance", logoSrc: BAJAJ, sumInsured: "₹5 Crore", comparable: false },
   { insurer: "SBI General Insurance", logoSrc: SBI, sumInsured: "₹5 Crore", comparable: false },
   { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", comparable: false },
 ];
+/* Each insurer carries its own policy; priced quotes show its top coverages
+   on the card (offline ones keep a plain "Top Coverages" chip). */
+const MATCHED_QUOTES: QuoteCardData[] = MATCHED_ROWS.map((q) => {
+  const policy = INSURER_POLICIES[q.insurer];
+  return policy ? { ...q, policy, ...(q.price ? { coverages: policy.top } : {}) } : q;
+});
 
 /* Case C (no data, also the fallback for any unmatched name): the same six
    insurers as B, minus the locked card. Its Sum Insured is lower (₹5 Cr vs
@@ -95,6 +94,104 @@ const QUOTES: QuoteCardData[] = MATCHED_QUOTES.map((q) =>
   q.price ? { ...q, price: CASE_C_PRICES[q.insurer] ?? q.price } : q,
 );
 
+/* Territory & Jurisdiction, per the card's territory tag. */
+const WORLDWIDE_TERRITORY = [
+        { title: "Where You're Covered", body: "Anywhere in the world. A decision taken in Mumbai, Dubai or London is treated the same, as long as local laws and sanctions allow it." },
+        { title: "Where Claims Can Be Filed", body: "In a court in any country except the USA and Canada. Those two need an add-on." },
+        { title: "USA & Canada Add-On", body: "Worth adding if you're listed, have a subsidiary or export heavily to North America. It costs a little extra." },
+        { title: "Governing Law", body: "The policy follows Indian law. If you ever disagree with the insurer, it's settled through arbitration in India." },
+];
+
+const INDIA_TERRITORY = [
+  { title: "Where You're Covered", body: "Within India only. Decisions taken and claims made outside India aren't covered." },
+  { title: "Where Claims Can Be Filed", body: "Only in Indian courts, tribunals and regulators." },
+  { title: "Overseas Business", body: "Subsidiaries, offices or directors' work abroad aren't covered. You can ask for worldwide cover at renewal." },
+  { title: "Governing Law", body: "The policy follows Indian law. If you ever disagree with the insurer, it's settled through arbitration in India." },
+];
+
+/** The compare view (Compare Now): the picked quotes side by side, row by
+ *  row. Facts only, the same rows for every quote, no ranking. */
+const COMPARE_VIEW: CompareViewContent = {
+  title: "Compare Quotes",
+  subtitle: "{count} quotes, side by side",
+  backLabel: "Back to quotes",
+  addLabel: "Add Quote",
+  removeLabel: "Remove {insurer} from compare",
+  differencesLabel: "Show Differences Only",
+  expandLabel: "Show details",
+  collapseLabel: "Hide details",
+  notIncludedLabel: "Not included",
+  onRequestLabel: "On request",
+  tabs: [
+    { key: "covered", label: "What's Covered" },
+    { key: "excluded", label: "What's Not Covered" },
+  ],
+  sections: [
+    {
+      key: "facts",
+      tab: "covered",
+      title: "Key Facts",
+      tone: "info",
+      rows: [
+        { key: "premium", title: "Premium", body: "The yearly price shown on the quote.", source: "premium" },
+        { key: "sumInsured", title: "Sum Insured", body: "The most the policy pays across all claims in a year, legal costs included.", source: "sumInsured" },
+        { key: "territory", title: "Territory", body: "Where decisions and claims are covered.", source: "territory" },
+        { key: "top", title: "Top Coverages", body: "The coverages this quote leads with.", source: "top" },
+        { key: "purchase", title: "How You Buy", body: "Whether the policy is issued online or after a check." },
+        { key: "claimsBasis", title: "Claims Basis", body: "Claims made: pays for claims first made against you while the policy is active." },
+        { key: "reporting", title: "Extra Time to Report", body: "How long you can still report a claim if you don't renew." },
+        { key: "pastActs", title: "Past Acts", body: "How far back the decisions you're covered for can go." },
+      ],
+    },
+    {
+      key: "core",
+      tab: "covered",
+      title: "Core Protection",
+      tone: "covered",
+      rows: [
+        { key: "defence", title: "Defence Costs", body: "Your lawyers' fees when a claim is made against a director or officer." },
+        { key: "epl", title: "Entity Employment Practices", body: "Protects the company when an employee sues for wrongful dismissal, discrimination or harassment." },
+        { key: "regulatory", title: "Regulatory Investigations", body: "Legal help if SEBI, the RBI, the ED or the SFIO questions a director." },
+        { key: "assets", title: "Personal Asset Protection", body: "Legal costs to fight back if a director's personal assets are frozen or seized." },
+        { key: "crisis", title: "Crisis Management", body: "PR and crisis experts to protect your reputation when something goes wrong." },
+        { key: "extradition", title: "Extradition Costs", body: "Legal costs to fight an extradition request, including appeals." },
+        { key: "emergency", title: "Emergency Costs", body: "Legal costs spent urgently, before the insurer could approve them in writing." },
+        { key: "outside", title: "Outside Directorship", body: "Covers directors on another company's or a non-profit's board at your request." },
+        { key: "pollution", title: "Pollution Defence Costs", body: "Defence costs if a director is blamed for pollution from the company's operations." },
+        { key: "bail", title: "Bail Bond Costs", body: "Pays the bail bond if a director is arrested over a covered claim." },
+      ],
+    },
+    {
+      key: "deductibles",
+      tab: "covered",
+      title: "Deductibles",
+      tone: "info",
+      rows: [
+        { key: "sideA", title: "Directors & Officers (Side A)", body: "What a director pays when the company can't cover them." },
+        { key: "sideB", title: "Company Reimbursement (Side B)", body: "What the company pays per claim when it covers its directors." },
+        { key: "eplDed", title: "Entity Employment Practices", body: "What the company pays per employee claim." },
+        { key: "securities", title: "Securities Claims", body: "Only applies to listed companies." },
+      ],
+    },
+    {
+      key: "exclusions",
+      tab: "excluded",
+      title: "Exclusions",
+      tone: "excluded",
+      rows: [
+        { key: "fraud", title: "Fraud & Dishonesty", body: "Deliberate fraud or knowingly breaking the law." },
+        { key: "prior", title: "Earlier Claims", body: "Claims or problems you knew about before the cover started." },
+        { key: "injury", title: "Injury & Property Damage", body: "Physical injury, illness or death, and damage to property." },
+        { key: "pollutionX", title: "Pollution", body: "Claims caused by pollution, and the cost of cleaning it up." },
+        { key: "insuredVs", title: "Claims From Within", body: "Claims one insured person or the company brings against another." },
+        { key: "sanctions", title: "Sanctioned Countries", body: "Business in countries under Indian or UN sanctions." },
+        { key: "majorHolder", title: "Major Shareholder Claims", body: "Claims brought by a large shareholder of the company." },
+        { key: "fines", title: "Fines & Penalties", body: "Fines imposed by a regulator or court." },
+      ],
+    },
+  ],
+};
+
 /** "View All Features" drawer copy (Figma 587:63725): standard Indian D&O
  *  cover in plain language, shared by every quote in this mock. */
 const FEATURES_DRAWER: FeaturesDrawerContent = {
@@ -102,6 +199,9 @@ const FEATURES_DRAWER: FeaturesDrawerContent = {
   closeLabel: "Close policy details",
   productIconSrc: "/media/checkout/product-icon.svg",
   productName: "Director’s & Officer’s\nInsurance",
+  territoryItems: { worldwide: WORLDWIDE_TERRITORY, india: INDIA_TERRITORY },
+  topFeatureLabel: "Top Feature",
+  personalizedLabel: "Personalized",
   defaultTab: "coverages",
   tabs: [
     {
@@ -120,12 +220,7 @@ const FEATURES_DRAWER: FeaturesDrawerContent = {
       key: "territory",
       label: "Territory & Jurisdiction",
       tone: "info",
-      items: [
-        { title: "Where You're Covered", body: "Anywhere in the world. A decision taken in Mumbai, Dubai or London is treated the same, as long as local laws and sanctions allow it." },
-        { title: "Where Claims Can Be Filed", body: "In a court in any country except the USA and Canada. Those two need an add-on." },
-        { title: "USA & Canada Add-On", body: "Worth adding if you're listed, have a subsidiary or export heavily to North America. It costs a little extra." },
-        { title: "Governing Law", body: "The policy follows Indian law. If you ever disagree with the insurer, it's settled through arbitration in India." },
-      ],
+      items: WORLDWIDE_TERRITORY,
     },
     {
       key: "exclusions",
@@ -148,10 +243,13 @@ const FEATURES_DRAWER: FeaturesDrawerContent = {
         { title: "Defence Costs", body: "Your lawyers' fees when a claim is made against a director or officer, paid as the bills come in rather than at the end." },
         { title: "Entity Employment Practices", body: "Protects the company itself when an employee sues for wrongful dismissal, discrimination or harassment." },
         { title: "Regulatory Investigations", body: "Pays for legal help if SEBI, the RBI, the ED or the SFIO questions or investigates one of your directors." },
-        { title: "Asset Protection Costs", body: "Pays the legal costs to fight back if a director's personal assets are frozen or seized." },
+        { title: "Personal Asset Protection", body: "Pays the legal costs to fight back if a director's personal assets are frozen or seized." },
         { title: "Crisis Management", body: "Brings in PR and crisis experts to protect your reputation when something goes wrong." },
-        { title: "Extradition Proceedings", body: "Legal costs to fight an extradition request, including any appeals." },
+        { title: "Extradition Costs", body: "Legal costs to fight an extradition request, including any appeals." },
         { title: "Emergency Costs", body: "Legal costs you had to spend urgently, before the insurer could approve them in writing." },
+        { title: "Outside Directorship Liability", body: "Covers your directors when they also sit on the board of a non-profit or another company at your request." },
+        { title: "Pollution Defence Costs", body: "Defence costs if a director is blamed for pollution caused by the company's operations." },
+        { title: "Bail Bond Costs", body: "Pays for the bail bond if a director is arrested over a covered claim." },
       ],
     },
     {
@@ -179,6 +277,8 @@ export const mockQuotesPageContent: QuotesPageContent = {
   detailsPanel: {
     title: "Your Details",
     editLabel: "Edit Details",
+    companyLabel: "Quotes for",
+    companyInfo: "These quotes are for this company. Use Edit Details to change it.",
     rows: [
       { label: "Enter Company Type", value: "Private Limited Company", key: "type" },
       { label: "Type of Business", value: "IT & Digital Businesses", key: "business" },
@@ -215,6 +315,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
   },
   feed: {
     checkoutHref: "/directors-and-officers-insurance/checkout/billing",
+    quoteInquiryHref: "/directors-and-officers-insurance/quotes/quote-inquiry",
     availableLabel: "{count} Director’s & Officer’s Insurance Quotes",
     titleIconSrc: "/media/checkout/product-icon.svg",
     breadcrumb: [
@@ -257,10 +358,13 @@ export const mockQuotesPageContent: QuotesPageContent = {
     viewFeaturesLabel: "View All Features",
     featuresDrawer: FEATURES_DRAWER,
     compareLabel: "Add To Compare",
+    compareSheet: { title: "Compare quotes", ctaLabel: "Compare Now", removeLabel: "Remove {insurer} from compare", min: 2, max: 3 },
+    compareView: COMPARE_VIEW,
     comparisonUnavailableLabel: "Unavailable",
     getQuoteLabel: "Get Quote",
     sumInsuredLabel: "Sum Insured",
     immediatePurchaseLabel: "Immediate Purchase",
+    territoryLabels: { worldwide: "Worldwide Coverage", india: "India Only Coverage" },
     revealQuoteLabel: "Reveal Quote",
     revealLockedHint: "Unlocks once we've verified your business",
     revealReadyHint: "Your Personalized Gold Quote is ready",

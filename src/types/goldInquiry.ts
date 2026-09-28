@@ -47,6 +47,17 @@ export interface GoldInquiryContent {
     avatarsAlt: string;
     contacts: GoldInquiryContact[];
   };
+  /** The variant for an offline quote's Get Quote: a quote request to that
+   *  insurer (`{insurer}` is its name). Replaces the Gold-only copy and stats. */
+  quoteRequest: {
+    breadcrumbCurrent: string;
+    title: string;
+    steps: string[];
+    inquiryTitle: string;
+    insurerLabel: string;
+    statusLabel: string;
+    statusValue: string;
+  };
   rate: {
     title: string;
     subtitle: string;

@@ -53,6 +53,10 @@ export interface DetailsPanelContent {
   /** Case C (no public records): nothing to verify, so no progress; point the
    *  customer to an expert instead. */
   noRecords: NoRecordsBannerContent;
+  /** The company the quotes are for, at the banner's foot (Figma 683:57069):
+   *  its field label (screen readers) and the info icon's tooltip. */
+  companyLabel: string;
+  companyInfo: string;
 }
 
 export interface NoRecordsBannerContent {
@@ -101,6 +105,66 @@ export interface QuoteCardData {
   /** How this quote compares against the Gold Quote — set by the feed only
    *  when a Gold Quote is present (exact match). */
   rating?: QuoteRating;
+  /** Where the policy covers you — a purple tag on the card, left of
+   *  Immediate Purchase / Powered by BimaNetra. */
+  territory?: QuoteTerritory;
+  /** This quote's own policy wording for the details modal (Overview,
+   *  Coverages/Extensions, Exclusions); the other tabs stay standard. */
+  policy?: QuotePolicy;
+}
+
+export type QuoteTerritory = "worldwide" | "india";
+
+/** One quote's policy wording. `top` names its top coverages (all titles in
+ *  `coverages`); for priced quotes they're also the card's `coverages`. */
+export interface QuotePolicy {
+  top: string[];
+  overview: FeatureItem[];
+  coverages: FeatureItem[];
+  exclusions: FeatureItem[];
+  /** Compare view values by row key (CompareRow.key). Comparable quotes only. */
+  compare?: Record<string, string>;
+}
+
+/** One row of the compare table. `source` rows read the quote itself
+ *  (premium, Sum Insured, territory, top coverages); the rest read
+ *  `policy.compare[key]`, falling back to `CompareViewContent.notIncludedLabel`. */
+export interface CompareRow {
+  key: string;
+  title: string;
+  /** Plain-language explainer, shown when the row is expanded. */
+  body?: string;
+  source?: "premium" | "sumInsured" | "territory" | "top";
+}
+
+export interface CompareSection {
+  key: string;
+  /** Which tab the section sits under. */
+  tab: string;
+  title: string;
+  /** Section mark: tick (covered), cross (excluded) or info dot. */
+  tone: FeatureTab["tone"];
+  rows: CompareRow[];
+}
+
+/** The compare view (Compare Now): picked quotes side by side. */
+export interface CompareViewContent {
+  title: string;
+  /** Under the title; `{count}` is the number of quotes. */
+  subtitle: string;
+  backLabel: string;
+  /** An open column: back to the quotes to pick another. */
+  addLabel: string;
+  /** `{insurer}` fills the remove button's label. */
+  removeLabel: string;
+  differencesLabel: string;
+  expandLabel: string;
+  collapseLabel: string;
+  notIncludedLabel: string;
+  /** Premium cell of a quote without a price. */
+  onRequestLabel: string;
+  tabs: { key: string; label: string }[];
+  sections: CompareSection[];
 }
 
 export type QuoteRating = "excellent" | "good" | "average" | "na";
@@ -129,6 +193,13 @@ export interface FeaturesDrawerContent {
    *  (two lines, split at the newline). */
   productIconSrc: string;
   productName: string;
+  /** Territory & Jurisdiction per the quote's territory tag; quotes without
+   *  one use the tab's own (worldwide) items. */
+  territoryItems: Record<QuoteTerritory, FeatureItem[]>;
+  /** Pill on a quote's top coverages in the Coverages/Extensions tab. */
+  topFeatureLabel: string;
+  /** The Gold Quote's pill in place of `topFeatureLabel`. */
+  personalizedLabel: string;
   /** Tab key opened first — the card's "Top Coverages" leads into coverages. */
   defaultTab: string;
   tabs: FeatureTab[];
@@ -165,6 +236,8 @@ export type QuoteSort = "default" | "priceLow" | "priceHigh" | "coverage";
 export interface QuotesFeedContent {
   /** Where a quote's price button leads (checkout, first step). */
   checkoutHref: string;
+  /** Where an offline quote's Get Quote leads (the quote request page). */
+  quoteInquiryHref: string;
   /** Feed title under the breadcrumb (658:45856); `{count}` is the number of quotes. */
   availableLabel: string;
   /** D&O product mark before the title (32px). */
@@ -189,9 +262,15 @@ export interface QuotesFeedContent {
   featuresDrawer: FeaturesDrawerContent;
   compareLabel: string;
   comparisonUnavailableLabel: string;
+  /** The compare bar (Figma BK Website 689:3123): up to `max` quotes, at
+   *  least `min` to compare. `{insurer}` fills the remove button's label. */
+  compareSheet: { title: string; ctaLabel: string; removeLabel: string; min: number; max: number };
+  compareView: CompareViewContent;
   getQuoteLabel: string;
   sumInsuredLabel: string;
   immediatePurchaseLabel: string;
+  /** Card territory tags ("Worldwide Coverage", "India Only Coverage"). */
+  territoryLabels: Record<QuoteTerritory, string>;
   revealQuoteLabel: string;
   /** Under the locked Reveal button, before verification completes. */
   revealLockedHint: string;

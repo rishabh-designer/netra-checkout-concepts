@@ -37,6 +37,7 @@
   --color-success: #00b200;
   --color-success-border: #a9eaa2;
   --color-success-subtle: #ecfbea;
+  --color-success-soft: #d4f5cf; /* success seal gradient top */
   --color-success-tint: rgba(0, 178, 0, 0.08); /* button/primary/fill/success/clicked */
   --color-success-deep: #007b00; /* label/semantic/success-bold: upload success title */
   --color-error-deep: #cf0000; /* label/semantic/error-bold: upload failure title */
@@ -128,6 +129,10 @@
 
   /* borders */
   --border-hairline: 0.5px;
+  /* Every top bar (landing Navbar, QuotesHeader): 12 padding + a 29px button
+     + the hairline. Buttons in a bar never exceed --nav-button-height. */
+  --nav-height: 53.5px;
+  --nav-button-height: 29px;
 
   /*
    * Corner shape — the whole environment uses superelliptical (squircle)

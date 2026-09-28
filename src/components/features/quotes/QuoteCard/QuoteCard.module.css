@@ -187,12 +187,18 @@
   mix-blend-mode: luminosity;
 }
 
-/* Tag: white, tone hairline, rounded foot only, flush with the top edge. */
-.tab {
+/* Tags hang off the top edge, right-aligned, 8 apart. */
+.tabs {
   position: absolute;
   top: -0.5px;
-  right: 15.5px;
+  right: 11.5px;
   z-index: 1;
+  display: flex;
+  gap: var(--spacing-8);
+}
+
+/* Tag: white, tone hairline, rounded foot only, flush with the top edge. */
+.tab {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
@@ -205,6 +211,12 @@
   line-height: 1;
   white-space: nowrap;
   color: var(--color-success);
+}
+
+/* Territory (Worldwide / India Only): purple theme. */
+.tab[data-tone="territory"] {
+  border-color: var(--color-brand-primary-border);
+  color: var(--color-brand-primary);
 }
 
 .tab[data-tone="gold"] {
@@ -376,8 +388,15 @@
   gap: var(--spacing-8);
   padding: var(--spacing-8);
   border: var(--border-hairline) solid var(--color-border-subtle);
-  border-radius: var(--radius-8);
-  background: var(--color-card);
+  border-radius: var(--radius-12);
+  /* Pale blue at the two far corners, white between (658:47661). */
+  background: linear-gradient(
+    127deg,
+    var(--color-info-subtle) 0%,
+    var(--color-card) 6.5%,
+    var(--color-card) 93.2%,
+    var(--color-info-subtle) 100%
+  );
 }
 
 /* Coverages chip (658:48095): opens the policy details modal. Figma r6,
@@ -430,6 +449,12 @@
 .compare {
   color: var(--color-info);
   cursor: pointer;
+}
+
+/* Compare bar full: unpicked cards can't join until one is removed. */
+.compare:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .compareOff {

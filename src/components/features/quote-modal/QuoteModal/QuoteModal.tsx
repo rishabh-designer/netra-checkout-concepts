@@ -25,6 +25,7 @@ import type {
 } from "@/types/productPage";
 import { useResearchTimeline, type ResearchView } from "../useResearchTimeline";
 import { ResearchSources } from "../ResearchSources";
+import { useDemoNotice } from "@/lib/demo-notice";
 import styles from "./QuoteModal.module.css";
 
 /** Research timeline per probed step (one clock, useResearchTimeline): the
@@ -250,6 +251,9 @@ export function QuoteModal({
     if (stepIndex < lastStep) setStepIndex((i) => i + 1);
     else onComplete?.(values);
   };
+  const handleBack = () => {
+    if (stepIndex > 0) setStepIndex((i) => i - 1);
+  };
 
   return (
     <AnimatePresence>
@@ -321,13 +325,19 @@ export function QuoteModal({
               {/* Title/nav + fields stack (Figma 503:14942) fills the height; only
                   the fields scroll, so the footer below never leaves the screen. */}
               <div className={styles.formStack}>
-                {/* Header (Figma 306:5068): title + step pills in one lead
-                    stack, close control on the right. */}
+                {/* Header (Figma 306:5068): back-chevron (from the second
+                    step on) + title + step pills in one lead stack, close
+                    control on the right. */}
                 <header className={styles.header}>
                   <div className={styles.headerLead}>
-                    {/* One title for every step. Hidden demo shortcut: on a
-                        step whose case has `demoFill`, clicking it fills the
-                        fields. The step pills sit right beside it. */}
+                    {stepIndex > 0 && (
+                      <button type="button" className={styles.ctrl} aria-label="Back" onClick={handleBack}>
+                        <ChevronLeft />
+                      </button>
+                    )}
+                    {/* The title mirrors the current step's pill label.
+                        Hidden demo shortcut: on a step whose case has
+                        `demoFill`, clicking it fills the fields. */}
                     <h2
                       className={cn(styles.title, qc.demoFill && styles.titleFill)}
                       onClick={
@@ -336,7 +346,7 @@ export function QuoteModal({
                           : undefined
                       }
                     >
-                      {content.formTitle}
+                      {content.stepperLabels[stepIndex]}
                     </h2>
                     <StepPills steps={content.stepperLabels} active={stepIndex} />
                   </div>
@@ -578,6 +588,7 @@ function PersonalizeBadge({
   personalize: QuotePersonalize;
   fetched: boolean;
 }) {
+  const notify = useDemoNotice();
   return (
     <div className={cn(styles.personalize, fetched && styles.personalizeDone)}>
       <IndicatorBadge label="New" />
@@ -585,7 +596,7 @@ function PersonalizeBadge({
         {fetched ? personalize.doneLabel : personalize.pendingLabel}
       </span>
       {!fetched && (
-        <button type="button" className={styles.personalizeSkip}>
+        <button type="button" className={styles.personalizeSkip} onClick={() => notify("skipPersonalize")}>
           {personalize.skipLabel}
         </button>
       )}
@@ -1099,6 +1110,15 @@ function StepPills({ steps, active }: { steps: string[]; active: number }) {
         );
       })}
     </ol>
+  );
+}
+
+/* Header back-chevron (Figma 306:5068, 16px in a 24px box, hint grey #6f7378). */
+function ChevronLeft() {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+      <path d="M10 12 6 8l4-4" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 

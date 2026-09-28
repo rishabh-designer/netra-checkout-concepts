@@ -1,0 +1,209 @@
+/* Journey (692:58221): pill, then its row (a 28px rail gutter + the body),
+   step after step with no gaps; the rail's dashed lines join the pills. */
+.list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.row {
+  display: flex;
+  align-self: stretch;
+}
+
+/* 28 wide, 4/14 padding: the dashed line sits under the pill's tick. */
+.gutter {
+  display: flex;
+  flex-shrink: 0;
+  width: 28px;
+  padding: var(--spacing-4) 14px;
+}
+
+.line {
+  width: 0;
+  border-left: 1px dashed var(--color-border-subtle);
+  transform-origin: top;
+}
+
+/* Body: 16 above and below; title row, copy, then the action. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+  padding: var(--spacing-16) 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding-top: var(--spacing-12);
+}
+
+/* stepper-web pill: 6/8, r-full, tone ring over a soft tint. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6) var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-success-border);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--color-success-subtle), var(--color-card));
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-label-primary);
+}
+
+.pill[data-state="active"] {
+  border-color: var(--color-brand-primary-border);
+  background: linear-gradient(180deg, var(--color-brand-primary-subtle), var(--color-card));
+}
+
+.pill[data-state="pending"] {
+  border-color: var(--color-border-subtle);
+  background: var(--color-card-sunken);
+  color: var(--color-label-tertiary);
+}
+
+.tick {
+  flex-shrink: 0;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  margin: 1px;
+  border-radius: 50%;
+  corner-shape: round;
+  background: var(--color-brand-primary);
+  box-shadow: 0 0 0 2px var(--color-brand-primary-subtle-bold);
+}
+
+.dot[data-state="pending"] {
+  background: var(--color-label-tertiary);
+  opacity: 0.56;
+  box-shadow: none;
+}
+
+
+/* Title with its tag beside it (Powered by BimaNetra, Immediate Purchase). */
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.title {
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-label-primary);
+}
+
+.copy {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--color-label-secondary);
+}
+
+/* Filled values in the copy (product, counts, time) read as plain text. */
+.copy :global(mark) {
+  background: none;
+  color: inherit;
+}
+
+.copy :global(u) {
+  color: var(--color-brand-primary);
+  text-underline-offset: 2px;
+}
+
+.step[data-state="pending"] .title,
+.step[data-state="pending"] .copy {
+  color: var(--color-label-tertiary);
+}
+
+.step[data-state="pending"] .copy {
+  opacity: 0.6;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  flex-shrink: 0;
+  font-size: var(--font-size-100);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.statusLabel {
+  font-weight: 600;
+  color: var(--color-label-secondary);
+}
+
+.statusTime {
+  font-weight: 500;
+  color: var(--color-label-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Text link (Download Risk Report): info blue, 14 SemiBold, -1%, underlined;
+   no fill, stroke or padding. */
+.link {
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-info-fill);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+/* Row action (button/primary.outline): 12/20, r12 (Figma r10 + one step). */
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  flex-shrink: 0;
+  padding: var(--spacing-12) var(--spacing-20);
+  border: 1px solid var(--color-brand-primary);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action:hover:not(:disabled) {
+  background: var(--color-brand-primary-subtle);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.action:disabled {
+  border-color: var(--color-border-subtle);
+  background: var(--color-card-sunken);
+  color: var(--color-label-tertiary);
+  cursor: not-allowed;
+}
+

@@ -1,0 +1,324 @@
+/* Success (670:51168): header, then a scrolling page (1512 frame, 32
+   gutters): the fold (journey | summary), the second fold, the disclaimer. */
+.page {
+  min-height: 100dvh;
+  background: var(--color-card);
+}
+
+.body {
+  width: 100%;
+  max-width: 1512px;
+  margin: 0 auto;
+  padding: var(--spacing-32) var(--spacing-32) 56px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
+}
+
+/* Journey (886, white, 24 inset) | the side column (449), spread apart. */
+.fold {
+  display: grid;
+  grid-template-columns: minmax(0, 886px) 449px;
+  justify-content: space-between;
+  align-items: start;
+  gap: var(--spacing-32);
+}
+
+/* Journey column (692:58157): greeting card, ikkat rule, timeline, 24 apart. */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  min-width: 0;
+  padding: var(--spacing-24);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+}
+
+/* Greeting card (692:58159): white, a white hairline inside, r24 and a soft
+   green inner shadow; badge (in a 104 box) then the text, 24 apart. */
+.hello {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-24);
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-card);
+  border-radius: var(--radius-24);
+  background: var(--color-card);
+  box-shadow: inset 0 0 12px rgba(0, 178, 0, 0.12);
+}
+
+.helloText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  min-width: 0;
+  max-width: 685px;
+}
+
+.greeting {
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-primary);
+}
+
+.greeting mark {
+  background: none;
+  color: var(--color-success);
+}
+
+/* Four equal columns, 32 apart (692:58162): 12 grey label over a 16
+   Medium purple value, 4 apart. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: auto;
+  gap: var(--spacing-16) var(--spacing-32);
+}
+
+/* Each stat spans a shared label row and value row (subgrid): when one
+   label wraps, every label in the row takes that height and the values stay
+   level. Single-line labels sit on the value. */
+.stat {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  row-gap: var(--spacing-4);
+}
+
+.stat dt {
+  align-self: end;
+}
+
+.stat dt {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-tertiary);
+}
+
+.stat dd {
+  margin: 0;
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-brand-primary);
+}
+
+/* Badge (670:52960): 80, centred in a 104 box, the burst on it. */
+.badgeWrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 104px;
+  height: 104px;
+}
+
+.badge {
+  width: 80px;
+  height: 80px;
+}
+
+.rule {
+  padding: var(--spacing-8) var(--spacing-12);
+}
+
+/* Next up (673:55870): hairline above, muted line left, the big CTA right. */
+.next {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  padding-top: var(--spacing-24);
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+}
+
+.nextText {
+  font-size: var(--font-size-300);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-muted-primary);
+}
+
+/* button/primary.fill, 48 tall: Figma r16, one step rounder. */
+.nextCta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-16);
+  flex-shrink: 0;
+  padding: var(--spacing-16) 28px;
+  border: var(--border-hairline) solid var(--color-brand-primary);
+  border-radius: var(--radius-24);
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nextCta:hover {
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+/* Side column (692:58373): summary over the RM card, 32 apart. */
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
+  padding-top: var(--spacing-24);
+}
+
+.summary {
+  display: flex;
+  justify-content: center;
+}
+
+/* Full-bleed ikkat rule under the fold (692:58374): edge to edge, 8/12. */
+.pageRule {
+  margin-inline: calc(-1 * var(--spacing-32));
+  padding: var(--spacing-8) var(--spacing-12);
+}
+
+/*
+ * Greeting beam: the Purchase Summary's drifting border beam, moved here once
+ * paid and turned green. One comet a lap every 14s, a hairline ring over the
+ * card's edge and a faint blurred halo behind it (transform-only rotation).
+ */
+.helloBeam {
+  position: relative;
+  border-radius: var(--radius-24);
+  isolation: isolate;
+}
+
+.beamRing,
+.beamGlow {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.beamRing {
+  inset: 0;
+  z-index: 2;
+  padding: var(--border-hairline);
+  border-radius: var(--radius-24);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+.beamGlow {
+  inset: -2px;
+  z-index: 0;
+  border-radius: calc(var(--radius-24) + 2px);
+  filter: blur(10px);
+  opacity: 0.55;
+}
+
+.beamSpin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1400px;
+  height: 1400px;
+  background: conic-gradient(
+    transparent 0% 62%,
+    var(--color-success-subtle) 72%,
+    var(--color-success-border) 82%,
+    color-mix(in srgb, var(--color-success) 55%, var(--color-success-border)) 90%,
+    transparent 97% 100%
+  );
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: hello-beam 14s linear infinite;
+  will-change: transform;
+}
+
+@keyframes hello-beam {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beamSpin {
+    animation: none;
+    background: var(--color-success-border);
+  }
+  .beamRing {
+    opacity: 0.5;
+  }
+  .beamGlow {
+    opacity: 0.2;
+  }
+}
+
+/* Header's Contact Support headset as a mask, in the button's colour. */
+.headset {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  background: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+
+@media (max-width: 1100px) {
+  .fold {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .main {
+    padding: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .body {
+    padding: var(--spacing-16);
+  }
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hello,
+  .next {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Timeline tags (Immediate Purchase, Powered by BimaNetra): the policy
+   details modal's squarer r12 tag, white fading to the tone's tint. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+  padding: var(--spacing-4) var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-success-border);
+  border-radius: var(--radius-12);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-success-subtle));
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.12px;
+  white-space: nowrap;
+  color: var(--color-success);
+}
+
+.tag[data-tone="gold"] {
+  border-color: var(--color-brand-secondary-subtle-bold);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-secondary-subtle));
+  color: var(--color-brand-secondary);
+}

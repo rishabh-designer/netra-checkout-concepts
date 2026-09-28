@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import type { DetailsPanelContent } from "@/types/quotesPage";
+import { InteractiveInput } from "@/components/ui/InteractiveInput";
 import { NoRecordsBanner, UpgradeBanner, type UpgradeStage } from "../UpgradeBanner";
 import styles from "./DetailsPanel.module.css";
 
@@ -30,6 +31,9 @@ export interface DetailsPanelProps {
   onReset?: () => void;
   /** Case C: no public records, so no verification to show. */
   noRecords?: boolean;
+  /** The company the quotes are for (the flow's typed name), shown at the
+   *  banner's foot. Omitted off-flow. */
+  companyName?: string;
 }
 
 /** Panel toggle glyph — `[< |]` (collapse); flipped via CSS to `[| >]` (expand). */
@@ -53,7 +57,7 @@ function ToggleGlyph() {
  * Usage: <DetailsPanel content={detailsPanel} values={values} onEdit={fn}
  *          collapsed={bool} onToggleCollapse={fn} />
  */
-export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false, verifyFrom }: DetailsPanelProps) {
+export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false, verifyFrom, companyName }: DetailsPanelProps) {
   const reduced = useReducedMotion();
   const start = Math.max(0, Math.min(100, content.upgrade.percent));
   // One progress value for the banner and the collapsed rail.
@@ -93,6 +97,21 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
+  // Who the quotes are for: a read-only verified field (purple name, info,
+  // purple check), as in the hero's company search.
+  const company = companyName ? (
+    <InteractiveInput
+      value={companyName}
+      readOnly
+      status="verified"
+      size="lg"
+      showLabel={false}
+      showHelp={false}
+      ariaLabel={content.companyLabel}
+      infoTooltip={content.companyInfo}
+    />
+  ) : undefined;
+
   return (
     <aside className={styles.panel} data-collapsed={collapsed || undefined}>
       {/* Expanded layer — defines the panel height; clipped + faded when collapsed. */}
@@ -130,7 +149,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
         </div>
 
         {noRecords ? (
-          <NoRecordsBanner content={content.noRecords} />
+          <NoRecordsBanner content={content.noRecords} company={company} />
         ) : (
           <UpgradeBanner
             stage={stage}
@@ -139,6 +158,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
             progress={progress}
             onSimulate={onSimulate}
             onReset={onReset}
+            company={company}
           />
         )}
       </div>

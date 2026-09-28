@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GOLD_DETAILS_KEY, useQuoteFlow } from "@/lib/quote-flow";
 import { resetCheckoutClock } from "@/components/features/checkout/useCheckoutClock";
@@ -11,6 +10,7 @@ import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
 import { QuoteCard, type QuoteCardLabels } from "@/components/features/quotes/QuoteCard";
 import type { GoldInquiryContent } from "@/types/goldInquiry";
 import type { QuoteCardData, QuotesFeedContent, QuotesHeaderContent } from "@/types/quotesPage";
+import { BackButton } from "@/components/ui/BackButton";
 import styles from "./GoldInquiryView.module.css";
 
 export interface GoldInquiryViewProps {
@@ -19,6 +19,9 @@ export interface GoldInquiryViewProps {
   /** The Quotes feed: the case's other quotes and their card labels. */
   feed: QuotesFeedContent;
   quotesHref: string;
+  /** "gold" (Case B's Gold Quote, the default) or "quote": an offline
+   *  quote's Get Quote, a quote request to the insurer the user picked. */
+  variant?: "gold" | "quote";
 }
 
 const Arrow = () => (
@@ -53,26 +56,33 @@ const noSubscribe = () => () => {};
  * with Need Help contacts and a Rate Your Experience card.
  * Usage: <GoldInquiryView content={c} header={q.header} feed={q.feed} quotesHref="/…/quotes" />
  */
-export function GoldInquiryView({ content, header, feed, quotesHref }: GoldInquiryViewProps) {
-  const { result, setSelectedQuote, setCheckout } = useQuoteFlow();
+export function GoldInquiryView({ content, header, feed, quotesHref, variant = "gold" }: GoldInquiryViewProps) {
+  const { result, selectedQuote, setSelectedQuote, setCheckout } = useQuoteFlow();
   const router = useRouter();
   const caseId = result?.caseId;
   const sumInsured = result?.values?.["coverage"] || undefined;
   const detailsSent = useSyncExternalStore(noSubscribe, readDetailsSent, () => false);
 
-  const quotes = ((caseId && feed.quotesByCase?.[caseId]) ?? feed.quotes).map((q) => (sumInsured ? { ...q, sumInsured } : q));
+  const allQuotes = ((caseId && feed.quotesByCase?.[caseId]) ?? feed.quotes).map((q) => (sumInsured ? { ...q, sumInsured } : q));
+  // Quote request: the offline insurer picked on the Quotes page (else the
+  // first offline one); it drops out of Other Quotes.
+  const isRequest = variant === "quote";
+  const requested = isRequest ? (selectedQuote && !selectedQuote.price ? selectedQuote : allQuotes.find((q) => !q.price)) : undefined;
+  const quotes = requested ? allQuotes.filter((q) => q.insurer !== requested.insurer) : allQuotes;
+  const fill = (text: string) => text.replace("{insurer}", requested?.insurer ?? "");
   const labels: QuoteCardLabels = {
     sumInsured: feed.sumInsuredLabel,
     getQuote: feed.getQuoteLabel,
     compare: feed.compareLabel,
     comparisonUnavailable: feed.comparisonUnavailableLabel,
     immediatePurchase: feed.immediatePurchaseLabel,
+    territory: feed.territoryLabels,
     poweredBy: feed.poweredByLabel,
     topCoverages: feed.topCoveragesLabel,
     coverageCount: feed.coverageCountLabel,
     personalizedCount: feed.personalizedCountLabel,
   };
-  // Priced quotes still check out from here; Get Quote stays put.
+  // Priced quotes still check out from here; Get Quote requests the quote.
   const checkoutFor = (q: QuoteCardData) =>
     q.price
       ? () => {
@@ -81,7 +91,10 @@ export function GoldInquiryView({ content, header, feed, quotesHref }: GoldInqui
           resetCheckoutClock();
           router.push(feed.checkoutHref);
         }
-      : undefined;
+      : () => {
+          setSelectedQuote(q);
+          router.push(feed.quoteInquiryHref);
+        };
 
   // Other Quotes: the arrows page the row by one card.
   const rowRef = useRef<HTMLDivElement>(null);
@@ -113,7 +126,11 @@ export function GoldInquiryView({ content, header, feed, quotesHref }: GoldInqui
   const [sent, setSent] = useState(false);
 
   const [before, after = ""] = content.questions.text.split("{email}");
-  const { inquiry } = content;
+  const { inquiry, quoteRequest } = content;
+  const breadcrumb = isRequest
+    ? content.breadcrumb.map((b, i, all) => (i === all.length - 1 ? { label: quoteRequest.breadcrumbCurrent } : b))
+    : content.breadcrumb;
+  const steps = isRequest ? quoteRequest.steps.map(fill) : content.steps;
 
   return (
     <div className={styles.page}>
@@ -128,13 +145,8 @@ export function GoldInquiryView({ content, header, feed, quotesHref }: GoldInqui
           {/* Thank-you card (642:32710) */}
           <section className={styles.thanks}>
             <div className={styles.topRow}>
-              <Link href={quotesHref} className={styles.back}>
-                <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-                  <path d="M10 6H2m3-3L2 6l3 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                {content.backLabel}
-              </Link>
-              <BreadcrumbTrail items={content.breadcrumb} variant="slash" />
+              <BackButton href={quotesHref}>{content.backLabel}</BackButton>
+              <BreadcrumbTrail items={breadcrumb} variant="slash" />
             </div>
 
             <div className={styles.content}>
@@ -142,18 +154,18 @@ export function GoldInquiryView({ content, header, feed, quotesHref }: GoldInqui
                 <IkkatDivider unit={32} height={4} />
               </div>
               <div className={styles.titleBlock}>
-                <h1 className={styles.title}>{content.title}</h1>
+                <h1 className={styles.title}>{isRequest ? quoteRequest.title : content.title}</h1>
                 <p className={styles.intro}>{content.intro}</p>
               </div>
               <div className={styles.inquiryHead}>
-                <h2 className={styles.inquiryTitle}>{inquiry.title}</h2>
+                <h2 className={styles.inquiryTitle}>{isRequest ? quoteRequest.inquiryTitle : inquiry.title}</h2>
                 <a href={content.expertHref} className={styles.expert}>
                   {inquiry.ctaLabel}
                   <Arrow />
                 </a>
               </div>
               <ul className={styles.steps}>
-                {content.steps.map((step) => (
+                {steps.map((step) => (
                   <li key={step} className={styles.step}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={content.tickSrc} alt="" aria-hidden className={styles.tick} />
@@ -171,6 +183,12 @@ export function GoldInquiryView({ content, header, feed, quotesHref }: GoldInqui
               </a>
 
               <dl className={styles.stats}>
+                {requested && (
+                  <div className={styles.stat}>
+                    <dt className={styles.statLabel}>{quoteRequest.insurerLabel}</dt>
+                    <dd className={styles.statValue}>{requested.insurer}</dd>
+                  </div>
+                )}
                 <div className={styles.stat}>
                   <dt className={styles.statLabel}>{inquiry.policyLabel}</dt>
                   <dd className={styles.statValue}>{inquiry.policyValue}</dd>
@@ -179,14 +197,23 @@ export function GoldInquiryView({ content, header, feed, quotesHref }: GoldInqui
                   <dt className={styles.statLabel}>{inquiry.sumInsuredLabel}</dt>
                   <dd className={styles.statValue}>{sumInsured ?? quotes[0]?.sumInsured}</dd>
                 </div>
-                <div className={styles.stat}>
-                  <dt className={styles.statLabel}>{inquiry.riskReportLabel}</dt>
-                  <dd className={styles.statValue}>{inquiry.riskReportValue}</dd>
-                </div>
-                <div className={styles.stat}>
-                  <dt className={styles.statLabel}>{inquiry.detailsLabel}</dt>
-                  <dd className={styles.statPending}>{detailsSent ? inquiry.detailsVerifying : inquiry.detailsMissing}</dd>
-                </div>
+                {isRequest ? (
+                  <div className={styles.stat}>
+                    <dt className={styles.statLabel}>{quoteRequest.statusLabel}</dt>
+                    <dd className={styles.statPending}>{quoteRequest.statusValue}</dd>
+                  </div>
+                ) : (
+                  <>
+                    <div className={styles.stat}>
+                      <dt className={styles.statLabel}>{inquiry.riskReportLabel}</dt>
+                      <dd className={styles.statValue}>{inquiry.riskReportValue}</dd>
+                    </div>
+                    <div className={styles.stat}>
+                      <dt className={styles.statLabel}>{inquiry.detailsLabel}</dt>
+                      <dd className={styles.statPending}>{detailsSent ? inquiry.detailsVerifying : inquiry.detailsMissing}</dd>
+                    </div>
+                  </>
+                )}
               </dl>
             </div>
           </section>

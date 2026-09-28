@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import {
   AnimatePresence,
   motion,
@@ -27,6 +27,8 @@ export interface UpgradeBannerProps {
   onSimulate?: () => void;
   /** Hidden demo shortcut: clicking "You're Upgraded!" resets to the start. */
   onReset?: () => void;
+  /** The company the quotes are for, at the banner's foot. */
+  company?: ReactNode;
 }
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -53,7 +55,7 @@ const body: Variants = {
  * rises letter by letter while a burst of ikkat sparks fires behind it.
  * Usage: <UpgradeBanner stage={stage} content={upgrade} upgraded={upgraded} progress={mv} onSimulate={fn} />
  */
-export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, onReset }: UpgradeBannerProps) {
+export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, onReset, company }: UpgradeBannerProps) {
   const reduced = useReducedMotion();
   const label = useTransform(progress, (v) => `${Math.round(v)}%`);
   const width = useTransform(progress, (v) => `${v}%`);
@@ -103,6 +105,12 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
           <motion.p className={styles.upgradedBody} variants={reduced ? undefined : body} initial="hidden" animate="shown">
             {upgraded.body}
           </motion.p>
+          {company && (
+            // Clicks on the company row don't reach the hidden reset.
+            <div className={styles.company} onClick={(e) => e.stopPropagation()}>
+              {company}
+            </div>
+          )}
         </motion.div>
       ) : (
         <motion.div
@@ -156,6 +164,7 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
               {content.ctaLabel}
             </button>
           </div>
+          {company && <div className={styles.company}>{company}</div>}
         </motion.div>
       )}
     </AnimatePresence>
@@ -178,7 +187,7 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
  * shell and type as "Ready to Upgrade?".
  * Usage: <NoRecordsBanner content={noRecords} />
  */
-export function NoRecordsBanner({ content }: { content: NoRecordsBannerContent }) {
+export function NoRecordsBanner({ content, company }: { content: NoRecordsBannerContent; company?: ReactNode }) {
   return (
     <div className={styles.banner}>
       <p className={styles.title}>{content.title}</p>
@@ -188,6 +197,7 @@ export function NoRecordsBanner({ content }: { content: NoRecordsBannerContent }
           {content.ctaLabel}
         </a>
       </div>
+      {company && <div className={styles.company}>{company}</div>}
     </div>
   );
 }

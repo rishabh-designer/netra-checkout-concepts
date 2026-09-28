@@ -127,26 +127,6 @@
 }
 
 /* Back chip: 0.5 lilac stroke, 8/10, r8 → 12 (house rule). */
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-8);
-  padding: var(--spacing-8) var(--spacing-10);
-  border: var(--border-hairline) solid var(--color-brand-primary-border);
-  border-radius: var(--radius-12);
-  color: var(--color-brand-primary-muted);
-  font-size: var(--font-size-75);
-  font-weight: 600;
-  line-height: 1;
-  text-decoration: none;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.back:hover {
-  background: var(--color-brand-primary-subtle);
-  color: var(--color-brand-primary);
-}
-
 /* "Checkout": Instrument Serif italic 48 / 1.2, brand purple. */
 .title {
   font-family: var(--font-display);

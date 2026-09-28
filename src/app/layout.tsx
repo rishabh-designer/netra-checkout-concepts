@@ -14,6 +14,8 @@ import {
 } from "next/font/google";
 import "@/styles/globals.css";
 import { QuoteFlowProvider } from "@/lib/quote-flow";
+import { DemoNoticeProvider } from "@/lib/demo-notice";
+import { getDemoNotices } from "@/lib/api/demoNotices";
 
 /*
  * Typography mandate: only Anek (every script it ships) and Instrument Serif
@@ -62,13 +64,16 @@ export const metadata: Metadata = {
   description: "Protects executives when business decisions lead to lawsuits",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const notices = await getDemoNotices();
   return (
     <html lang="en" className={fontVariables}>
       <body>
-        <QuoteFlowProvider>{children}</QuoteFlowProvider>
+        <QuoteFlowProvider>
+          <DemoNoticeProvider content={notices}>{children}</DemoNoticeProvider>
+        </QuoteFlowProvider>
       </body>
     </html>
   );

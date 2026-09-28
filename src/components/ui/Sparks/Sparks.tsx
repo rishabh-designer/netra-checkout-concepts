@@ -11,6 +11,8 @@ export interface SparksProps {
   distance?: [number, number];
   /** Seconds before the first spark leaves. */
   delay?: number;
+  /** Spark colours, cycled (defaults to the Gold Quote's orange and golds). */
+  tones?: string[];
   className?: string;
 }
 
@@ -24,7 +26,7 @@ const TONES = ["var(--color-brand-secondary)", "var(--color-caution)", "var(--co
  * nothing under reduced motion. Mount it to fire; unmount to reset.
  * Usage: <Sparks count={18} distance={[140, 260]} delay={0.25} />
  */
-export function Sparks({ count = 14, distance = [100, 200], delay = 0, className }: SparksProps) {
+export function Sparks({ count = 14, distance = [100, 200], delay = 0, tones = TONES, className }: SparksProps) {
   const reduced = useReducedMotion();
   const sparks = useMemo(
     () =>
@@ -37,11 +39,11 @@ export function Sparks({ count = 14, distance = [100, 200], delay = 0, className
           y: Math.sin(angle) * d * 0.72,
           size: 5 + Math.abs(t) * 5,
           rotate: 90 + Math.abs(t) * 180,
-          color: TONES[i % TONES.length],
+          color: tones[i % tones.length],
           delay: delay + i * 0.012,
         };
       }),
-    [count, distance, delay],
+    [count, distance, delay, tones],
   );
 
   if (reduced) return null;

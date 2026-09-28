@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { CheckoutContent, CheckoutStepId } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
-import { Toast } from "@/components/ui/Toast";
 import { AgentProgress } from "@/components/ui/AgentProgress";
 import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
 import { useQuoteFlow } from "@/lib/quote-flow";
+import { useDemoNotice } from "@/lib/demo-notice";
 import { useCheckout } from "../useCheckout";
 import { useCheckoutClock } from "../useCheckoutClock";
 import { CheckoutStepper } from "../CheckoutStepper";
@@ -20,6 +19,8 @@ import { CheckoutEditDrawer } from "../CheckoutEditDrawer";
 import { PurchaseSummary } from "../PurchaseSummary";
 import { Disclaimer } from "../Disclaimer";
 import { readLastCheckout, writeLastCheckout } from "../lastStep";
+import { writeOrder } from "../order";
+import { BackButton } from "@/components/ui/BackButton";
 import styles from "./CheckoutView.module.css";
 
 export interface CheckoutViewProps {
@@ -44,7 +45,7 @@ export interface CheckoutViewProps {
  * over the Purchase Summary, and a kolam trailing below.
  * Steps with guessed details (Case B) need the verification ticked before
  * Save & Continue; Review's final CTA ("Pay ₹X" / "Request Quote") needs its
- * disclaimer ticked.
+ * disclaimer ticked; Pay opens the success page.
  * Usage: <CheckoutView step="kyc" steps={…} basePath="…" quotesHref="…" content={c} fallbackQuote={q} />
  */
 export function CheckoutView(props: CheckoutViewProps) {
@@ -58,9 +59,9 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
   const router = useRouter();
   const co = useCheckout(content, fallbackQuote);
   const clock = useCheckoutClock();
+  const notify = useDemoNotice();
   const [consent, setConsent] = useState(false);
   const [editing, setEditing] = useState<"company" | "kyc" | null>(null);
-  const [toast, setToast] = useState(false);
   // The step we arrived from, so the stepper animates the hand-off.
   const [from] = useState(() => readLastCheckout());
 
@@ -89,10 +90,12 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
       ? {
           label: co.quote.price ? content.steps.review.payLabel.replace("{price}", co.quote.price) : content.steps.review.requestLabel,
           enabled: consent,
+          // Pay ends the journey: the clock stops, the order is written and
+          // the success page takes over.
           onClick: () => {
             clock.stop();
-            setToast(false);
-            requestAnimationFrame(() => setToast(true));
+            writeOrder();
+            router.push(`${basePath}/success`);
           },
         }
       : { label: content.saveLabel, enabled: co.isComplete(formStep!), onClick: () => router.push(hrefFor(steps[i + 1])) };
@@ -110,6 +113,10 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
     return f ? co.valueOf(f) : co.get(key);
   };
 
+  // Billing's (locked) company name: who the policy is for, in the summary.
+  const nameField = co.fieldsFor("billing").find((f) => f.key === "companyName");
+  const companyName = nameField ? co.valueOf(nameField) : "";
+
   const model = {
     value: co.valueOf,
     status: (f: Parameters<typeof co.statusOf>[0]) => co.statusOf(f),
@@ -125,6 +132,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
       <QuotesHeader
         content={{ logoSrc: content.header.logoSrc, logoAlt: content.header.logoAlt, ctaLabel: content.header.supportLabel }}
         logoHref={quotesHref}
+        onCta={() => notify("contactSupport")}
         icon={
           // eslint-disable-next-line @next/next/no-img-element
           <img src={content.header.supportIconSrc} alt="" aria-hidden className={styles.supportIcon} />
@@ -136,12 +144,9 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
             <div className={styles.head}>
               {/* Back goes one step at a time: the previous step, or the
                   quotes from the first. */}
-              <Link href={i > 0 ? hrefFor(steps[i - 1]) : quotesHref} className={styles.back}>
-                <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-                  <path d="M10 6H2m3-3L2 6l3 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+              <BackButton href={i > 0 ? hrefFor(steps[i - 1]) : quotesHref}>
                 {i > 0 ? content.backToStepLabel.replace("{step}", content.stepperLabels[steps[i - 1]]) : content.backLabel}
-              </Link>
+              </BackButton>
               {/* Title and stepper share one row (Figma 639:24325), closed by a
                   hairline; they stack on narrower screens. */}
               <div className={styles.titleRow}>
@@ -200,7 +205,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
               className={styles.preparing}
               labelClassName={styles.preparingLabel}
             />
-            <PurchaseSummary content={content.summary} quote={co.quote} />
+            <PurchaseSummary content={content.summary} quote={co.quote} company={companyName} />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={content.header.kolamSrc} alt="" aria-hidden className={styles.kolam} />
           </div>
@@ -219,12 +224,6 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
         onClose={() => setEditing(null)}
       />
 
-      <Toast
-        open={toast}
-        title={content.steps.review.postCheckoutToast.title}
-        description={content.steps.review.postCheckoutToast.description}
-        onClose={() => setToast(false)}
-      />
     </div>
   );
 }

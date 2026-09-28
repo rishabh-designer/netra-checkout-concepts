@@ -20,6 +20,10 @@ export interface QuotesHeaderProps {
   ctaPressed?: boolean;
   /** Put `icon` after the label (an arrow, e.g. "Speak to an Expert →"). */
   iconAfter?: boolean;
+  /** Outline instead of fill (Contact Support beside a primary action). */
+  variant?: "fill" | "outline";
+  /** A second, filled button before the CTA (Sign Mandate Letter). */
+  leadCta?: { label: string; onClick: () => void };
 }
 
 /**
@@ -29,7 +33,7 @@ export interface QuotesHeaderProps {
  * Checkout reuses it with "Contact Support" and a headset icon.
  * Usage: <QuotesHeader content={content.header} />
  */
-export function QuotesHeader({ content, logoHref = "/directors-and-officers-insurance", icon, onCta, ctaPressed, iconAfter = false, label, tone = "primary" }: QuotesHeaderProps) {
+export function QuotesHeader({ content, logoHref = "/directors-and-officers-insurance", icon, onCta, ctaPressed, iconAfter = false, label, tone = "primary", variant = "fill", leadCta }: QuotesHeaderProps) {
   const mailRef = useRef<MailIconHandle>(null);
   return (
     <header className={styles.bar}>
@@ -37,10 +41,17 @@ export function QuotesHeader({ content, logoHref = "/directors-and-officers-insu
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={content.logoSrc} alt={content.logoAlt} />
       </a>
+      <div className={styles.actions}>
+      {leadCta && (
+        <button type="button" className={styles.cta} onClick={leadCta.onClick}>
+          {leadCta.label}
+        </button>
+      )}
       <button
         type="button"
         className={styles.cta}
         data-tone={tone === "secondary" ? "secondary" : undefined}
+        data-variant={variant === "outline" ? "outline" : undefined}
         onClick={onCta}
         aria-pressed={ctaPressed}
         onMouseEnter={() => mailRef.current?.startAnimation()}
@@ -50,6 +61,7 @@ export function QuotesHeader({ content, logoHref = "/directors-and-officers-insu
         <span>{label ?? content.ctaLabel}</span>
         {iconAfter && icon}
       </button>
+      </div>
     </header>
   );
 }

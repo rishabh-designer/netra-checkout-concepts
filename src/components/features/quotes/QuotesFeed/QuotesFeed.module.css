@@ -21,6 +21,11 @@
   display: none;
 }
 
+/* Room under the grid for the docked compare bar (104) plus a gap. */
+.feed[data-comparing] {
+  padding-bottom: 136px;
+}
+
 /* Top section (658:45850): heading left, Need Help right, rule under, 16 apart. */
 .top {
   display: flex;

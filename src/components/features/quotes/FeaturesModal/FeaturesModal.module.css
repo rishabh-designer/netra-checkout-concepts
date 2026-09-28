@@ -77,6 +77,7 @@
 .tagRow {
   display: flex;
   justify-content: flex-end;
+  gap: var(--spacing-8);
   min-height: 29px;
 }
 
@@ -95,6 +96,13 @@
   letter-spacing: 0.12px;
   white-space: nowrap;
   color: var(--color-success);
+}
+
+/* Territory (Worldwide / India Only): the purple version, as on the card. */
+.tag[data-tone="territory"] {
+  border-color: var(--color-brand-primary-border);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-primary-subtle));
+  color: var(--color-brand-primary);
 }
 
 .tag[data-tone="gold"] {
@@ -284,7 +292,8 @@
   font-size: var(--font-size-200);
   font-weight: 600;
   line-height: 1;
-  color: var(--color-info);
+  /* Covered items: black title, the blue tick carries the colour. */
+  color: var(--color-label-primary);
 }
 
 .itemTitle[data-tone="excluded"] {
@@ -297,6 +306,21 @@
 
 .marker {
   flex-shrink: 0;
+}
+
+/* "Top Feature" (the quote's own top coverages): info blue, like the card's
+   "N Top Coverages" chip that leads here. */
+.topPill {
+  margin-left: var(--spacing-8);
+  padding: var(--spacing-2) var(--spacing-6);
+  border: var(--border-hairline) solid var(--color-info-border);
+  border-radius: var(--radius-8);
+  background: var(--color-info-subtle);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-info);
+  white-space: nowrap;
 }
 
 .dot {

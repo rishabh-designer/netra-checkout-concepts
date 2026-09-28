@@ -85,7 +85,6 @@ export interface CheckoutReviewContent extends CheckoutStepChrome {
   /** Final CTA: immediate purchases pay, priced quotes request. */
   payLabel: string;
   requestLabel: string;
-  postCheckoutToast: { title: string; description: string };
 }
 
 export interface CheckoutSummaryContent {
@@ -107,6 +106,8 @@ export interface CheckoutSummaryContent {
   offerPercent: string;
   finalLabel: string;
   insurerInfoLabel: string;
+  /** Badge on the insurer box of a paid Gold Quote (Figma 670:53310). */
+  excellentLabel: string;
 }
 
 export interface CheckoutContent {
@@ -142,6 +143,7 @@ export interface CheckoutContent {
   upload: CheckoutUploadCopy;
   summary: CheckoutSummaryContent;
   disclaimer: { title: string; toggleLabel: string; paragraphs: string[] };
+  success: CheckoutSuccessContent;
   drawer: { saveLabel: string; closeLabel: string };
   validationMessages: Record<CheckoutValidator, string>;
   /** [pincode prefix, Place of Incorporation] pairs for the pincode autofill. */
@@ -149,4 +151,78 @@ export interface CheckoutContent {
   /** Lead-flow values used when checkout is opened without a flow (reload / direct URL). */
   fallbackValues: Record<string, string>;
   fallbackCompanyName: string;
+}
+
+/** A timeline row on the success page. `{…}` tokens in `body` are filled
+ *  and highlighted by the view. */
+export interface SuccessTimelineRow {
+  title: string;
+  body: string;
+  /** Status on the right of a done row ("Profiling Done") and its time. */
+  statusLabel?: string;
+  time?: string;
+}
+
+/** A "BimaNetra Suggests" product card. */
+export interface SuccessSuggestion {
+  name: string;
+  body: string;
+  iconSrc: string;
+  immediate?: boolean;
+}
+
+/** Checkout (Success), Figma 670:51168: the end of the journey after Pay. */
+export interface CheckoutSuccessContent {
+  /** `{name}`, `{company}` and `{order}` (the order number, highlighted). */
+  greeting: string;
+  orderPrefix: string;
+  badgeAlt: string;
+  stats: { startLabel: string; endLabel: string; premiumLabel: string; periodLabel: string; periodValue: string };
+  /** Left rail pills, in row order. */
+  stepLabels: [string, string, string, string, string];
+  profiling: SuccessTimelineRow;
+  /** Quote Selected: the Gold Quote, or any other quote (`{insurer}`). */
+  quoteGold: SuccessTimelineRow;
+  quoteOther: SuccessTimelineRow;
+  /** Due Diligence per case (A found everything, B confirmed, C typed in),
+   *  and for quotes an expert confirms before issuing. `{time}` is how long
+   *  checkout took. */
+  diligence: Record<QuoteCaseId, SuccessTimelineRow> & { expert: SuccessTimelineRow };
+  /** `mandate.body`'s `{mandate}`: the underlined phrase. */
+  mandate: SuccessTimelineRow & { link: string };
+  issuance: SuccessTimelineRow;
+  signLabel: string;
+  viewPolicyLabel: string;
+  /** Text link on the profiling row, in place of its status. */
+  riskReportLabel: string;
+  /** Bottom line beside the big Sign Mandate Letter button. */
+  nextUp: string;
+  /** Hides the bottom Next Up bar (kept for later). */
+  hideNextUp?: boolean;
+  /** Sign Mandate Letter: the letter is emailed (`{email}`). */
+  mandateToast: { title: string; description: string };
+  /** Summary card, once paid: `{date}`. */
+  paidLabel: string;
+  coveragesLabel: string;
+  personalizedLabel: string;
+  rm: { eyebrow: string; name: string; photoSrc: string; body: string; phone: string; phoneHref: string; phoneIconSrc: string };
+  suggestions: { title: string; ctaLabel: string; immediateLabel: string; items: SuccessSuggestion[] };
+  /** Screen-reader note while the page loads. */
+  loadingLabel: string;
+  /** The Risk Held Letter popup (Figma 683:56601): opens `delayMs` after the
+   *  page has loaded, on a lightbox, and can't be dismissed; either action
+   *  confirms with a toast (`{email}` / `{phone}`) and closes it. */
+  riskHeld: {
+    title: string;
+    body: string;
+    /** The letter preview, drawn in code (683:56607): its header title, the
+     *  line naming the policy (`{company}`), and the back sheet's labels. */
+    preview: { title: string; forLabel: string; backEyebrow: string; backTitle: string; summaryLabel: string };
+    imageAlt: string;
+    downloadLabel: string;
+    whatsappLabel: string;
+    downloadToast: { title: string; description: string };
+    whatsappToast: { title: string; description: string };
+    delayMs: number;
+  };
 }

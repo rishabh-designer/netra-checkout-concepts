@@ -1,0 +1,450 @@
+/* Compare view: a white layer over the page below the header (its `top` is
+   set inline), scrolling on its own. One grid for the head and every row:
+   a 280 label column (the sidebar's width) and one column per compare slot. */
+.layer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  overflow-y: auto;
+  background: var(--color-card);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-primary-subtle-bold) transparent;
+}
+
+.inner {
+  width: 100%;
+  max-width: 1512px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-32) 64px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 280px repeat(var(--cols), minmax(0, 1fr));
+  column-gap: var(--spacing-24);
+}
+
+/* Head: stays pinned while the rows scroll under it. */
+.head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding-top: var(--spacing-24);
+  background: var(--color-card);
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  padding-top: var(--spacing-8);
+}
+
+.back {
+  margin-bottom: var(--spacing-8);
+}
+
+.title {
+  font-size: var(--font-size-heading-sm);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--color-label-primary);
+}
+
+.subtitle {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  color: var(--color-label-muted-primary);
+}
+
+/* A quote's tile: tags flush with the top edge, × top right, logo, name,
+   the card's button full width. */
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  min-width: 0;
+  padding: var(--spacing-16);
+  border: 1px solid var(--color-border-neutral);
+  border-radius: var(--radius-24);
+  background: var(--color-card);
+}
+
+.tile[data-tone="gold"] {
+  /* Room for the Powered by BimaNetra tag. */
+  padding-top: 40px;
+  border-color: var(--color-brand-secondary-border);
+  background: linear-gradient(180deg, var(--color-brand-secondary-subtle) 0, var(--color-card) 70%);
+}
+
+.tags {
+  position: absolute;
+  top: -0.5px;
+  left: 15.5px;
+  display: flex;
+  gap: var(--spacing-8);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-6) var(--spacing-8) var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: 0 0 var(--radius-12) var(--radius-12);
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.tag[data-tone="gold"] {
+  border-color: var(--color-brand-secondary-subtle-bold);
+  color: var(--color-brand-secondary);
+}
+
+/* Level with the logo (and clear of the Gold's tag). */
+.remove {
+  position: absolute;
+  top: 22px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
+  cursor: pointer;
+}
+
+.tile[data-tone="gold"] .remove {
+  top: 46px;
+}
+
+.remove:hover {
+  background: var(--color-card-sunken);
+}
+
+.logo {
+  height: 32px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.logoSlot {
+  display: block;
+  height: 32px;
+}
+
+.insurer {
+  font-size: var(--font-size-300);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-label-primary);
+}
+
+/* The card's buttons (primary fill, orange on Gold, outline for Get Quote). */
+.buttonFilled,
+.buttonOutline {
+  --btn: var(--color-brand-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-12);
+  margin-top: auto;
+  padding: var(--spacing-12) var(--spacing-20);
+  border: var(--border-hairline) solid var(--btn);
+  border-radius: var(--radius-16);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.buttonFilled {
+  background: var(--btn);
+  color: var(--color-label-inverse);
+}
+
+.buttonFilled:hover {
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.tile[data-tone="gold"] .buttonFilled {
+  --btn: var(--color-brand-secondary);
+}
+
+.tile[data-tone="gold"] .buttonFilled:hover {
+  background: var(--color-brand-secondary);
+  box-shadow: var(--shadow-button-secondary-hover);
+}
+
+.buttonOutline {
+  border-color: var(--color-border-subtle);
+  background: var(--color-card);
+  color: var(--btn);
+}
+
+.buttonOutline:hover {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary-subtle);
+}
+
+/* An open column: back to the quotes to pick another. */
+.add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-12);
+  min-height: 176px;
+  border: 1px dashed var(--color-brand-primary-border);
+  border-radius: var(--radius-24);
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.add:hover {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary-subtle);
+}
+
+.addIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px dashed var(--color-brand-primary-border);
+  border-radius: 50%;
+}
+
+/* Tabs left, the differences switch right, over a lilac hairline. */
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  padding-bottom: var(--spacing-8);
+  border-bottom: var(--border-hairline) solid var(--color-brand-primary-border);
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: calc(-1 * var(--spacing-8) - var(--border-hairline));
+}
+
+.tab {
+  padding: var(--spacing-12) var(--spacing-16);
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: var(--color-brand-primary-muted);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--color-brand-primary);
+}
+
+.tab[aria-selected="true"] {
+  background: var(--color-brand-primary-tint);
+  border-bottom-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}
+
+/* Sections: white cards, 24 apart, rows striped pale blue. */
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding-top: var(--spacing-24);
+}
+
+.section {
+  border: 1px solid var(--color-border-neutral);
+  border-radius: var(--radius-24);
+  background: var(--color-card);
+  overflow: hidden;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  padding: var(--spacing-20) var(--spacing-24);
+  border: 0;
+  background: transparent;
+  color: var(--color-label-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sectionMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-brand-primary-subtle);
+}
+
+.sectionTitle {
+  flex: 1;
+  font-size: var(--font-size-400);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-label-primary);
+}
+
+.chevron {
+  flex-shrink: 0;
+  transition: rotate 0.2s ease;
+}
+
+.chevron[data-open] {
+  rotate: 180deg;
+}
+
+.section .row {
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+}
+
+.section .row:nth-of-type(even) {
+  background: var(--color-info-subtle);
+}
+
+.rowHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  min-width: 0;
+  padding: var(--spacing-16) 0 var(--spacing-16) var(--spacing-24);
+}
+
+.rowTitle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-label-primary);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+}
+
+button.rowTitle {
+  cursor: pointer;
+}
+
+button.rowTitle .chevron {
+  color: var(--color-label-secondary);
+}
+
+.rowBody {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-label-secondary);
+}
+
+.cell {
+  min-width: 0;
+  padding: var(--spacing-16);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color-label-primary);
+}
+
+.price {
+  font-size: var(--font-size-200);
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--color-label-tertiary);
+}
+
+.territory {
+  display: inline-flex;
+  padding: var(--spacing-4) var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+  font-size: var(--font-size-75);
+  line-height: 1.2;
+}
+
+.topList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  list-style: none;
+}
+
+.topList li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-6);
+}
+
+.topList li > :first-child {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-brand-primary);
+}
+
+/* Narrow screens: fixed column widths, the table scrolls sideways. */
+@media (max-width: 900px) {
+  .inner {
+    width: max-content;
+    max-width: none;
+    padding: 0 var(--spacing-16) 48px;
+  }
+  .row {
+    grid-template-columns: 180px repeat(var(--cols), 220px);
+    column-gap: var(--spacing-12);
+  }
+}

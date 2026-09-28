@@ -270,8 +270,6 @@ export interface QuoteModalContent {
   validationMessages: Partial<Record<CheckoutValidator, string>>;
   /** Footer-stepper pills — labels only; the last ("Quotes") is a future step
    *  with no form. Earlier than the current step = done/green. */
-  /** The form's title on every step (clicking it is the demo auto-fill). */
-  formTitle: string;
   stepperLabels: string[];
   ctaLabel: string;
   /** Help-row error under the company name when the form is sent empty. */

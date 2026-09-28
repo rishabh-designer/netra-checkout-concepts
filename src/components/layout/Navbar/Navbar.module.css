@@ -1,4 +1,6 @@
 .bar {
+  box-sizing: border-box;
+  height: var(--nav-height);
   padding: var(--spacing-12) var(--spacing-32);
   background: var(--color-nav-surface);
   border-bottom: var(--border-hairline) solid var(--color-border-neutral);
@@ -104,7 +106,9 @@
 }
 
 .login {
-  padding: var(--spacing-8) var(--spacing-10);
+  box-sizing: border-box;
+  height: var(--nav-button-height);
+  padding: 0 var(--spacing-10);
   border-radius: var(--radius-12);
   border: var(--border-hairline) solid var(--color-brand-primary);
   background: var(--color-brand-primary);

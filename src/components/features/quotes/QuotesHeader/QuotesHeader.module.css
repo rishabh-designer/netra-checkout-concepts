@@ -2,7 +2,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-16) var(--spacing-32);
+  /* Same height as the landing Navbar, always. */
+  box-sizing: border-box;
+  height: var(--nav-height);
+  padding: var(--spacing-12) var(--spacing-32);
   background: var(--color-card);
   border-bottom: var(--border-hairline) solid var(--color-border-neutral);
 }
@@ -12,16 +15,19 @@
 }
 
 .logo img {
-  height: 26px;
+  height: 20px;
   width: auto;
 }
 
-/* button/primary.fill (584:44872): 10/14, r10, 12px SemiBold, icon first. */
+/* button/primary.fill (584:44872): r10, 12px SemiBold, icon first; the
+   Navbar's Login size (29 tall, 10 side padding), never larger. */
 .cta {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
-  padding: var(--spacing-10) 14px;
+  box-sizing: border-box;
+  height: var(--nav-button-height);
+  padding: 0 var(--spacing-10);
   border: var(--border-hairline) solid var(--color-brand-primary);
   border-radius: var(--radius-12); /* one step rounder than Figma's r10 (house rule) */
   background: var(--color-brand-primary);
@@ -55,4 +61,23 @@
   border-color: var(--color-brand-secondary-subtle-bold);
   box-shadow: var(--shadow-button-secondary-hover);
   filter: brightness(0.96);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+/* Outline (Contact Support beside Sign Mandate Letter, Figma 673:53452). */
+.cta[data-variant="outline"] {
+  border-color: var(--color-border-subtle);
+  background: var(--color-card);
+  color: var(--color-brand-primary);
+}
+
+.cta[data-variant="outline"]:hover {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary-subtle);
+  box-shadow: none;
 }

@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import type { QuotesPageContent } from "@/types/quotesPage";
 import type { QuoteModalContent } from "@/types/productPage";
 import { useQuoteFlow } from "@/lib/quote-flow";
+import { useDemoNotice } from "@/lib/demo-notice";
 import { QuoteModal } from "@/components/features/quote-modal/QuoteModal";
 import { QuotesHeader } from "../QuotesHeader";
 import { DetailsPanel } from "../DetailsPanel";
@@ -45,6 +46,7 @@ export function QuotesView(props: QuotesViewProps) {
 
 function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const { result, setResult } = useQuoteFlow();
+  const notify = useDemoNotice();
   const values = result?.values;
   const caseId = result?.caseId;
   const [detailsCollapsed, setDetailsCollapsed] = useState(false);
@@ -77,6 +79,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
         icon={<span className={styles.sparkle} style={{ "--icon": `url(${content.feed.needHelp.chatIconSrc})` } as CSSProperties} aria-hidden />}
         iconAfter
         tone="secondary"
+        onCta={() => notify("askBimaNetra")}
       />
       <main className={styles.body}>
         <AnimatePresence mode="wait" initial={false}>
@@ -112,6 +115,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
                 stage={upgradeStage}
                 noRecords={caseId !== "A" && caseId !== "B"}
+                companyName={result?.companyName || undefined}
                 verifyFrom={lured ? VERIFY_FROM : undefined}
                 onSimulate={() => setUpgradeStage("verifying")}
                 onVerified={() => setUpgradeStage("upgraded")}

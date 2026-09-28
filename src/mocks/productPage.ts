@@ -343,7 +343,6 @@ export const mockProductPageContent: ProductPageContent = {
       // the demo company's legal name.
       { caseId: "C", aliases: ["studio two rupees llp", "studio two rupees"], canonicalName: "Studio Two Rupees LLP" },
     ],
-    formTitle: "Get Started",
     stepperLabels: ["Profile", "Business", "Risk"],
     ctaLabel: "Get Instant Quotes",
     // Steps before the last only move the flow on.

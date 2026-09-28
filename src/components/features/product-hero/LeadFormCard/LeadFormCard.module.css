@@ -50,12 +50,8 @@
   width: 100%;
   padding: var(--spacing-12) var(--spacing-16);
   border-radius: var(--radius-12);
-  /* Green "personalized" wash, echoing the modal's Case-A personalize badge. */
-  background: linear-gradient(
-    to right,
-    var(--color-success-subtle),
-    var(--color-card)
-  );
+  /* Purple wash, as the modal's "Your Quote is Being Personalized" banner. */
+  background: linear-gradient(to right, var(--color-brand-primary-subtle), transparent);
 }
 
 .promoLeft {
@@ -68,7 +64,7 @@
   font-size: var(--font-size-100);
   font-weight: 500;
   line-height: 1;
-  color: var(--color-success);
+  color: var(--color-brand-primary);
   white-space: nowrap;
 }
 

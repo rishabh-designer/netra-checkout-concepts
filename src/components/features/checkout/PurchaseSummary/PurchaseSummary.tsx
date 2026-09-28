@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import type { CheckoutSummaryContent } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
 import { EyeIcon, type EyeIconHandle } from "@/components/icons/EyeIcon";
+import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
+import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { formatInr, splitPrice } from "@/lib/checkout";
 import { splitName } from "@/lib/utils";
 import styles from "./PurchaseSummary.module.css";
@@ -14,6 +16,17 @@ import styles from "./PurchaseSummary.module.css";
 export interface PurchaseSummaryProps {
   content: CheckoutSummaryContent;
   quote: QuoteCardData;
+  /** Success page: the quote's coverages as ticked chips under a count pill. */
+  coverages?: { label: string; items: string[] };
+  /** Success page: the paid amount, large in green serif, over `label`
+   *  ("Paid Successfully On …"); replaces the Final Cost row. `amount`
+   *  overrides the figure (e.g. a count-up). */
+  paid?: { label: string; amount?: ReactNode };
+  /** Who the policy is for, under the title (Figma 689:57121). */
+  company?: string;
+  /** The lavender border beam (checkout). Off once paid: the success page's
+   *  greeting card carries the beam instead. */
+  beam?: boolean;
 }
 
 /* The ikkat rule under the title, in the chosen quote's colour (as on its card). */
@@ -29,10 +42,11 @@ const RULE_COLOR = {
  * and the price split at 18% GST. A quote with an offer (the Gold Quotes)
  * prices its original, then the BimaNetra Offer (saving and % off) and the
  * Final Cost in serif; others end on the Total Cost. The step CTA and any
- * consent live on the form side.
+ * consent live on the form side. On the success page it also lists the
+ * quote's coverages and ends on the paid amount (`coverages`, `paid`).
  * Usage: <PurchaseSummary content={summary} quote={q} />
  */
-export function PurchaseSummary({ content, quote }: PurchaseSummaryProps) {
+export function PurchaseSummary({ content, quote, coverages, paid, company, beam = true }: PurchaseSummaryProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<EyeIconHandle>(null);
   // An offer prices the original, then takes the saving off it.
@@ -48,42 +62,66 @@ export function PurchaseSummary({ content, quote }: PurchaseSummaryProps) {
       {/* A soft lavender beam circles the card's edge (after the Gold Quote's,
           but slower and paler): a halo behind, a hairline ring on top. */}
       <div className={styles.beam}>
-        <span className={styles.beamGlow} aria-hidden>
-          <span className={styles.beamSpin} />
-        </span>
-      <section className={styles.card} data-tone={tone === "neutral" ? undefined : tone}>
+        {beam && (
+          <span className={styles.beamGlow} aria-hidden>
+            <span className={styles.beamSpin} />
+          </span>
+        )}
+      <section className={styles.card} data-tone={tone === "neutral" ? undefined : tone} data-paid={paid ? true : undefined}>
         {/* Product icon (Figma 635:16096): a 100px mark cropped to its top half
             in a 100×50 window, pinned to the card beside the product name. */}
         <span className={styles.productIconCrop} aria-hidden>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={content.productIconSrc} alt="" className={styles.productIcon} />
         </span>
-        <div className={styles.head}>
-          <h2 className={styles.title}>{content.title}</h2>
-          {/* The quote's own pill, as on its card: the Gold Quote is Powered by
-              BimaNetra, other purchasable quotes are Immediate Purchase. */}
-          {quote.gold ? (
-            <TagPill
-              variant="secondary"
-              className={styles.tag}
-              label={content.poweredByLabel}
-              icon={<EyeIcon ref={eyeRef} size={12} color="var(--color-brand-secondary)" />}
-              onMouseEnter={() => eyeRef.current?.startAnimation()}
-              onMouseLeave={() => eyeRef.current?.stopAnimation()}
-            />
+        {/* Pills: Powered by BimaNetra on the Gold Quote, Immediate Purchase on
+            anything bought online (a priced Gold Quote carries both). Once
+            paid they sit above the title (Figma 670:51168); in checkout,
+            beside it. */}
+        {(() => {
+          const immediate = quote.immediate || (quote.gold && !!quote.price);
+          const pills = (
+            <div className={styles.pills}>
+              {immediate && (!quote.gold || paid) && (
+                <TagPill
+                  variant="success"
+                  className={styles.tag}
+                  label={content.immediateLabel}
+                  icon={<ShoppingBagIcon ref={bagRef} size={12} color="var(--color-success)" />}
+                  onMouseEnter={() => bagRef.current?.startAnimation()}
+                  onMouseLeave={() => bagRef.current?.stopAnimation()}
+                />
+              )}
+              {quote.gold && (
+                <TagPill
+                  variant="secondary"
+                  className={styles.tag}
+                  label={content.poweredByLabel}
+                  icon={<EyeIcon ref={eyeRef} size={12} color="var(--color-brand-secondary)" />}
+                  onMouseEnter={() => eyeRef.current?.startAnimation()}
+                  onMouseLeave={() => eyeRef.current?.stopAnimation()}
+                />
+              )}
+            </div>
+          );
+          const heading = (
+            <div className={styles.heading}>
+              <h2 className={styles.title}>{content.title}</h2>
+              {company && <p className={styles.company}>{company}</p>}
+            </div>
+          );
+          return paid ? (
+            <div className={styles.headStack}>
+              {pills}
+              {heading}
+            </div>
           ) : (
-            quote.immediate && (
-              <TagPill
-                variant="success"
-                className={styles.tag}
-                label={content.immediateLabel}
-                icon={<ShoppingBagIcon ref={bagRef} size={12} color="var(--color-success)" />}
-                onMouseEnter={() => bagRef.current?.startAnimation()}
-                onMouseLeave={() => bagRef.current?.stopAnimation()}
-              />
-            )
-          )}
-        </div>
+            <div className={styles.head}>
+              {heading}
+              {pills}
+            </div>
+          );
+        })()}
         <IkkatDivider height={2} unit={19} color={RULE_COLOR[tone]} className={styles.rule} />
 
         <div className={styles.product}>
@@ -106,12 +144,34 @@ export function PurchaseSummary({ content, quote }: PurchaseSummaryProps) {
             <span>{line1}</span>
             <span>{line2}</span>
           </p>
+          {/* A paid Gold Quote wears Excellent Quote in place of the info mark. */}
+          {paid && quote.gold ? (
+            <span className={styles.excellent}>
+              <IndicatorBadge label={content.excellentLabel} tone="success" size="sm" />
+            </span>
+          ) : (
           <svg viewBox="0 0 16 16" width="16" height="16" fill="none" role="img" aria-label={content.insurerInfoLabel} className={styles.info}>
             <circle cx="8" cy="8" r="6.5" stroke="var(--color-info-fill)" strokeWidth="1" />
             <circle cx="8" cy="5.2" r="0.8" fill="var(--color-info-fill)" />
             <path d="M8 7.3v4" stroke="var(--color-info-fill)" strokeWidth="1" strokeLinecap="round" />
           </svg>
+          )}
         </div>
+
+        {coverages && (
+          <div className={styles.coverages}>
+            <span className={styles.coveragesPill}>{coverages.label}</span>
+            <hr className={styles.coveragesRule} />
+            <ul className={styles.coverageList}>
+              {coverages.items.map((c) => (
+                <li key={c} className={styles.coverage}>
+                  <SquareCheckbox tone="info" state="checked" size={10} />
+                  {c}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className={styles.prices}>
           <p className={styles.priceTitle}>{content.priceTitle}</p>
@@ -136,18 +196,28 @@ export function PurchaseSummary({ content, quote }: PurchaseSummaryProps) {
                     <span className={styles.offerPct}>{content.offerPercent.replace("{pct}", String(pct))}</span> {formatInr(saving)}
                   </dd>
                 </div>
-                <div className={styles.row} data-final>
-                  <dt>{content.finalLabel}</dt>
-                  <dd>{formatInr(final)}</dd>
-                </div>
+                {!paid && (
+                  <div className={styles.row} data-final>
+                    <dt>{content.finalLabel}</dt>
+                    <dd>{formatInr(final)}</dd>
+                  </div>
+                )}
               </>
             )}
           </dl>
+          {paid && (
+            <div className={styles.paid}>
+              <p className={styles.paidAmount}>{paid.amount ?? formatInr(final)}</p>
+              <p className={styles.paidLabel}>{paid.label}</p>
+            </div>
+          )}
         </div>
       </section>
-        <span className={styles.beamRing} aria-hidden>
-          <span className={styles.beamSpin} />
-        </span>
+        {beam && (
+          <span className={styles.beamRing} aria-hidden>
+            <span className={styles.beamSpin} />
+          </span>
+        )}
       </div>
     </div>
   );

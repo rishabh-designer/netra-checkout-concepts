@@ -1,0 +1,22 @@
+/* Glow (Figma: 0 0 8px, success at 24%), softened to a wide, faint halo. */
+.badge {
+  overflow: visible;
+  filter: drop-shadow(0 0 10px rgba(0, 178, 0, 0.16));
+}
+
+.seal {
+  transform-origin: 40px 40px;
+  animation: seal-turn 60s linear infinite;
+}
+
+@keyframes seal-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seal {
+    animation: none;
+  }
+}

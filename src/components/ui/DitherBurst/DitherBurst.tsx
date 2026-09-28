@@ -13,6 +13,9 @@ export interface DitherBurstProps {
   delay?: number;
   /** Seconds the wave takes to reach `radius`. */
   duration?: number;
+  /** Colour tokens for the wave's edge and the glints (default gold). */
+  edgeToken?: string;
+  coreToken?: string;
   className?: string;
 }
 
@@ -37,7 +40,7 @@ function token(name: string): [number, number, number] {
  * nothing under reduced motion.
  * Usage: <DitherBurst radius={260} delay={0.3} duration={1.15} />
  */
-export function DitherBurst({ radius = 260, delay = 0, duration = 1.15, className }: DitherBurstProps) {
+export function DitherBurst({ radius = 260, delay = 0, duration = 1.15, edgeToken = "--color-gold", coreToken = "--color-gold-highlight", className }: DitherBurstProps) {
   const ref = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
 
@@ -48,8 +51,8 @@ export function DitherBurst({ radius = 260, delay = 0, duration = 1.15, classNam
     const S = canvas.width;
     const C = S / 2;
     const count = S * S;
-    const edge = token("--color-gold");
-    const core = token("--color-gold-highlight");
+    const edge = token(edgeToken);
+    const core = token(coreToken);
     const phase = new Float32Array(count);
     const speed = new Float32Array(count);
     for (let k = 0; k < count; k++) {
@@ -105,7 +108,7 @@ export function DitherBurst({ radius = 260, delay = 0, duration = 1.15, classNam
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
-  }, [radius, delay, duration, reduced]);
+  }, [radius, delay, duration, edgeToken, coreToken, reduced]);
 
   if (reduced) return null;
   const size = Math.ceil((radius + RING_PX * 2) * 2);

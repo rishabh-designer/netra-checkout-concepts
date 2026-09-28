@@ -1,0 +1,1 @@
+export { SuccessSkeleton } from "./SuccessSkeleton";
