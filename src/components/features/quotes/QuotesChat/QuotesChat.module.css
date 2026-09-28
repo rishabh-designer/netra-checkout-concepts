@@ -1,0 +1,213 @@
+/* Ask BimaNetra: a white column the feed's height, r16, hairline ring and the
+   raised shadow; a header, the scrolling log, then the composer. */
+.chat {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-16);
+  background: var(--color-card);
+  box-shadow: var(--shadow-raised);
+  overflow: hidden;
+}
+
+/* Header: peach wash (BimaNetra's orange), the sparkle badge, title + line. */
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16) var(--spacing-20);
+  border-bottom: var(--border-hairline) solid var(--color-brand-secondary-border);
+  background: linear-gradient(to right, var(--color-brand-secondary-subtle), var(--color-card));
+}
+
+.badge {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-12);
+  background: var(--color-brand-secondary);
+  color: var(--color-label-inverse);
+}
+
+.sparkle,
+.avatar {
+  display: inline-block;
+  flex-shrink: 0;
+  background: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+
+.sparkle {
+  width: 16px;
+  height: 16px;
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-label-primary);
+}
+
+.subtitle {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-label-secondary);
+}
+
+/* The log: messages 12 apart, scrolling on its own. */
+.list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-20);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-8);
+  max-width: 88%;
+}
+
+.message[data-from="you"] {
+  align-self: flex-end;
+}
+
+/* BimaNetra's mark beside its replies, in orange. */
+.avatar {
+  width: 14px;
+  height: 14px;
+  margin-bottom: var(--spacing-8);
+  color: var(--color-brand-secondary);
+}
+
+.bubble {
+  padding: var(--spacing-10) 14px;
+  border-radius: var(--radius-16);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.message[data-from="bot"] .bubble {
+  border-bottom-left-radius: var(--radius-6);
+  background: var(--color-card-sunken);
+  color: var(--color-label-primary);
+}
+
+.message[data-from="you"] .bubble {
+  border-bottom-right-radius: var(--radius-6);
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+}
+
+.thinking {
+  padding: var(--spacing-10) 0;
+  font-size: var(--font-size-100);
+  font-weight: 500;
+}
+
+/* Starter questions, under the greeting until the first one is asked. */
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  padding-left: 22px;
+}
+
+.suggestion {
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-brand-secondary-border);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-secondary-subtle);
+  color: var(--color-label-primary);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.suggestion:hover,
+.suggestion:focus-visible {
+  border-color: var(--color-brand-secondary);
+  background: var(--color-brand-secondary-subtle-bold);
+}
+
+/* Composer: the input and an orange send button, on a hairline. */
+.composer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin: 0 var(--spacing-12) var(--spacing-12);
+  padding: var(--spacing-6) var(--spacing-6) var(--spacing-6) var(--spacing-16);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-16);
+  background: var(--color-card);
+  transition: border-color 0.15s ease;
+}
+
+.composer:focus-within {
+  border-color: var(--color-brand-secondary);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  font: inherit;
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  color: var(--color-label-primary);
+}
+
+.input::placeholder {
+  color: var(--color-label-tertiary);
+}
+
+.send {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: var(--radius-12);
+  background: var(--color-brand-secondary);
+  color: var(--color-label-inverse);
+  cursor: pointer;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.send:hover:not(:disabled) {
+  box-shadow: var(--shadow-button-secondary-hover);
+}
+
+.send:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

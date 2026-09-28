@@ -3,8 +3,10 @@
 import { useEffect } from "react";
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import type { DetailsPanelContent } from "@/types/quotesPage";
+import type { QuoteCaseId } from "@/lib/quote-flow";
 import { InteractiveInput } from "@/components/ui/InteractiveInput";
 import { NoRecordsBanner, UpgradeBanner, type UpgradeStage } from "../UpgradeBanner";
+import { useDemoNotice } from "@/lib/demo-notice";
 import styles from "./DetailsPanel.module.css";
 
 export interface DetailsPanelProps {
@@ -31,6 +33,8 @@ export interface DetailsPanelProps {
   onReset?: () => void;
   /** Case C: no public records, so no verification to show. */
   noRecords?: boolean;
+  /** The flow case, for case-specific banner copy. */
+  caseId?: QuoteCaseId;
   /** The company the quotes are for (the flow's typed name), shown at the
    *  banner's foot. Omitted off-flow. */
   companyName?: string;
@@ -57,7 +61,8 @@ function ToggleGlyph() {
  * Usage: <DetailsPanel content={detailsPanel} values={values} onEdit={fn}
  *          collapsed={bool} onToggleCollapse={fn} />
  */
-export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false, verifyFrom, companyName }: DetailsPanelProps) {
+export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false, verifyFrom, companyName, caseId }: DetailsPanelProps) {
+  const notify = useDemoNotice();
   const reduced = useReducedMotion();
   const start = Math.max(0, Math.min(100, content.upgrade.percent));
   // One progress value for the banner and the collapsed rail.
@@ -104,7 +109,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
       value={companyName}
       readOnly
       status="verified"
-      size="lg"
+      size="sm"
       showLabel={false}
       showHelp={false}
       ariaLabel={content.companyLabel}
@@ -150,12 +155,21 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
         </div>
 
         {noRecords ? (
-          <NoRecordsBanner content={content.noRecords} company={company} />
+          <NoRecordsBanner content={content.noRecords} company={company} onSchedule={() => notify("scheduleCall")} />
         ) : (
           <UpgradeBanner
             stage={stage}
             content={content.upgrade}
-            upgraded={content.upgraded}
+            upgraded={{
+              ...content.upgraded,
+              title: (caseId && content.upgraded.titleByCase?.[caseId]) || content.upgraded.title,
+              body: (caseId && content.upgraded.bodyByCase?.[caseId]) || content.upgraded.body,
+            }}
+            notify={
+              caseId && content.upgraded.notifyByCase?.[caseId]
+                ? { label: content.upgraded.notifyByCase[caseId]!, onClick: () => notify("notifyReport") }
+                : undefined
+            }
             progress={progress}
             onSimulate={onSimulate}
             onReset={onReset}

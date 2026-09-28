@@ -7,7 +7,7 @@ import type { QuoteFilter, QuoteSort } from "@/types/quotesPage";
 import styles from "./FeedControls.module.css";
 
 export interface FeedControlsProps {
-  /** Field labels over the dropdowns ("Filter Insurance Brokers", "Sort Quotes"). */
+  /** Field labels over the dropdowns ("Filter Insurance Companies", "Sort Quotes"). */
   filterFieldLabel: string;
   sortFieldLabel: string;
   /** Trigger copy with an `{option}` slot ("Filtering: {option}"). */

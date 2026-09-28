@@ -28,6 +28,7 @@ export function Disclaimer({ title, toggleLabel, paragraphs }: DisclaimerProps) 
           aria-expanded={open}
           aria-controls={bodyId}
           aria-label={toggleLabel}
+          data-tooltip={toggleLabel}
           onClick={() => setOpen((o) => !o)}
         >
           <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden data-open={open || undefined}>

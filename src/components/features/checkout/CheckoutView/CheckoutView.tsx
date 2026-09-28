@@ -90,6 +90,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
       ? {
           label: co.quote.price ? content.steps.review.payLabel.replace("{price}", co.quote.price) : content.steps.review.requestLabel,
           enabled: consent,
+          blockedTip: content.ctaBlocked.consent,
           // Pay ends the journey: the clock stops, the order is written and
           // the success page takes over.
           onClick: () => {
@@ -98,7 +99,12 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
             router.push(`${basePath}/success`);
           },
         }
-      : { label: content.saveLabel, enabled: co.isComplete(formStep!), onClick: () => router.push(hrefFor(steps[i + 1])) };
+      : {
+          label: content.saveLabel,
+          enabled: co.isComplete(formStep!),
+          blockedTip: content.ctaBlocked.fields,
+          onClick: () => router.push(hrefFor(steps[i + 1])),
+        };
 
   const stepConsent =
     step === "review"
@@ -160,6 +166,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
                     from={from?.step ?? null}
                     barPercent={barPercent}
                     hrefFor={hrefFor}
+                    upcomingTip={content.stepperUpcomingTip}
                   />
                 </div>
               </div>
@@ -189,7 +196,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
 
             <StepActions cta={cta} consent={stepConsent} />
 
-            <Disclaimer {...content.disclaimer} />
+            <Disclaimer title={content.disclaimer.title} toggleLabel={content.disclaimer.toggleLabel} paragraphs={[content.disclaimer.contextual.checkout, ...content.disclaimer.paragraphs]} />
           </main>
         </div>
         {/* Summary panel (638:17106): the timer, the summary, and a kolam

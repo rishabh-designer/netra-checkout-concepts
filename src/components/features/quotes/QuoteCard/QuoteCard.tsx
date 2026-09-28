@@ -57,8 +57,10 @@ export interface QuoteCardLabels {
   /** Territory tags; omit to hide them. */
   territory?: Record<QuoteTerritory, string>;
   poweredBy: string;
-  /** Coverages chip with no count (offline quotes): "Top Coverages". */
+  /** Coverages heading with no count (offline quotes): "Top Coverages". */
   topCoverages: string;
+  /** The card's coverages chip on offline quotes: "View Coverages". */
+  viewCoverages?: string;
   /** Coverages chip; `{count}` is the number of coverages. */
   coverageCount: string;
   /** The Gold Quote's chip: "{count} Personalized Coverages". */
@@ -68,6 +70,8 @@ export interface QuoteCardLabels {
   viewFeatures?: string;
   coveragesUnavailable?: string;
   ratings?: Record<QuoteRating, string>;
+  /** Tag tooltips (what Immediate Purchase, territory… mean). */
+  tips?: { immediate: string; gold: string; compareOff: string; compareFull: string; offer: string; territory: Record<QuoteTerritory, string> };
 }
 
 /** "compact" — the current card (Figma 658:47652); "features" — the previous
@@ -138,18 +142,18 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
   // Territory tag (purple, text only), then the tone tag.
   const territoryTag =
     quote.territory && labels.territory ? (
-      <span className={styles.tab} data-tone="territory" data-reveal="pill">
+      <span className={styles.tab} data-tone="territory" data-reveal="pill" data-tooltip={labels.tips?.territory[quote.territory]}>
         {labels.territory[quote.territory]}
       </span>
     ) : null;
   const toneTag =
     tone === "gold" ? (
-      <span className={styles.tab} data-tone="gold" data-reveal="pill">
+      <span className={styles.tab} data-tone="gold" data-reveal="pill" data-tooltip={labels.tips?.gold}>
         <BadgeCheckIcon size={10} color="var(--color-brand-secondary)" />
         {labels.poweredBy}
       </span>
     ) : tone === "immediate" ? (
-      <span className={styles.tab} data-tone="immediate" data-reveal="pill">
+      <span className={styles.tab} data-tone="immediate" data-reveal="pill" data-tooltip={labels.tips?.immediate}>
         <ShoppingBagIcon size={10} color="var(--color-success)" />
         {labels.immediatePurchase}
       </span>
@@ -164,7 +168,12 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
 
   // Shared by both views: the price / Get Quote button and Add To Compare.
   const priceButton = (
-    <button type="button" className={filled ? styles.buttonFilled : styles.buttonOutline} onClick={onSelect}>
+    <button
+      type="button"
+      className={filled ? styles.buttonFilled : styles.buttonOutline}
+      onClick={onSelect}
+      data-tooltip={quote.price && quote.originalPrice ? labels.tips?.offer?.replace("{from}", quote.originalPrice) : undefined}
+    >
       {quote.price && quote.originalPrice ? (
         <PriceMorph from={quote.originalPrice} to={quote.price} intro={priceIntro} />
       ) : (
@@ -180,6 +189,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
       className={styles.compare}
       aria-pressed={compared}
       disabled={compareLocked}
+      data-tooltip={compareLocked ? labels.tips?.compareFull : undefined}
       onClick={toggleCompare}
     >
       <span className={styles.checkbox} data-checked={compared || undefined} aria-hidden>
@@ -192,7 +202,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
       {labels.compare}
     </button>
   ) : (
-    <span className={styles.compareOff}>
+    <span className={styles.compareOff} data-tooltip={labels.tips?.compareOff}>
       <span className={styles.checkboxOff} aria-hidden />
       {labels.comparisonUnavailable}
     </span>
@@ -208,7 +218,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
   const featuresCard = (
     <article className={styles.card} data-tone={tone} {...hover}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/media/checkout/product-icon.svg" alt="" aria-hidden className={fx.mark} />
+      <img src="/media/checkout/product-icon.png" alt="" aria-hidden className={fx.mark} />
       {tag}
       <div className={fx.inner}>
         <div className={fx.head}>
@@ -218,7 +228,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
           )}
           <h3 className={fx.name} title={quote.insurer}>
             {splitName(quote.insurer).map((line, i) => (
-              <span key={i} className={fx.nameLine} data-reveal="item">{line}</span>
+              <span key={i} className={fx.nameLine} data-reveal="item" data-tooltip-overflow>{line}</span>
             ))}
           </h3>
         </div>
@@ -277,7 +287,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
       {/* D&O mark, bottom half cropped away (Figma 658:49015). */}
       <span className={styles.markClip} aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/media/checkout/product-icon.svg" alt="" className={styles.mark} />
+        <img src="/media/checkout/product-icon.png" alt="" className={styles.mark} />
       </span>
       {tag}
 
@@ -315,7 +325,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
 
               <div className={styles.foot} data-reveal="coverage">
                 <button type="button" className={styles.chip} onClick={onViewFeatures} aria-haspopup="dialog">
-                  {coverageChipLabel(quote, labels)}
+                  {!quote.coverages?.length && labels.viewCoverages ? labels.viewCoverages : coverageChipLabel(quote, labels)}
                   <ChipChevron />
                 </button>
                 {compare}

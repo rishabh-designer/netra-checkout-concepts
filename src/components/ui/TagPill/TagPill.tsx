@@ -10,6 +10,8 @@ export interface TagPillProps {
   onMouseEnter?: React.MouseEventHandler<HTMLDivElement>;
   onMouseLeave?: React.MouseEventHandler<HTMLDivElement>;
   className?: string;
+  /** Shown on hover (the shared tooltip). */
+  tooltip?: string;
 }
 
 /**
@@ -23,12 +25,14 @@ export function TagPill({
   onMouseEnter,
   onMouseLeave,
   className,
+  tooltip,
 }: TagPillProps) {
   return (
     <div
       className={cn(styles.pill, styles[variant], className)}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      data-tooltip={tooltip}
     >
       <span className={styles.iconSlot}>{icon ?? <span className={styles.placeholder} />}</span>
       <span className={styles.label}>{label}</span>

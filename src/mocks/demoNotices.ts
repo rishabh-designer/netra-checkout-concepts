@@ -2,21 +2,29 @@ import type { DemoNoticeContent } from "@/types/demoNotice";
 
 /** What a not-yet-built click would do, shown as a top-right alert. */
 export const mockDemoNotices: DemoNoticeContent = {
-  askBimaNetra: {
-    title: "Ask BimaNetra is next",
-    description: "This opens a chat with BimaNetra about your quotes and cover. We haven't built it yet.",
+  scheduleCall: {
+    title: "Schedule a Call is next",
+    description: "Google Meet API to plug in and set the meeting!",
+  },
+  mailQuotes: {
+    title: "Mail Quotes is next",
+    description: "This emails the quotes you're comparing to you, side by side. We haven't built it yet.",
+  },
+  notifyReport: {
+    title: "You're on the list",
+    description: "We'll contact you once our report is ready, so we can price your risk better.",
   },
   contactSupport: {
-    title: "Contact Support is next",
+    title: "Speak to an Expert is next",
     description: "This connects you to an expert, on call or chat. For now, reach us on +91-90072-96854.",
   },
   findQuote: {
-    title: "Find a Quote is next",
+    title: "Get a Quote is next",
     description: "This starts a quote for this product, prefilled with your business details. We haven't built it yet.",
   },
   skipPersonalize: {
     title: "Skip is next",
-    description: "This skips personalization and shows standard quotes straight away. We haven't built it yet.",
+    description: "This skips personalisation and shows standard quotes straight away. We haven't built it yet.",
   },
   riskReport: {
     title: "Your Risk Report is next",

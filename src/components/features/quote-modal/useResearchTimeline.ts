@@ -18,6 +18,8 @@ export interface ResearchView {
   verdict: string | null;
   /** How long the probe runs (the sources pace themselves to it). */
   probeMs: number;
+  /** Source chip tooltips, by what each returned. */
+  sourceTips?: Record<"hit" | "partial" | "miss", string>;
 }
 
 interface Options {

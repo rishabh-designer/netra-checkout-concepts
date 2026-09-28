@@ -126,7 +126,7 @@ export const INSURER_POLICIES: Record<string, QuotePolicy> = {
   "Generali Central Insurance": {
     top: ["Extradition Costs", "Outside Directorship Cover", "Pre-Claim Inquiry Costs", "Emergency Defence Costs"],
     overview: [
-      { title: "Best For", body: "Companies whose directors travel or sit on other boards, with strong cross-border support." },
+      { title: "Suited To", body: "Companies whose directors travel or sit on other boards, with strong cross-border support." },
       { title: "Buy Online", body: "Priced and issued online in minutes, with the policy document emailed on payment." },
       { title: "Claims Made Basis", body: "Pays for claims first made against you while the policy is active and reported in that period." },
       { title: "Extra Time to Report", body: "12 months to report claims if you don't renew." },
@@ -180,7 +180,7 @@ export const INSURER_POLICIES: Record<string, QuotePolicy> = {
   "HDFC ERGO General Insurance": {
     top: ["Entity Employment Practices", "Cyber Incident Liability", "Whistle-blower Response"],
     overview: [
-      { title: "Best For", body: "Growing teams with lots of hiring, where employee claims are the most likely risk." },
+      { title: "Suited To", body: "Growing teams with lots of hiring, where employee claims are the most likely risk." },
       { title: "Buy Online", body: "Priced and issued online, with cover starting the moment you pay." },
       { title: "HR Helpline", body: "Free access to an employment-law helpline for your HR team through the year." },
     ],
@@ -235,7 +235,7 @@ export const INSURER_POLICIES: Record<string, QuotePolicy> = {
   "Royal Sundaram General Insurance": {
     top: ["Bail Bond Costs", "Court Attendance Costs", "Public Relations Expenses"],
     overview: [
-      { title: "Best For", body: "Family-run and closely held companies that want broad cover at a steady price." },
+      { title: "Suited To", body: "Family-run and closely held companies that want broad cover at a steady price." },
       { title: "Priced Online", body: "Your price is fixed online. An expert confirms the details before the policy is issued." },
       { title: "Loyalty Discount", body: "A discount on renewal if there are no claims during the year." },
     ],
@@ -287,7 +287,7 @@ export const INSURER_POLICIES: Record<string, QuotePolicy> = {
   "Bajaj General Insurance": {
     top: ["Tax Liability of Directors", "Insolvency Claims Cover", "Retired Directors Run-off"],
     overview: [
-      { title: "Best For", body: "Leveraged or highly regulated companies where insolvency and tax risk matter most." },
+      { title: "Suited To", body: "Leveraged or highly regulated companies where insolvency and tax risk matter most." },
       { title: "Quote on Request", body: "Bajaj prices this cover after reviewing your financials. An expert will call you with the quote." },
       { title: "Claims Made Basis", body: "Pays for claims first made and reported while the policy is active." },
     ],
@@ -312,7 +312,7 @@ export const INSURER_POLICIES: Record<string, QuotePolicy> = {
   "SBI General Insurance": {
     top: ["Pollution Defence Costs", "Workplace Safety Defence", "Spouse & Heirs Cover"],
     overview: [
-      { title: "Best For", body: "Manufacturing and industrial businesses with plants, labour and environmental exposure." },
+      { title: "Suited To", body: "Manufacturing and industrial businesses with plants, labour and environmental exposure." },
       { title: "Quote on Request", body: "SBI General prices this cover after a short risk review. An expert will call you with the quote." },
       { title: "Plant Visits", body: "An optional risk review visit to one of your sites, at no extra cost." },
     ],
@@ -337,7 +337,7 @@ export const INSURER_POLICIES: Record<string, QuotePolicy> = {
   "ICICI Lombard General Insurance": {
     top: ["Competition Law Defence", "Newly Acquired Subsidiaries", "Securities Claims Cover"],
     overview: [
-      { title: "Best For", body: "Companies that are acquiring, raising funds or preparing to list." },
+      { title: "Suited To", body: "Companies that are acquiring, raising funds or preparing to list." },
       { title: "Quote on Request", body: "ICICI Lombard prices this cover after reviewing your cap table. An expert will call you with the quote." },
       { title: "Deal Support", body: "Cover can be extended for a specific acquisition or fundraise at short notice." },
     ],

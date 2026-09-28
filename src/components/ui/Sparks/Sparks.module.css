@@ -17,3 +17,12 @@
   border-radius: 1px;
   will-change: transform, opacity;
 }
+
+/* Dithered sparks: one canvas centred on the origin, crisp cells. */
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  image-rendering: pixelated;
+}

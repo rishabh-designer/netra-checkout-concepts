@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { useState, type ReactNode } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import styles from "./SuccessTimeline.module.css";
 
 export type SuccessStepState = "done" | "active" | "pending";
@@ -18,13 +18,16 @@ export interface SuccessTimelineItem {
   /** Under the copy: a plain underlined text link. */
   link?: { label: string; onClick?: () => void };
   /** Under the copy: the row's next action (disabled while pending). */
-  action?: { label: string; onClick?: () => void };
+  /** `pendingTip`: the tooltip while the row is still pending. */
+  action?: { label: string; onClick?: () => void; pendingTip?: string };
 }
 
 export interface SuccessTimelineProps {
   items: SuccessTimelineItem[];
   /** Seconds before the first row starts drawing in. */
   delay?: number;
+  /** The chevron's labels (screen readers and tooltip). */
+  toggleLabels: { show: string; hide: string };
 }
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -60,8 +63,27 @@ function PillMark({ state, delay }: { state: SuccessStepState; delay: number }) 
  * rail line grows down, then the text rises.
  * Usage: <SuccessTimeline items={rows} delay={0.5} />
  */
-export function SuccessTimeline({ items, delay = 0 }: SuccessTimelineProps) {
+export function SuccessTimeline({ items, delay = 0, toggleLabels }: SuccessTimelineProps) {
   const reduced = useReducedMotion();
+  // Only the step in progress starts open; done and pending ones start
+  // folded to their pill.
+  const [open, setOpen] = useState(() => new Set(items.filter((it) => it.state === "active").map((it) => it.pill)));
+  // Only the steps open on arrival rise in with the page; once toggled, a
+  // step just unfolds.
+  const [openedOnArrival, setOpenedOnArrival] = useState(open);
+  const toggle = (pill: string) => {
+    setOpenedOnArrival((s) => {
+      const next = new Set(s);
+      next.delete(pill);
+      return next;
+    });
+    setOpen((s) => {
+      const next = new Set(s);
+      if (next.has(pill)) next.delete(pill);
+      else next.add(pill);
+      return next;
+    });
+  };
   const rise = (d: number) =>
     reduced
       ? {}
@@ -71,8 +93,24 @@ export function SuccessTimeline({ items, delay = 0 }: SuccessTimelineProps) {
     <ol className={styles.list}>
       {items.map((it, i) => {
         const d = delay + i * STEP;
+        const isOpen = open.has(it.pill);
+        const label = isOpen ? toggleLabels.hide : toggleLabels.show;
         return (
-          <li key={it.pill} className={styles.step} data-state={it.state}>
+          <li key={it.pill} className={styles.step} data-state={it.state} data-open={isOpen || undefined}>
+            <div className={styles.head}>
+              {/* chevron.controls (713:59196), before the pill: folds the step's copy away. */}
+              <button
+                type="button"
+                className={styles.toggle}
+                aria-expanded={isOpen}
+                aria-label={label}
+                data-tooltip={label}
+                onClick={() => toggle(it.pill)}
+              >
+                <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
+                  <path d="M3 7.5 6 4.5l3 3" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
             <motion.span
               className={styles.pill}
               data-state={it.state}
@@ -83,6 +121,7 @@ export function SuccessTimeline({ items, delay = 0 }: SuccessTimelineProps) {
               <PillMark state={it.state} delay={d} />
               {it.pill}
             </motion.span>
+            </div>
             <div className={styles.row}>
               <span className={styles.gutter} aria-hidden>
                 <motion.span
@@ -92,7 +131,20 @@ export function SuccessTimeline({ items, delay = 0 }: SuccessTimelineProps) {
                   transition={{ duration: 0.45, delay: d + 0.15, ease: EASE }}
                 />
               </span>
-              <motion.div className={styles.body} {...rise(d + 0.06)}>
+              {/* Not initial={false}: that would also skip the copy's own rise-in,
+                  which must wait for its pill. Open-on-arrival folds skip the
+                  height tween instead. */}
+              <AnimatePresence>
+              {isOpen && (
+              <motion.div
+                key="body"
+                className={styles.fold}
+                initial={reduced || openedOnArrival.has(it.pill) ? false : { height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: EASE }}
+              >
+              <motion.div className={styles.body} {...(openedOnArrival.has(it.pill) ? rise(d + 0.25) : {})}>
                 <div className={styles.titleRow}>
                   <p className={styles.title}>{it.title}</p>
                   {it.tag ??
@@ -116,7 +168,7 @@ export function SuccessTimeline({ items, delay = 0 }: SuccessTimelineProps) {
                       </button>
                     )}
                     {it.action && (
-                      <button type="button" className={styles.action} disabled={it.state === "pending"} onClick={it.action.onClick}>
+                      <button type="button" className={styles.action} disabled={it.state === "pending"} data-tooltip={it.state === "pending" ? it.action.pendingTip : undefined} onClick={it.action.onClick}>
                         {it.action.label}
                         <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
                           <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
@@ -126,6 +178,9 @@ export function SuccessTimeline({ items, delay = 0 }: SuccessTimelineProps) {
                   </div>
                 )}
               </motion.div>
+              </motion.div>
+              )}
+              </AnimatePresence>
             </div>
           </li>
         );

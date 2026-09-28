@@ -129,7 +129,7 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
     }
     const v = valueOf(q, row);
     if (row.source === "territory" && q.territory) {
-      return <span className={styles.territory}>{v}</span>;
+      return <span className={styles.territory} data-tooltip={labels.tips?.territory[q.territory]}>{v}</span>;
     }
     const muted = v === content.notIncludedLabel || v === content.onRequestLabel;
     return <span className={muted ? styles.muted : row.source === "premium" ? styles.price : undefined}>{v}</span>;

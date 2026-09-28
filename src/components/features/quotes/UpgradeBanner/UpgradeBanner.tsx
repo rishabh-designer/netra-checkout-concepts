@@ -11,6 +11,7 @@ import {
   type Variants,
 } from "motion/react";
 import type { NoRecordsBannerContent, UpgradeBannerContent, UpgradedBannerContent } from "@/types/quotesPage";
+import { DitherWash } from "@/components/ui/DitherWash";
 import { Sparks } from "@/components/ui/Sparks";
 import { Toast } from "@/components/ui/Toast";
 import styles from "./UpgradeBanner.module.css";
@@ -27,8 +28,10 @@ export interface UpgradeBannerProps {
   onSimulate?: () => void;
   /** Hidden demo shortcut: clicking "You're Upgraded!" resets to the start. */
   onReset?: () => void;
-  /** The company the quotes are for, at the banner's foot. */
+  /** The company the quotes are for, at the banner's head. */
   company?: ReactNode;
+  /** Upgraded: a Notify Me under the body (Case B), and its click. */
+  notify?: { label: string; onClick: () => void };
 }
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -55,8 +58,11 @@ const body: Variants = {
  * rises letter by letter while a burst of ikkat sparks fires behind it.
  * Usage: <UpgradeBanner stage={stage} content={upgrade} upgraded={upgraded} progress={mv} onSimulate={fn} />
  */
-export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, onReset, company }: UpgradeBannerProps) {
+export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, onReset, company, notify }: UpgradeBannerProps) {
   const reduced = useReducedMotion();
+  // Already upgraded on arrival (a reload, an Edit Details save): the banner
+  // rests, so its sparks and light stay still too, matching its title.
+  const [arrivedUpgraded] = useState(stage === "upgraded");
   const label = useTransform(progress, (v) => `${Math.round(v)}%`);
   const width = useTransform(progress, (v) => `${v}%`);
   const [step, setStep] = useState(-1);
@@ -92,7 +98,15 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, ease: EASE }}
         >
-          {!reduced && <Sparks count={12} distance={[50, 120]} delay={0.1} />}
+          {/* A quiet dithered light rakes across and dissolves into the fill. */}
+          {!arrivedUpgraded && <DitherWash delay={0.15} duration={1.6} />}
+          {!reduced && !arrivedUpgraded && <Sparks count={12} distance={[50, 120]} delay={0.1} />}
+          {company && (
+            // Clicks on the company row don't reach the hidden reset.
+            <div className={styles.company} onClick={(e) => e.stopPropagation()}>
+              {company}
+            </div>
+          )}
           <motion.p className={styles.upgradedTitle} variants={enter} initial="hidden" animate="shown" aria-label={upgraded.title}>
             {Array.from(upgraded.title).map((c, i) => (
               <span key={i} className={styles.charMask} aria-hidden>
@@ -105,11 +119,20 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
           <motion.p className={styles.upgradedBody} variants={reduced ? undefined : body} initial="hidden" animate="shown">
             {upgraded.body}
           </motion.p>
-          {company && (
-            // Clicks on the company row don't reach the hidden reset.
-            <div className={styles.company} onClick={(e) => e.stopPropagation()}>
-              {company}
-            </div>
+          {notify && (
+            // Its own click, not the hidden reset on the banner.
+            <motion.div className={styles.footer} data-align="start" variants={reduced ? undefined : body} initial="hidden" animate="shown">
+              <button
+                type="button"
+                className={`${styles.cta} ${styles.ctaNeutral}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  notify.onClick();
+                }}
+              >
+                {notify.label}
+              </button>
+            </motion.div>
           )}
         </motion.div>
       ) : (
@@ -121,6 +144,7 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -10, filter: "blur(6px)", transition: { duration: 0.3, ease: EASE } }}
         >
+          {company && <div className={styles.company}>{company}</div>}
           <p className={styles.title}>{content.title}</p>
           <p className={styles.body}>{content.body}</p>
           <div className={styles.meterRow}>
@@ -164,7 +188,6 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
               {content.ctaLabel}
             </button>
           </div>
-          {company && <div className={styles.company}>{company}</div>}
         </motion.div>
       )}
     </AnimatePresence>
@@ -187,17 +210,21 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
  * shell and type as "Ready to Upgrade?".
  * Usage: <NoRecordsBanner content={noRecords} />
  */
-export function NoRecordsBanner({ content, company }: { content: NoRecordsBannerContent; company?: ReactNode }) {
+export function NoRecordsBanner({ content, company, onSchedule }: { content: NoRecordsBannerContent; company?: ReactNode; onSchedule?: () => void }) {
   return (
     <div className={styles.banner}>
+      {company && <div className={styles.company}>{company}</div>}
       <p className={styles.title}>{content.title}</p>
       <p className={styles.body}>{content.body}</p>
-      <div className={styles.footer} data-align="end">
-        <a href={content.ctaHref} className={styles.cta}>
+      <div className={styles.footer} data-align="start">
+        {/* Phones call the experts; larger screens book a meeting instead. */}
+        <a href={content.ctaHref} className={`${styles.cta} ${styles.phoneOnly}`}>
           {content.ctaLabel}
         </a>
+        <button type="button" className={`${styles.cta} ${styles.webOnly}`} onClick={onSchedule}>
+          {content.webCtaLabel}
+        </button>
       </div>
-      {company && <div className={styles.company}>{company}</div>}
     </div>
   );
 }

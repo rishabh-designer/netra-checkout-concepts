@@ -12,7 +12,7 @@ import { HeroFlourish } from "@/components/features/product-hero/HeroFlourish";
 import { LandingShell } from "@/components/features/product-hero/LandingShell";
 import styles from "./page.module.css";
 
-/** Director's & Officer's Insurance product page — Figma node 179:65816, hero fold. */
+/** Directors & Officers Insurance product page — Figma node 179:65816, hero fold. */
 export default async function DirectorsAndOfficersInsurancePage() {
   const [content, quotes] = await Promise.all([getProductPageContent(), getQuotesPageContent()]);
   // Enough of the Quotes page to draw its skeleton behind the quote modal.

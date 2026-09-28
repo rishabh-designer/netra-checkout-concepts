@@ -162,7 +162,7 @@ export function UploadField({ label, title, mandatory, fileName, onChange, copy,
               {state === "failure" && copy.failureTitle}
               {state === "disabled" && copy.disabledTitle}
             </p>
-            <p className={styles.sub}>
+            <p className={styles.sub} data-tooltip-overflow>
               {state === "default" && copy.hint}
               {state === "success" && withFile(copy.successBody, fileName, styles.fileOk)}
               {state === "fetched" && withFile(copy.fetchedBody, fileName, styles.fileOk)}

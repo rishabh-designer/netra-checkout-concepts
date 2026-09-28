@@ -114,7 +114,7 @@ export function SelectMenu({
         onClick={() => setOpen(!open)}
         onKeyDown={onKeyDown}
       >
-        {adornment ? <span className={styles.text}>{triggerLabel ?? (value || placeholder)}</span> : (triggerLabel ?? (value || placeholder))}
+        {adornment ? <span className={styles.text} data-tooltip-overflow>{triggerLabel ?? (value || placeholder)}</span> : (triggerLabel ?? (value || placeholder))}
         {adornment}
       </button>
 
@@ -134,7 +134,7 @@ export function SelectMenu({
                 onPointerDown={(e) => e.preventDefault()} // keep focus on the trigger
                 onClick={() => pick(opt)}
               >
-                <span className={styles.label}>{opt}</span>
+                <span className={styles.label} data-tooltip-overflow>{opt}</span>
                 <FilledCheck color={selected ? "var(--color-success)" : "var(--color-input-stroke)"} />
               </li>
             );

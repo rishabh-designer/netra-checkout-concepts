@@ -17,6 +17,8 @@ import { QuoteFlowProvider } from "@/lib/quote-flow";
 import { DemoNoticeProvider } from "@/lib/demo-notice";
 import { getDemoNotices } from "@/lib/api/demoNotices";
 import { TooltipLayer } from "@/components/ui/Tooltip";
+import { FieldTipsProvider } from "@/lib/field-tips";
+import { getFieldTips } from "@/lib/api/fieldTips";
 
 /*
  * Typography mandate: only Anek (every script it ships) and Instrument Serif
@@ -61,19 +63,21 @@ const fontVariables = [
   .join(" ");
 
 export const metadata: Metadata = {
-  title: "Director’s & Officer’s Insurance | BimaKavach",
+  title: "Directors & Officers Insurance | BimaKavach",
   description: "Protects executives when business decisions lead to lawsuits",
 };
 
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const notices = await getDemoNotices();
+  const [notices, fieldTips] = await Promise.all([getDemoNotices(), getFieldTips()]);
   return (
     <html lang="en" className={fontVariables}>
       <body>
         <QuoteFlowProvider>
-          <DemoNoticeProvider content={notices}>{children}</DemoNoticeProvider>
+          <DemoNoticeProvider content={notices}>
+            <FieldTipsProvider tips={fieldTips}>{children}</FieldTipsProvider>
+          </DemoNoticeProvider>
           <TooltipLayer />
         </QuoteFlowProvider>
       </body>

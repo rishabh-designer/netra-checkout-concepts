@@ -14,6 +14,8 @@ export interface ResearchSourcesProps {
   settled: boolean;
   /** How long the probe runs; the last source answers just inside it. */
   probeMs?: number;
+  /** Tooltip per result, once a source has answered. */
+  resultTips?: Record<QuoteResearchSource["result"], string>;
 }
 
 type ChipState = "pending" | "querying" | "returned";
@@ -59,7 +61,7 @@ function Glyph({ result }: { result: QuoteResearchSource["result"] }) {
  * checked.
  * Usage: <ResearchSources sources={search.sources} scanning={!fetched} settled={instant} />
  */
-export function ResearchSources({ sources, scanning, settled, probeMs = 1500 }: ResearchSourcesProps) {
+export function ResearchSources({ sources, scanning, settled, probeMs = 1500, resultTips }: ResearchSourcesProps) {
   const last = Math.min(LAST_RETURN_MS, probeMs - 100);
   const [elapsed, setElapsed] = useState(settled || !scanning ? Infinity : 0);
 
@@ -90,6 +92,7 @@ export function ResearchSources({ sources, scanning, settled, probeMs = 1500 }: 
             className={styles.chip}
             data-state={state}
             data-result={state === "returned" ? s.result : undefined}
+            data-tooltip={state === "returned" ? resultTips?.[s.result] : undefined}
             animate={state === "returned" && !settled ? { scale: [0.92, 1.04, 1] } : undefined}
             transition={{ type: "tween", duration: 0.35, ease: [0.34, 1.4, 0.64, 1] }}
           >

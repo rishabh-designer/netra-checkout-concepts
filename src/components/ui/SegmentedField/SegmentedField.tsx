@@ -90,7 +90,7 @@ export function SegmentedField({
 
       {showHelp && (
         <div className={styles.help} data-tone={helpText ? helpTone : "neutral"}>
-          {helpText && <p className={styles.helpText}>{helpText}</p>}
+          {helpText && <p className={styles.helpText} data-tooltip-overflow>{helpText}</p>}
         </div>
       )}
     </div>

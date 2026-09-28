@@ -138,6 +138,13 @@
   font-size: var(--font-size-300);
 }
 
+/* Small: a 14px value (the quotes page's "quotes for" company field). */
+.field[data-size="sm"] .prefix,
+.field[data-size="sm"] .value,
+.field[data-size="sm"] .input {
+  font-size: var(--font-size-100);
+}
+
 /* Large (checkout) fields carry a 14px label (Figma 484:26443). */
 .field[data-size="lg"] .label {
   font-size: var(--font-size-100);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import styles from "./Tooltip.module.css";
 
@@ -28,7 +28,8 @@ function place(el: Element, side: Side): [number, number] {
  * look, as on the input's info icon). Any element with `data-tooltip` shows
  * it on hover or keyboard focus, after a short pause; `data-tooltip-side`
  * picks top (default), bottom, left or right, and a top tip near the screen
- * edge drops below instead. Nothing wraps the control, so layouts don't move.
+ * edge drops below instead. `data-tooltip-overflow` shows an ellipsized
+ * element's full text, only while it's actually cut off. Nothing wraps the control, so layouts don't move.
  * Mounted once in the root layout.
  * Usage: <button aria-label="Close" data-tooltip="Close">…</button>
  */
@@ -36,6 +37,19 @@ export function TooltipLayer() {
   const [tip, setTip] = useState<Tip | null>(null);
   const timer = useRef<number | undefined>(undefined);
   const current = useRef<Element | null>(null);
+  const tipRef = useRef<HTMLSpanElement>(null);
+
+  // Keep the tip on screen: nudge it in from either edge by the overhang.
+  useLayoutEffect(() => {
+    const el = tipRef.current;
+    if (!el) return;
+    el.style.marginLeft = "0px";
+    const r = el.getBoundingClientRect();
+    const over = r.right - (window.innerWidth - GAP);
+    const under = GAP - r.left;
+    if (over > 0) el.style.marginLeft = `${-over}px`;
+    else if (under > 0) el.style.marginLeft = `${under}px`;
+  }, [tip]);
 
   useEffect(() => {
     const hide = () => {
@@ -44,11 +58,16 @@ export function TooltipLayer() {
       setTip(null);
     };
     const show = (target: EventTarget | null) => {
-      const el = (target as Element | null)?.closest?.("[data-tooltip]");
+      const el = (target as Element | null)?.closest?.("[data-tooltip], [data-tooltip-overflow]");
       if (el === current.current) return;
       hide();
       if (!el) return;
-      const text = el.getAttribute("data-tooltip");
+      // data-tooltip-overflow: the element's own text, only while it's cut off.
+      const text = el.hasAttribute("data-tooltip")
+        ? el.getAttribute("data-tooltip")
+        : el.scrollWidth > el.clientWidth + 1
+          ? el.textContent
+          : null;
       if (!text) return;
       current.current = el;
       timer.current = window.setTimeout(() => {
@@ -77,7 +96,7 @@ export function TooltipLayer() {
 
   if (!tip) return null;
   return createPortal(
-    <span role="tooltip" className={styles.tip} data-side={tip.side} style={{ left: tip.x, top: tip.y }}>
+    <span ref={tipRef} role="tooltip" className={styles.tip} data-side={tip.side} style={{ left: tip.x, top: tip.y }}>
       {tip.text}
     </span>,
     document.body,

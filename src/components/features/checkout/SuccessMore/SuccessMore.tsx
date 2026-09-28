@@ -83,7 +83,7 @@ export function Suggestions({ suggestions, delay = 0 }: SuggestionsProps) {
             </div>
             <div className={styles.cardFoot}>
               {item.immediate ? (
-                <span className={styles.tag}>
+                <span className={styles.tag} data-tooltip={suggestions.immediateTip}>
                   <ShoppingBagIcon size={10} color="var(--color-success)" />
                   {suggestions.immediateLabel}
                 </span>

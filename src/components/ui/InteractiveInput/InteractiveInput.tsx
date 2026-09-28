@@ -59,9 +59,9 @@ export interface InteractiveInputProps {
   onInfoClick?: () => void;
   name?: string;
   ariaLabel?: string;
-  /** Value type size: "md" = 16px (DSL default, Figma 503:14272); "lg" = 18px
+  /** Value type size: "sm" = 14px; "md" = 16px (DSL default, Figma 503:14272); "lg" = 18px
    *  (the hero lead field). Labels are always 12px. */
-  size?: "md" | "lg";
+  size?: "sm" | "md" | "lg";
   /** "boxed" = hairline border on all sides, r12, white (checkout Billing,
    *  Figma 484:25880). Default is the DSL's bottom-stroke field. */
   variant?: "underline" | "boxed";
@@ -180,7 +180,7 @@ export function InteractiveInput({
         )}
 
         {readOnly || locked ? (
-          <span className={styles.value}>{value}</span>
+          <span className={styles.value} data-tooltip-overflow>{value}</span>
         ) : isSelect ? (
           <SelectMenu
             id={inputId}
@@ -290,7 +290,7 @@ export function InteractiveInput({
       {showHelp && (
         <div className={styles.help} data-tone={effectiveTone} data-align={helpAlign === "end" && !validationError ? "end" : undefined}>
           {effectiveHelp && (
-            <p id={helpId} className={styles.helpText}>
+            <p id={helpId} className={styles.helpText} data-tooltip-overflow>
               {effectiveHelp}
               {helpAction && !validationError && (
                 <>

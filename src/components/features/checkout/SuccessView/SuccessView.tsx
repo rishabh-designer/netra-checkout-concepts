@@ -139,6 +139,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
     <span
       className={styles.tag}
       data-tone="gold"
+      data-tooltip={content.summary.tips.gold}
       onMouseEnter={() => eyeRef.current?.startAnimation()}
       onMouseLeave={() => eyeRef.current?.stopAnimation()}
     >
@@ -149,6 +150,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   const purchaseTag = expert ? undefined : (
     <span
       className={styles.tag}
+      data-tooltip={content.summary.tips.immediate}
       onMouseEnter={() => bagRef.current?.startAnimation()}
       onMouseLeave={() => bagRef.current?.stopAnimation()}
     >
@@ -163,7 +165,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
     { pill: s.stepLabels[1], state: "done", title: pick.title, body: fill(pick.body, { product, count: countLabel, insurer: quote.insurer }), status: { label: pick.statusLabel!, time: pick.time! }, tag: goldTag },
     { pill: s.stepLabels[2], state: "done", title: diligence.title, body: fill(diligence.body, { time }), status: { label: diligence.statusLabel!, time }, tag: purchaseTag },
     { pill: s.stepLabels[3], state: "active", title: s.mandate.title, body: fill(s.mandate.body, { mandate: s.mandate.link }, ["mandate"]), action: { label: s.signLabel, onClick: sign } },
-    { pill: s.stepLabels[4], state: "pending", title: s.issuance.title, body: s.issuance.body, action: { label: s.viewPolicyLabel } },
+    { pill: s.stepLabels[4], state: "pending", title: s.issuance.title, body: s.issuance.body, action: { label: s.viewPolicyLabel, pendingTip: s.viewPolicyPendingTip } },
   ];
   const company = checkout.companyName || result?.companyName || content.fallbackCompanyName;
   const [greetA, greetB = ""] = s.greeting.replace("{name}", name).replace("{company}", company).split("{order}");
@@ -246,7 +248,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                     <IkkatDivider height={4} unit={22} />
                   </motion.div>
 
-                  <SuccessTimeline items={rows} delay={0.5} />
+                  <SuccessTimeline items={rows} delay={0.5} toggleLabels={s.stepToggle} />
 
                   {!s.hideNextUp && (
                     <motion.div className={styles.next} {...rise(1.25)}>
@@ -294,7 +296,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
               <Suggestions suggestions={s.suggestions} delay={1.35} />
 
               <motion.div {...rise(1.7)}>
-                <Disclaimer {...content.disclaimer} />
+                <Disclaimer title={content.disclaimer.title} toggleLabel={content.disclaimer.toggleLabel} paragraphs={[content.disclaimer.contextual.success, ...content.disclaimer.paragraphs]} />
               </motion.div>
             </motion.div>
           )}

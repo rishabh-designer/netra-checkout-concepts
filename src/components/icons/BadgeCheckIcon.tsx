@@ -22,7 +22,7 @@ interface BadgeCheckIconProps extends Omit<
 
 /**
  * BadgeCheckIcon — Lucide's badge-check, animated after @animateicons (the
- * house icon pattern, vendored like EyeIcon): on hover the seal gives a small
+ * house icon pattern, vendored): on hover the seal gives a small
  * turn-and-settle and the tick redraws. Drive it from a parent with the ref
  * (startAnimation / stopAnimation); still under reduced motion.
  * Usage: <BadgeCheckIcon size={12} color="var(--color-brand-secondary)" />

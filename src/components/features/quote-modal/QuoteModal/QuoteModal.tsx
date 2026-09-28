@@ -26,6 +26,7 @@ import type {
 import { useResearchTimeline, type ResearchView } from "../useResearchTimeline";
 import { ResearchSources } from "../ResearchSources";
 import { useDemoNotice } from "@/lib/demo-notice";
+import { useFieldTip } from "@/lib/field-tips";
 import styles from "./QuoteModal.module.css";
 
 /** Research timeline per probed step (one clock, useResearchTimeline): the
@@ -118,6 +119,21 @@ export function QuoteModal({
   const step = content.steps[stepIndex];
   const qc = step.cases[caseId];
   const lastStep = content.steps.length - 1;
+  // Edit Details (form-only): every question of the flow in one scrolling
+  // list, in step order, instead of one step at a time.
+  const allFields = useMemo(() => {
+    const seen = new Set<string>();
+    return content.steps.flatMap((st) =>
+      st.cases[caseId].fields.filter((f) => (seen.has(f.key) ? false : (seen.add(f.key), true))),
+    );
+  }, [content.steps, caseId]);
+  const formFields = formOnly ? allFields : qc.fields;
+  /** Fields from a collect-mode step (Profile) keep that step's plain status. */
+  const collectKeys = useMemo(
+    () => new Set(content.steps.filter((st) => st.collectMode).flatMap((st) => st.cases[caseId].fields.map((f) => f.key))),
+    [content.steps, caseId],
+  );
+  const needsConsent = !formOnly && !!qc.requiresConsent;
 
   const [values, setValues] = useState<Record<string, string>>({});
   const [consent, setConsent] = useState(false);
@@ -139,7 +155,7 @@ export function QuoteModal({
     if (!open) return;
     setValues((prev) => {
       const next = { ...prev };
-      qc.fields.forEach((f) => {
+      formFields.forEach((f) => {
         if (f.key in next) return;
         // Prefill (edit mode) wins; else Name = the typed company name and
         // everything else takes its mock default.
@@ -148,7 +164,7 @@ export function QuoteModal({
       return next;
     });
     setConsent(false);
-  }, [open, stepIndex, caseId, companyName, qc.fields, initialValues]);
+  }, [open, stepIndex, caseId, companyName, formFields, initialValues]);
 
   // One clock for the step's research. Form-only (edit), Profile (collect
   // mode), reduced motion and revisited steps start at rest.
@@ -182,11 +198,11 @@ export function QuoteModal({
     if (!ready) return false;
     // Every step gates on its mandatory fields and valid formats; consent
     // steps (case B) also need the attestation ticked.
-    if (!allMandatoryFilled(qc.fields)) return false;
-    if (qc.fields.some((f) => errorFor(f))) return false;
-    return qc.requiresConsent ? consent : true;
+    if (!allMandatoryFilled(formFields)) return false;
+    if (formFields.some((f) => errorFor(f))) return false;
+    return needsConsent ? consent : true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, consent, values, qc.fields, qc.requiresConsent]);
+  }, [ready, consent, values, formFields, needsConsent]);
 
   /** The distinct mandatory field keys across the whole flow — the meter's
    *  numerator pool. Depends only on the resolved case, not on typed values, so
@@ -225,6 +241,7 @@ export function QuoteModal({
     progressLabel: content.engine.progressLabel,
     verdict,
     probeMs,
+    sourceTips: content.sourceResultTips,
   };
   // Evidence wave: once the findings finish typing, the fields resolve one
   // after another in form order (the meter climbs with each).
@@ -248,7 +265,8 @@ export function QuoteModal({
    *  carries them to the Quotes results page. */
   const handleSubmit = () => {
     if (!canSubmit) return;
-    if (stepIndex < lastStep) setStepIndex((i) => i + 1);
+    if (formOnly) onComplete?.(values);
+    else if (stepIndex < lastStep) setStepIndex((i) => i + 1);
     else onComplete?.(values);
   };
   const handleBack = () => {
@@ -296,7 +314,7 @@ export function QuoteModal({
             className={cn(styles.modal, formOnly && styles.modalFormOnly)}
             role="dialog"
             aria-modal="true"
-            aria-label={step.title}
+            aria-label={formOnly ? content.editTitle : step.title}
             onClick={(e) => e.stopPropagation()}
             // Drawer slides in from the left edge past its 32px gutter
             // (Figma 514:19015); the centred modal rises and fades.
@@ -330,7 +348,7 @@ export function QuoteModal({
                     control on the right. */}
                 <header className={styles.header}>
                   <div className={styles.headerLead}>
-                    {stepIndex > 0 && (
+                    {stepIndex > 0 && !formOnly && (
                       <button type="button" className={styles.ctrl} aria-label="Back" data-tooltip="Back" onClick={handleBack}>
                         <ChevronLeft />
                       </button>
@@ -338,17 +356,23 @@ export function QuoteModal({
                     {/* The title mirrors the current step's pill label.
                         Hidden demo shortcut: on a step whose case has
                         `demoFill`, clicking it fills the fields. */}
-                    <h2
-                      className={cn(styles.title, qc.demoFill && styles.titleFill)}
-                      onClick={
-                        qc.demoFill
-                          ? () => setValues((s) => ({ ...s, ...qc.demoFill }))
-                          : undefined
-                      }
-                    >
-                      {content.stepperLabels[stepIndex]}
-                    </h2>
-                    <StepPills steps={content.stepperLabels} active={stepIndex} />
+                    {formOnly ? (
+                      <h2 className={styles.title}>{content.editTitle}</h2>
+                    ) : (
+                      <>
+                        <h2
+                          className={cn(styles.title, qc.demoFill && styles.titleFill)}
+                          onClick={
+                            qc.demoFill
+                              ? () => setValues((s) => ({ ...s, ...qc.demoFill }))
+                              : undefined
+                          }
+                        >
+                          {content.stepperLabels[stepIndex]}
+                        </h2>
+                        <StepPills steps={content.stepperLabels} active={stepIndex} />
+                      </>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -363,12 +387,12 @@ export function QuoteModal({
 
                 <AnimatePresence mode="wait" initial={false}>
                 <motion.div key={stepIndex} className={styles.fields} {...morphView(reduced)}>
-                  {qc.fields.map((field) => (
+                  {formFields.map((field) => (
                     <Fragment key={field.key}>
                       {/* Auto-personalize badge sits between the questions and the
                           coverage field (Insurance cases A + B), preceded by a
                           woven ikkat rule that closes off the binary questions. */}
-                      {field.key === "coverage" && qc.personalize && (
+                      {field.key === "coverage" && qc.personalize && !formOnly && (
                         <>
                           <IkkatDivider className={styles.fieldsDivider} />
                           <PersonalizeBadge personalize={qc.personalize} fetched={ready} />
@@ -377,9 +401,9 @@ export function QuoteModal({
                       <Field
                         field={field}
                         caseId={caseId}
-                        collectMode={!!step.collectMode}
+                        collectMode={formOnly ? collectKeys.has(field.key) : !!step.collectMode}
                         consent={consent}
-                        fetched={field.key === "name" || tl.resolved.has(field.key)}
+                        fetched={formOnly || field.key === "name" || tl.resolved.has(field.key)}
                         value={values[field.key] ?? ""}
                         error={errorFor(field)}
                         nameHelp={field.key === "name" ? nameHelp : undefined}
@@ -398,7 +422,7 @@ export function QuoteModal({
                   <IkkatMark pattern={3} width={12} className={styles.rowMark} />
                   <span className={styles.rowSepLine} />
                 </div>
-                {qc.requiresConsent && (
+                {needsConsent && (
                   <label className={styles.consent}>
                     <input
                       type="checkbox"
@@ -414,9 +438,18 @@ export function QuoteModal({
                   type="button"
                   className={cn(styles.submit, canSubmit && styles.submitOn)}
                   disabled={!canSubmit}
+                  data-tooltip={
+                    canSubmit
+                      ? undefined
+                      : !ready
+                        ? content.submitBlocked.researching
+                        : needsConsent && !consent && allMandatoryFilled(formFields) && !formFields.some((f) => errorFor(f))
+                          ? content.submitBlocked.consent
+                          : content.submitBlocked.fields
+                  }
                   onClick={handleSubmit}
                 >
-                  <span>{stepIndex < lastStep ? content.continueLabel : content.ctaLabel}</span>
+                  <span>{formOnly ? content.saveLabel : stepIndex < lastStep ? content.continueLabel : content.ctaLabel}</span>
                   <Arrow />
                 </button>
               </div>
@@ -506,6 +539,7 @@ function Field({
   // Errors wait for blur (a half-typed value reads neutral, not wrong); once
   // shown they clear live as the user fixes it. A prefilled value counts as touched.
   const [touched, setTouched] = useState(value !== "");
+  const sharedTip = useFieldTip(field.key);
   const isName = field.key === "name";
   const fetching = !isName && !fetched;
   const status = displayStatus(field, caseId, value, collectMode, consent);
@@ -572,7 +606,7 @@ function Field({
       maxLength={field.maxLength}
       onFocus={() => !error && setTouched(false)}
       onBlur={() => setTouched(true)}
-      infoTooltip={field.infoTooltip}
+      infoTooltip={field.infoTooltip ?? sharedTip}
       showHelp
     />
     </div>
@@ -580,7 +614,7 @@ function Field({
 }
 
 /* Personalize badge (Insurance cases A + B): "New" chip + a status line that flips
-   from "…Being Personalized" (pending, purple + Skip) to "Personalized!" (done,
+   from "…being personalised" (pending, purple + Skip) to "personalised!" (done,
    orange). Skip is presentational for now. */
 function PersonalizeBadge({
   personalize,
@@ -718,7 +752,7 @@ function SearchResult({
             </motion.div>
           )}
         </AnimatePresence>
-        {search.sources.length > 0 && <ResearchSources sources={search.sources} scanning={!fetched} settled={settled} probeMs={research.probeMs} />}
+        {search.sources.length > 0 && <ResearchSources sources={search.sources} scanning={!fetched} settled={settled} probeMs={research.probeMs} resultTips={research.sourceTips} />}
       </div>
 
       {body ? (
@@ -744,11 +778,12 @@ function SearchResult({
                   {details.map(
                     (detail, i) =>
                       stream.started(D0 + i) && (
-                        <li key={detail} className={styles.detailItem}>
+                        <li key={detail} className={styles.detailItem} data-tooltip={body.detailTips?.[i]}>
                           {stream.reveal(D0 + i)}
                           {body.founderTag && i === details.length - 1 && stream.finished(D0 + i) && (
                             <motion.span
                               className={styles.sourceTag}
+                              data-tooltip={body.founderTagTip}
                               initial={reduced ? false : { opacity: 0, y: 4 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
@@ -835,8 +870,10 @@ function IntelligenceEngine({
     >
       {/* Request bubble + engine reply (Figma 503:14900) belong to Profile:
           leaving it, they lift away (rise, blur, fade) while their space
-          folds shut, and the runner glides up into place. */}
-      <AnimatePresence initial={false}>
+          folds shut, and the runner glides up into place. Not
+          initial={false}: that would freeze the bubble at rest while the
+          panel's stagger rises everything around it. */}
+      <AnimatePresence>
         {stepIndex === 0 && (
           <motion.div
             key="intro"

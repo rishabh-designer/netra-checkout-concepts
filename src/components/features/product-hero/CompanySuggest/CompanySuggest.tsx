@@ -127,9 +127,9 @@ export function CompanySuggest({ id, open, query, options, active, content, onPi
                     onClick={() => onPick(opt)}
                   >
                     <span className={styles.stack}>
-                      <span className={styles.label}>{opt.name}</span>
+                      <span className={styles.label} data-tooltip-overflow>{opt.name}</span>
                       {opt.kind === "record" && (
-                        <span className={styles.registered}>
+                        <span className={styles.registered} data-tooltip-overflow>
                           <span className={styles.registeredLabel}>{content.registeredLabel}</span> {opt.registered}
                         </span>
                       )}

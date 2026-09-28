@@ -26,6 +26,8 @@
 /* Skeleton ↔ content swap layer: carries the 2-column grid
    (sidebar 280 | feed, 41 apart; Figma 658:45796). */
 .swap {
+  flex: 1;
+  min-width: 0;
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   column-gap: 41px;
@@ -52,9 +54,35 @@
 
 /* Skeleton wrapper — QuotesSkeleton carries its own matching grid. */
 .fill {
+  flex: 1;
+  min-width: 0;
   width: 100%;
   height: 100%;
   min-height: 0;
+}
+
+/* Ask BimaNetra's column: grows in from the right (a CSS width transition),
+   the panel inside held at its full width so it doesn't squash on the way. */
+.chatSlot {
+  --chat-width: 424px;
+  flex-shrink: 0;
+  width: 0;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: width 0.38s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.chatSlot[data-open] {
+  width: var(--chat-width);
+  opacity: 1;
+}
+
+.chatInner {
+  width: calc(var(--chat-width) - var(--spacing-24));
+  height: 100%;
+  margin-left: var(--spacing-24);
 }
 
 /* Below the 2-column width: natural page scroll, columns stacked. */
@@ -74,6 +102,24 @@
   }
 }
 
+/* Narrow screens: the chat covers the page below the header instead. */
+@media (max-width: 1100px) {
+  .chatSlot {
+    --chat-width: 100vw;
+    position: fixed;
+    inset: var(--nav-height) 0 0 auto;
+    z-index: 30;
+    height: auto;
+  }
+
+  .chatInner {
+    width: 100vw;
+    margin-left: 0;
+    padding: var(--spacing-12);
+    background: var(--color-card);
+  }
+}
+
 @media (max-width: 600px) {
   .body {
     padding: var(--spacing-16);
@@ -81,12 +127,12 @@
 }
 
 /* Header CTA's sparkle: the Chat with Us icon as a mask, so it takes the
-   button's white label colour on the primary fill. */
+   button's white label colour on the primary fill; sized to the 12px label. */
 .sparkle {
   display: inline-block;
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   background: currentColor;
   -webkit-mask: var(--icon) center / contain no-repeat;
   mask: var(--icon) center / contain no-repeat;

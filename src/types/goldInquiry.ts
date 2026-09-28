@@ -38,7 +38,7 @@ export interface GoldInquiryContent {
     detailsMissing: string;
     detailsVerifying: string;
   };
-  /** `showing` fills {shown} (cards fully in view, up to the last) and {total}. */
+  /** `showing` fills {total} (the other quotes on offer). */
   otherQuotes: { title: string; showing: string; prevLabel: string; nextLabel: string };
   needHelp: {
     title: string;
@@ -53,6 +53,10 @@ export interface GoldInquiryContent {
     breadcrumbCurrent: string;
     title: string;
     steps: string[];
+    /** A priced insurer that isn't on sale online yet: its price is in,
+     *  its checks aren't. `{insurer}`, `{price}`. */
+    pricedSteps: string[];
+    priceLabel: string;
     inquiryTitle: string;
     insurerLabel: string;
     statusLabel: string;
@@ -64,6 +68,8 @@ export interface GoldInquiryContent {
     badgeSrc: string;
     options: string[];
     submitLabel: string;
+    /** Tooltip on Submit before a rating is picked. */
+    submitBlockedTip: string;
     thanks: string;
   };
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { InteractiveInput, type FieldStatus } from "@/components/ui/InteractiveInput";
 import { formatINR, formatPhone, inrInWords } from "@/lib/utils";
+import { useFieldTip } from "@/lib/field-tips";
 import type { CheckoutField as Field } from "@/types/checkout";
 
 export interface CheckoutFieldProps {
@@ -27,6 +28,7 @@ export interface CheckoutFieldProps {
 export function CheckoutField({ field, value, status, error, onChange, variant = "underline", reserveHelp = false }: CheckoutFieldProps) {
   // A prefilled value counts as touched, so a bad seed still shows its error.
   const [touched, setTouched] = useState(value !== "");
+  const tip = useFieldTip(field.key);
   const shown = touched ? error : null;
   const format = (v: string) =>
     field.validate === "phone" ? formatPhone(v) : field.amountWords ? formatINR(v) : field.upper ? v.toUpperCase() : v;
@@ -39,6 +41,7 @@ export function CheckoutField({ field, value, status, error, onChange, variant =
       label={field.label}
 
       ariaLabel={field.label}
+      infoTooltip={tip}
       mandatory={field.mandatory}
       control={field.control}
       options={field.options}

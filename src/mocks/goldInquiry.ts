@@ -9,12 +9,12 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
   backLabel: "Back to Quotes",
   breadcrumb: [
     { label: "HOME", href: "/directors-and-officers-insurance" },
-    { label: "DIRECTOR’S & OFFICER’S INSURANCE", href: "/directors-and-officers-insurance" },
+    { label: "DIRECTORS & OFFICERS INSURANCE", href: "/directors-and-officers-insurance" },
     { label: "LIVE QUOTES", href: "/directors-and-officers-insurance/quotes" },
     { label: "UNLOCK GOLD QUOTE" },
   ],
   title: "Gold Quote Selected! Sit Back While We Call You.",
-  intro: "Thanks. We have saved your quote. Here is what is next:",
+  intro: "Thanks. We have saved your interest. Here is what is next:",
   steps: [
     "Your quote will be locked for 45 days",
     "We will finalise your quote with the insurance company",
@@ -26,7 +26,7 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
     title: "Your Gold Quote Inquiry",
     ctaLabel: "Speak to an Expert",
     policyLabel: "Insurance Policy",
-    policyValue: "Director’s & Officer’s Insurance",
+    policyValue: "Directors & Officers Insurance",
     sumInsuredLabel: "Sum Insured",
     riskReportLabel: "Risk Report",
     riskReportValue: "In Progress",
@@ -34,7 +34,7 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
     detailsMissing: "Missing",
     detailsVerifying: "Verifying",
   },
-  otherQuotes: { title: "Other Quotes for This Policy", showing: "Showing {shown} of {total} Available Quotes", prevLabel: "Previous quotes", nextLabel: "More quotes" },
+  otherQuotes: { title: "Other Quotes for This Policy", showing: "{total} Alternative Quotes", prevLabel: "Previous quotes", nextLabel: "More quotes" },
   needHelp: {
     title: "Need Help?",
     subtitle: "For any assistance, contact our IRDAI-certified experts",
@@ -54,6 +54,12 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
       "Our IRDAI-certified expert will call you with the quote",
       "Once it is in, your quote will be locked for 45 days",
     ],
+    pricedSteps: [
+      "{insurer} has priced your cover at {price}",
+      "Our IRDAI-certified expert will call you to finish the insurer's checks",
+      "Once they're done, your quote will be locked for 45 days",
+    ],
+    priceLabel: "Quoted Price",
     inquiryTitle: "Your Quote Request",
     insurerLabel: "Insurer",
     statusLabel: "Quote Status",
@@ -65,6 +71,7 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
     badgeSrc: "/media/gold-inquiry/rate-badge.png",
     options: ["🤩 Excellent", "😀 Good", "☹️ Bad"],
     submitLabel: "Submit Feedback",
+    submitBlockedTip: "Pick a rating first",
     thanks: "Thanks! Your feedback helps us do better.",
   },
 };

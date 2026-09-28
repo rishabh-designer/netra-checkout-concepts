@@ -127,17 +127,17 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
               <div className={styles.identity}>
                 <div className={styles.tagRow}>
                   {quote.territory && labels.territory && (
-                    <span className={styles.tag} data-tone="territory">
+                    <span className={styles.tag} data-tone="territory" data-tooltip={labels.tips?.territory[quote.territory]}>
                       {labels.territory[quote.territory]}
                     </span>
                   )}
                   {tone === "gold" ? (
-                    <span className={styles.tag} data-tone="gold">
+                    <span className={styles.tag} data-tone="gold" data-tooltip={labels.tips?.gold}>
                       <BadgeCheckIcon size={10} color="var(--color-brand-secondary)" />
                       {labels.poweredBy}
                     </span>
                   ) : tone === "immediate" ? (
-                    <span className={styles.tag}>
+                    <span className={styles.tag} data-tooltip={labels.tips?.immediate}>
                       <ShoppingBagIcon size={10} color="var(--color-success)" />
                       {labels.immediatePurchase}
                     </span>
@@ -222,7 +222,9 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                         <Marker tone={tab.tone} />
                         {item.title}
                         {item.top && (
-                          <span className={styles.topPill}>{quote.gold ? content.personalizedLabel : content.topFeatureLabel}</span>
+                          <span className={styles.topPill} data-tooltip={quote.gold ? content.personalizedTip : content.topFeatureTip}>
+                            {quote.gold ? content.personalizedLabel : content.topFeatureLabel}
+                          </span>
                         )}
                       </p>
                       <p className={styles.itemBody}>{item.body}</p>

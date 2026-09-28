@@ -399,6 +399,30 @@
   );
 }
 
+/* Gold Quote foot (707:59180): the pale corners turn warm (caution at
+   the start, peach at the end) on a caution hairline, and its Personalized
+   Coverages chip takes the secondary (orange) theme. */
+.card[data-tone="gold"] .foot {
+  border-color: var(--color-caution-border);
+  background: linear-gradient(
+    127deg,
+    var(--color-caution-subtle) 0%,
+    var(--color-card) 6.5%,
+    var(--color-card) 93.2%,
+    var(--color-brand-secondary-subtle) 100%
+  );
+}
+
+.card[data-tone="gold"] .chip {
+  border-color: var(--color-brand-secondary-border);
+  background: var(--color-brand-secondary-subtle);
+  color: var(--color-brand-secondary);
+}
+
+.card[data-tone="gold"] .chip:hover {
+  border-color: var(--color-brand-secondary);
+}
+
 /* Coverages chip (658:48095): opens the policy details modal. Figma r6,
    one step rounder here. */
 .chip {

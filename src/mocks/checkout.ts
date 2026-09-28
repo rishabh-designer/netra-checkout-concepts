@@ -1,4 +1,5 @@
 import type { CheckoutContent, CheckoutField } from "@/types/checkout";
+import { TAG_TIPS } from "./tagTips";
 
 /* Place of Incorporation choices (city, state). */
 const PLACES = [
@@ -40,7 +41,7 @@ function kycFields(
 ): CheckoutField[] {
   return [
     { key: "gstin", label: "Company GST Number", mandatory: true, control: "text", value: gst.value, status: gst.status, placeholder: "Enter GST Number", maxLength: 15, validate: "gstin", upper: true },
-    { key: "pan", label: "Company PAN Card Number", reviewLabel: "Company Pan Card Number", mandatory: true, control: "text", value: pan.value, seedFrom: pan.seedFrom, status: pan.status, placeholder: "Enter PAN Number", maxLength: 10, validate: "pan", upper: true },
+    { key: "pan", label: "Company PAN", reviewLabel: "Company PAN", mandatory: true, control: "text", value: pan.value, seedFrom: pan.seedFrom, status: pan.status, placeholder: "Enter PAN Number", maxLength: 10, validate: "pan", upper: true },
   ];
 }
 
@@ -66,7 +67,7 @@ export const mockCheckoutContent: CheckoutContent = {
   header: {
     logoSrc: "/figma/logotype.svg",
     logoAlt: "BimaKavach",
-    supportLabel: "Contact Support",
+    supportLabel: "Speak to an Expert",
     supportIconSrc: "/media/checkout/headset.svg",
     cautionIconSrc: "/media/checkout/caution.webp",
     kolamSrc: "/media/checkout/kozam.svg",
@@ -76,8 +77,10 @@ export const mockCheckoutContent: CheckoutContent = {
   backToStepLabel: "Back to {step}",
   preparingLabel: "Preparing Checkout",
   saveLabel: "Save & Continue",
+  ctaBlocked: { fields: "Fill in the required fields first", consent: "Tick the box to confirm first" },
   verifyText: "I confirm these details are correct. The insurer issues my policy using them, so I have checked them carefully.",
   stepperLabels: { billing: "Billing", company: "Company", kyc: "KYC", review: "Review" },
+  stepperUpcomingTip: "Finish the earlier steps first",
   stepperAriaLabel: "Checkout progress",
   otherPersonLabel: "Buy in Another Person's Name",
   steps: {
@@ -116,8 +119,8 @@ export const mockCheckoutContent: CheckoutContent = {
       sectionTitle: "KYC Details",
       otherPerson: "hidden",
       uploads: [
-        { key: "gstinFile", label: "Upload a PDF or an Image of your Company GST Certificate", reviewLabel: "GSTIN Upload", title: "Upload Company GST" },
-        { key: "panFile", label: "Upload a PDF or an Image of your Company PAN Card", reviewLabel: "Company Pan Card Upload", title: "Upload Company PAN Card" },
+        { key: "gstinFile", label: "Upload a PDF or an Image of Your Company GST Certificate", reviewLabel: "GSTIN Upload", title: "Upload Company GST" },
+        { key: "panFile", label: "Upload a PDF or an Image of Your Company PAN Card", reviewLabel: "Company PAN Card Upload", title: "Upload Company PAN Card" },
       ],
       cases: {
         A: kycFields({ value: "29AAJCP5565B1Z5", status: "verified" }, { value: "AAJCP5565B", status: "verified" }),
@@ -134,10 +137,11 @@ export const mockCheckoutContent: CheckoutContent = {
     review: {
       title: "Review",
       banner: "Please check your details once more before purchase.",
-      sectionTitle: "Details Shown On Policy",
+      sectionTitle: "Details Shown on Policy",
       otherPerson: "hidden",
       sectionTitles: { billing: "Billing", company: "Company", kyc: "KYC" },
       editLabel: "Edit Details",
+      lockedEditTip: "Billing details are locked once saved",
       uploadedLabel: "Uploaded",
       consentText:
         "I confirm all details provided are correct. I understand the broker is not responsible for policy creation errors, as this depends on the insurance company.",
@@ -147,17 +151,17 @@ export const mockCheckoutContent: CheckoutContent = {
     },
   },
   upload: {
-    hint: "click to browse or drag and drop the file here",
-    successTitle: "Successfully Uploaded!",
+    hint: "Click to browse, or drag and drop the file here",
+    successTitle: "Uploaded successfully",
     successBody: "{file} has been uploaded.",
-    failureTitle: "Upload Failed",
+    failureTitle: "Upload failed",
     tooLarge: "{file} is larger than 2MB",
     wrongType: "{file} isn't an image or a PDF",
     cancelLabel: "Try Again",
     retryLabel: "Try Again",
-    disabledTitle: "Unable to Upload",
-    disabledBody: "Please Refresh or Try Again Later",
-    fetchedTitle: "Successfully Fetched!",
+    disabledTitle: "Unable to upload",
+    disabledBody: "Please refresh or try again later.",
+    fetchedTitle: "Fetched successfully",
     fetchedBody: "{file} has been fetched from MCA.",
     fetchedAction: "Upload New",
     maxBytes: 2 * 1024 * 1024,
@@ -166,8 +170,8 @@ export const mockCheckoutContent: CheckoutContent = {
     title: "Purchase Summary",
     immediateLabel: "Immediate Purchase",
     poweredByLabel: "Secured with BimaNetra",
-    productLines: ["Director’s & Officer’s", "Insurance"],
-    productIconSrc: "/media/checkout/product-icon.svg",
+    productLines: ["Directors & Officers", "Insurance"],
+    productIconSrc: "/media/checkout/product-icon.png",
     priceTitle: "Price Details",
     premiumLabel: "Premium",
     gstLabel: "GST (18%)",
@@ -175,31 +179,32 @@ export const mockCheckoutContent: CheckoutContent = {
     gstRate: 0.18,
     offerLabel: "BimaNetra Offer",
     offerPercent: "({pct}% Off)",
-    finalLabel: "Final Cost",
+    priceLabel: "Price",
     insurerInfoLabel: "About this insurer",
-    excellentLabel: "Excellent Quote",
+    excellentLabel: "Excellent",
+    tips: { immediate: TAG_TIPS.immediate, gold: TAG_TIPS.gold, insurer: "{insurer} issues this policy and settles its claims" },
   },
   success: {
-    greeting: "Hello, {name}. You Have Successfully Paid For Your Director’s & Officer’s Insurance Policy For {company} {order}.",
+    greeting: "Hello, {name}. You have successfully paid for your Directors & Officers Insurance policy for {company} {order}.",
     orderPrefix: "DNO",
     badgeAlt: "Payment successful",
     stats: {
       startLabel: "Policy Start Date",
       endLabel: "Policy End Date",
-      premiumLabel: "Policy Premium",
+      premiumLabel: "Total Paid",
       periodLabel: "Coverage Period",
       periodValue: "12 Months",
     },
     stepLabels: ["Profiling", "Quotes", "Checkout", "Due Diligence", "Policy Issuance"],
     profiling: {
-      title: "Your Risk was Profiled",
-      body: "You're interested in {product}. BimaNetra profiled your business and priced the risk in under a minute. Pretty quick, don't you agree?",
+      title: "Your Risk Was Profiled",
+      body: "You're interested in {product}. BimaNetra profiled your business and priced the risk in under a minute.",
       statusLabel: "Profiling Done",
       time: "45.4s",
     },
     quoteGold: {
       title: "Quote Selected",
-      body: "You selected your Gold Quote for {product}, built by BimaNetra with {count} for your business. An Excellent choice!",
+      body: "You selected your Gold Quote for {product}, built by BimaNetra with {count} for your business. An excellent choice!",
       statusLabel: "BimaNetra Report",
       time: "8.4s",
     },
@@ -241,19 +246,21 @@ export const mockCheckoutContent: CheckoutContent = {
       body: "Your policy copy will be in the Policies folder of your Document Vault as soon as it's issued.",
     },
     signLabel: "Sign Mandate Letter",
+    stepToggle: { show: "Show Details", hide: "Hide Details" },
     viewPolicyLabel: "View Policy Copy",
+    viewPolicyPendingTip: "Ready once the insurer issues your policy",
     riskReportLabel: "Download Risk Report",
-    nextUp: "Next Up: Sign your Mandate, Fill your Proposal, and Get your Policy Issued!",
+    nextUp: "Next up: sign your mandate, fill in your proposal and get your policy issued!",
     hideNextUp: true,
     mandateToast: {
       title: "Mandate Letter sent",
       description: "We've emailed it to {email}. Sign it there and we'll take it from here.",
     },
-    paidLabel: "Paid Successfully On {date}",
+    paidLabel: "Paid successfully on {date}",
     coveragesLabel: "{count} Top Coverages",
-    personalizedLabel: "{count} Personalized Coverages",
+    personalizedLabel: "{count} Personalised Coverages",
     rm: {
-      eyebrow: "Meet your Relationship Manager",
+      eyebrow: "Meet Your Relationship Manager",
       name: "Shubh Bangar",
       photoSrc: "/media/success/rm-photo.png",
       body: "Shubh has been in the insurance field for over 7 years. He can support you with your existing policies and advise you on other products to keep your business fully protected.",
@@ -263,8 +270,9 @@ export const mockCheckoutContent: CheckoutContent = {
     },
     suggestions: {
       title: "BimaNetra Suggests",
-      ctaLabel: "Find a Quote",
+      ctaLabel: "Get a Quote",
       immediateLabel: "Immediate Purchase",
+      immediateTip: TAG_TIPS.immediate,
       items: [
         { name: "Professional Indemnity Insurance", body: "Covers claims that your advice or services caused a client a financial loss.", iconSrc: "/media/success/pi.png", immediate: true },
         { name: "Cyber Insurance", body: "Covers the cost of a data breach, ransomware attack or systems going down.", iconSrc: "/media/success/cyber.png" },
@@ -293,10 +301,14 @@ export const mockCheckoutContent: CheckoutContent = {
   disclaimer: {
     title: "Disclaimer",
     toggleLabel: "Show or hide the disclaimer",
+    // The first line depends on where it's read; the legal lines never change.
+    contextual: {
+      checkout: "*The price shown is final for the details you've entered. If any of them turn out to be wrong, the insurer may revise it.",
+      success: "*Your cover is held from the date of payment. The insurer issues the final policy after its checks, based on the details you've provided.",
+    },
     paragraphs: [
-      "*The prices shown are estimates. Actual prices may be higher based on your business details and risk factors.",
       "BimaKavach Insurance Broking Pvt. Ltd. | CIN- U66010MP2022PTC059393 | Registered Office - 506, 5th floor, Om Gurudev Plaza, Savitri Empire Scheme No 54, Vijay Nagar, Bhamori, Indore, Madhya Pradesh - 452010 Phone No.- 9036554785 | Email- support@bimakavach.com",
-      "BimaKavach is registered as a Direct Broker | Registration No. 901, Registration Code No. IRDAI / DB 985/ 2022, Valid till 25/06/2026, License category- Direct Broker (General)",
+      "BimaKavach is registered as a Direct Broker | Registration No. 901, Registration Code No. IRDAI / DB 985/ 2022, Valid till 25/06/2027, Licence category - Direct Broker (General)",
       "Visitors are being informed that BimaKavach Insurance Broking Pvt. Ltd. holds the right to share the information submitted by you on the website with Insurers. Product information is genuine and exclusively based on information obtained from insurers.",
     ],
   },

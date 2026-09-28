@@ -9,6 +9,8 @@ export interface QuotesHeaderContent {
   ctaLabel: string;
   /** The CTA once pressed, when it is a one-shot action (Send Risk Report). */
   ctaSentLabel?: string;
+  /** The CTA while the compare view is open (Quotes page). */
+  compareCtaLabel?: string;
 }
 
 /** One "Your Details" row. `key` (a flow field key) overrides `value` with the
@@ -40,6 +42,11 @@ export interface UpgradeBannerContent {
 export interface UpgradedBannerContent {
   title: string;
   body: string;
+  /** A case's own title / body where they differ (B: only partly verified). */
+  titleByCase?: Partial<Record<QuoteCaseId, string>>;
+  bodyByCase?: Partial<Record<QuoteCaseId, string>>;
+  /** A case's Notify Me under the body (B: we'll call once the report can price it). */
+  notifyByCase?: Partial<Record<QuoteCaseId, string>>;
   /** Hidden demo shortcut: clicking the banner resets verification to the start. */
   resetLabel: string;
 }
@@ -63,8 +70,10 @@ export interface NoRecordsBannerContent {
   title: string;
   body: string;
   ctaLabel: string;
-  /** Where the CTA goes (a tel: link to the experts). */
+  /** Where the CTA goes (a tel: link to the experts) on phones. */
   ctaHref: string;
+  /** On larger screens, a meeting booking in place of the call. */
+  webCtaLabel: string;
 }
 
 /** "Need Help?" banner in the feed header — IRDAI experts + phone. */
@@ -200,38 +209,32 @@ export interface FeaturesDrawerContent {
   topFeatureLabel: string;
   /** The Gold Quote's pill in place of `topFeatureLabel`. */
   personalizedLabel: string;
+  /** Pill tooltips: what Top Feature / Personalized mean. */
+  topFeatureTip: string;
+  personalizedTip: string;
   /** Tab key opened first — the card's "Top Coverages" leads into coverages. */
   defaultTab: string;
   tabs: FeatureTab[];
 }
 
-/** The risk-report banner (item 9 left). Copy flips on the carried Yes/No answer. */
-export interface RiskReportBannerContent {
-  /** "No" state — the offer. `emphasis` is the purple-italic tail of `question`. */
-  question: string;
-  emphasis: string;
-  ctaLabel: string;
-  visualSrc: string;
-  visualAlt: string;
-  /** "Yes"/sent state. `sentEmphasis` is the purple-italic span within `sentText`. */
-  sentText: string;
-  sentEmphasis: string;
-}
-
-export interface TestimonialContent {
-  quote: string;
-  name: string;
-  role: string;
-  company: string;
-  /** Overlapping 32px roundels, bottom right (584:44147): person over logo. */
-  photoSrc: string;
-  logoSrc: string;
-}
-
-/** Which quotes the feed shows: every one, only priced, or only price-on-request. */
-export type QuoteFilter = "all" | "priced" | "onRequest";
+/** "all", or one insurer's name (the feed builds the list from its quotes). */
+export type QuoteFilter = string;
 /** Feed order: the insurer default, premium either way, or most coverages first. */
-export type QuoteSort = "default" | "priceLow" | "priceHigh" | "coverage";
+/** By price, the quote as shown (GST included). */
+export type QuoteSort = "priceLow" | "priceHigh";
+
+/** How a quote's price follows the business: each mock price is for
+ *  `referenceCrore` of cover at the reference turnover (factor 1). */
+export interface QuotePricing {
+  referenceCrore: number;
+  /** Price grows with cover as (cover / reference) ^ exponent (under 1:
+   *  each extra crore costs a little less). */
+  coverExponent: number;
+  /** Multiplier per turnover band (the flow's option labels). */
+  turnoverFactors: Record<string, number>;
+  /** Round prices to this many rupees. */
+  roundTo: number;
+}
 
 export interface QuotesFeedContent {
   /** Where a quote's price button leads (checkout, first step). */
@@ -249,7 +252,8 @@ export interface QuotesFeedContent {
   sortFieldLabel: string;
   /** Dropdown trigger copy; `{option}` is the chosen option's label. */
   filterLabel: string;
-  filterOptions: { id: QuoteFilter; label: string }[];
+  /** The "every insurer" option; the insurers themselves come from the quotes. */
+  filterAllLabel: string;
   sortLabel: string;
   sortOptions: { id: QuoteSort; label: string }[];
   switchLabel: string;
@@ -264,26 +268,35 @@ export interface QuotesFeedContent {
   comparisonUnavailableLabel: string;
   /** The compare bar (Figma BK Website 689:3123): up to `max` quotes, at
    *  least `min` to compare. `{insurer}` fills the remove button's label. */
-  compareSheet: { title: string; ctaLabel: string; removeLabel: string; min: number; max: number };
+  compareSheet: { title: string; ctaLabel: string; removeLabel: string; min: number; max: number; minTip: string };
   compareView: CompareViewContent;
   getQuoteLabel: string;
   sumInsuredLabel: string;
   immediatePurchaseLabel: string;
   /** Card territory tags ("Worldwide Coverage", "India Only Coverage"). */
   territoryLabels: Record<QuoteTerritory, string>;
+  /** Quote card tag tooltips: what each tag means. */
+  cardTips: { immediate: string; gold: string; compareOff: string; compareFull: string; offer: string; territory: Record<QuoteTerritory, string> };
   revealQuoteLabel: string;
   /** Under the locked Reveal button, before verification completes. */
   revealLockedHint: string;
   /** Under the Reveal button once it unlocks. */
   revealReadyHint: string;
   /** The Gold Quote a fuzzy match (Case B) reveals once verified. */
+  /** Prices scale with Sum Insured and turnover (see QuotePricing). */
+  pricing: QuotePricing;
   goldQuote: QuoteCardData;
   /** A case's own Gold Quote where it differs (A's offer); else `goldQuote`. */
   goldQuoteByCase?: Partial<Record<QuoteCaseId, QuoteCardData>>;
   /** Cases whose Gold Quote is gated (B, fuzzy): its Get Quote opens a
    *  modal (schedule a call, or proceed online), then Additional Details. */
   goldGateByCase?: Partial<Record<QuoteCaseId, GoldGateContent>>;
+  /** An offline quote's Get Quote: the same underwriting questions, blank,
+   *  before the request goes to the insurer. */
+  quoteRequestDrawer: GoldGateContent["drawer"];
   topCoveragesLabel: string;
+  /** The coverages chip on offline quote cards. */
+  viewCoveragesLabel: string;
   /** Card coverages chip; `{count}` is the number of coverages. */
   coverageCountLabel: string;
   /** The Gold Quote's chip ("4 Personalized Coverages"). */
@@ -293,8 +306,6 @@ export interface QuotesFeedContent {
   /** Rating chip copy (shown beside "Top Coverages" when a Gold Quote leads). */
   ratingLabels: Record<QuoteRating, string>;
   poweredByLabel: string;
-  riskReport: RiskReportBannerContent;
-  testimonial: TestimonialContent;
 }
 
 /** The gate on an unpriced Gold Quote (Case B): a centred modal, then the
@@ -313,6 +324,8 @@ export interface GoldGateContent {
   drawer: {
     title: string;
     intro: string;
+    /** The intro when the insurer has already priced the cover. */
+    pricedIntro?: string;
     ctaLabel: string;
     closeLabel: string;
     /** Prefilled ones carry a `value`; the rest are the customer's to fill. */
@@ -326,10 +339,54 @@ export interface GoldGateContent {
 }
 
 /** Fixture for the Quotes results page (Figma node 309:33542). */
+/** Ask BimaNetra (the Quotes page chat): its chrome, starter questions and
+ *  reply templates. `{…}` slots are filled from the page (quotes, details). */
+export interface QuotesChatContent {
+  /** The header CTA while the chat is open. */
+  closeLabel: string;
+  title: string;
+  subtitle: string;
+  placeholder: string;
+  sendLabel: string;
+  thinkingLabel: string;
+  /** `{company}`, `{count}`. */
+  greeting: string;
+  suggestions: string[];
+  replies: {
+    count: string;
+    cheapest: string;
+    cheapestTied: string;
+    price: string;
+    priceOffline: string;
+    priciest: string;
+    immediate: string;
+    offline: string;
+    worldwide: string;
+    india: string;
+    coverages: string;
+    exclusions: string;
+    compare: string;
+    goldLocked: string;
+    goldRevealed: string;
+    sumInsured: string;
+    details: string;
+    noRecommend: string;
+    whatIsDo: string;
+    claimsBasis: string;
+    help: string;
+    thanks: string;
+    greet: string;
+    fallback: string;
+    /** Joins list items: ", " and " and ". */
+    and: string;
+  };
+}
+
 export interface QuotesPageContent {
   header: QuotesHeaderContent;
   detailsPanel: DetailsPanelContent;
   feed: QuotesFeedContent;
+  chat: QuotesChatContent;
 }
 
 /** What the landing page needs to draw the Quotes page skeleton behind the

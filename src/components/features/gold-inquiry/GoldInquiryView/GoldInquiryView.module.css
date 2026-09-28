@@ -192,6 +192,15 @@
   color: var(--color-brand-secondary);
 }
 
+/* An offline quote request is an insurer's, not BimaNetra's: purple. */
+.inquiryHead[data-variant="quote"] {
+  background: linear-gradient(to right, var(--color-brand-primary-subtle), var(--color-card));
+}
+
+.inquiryHead[data-variant="quote"] .inquiryTitle {
+  color: var(--color-brand-primary);
+}
+
 /* Speak to an Expert: orange, 12/20, r12 → 16 (house rule), 14px. */
 .expert {
   display: inline-flex;

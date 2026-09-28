@@ -15,14 +15,60 @@
 .row {
   display: flex;
   align-self: stretch;
+  /* A folded step keeps a short stretch of rail to the next pill. */
+  min-height: var(--spacing-16);
 }
 
-/* 28 wide, 4/14 padding: the dashed line sits under the pill's tick. */
+/* Chevron, then its pill (713:59195), 12 apart. */
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+/* chevron.controls: 18 square, white, subtle hairline, r8 (Figma r6 + one
+   step); points up while the step is open. */
+.toggle {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
+  color: var(--color-label-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.toggle:hover {
+  border-color: var(--color-brand-primary-border);
+  color: var(--color-brand-primary);
+}
+
+.toggle svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: rotate(180deg);
+}
+
+.step[data-open] .toggle svg {
+  transform: none;
+}
+
+/* The foldable copy: clipped while it opens and closes. */
+.fold {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* The chevron (18) + its 12 gap: the dashed line runs down from under the
+   chevron's centre, and the copy lines up with the pill. */
 .gutter {
   display: flex;
   flex-shrink: 0;
-  width: 28px;
-  padding: var(--spacing-4) 14px;
+  width: 30px;
+  padding: var(--spacing-4) 9px;
 }
 
 .line {

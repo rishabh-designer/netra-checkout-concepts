@@ -46,7 +46,7 @@ function resolveCase(name: string, matches: QuoteCaseMatch[]): { caseId: QuoteCa
 }
 
 /**
- * LeadFormCard — pricing headline, the "New | Personalize My Quote" banner,
+ * LeadFormCard — pricing headline, the "New | Personalise my quote" banner,
  * company-name input, animated CTA (opens the quote modal), and the logo wall.
  * The typed company name routes the modal to Case A / B / C; an empty name
  * fires a toast instead of opening the modal.

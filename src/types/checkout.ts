@@ -80,6 +80,8 @@ export interface CheckoutStepChrome {
 export interface CheckoutReviewContent extends CheckoutStepChrome {
   sectionTitles: Record<"billing" | "company" | "kyc", string>;
   editLabel: string;
+  /** Tooltip on Billing's disabled Edit Details. */
+  lockedEditTip: string;
   uploadedLabel: string;
   consentText: string;
   /** Final CTA: immediate purchases pay, priced quotes request. */
@@ -104,8 +106,11 @@ export interface CheckoutSummaryContent {
    *  percent note after the saving ("{pct}" is the rounded percent off). */
   offerLabel: string;
   offerPercent: string;
-  finalLabel: string;
+  /** With an offer, the total before it ("Price"); `totalLabel` is then the amount to pay. */
+  priceLabel: string;
   insurerInfoLabel: string;
+  /** Tooltips: the tags and the insurer info mark (`{insurer}` filled in). */
+  tips: { immediate: string; gold: string; insurer: string };
   /** Badge on the insurer box of a paid Gold Quote (Figma 670:53310). */
   excellentLabel: string;
 }
@@ -123,10 +128,14 @@ export interface CheckoutContent {
   preparingLabel: string;
   /** Step CTA (Billing, Company, KYC). */
   saveLabel: string;
+  /** Tooltips on the greyed step CTA: why it can't be pressed yet. */
+  ctaBlocked: { fields: string; consent: string };
   /** Verification for guessed (fuzzy) details: steps with a guessed field
    *  need this ticked before Save & Continue (Case B). */
   verifyText: string;
   stepperLabels: Record<CheckoutStepId, string>;
+  /** Tooltip on steps not reached yet. */
+  stepperUpcomingTip: string;
   stepperAriaLabel: string;
   otherPersonLabel: string;
   steps: {
@@ -142,7 +151,8 @@ export interface CheckoutContent {
   };
   upload: CheckoutUploadCopy;
   summary: CheckoutSummaryContent;
-  disclaimer: { title: string; toggleLabel: string; paragraphs: string[] };
+  /** `contextual` leads the legal paragraphs: one line per page it's read on. */
+  disclaimer: { title: string; toggleLabel: string; contextual: { checkout: string; success: string }; paragraphs: string[] };
   success: CheckoutSuccessContent;
   drawer: { saveLabel: string; closeLabel: string };
   validationMessages: Record<CheckoutValidator, string>;
@@ -192,7 +202,11 @@ export interface CheckoutSuccessContent {
   mandate: SuccessTimelineRow & { link: string };
   issuance: SuccessTimelineRow;
   signLabel: string;
+  /** The timeline chevron: show or hide a step's copy. */
+  stepToggle: { show: string; hide: string };
   viewPolicyLabel: string;
+  /** Tooltip on View Policy Copy before the policy is issued. */
+  viewPolicyPendingTip: string;
   /** Text link on the profiling row, in place of its status. */
   riskReportLabel: string;
   /** Bottom line beside the big Sign Mandate Letter button. */
@@ -206,7 +220,7 @@ export interface CheckoutSuccessContent {
   coveragesLabel: string;
   personalizedLabel: string;
   rm: { eyebrow: string; name: string; photoSrc: string; body: string; phone: string; phoneHref: string; phoneIconSrc: string };
-  suggestions: { title: string; ctaLabel: string; immediateLabel: string; items: SuccessSuggestion[] };
+  suggestions: { title: string; ctaLabel: string; immediateLabel: string; immediateTip: string; items: SuccessSuggestion[] };
   /** Screen-reader note while the page loads. */
   loadingLabel: string;
   /** The Risk Held Letter popup (Figma 683:56601): opens `delayMs` after the

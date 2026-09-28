@@ -110,8 +110,8 @@
   justify-content: space-between;
 }
 
-.footer[data-align="end"] {
-  justify-content: flex-end;
+.footer[data-align="start"] {
+  justify-content: flex-start;
 }
 
 .timeWrap {
@@ -143,6 +143,11 @@ a.cta {
   text-decoration: none;
 }
 
+/* Case B's Notify Me: a neutral primary label. */
+.ctaNeutral {
+  color: var(--color-label-primary);
+}
+
 .cta:hover {
   background: var(--color-card-sunken);
 }
@@ -169,7 +174,7 @@ a.cta {
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
   font-style: italic;
-  font-size: var(--font-size-heading-lg);
+  font-size: var(--font-size-heading-md);
   white-space: nowrap;
 }
 
@@ -183,9 +188,11 @@ a.cta {
 .charMask {
   display: inline-block;
   overflow: hidden;
-  /* headroom so apostrophes and ascenders aren't clipped by the mask */
-  padding: 0.18em 0.02em 0.08em;
-  margin: -0.18em -0.02em -0.08em;
+  /* Room on every side so the italic's slant (W, Y, U), apostrophes and
+     descenders (g, p) aren't cut by the mask; the negative margin keeps
+     the letter spacing as set. */
+  padding: 0.2em 0.16em 0.28em;
+  margin: -0.2em -0.16em -0.28em;
 }
 
 .upgradedBanner[data-resettable] {
@@ -203,15 +210,31 @@ a.cta {
 }
 
 /* The company the quotes are for (Figma 683:57069): a verified field at the
-   banner's foot, inset 9 from its sides. */
+   head of every banner, 24 above its heading (the banner's own gap plus
+   this margin), inset 9 from its sides. */
 .company {
   position: relative;
   z-index: 1;
-  margin: var(--spacing-8) calc(9px - var(--spacing-16)) 0;
+  margin: 0 calc(9px - var(--spacing-16)) calc(var(--spacing-24) - var(--spacing-8));
   cursor: default;
 }
 
 .upgradedBanner .company {
   margin-inline: 1px;
-  margin-top: 0;
+  margin-bottom: calc(var(--spacing-24) - var(--spacing-12));
+}
+
+/* Case C's expert CTA: a call on phones, a meeting booking on web. */
+.phoneOnly {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .phoneOnly {
+    display: inline-flex;
+  }
+
+  .webOnly {
+    display: none;
+  }
 }

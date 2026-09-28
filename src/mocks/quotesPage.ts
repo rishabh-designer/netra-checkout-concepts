@@ -1,4 +1,5 @@
 import type { CompareViewContent, FeaturesDrawerContent, GoldGateContent, QuotesPageContent, QuoteCardData } from "@/types/quotesPage";
+import { TAG_TIPS } from "./tagTips";
 import { mockCheckoutContent } from "./checkout";
 import { GOLD_A_POLICY, GOLD_B_POLICY, INSURER_POLICIES } from "./policies";
 
@@ -11,17 +12,18 @@ const SBI = "/Insurance.Comp/SBI.webp";
 
 /* The Gold Quote (A and B): unveiled from the Reveal slot that leads the stack. */
 const GOLD_QUOTE: QuoteCardData = {
-  insurer: "Your Personalized Insurance Quote",
+  insurer: "Your Personalised Insurance Quote",
   logoSrc: GENERALI,
-  sumInsured: "₹5 Crore",
+  sumInsured: "₹5 Cr",
   gold: true,
   comparable: true,
   territory: "worldwide",
 };
 
 /* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹8,500. Its
-   insurer and price are known, so it's named for Generali. */
-const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, insurer: "Generali Central Insurance", price: "₹8,500", originalPrice: "₹10,000", coverages: GOLD_A_POLICY.top, policy: GOLD_A_POLICY };
+   insurer and price are known, so it's named for Generali and on sale now
+   (Immediate Purchase). */
+const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, insurer: "Generali Central Insurance", immediate: true, price: "₹8,500", originalPrice: "₹10,000", coverages: GOLD_A_POLICY.top, policy: GOLD_A_POLICY };
 /* Case B's records are fuzzy, so its Gold Quote can't be mapped to an insurer
    or a price yet: no logo, and the button reads Get Quote. */
 const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "", coverages: GOLD_B_POLICY.top, policy: GOLD_B_POLICY };
@@ -31,10 +33,10 @@ const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "", coverages: GOLD
 const CASE_B_GOLD_GATE: GoldGateContent = {
   modal: {
     title: "Almost There",
-    body: "Your Gold Quote opens up for Immediate Purchase once your customized Risk Report is ready. Till then, schedule a quick call and our experts will put it together with you, or share a few more details online.",
+    body: "Your Gold Quote opens up for Immediate Purchase once your customised Risk Report is ready. Until then, schedule a quick call and our experts will put it together with you, or share a few more details online.",
     visualSrc: "/media/gold-inquiry/risk-report.png",
-    visualAlt: "BimaNetra Security Risk Report preview",
-    callLabel: "Schedule A Call",
+    visualAlt: "BimaNetra Risk Report preview",
+    callLabel: "Schedule a Call",
     onlineLabel: "Proceed Online",
     closeLabel: "Close",
   },
@@ -49,7 +51,7 @@ const CASE_B_GOLD_GATE: GoldGateContent = {
       { key: "listingStatus", label: "Listing Status", mandatory: true, control: "select", value: "Unlisted", status: "verified", options: ["Unlisted", "Listed on NSE / BSE", "Listed Overseas"] },
       { key: "operations", label: "Countries of Operation", mandatory: true, control: "select", value: "India Only", status: "fuzzy", options: ["India Only", "India + 1 to 3 Countries", "India + 4 or More Countries"] },
       { key: "netWorth", label: "Net Worth (Last Financial Year)", mandatory: true, control: "text", status: "empty", prefix: "₹", placeholder: "Amount in Rupees", inputMode: "numeric", maxLength: 21, amountWords: { template: "Rupees {amount}", crore: "Crore", lakh: "Lakh", thousand: "Thousand" } },
-      { key: "litigation", label: "Any Pending Claims Against Directors?", mandatory: true, control: "select", status: "empty", placeholder: "Select", options: ["No", "Yes"] },
+      { key: "litigation", label: "Any pending claims against directors?", mandatory: true, control: "select", status: "empty", placeholder: "Select", options: ["No", "Yes"] },
     ],
     upload: {
       key: "auditedFinancials",
@@ -62,23 +64,28 @@ const CASE_B_GOLD_GATE: GoldGateContent = {
   inquiryHref: "/directors-and-officers-insurance/quotes/gold-inquiry",
 };
 
-/* Case C premiums at its lower ₹5 Cr Sum Insured. */
-const CASE_C_PRICES: Record<string, string> = {
-  "Generali Central Insurance": "₹6,000",
-  "HDFC ERGO General Insurance": "₹6,000",
-  "Royal Sundaram General Insurance": "₹7,500",
+/* An offline insurer prices by hand, so its Get Quote asks the same
+   underwriting questions as the Gold gate, blank, then sends the request. */
+const QUOTE_REQUEST_DRAWER: GoldGateContent["drawer"] = {
+  ...CASE_B_GOLD_GATE.drawer,
+  title: "Request a Quote",
+  intro: "A few details help the insurer price your cover. Answer these and we'll send your request.",
+  ctaLabel: "Request Quote",
+  pricedIntro: "This insurer has priced your cover, but needs a few more details before it can sell online. Answer these and our expert will finish the rest.",
+  fields: CASE_B_GOLD_GATE.drawer.fields.map((f) => ({ ...f, value: undefined, status: "empty" as const })),
 };
+
 
 /* Cases A and B share this sequence (Figma 571 stack): two immediate
    purchases, one priced quote, then the unpriced "Get Quote" insurers. Both
    lead it with the ghost "Reveal Quote" card. */
 const MATCHED_ROWS: QuoteCardData[] = [
-  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, territory: "worldwide" },
-  { insurer: "HDFC ERGO General Insurance", logoSrc: HDFC, sumInsured: "₹5 Crore", immediate: true, price: "₹10,000", comparable: true, territory: "worldwide" },
-  { insurer: "Royal Sundaram General Insurance", logoSrc: ROYAL, sumInsured: "₹5 Crore", price: "₹12,000", comparable: true, territory: "india" },
-  { insurer: "Bajaj General Insurance", logoSrc: BAJAJ, sumInsured: "₹5 Crore", comparable: false },
-  { insurer: "SBI General Insurance", logoSrc: SBI, sumInsured: "₹5 Crore", comparable: false },
-  { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Crore", comparable: false },
+  { insurer: "Generali Central Insurance", logoSrc: GENERALI, sumInsured: "₹5 Cr", immediate: true, price: "₹10,000", comparable: true, territory: "worldwide" },
+  { insurer: "HDFC ERGO General Insurance", logoSrc: HDFC, sumInsured: "₹5 Cr", immediate: true, price: "₹10,000", comparable: true, territory: "worldwide" },
+  { insurer: "Royal Sundaram General Insurance", logoSrc: ROYAL, sumInsured: "₹5 Cr", price: "₹12,000", comparable: true, territory: "india" },
+  { insurer: "Bajaj General Insurance", logoSrc: BAJAJ, sumInsured: "₹5 Cr", comparable: false },
+  { insurer: "SBI General Insurance", logoSrc: SBI, sumInsured: "₹5 Cr", comparable: false },
+  { insurer: "ICICI Lombard General Insurance", logoSrc: ICICI, sumInsured: "₹5 Cr", comparable: false },
 ];
 /* Each insurer carries its own policy; priced quotes show its top coverages
    on the card (offline ones keep a plain "Top Coverages" chip). */
@@ -88,11 +95,9 @@ const MATCHED_QUOTES: QuoteCardData[] = MATCHED_ROWS.map((q) => {
 });
 
 /* Case C (no data, also the fallback for any unmatched name): the same six
-   insurers as B, minus the locked card. Its Sum Insured is lower (₹5 Cr vs
-   ₹10 Cr), so the priced quotes come in cheaper. */
-const QUOTES: QuoteCardData[] = MATCHED_QUOTES.map((q) =>
-  q.price ? { ...q, price: CASE_C_PRICES[q.insurer] ?? q.price } : q,
-);
+   insurers as B, minus the locked card. Its prices follow its own Sum
+   Insured and turnover through `pricing`, like every case. */
+const QUOTES: QuoteCardData[] = MATCHED_QUOTES;
 
 /* Territory & Jurisdiction, per the card's territory tag. */
 const WORLDWIDE_TERRITORY = [
@@ -114,12 +119,12 @@ const INDIA_TERRITORY = [
 const COMPARE_VIEW: CompareViewContent = {
   title: "Compare Quotes",
   subtitle: "{count} quotes, side by side",
-  backLabel: "Back to quotes",
+  backLabel: "Back to Quotes",
   addLabel: "Add Quote",
   removeLabel: "Remove {insurer} from compare",
   differencesLabel: "Show Differences Only",
-  expandLabel: "Show details",
-  collapseLabel: "Hide details",
+  expandLabel: "Show Details",
+  collapseLabel: "Hide Details",
   notIncludedLabel: "Not included",
   onRequestLabel: "On request",
   tabs: [
@@ -133,7 +138,7 @@ const COMPARE_VIEW: CompareViewContent = {
       title: "Key Facts",
       tone: "info",
       rows: [
-        { key: "premium", title: "Premium", body: "The yearly price shown on the quote.", source: "premium" },
+        { key: "premium", title: "Price", body: "The yearly price, GST included.", source: "premium" },
         { key: "sumInsured", title: "Sum Insured", body: "The most the policy pays across all claims in a year, legal costs included.", source: "sumInsured" },
         { key: "territory", title: "Territory", body: "Where decisions and claims are covered.", source: "territory" },
         { key: "top", title: "Top Coverages", body: "The coverages this quote leads with.", source: "top" },
@@ -197,11 +202,13 @@ const COMPARE_VIEW: CompareViewContent = {
 const FEATURES_DRAWER: FeaturesDrawerContent = {
   title: "Policy Details",
   closeLabel: "Close policy details",
-  productIconSrc: "/media/checkout/product-icon.svg",
-  productName: "Director’s & Officer’s\nInsurance",
+  productIconSrc: "/media/checkout/product-icon.png",
+  productName: "Directors & Officers\nInsurance",
   territoryItems: { worldwide: WORLDWIDE_TERRITORY, india: INDIA_TERRITORY },
   topFeatureLabel: "Top Feature",
-  personalizedLabel: "Personalized",
+  personalizedLabel: "Personalised",
+  topFeatureTip: "One of this policy's headline coverages",
+  personalizedTip: "Added by BimaNetra for your business",
   defaultTab: "coverages",
   tabs: [
     {
@@ -273,6 +280,53 @@ export const mockQuotesPageContent: QuotesPageContent = {
     logoSrc: "/figma/logotype.svg",
     logoAlt: "BimaKavach",
     ctaLabel: "Ask BimaNetra",
+    compareCtaLabel: "Mail Quotes",
+  },
+  chat: {
+    closeLabel: "Close Chat",
+    title: "Ask BimaNetra",
+    subtitle: "Ask anything about these quotes",
+    placeholder: "Ask about prices, coverages, insurers…",
+    sendLabel: "Send",
+    thinkingLabel: "BimaNetra is reading your quotes",
+    greeting:
+      "Hi! I've read all {count} quotes for {company}. Ask me about prices, what each policy covers, or how two insurers differ.",
+    suggestions: [
+      "Which quote has the lowest price?",
+      "Which quotes can I buy right now?",
+      "Compare Generali and HDFC ERGO",
+      "What does HDFC ERGO not cover?",
+    ],
+    replies: {
+      count: "You have {count} quotes: {list}.",
+      cheapest: "The lowest price is {price} from {insurer}, for {sum} of cover.",
+      cheapestTied: "{insurer} share the lowest price, {price} each, for {sum} of cover.",
+      price: "{insurer} is {price} a year for {sum} of cover.",
+      priceOffline: "{insurer} quotes offline. Select Request Quote on its card and our team will fetch the price.",
+      priciest: "The highest price is {price} from {insurer}.",
+      immediate: "You can buy {list} online right now. The others need a quick check by the insurer first.",
+      offline: "{list} quote offline, so select Request Quote and our team will fetch their price.",
+      worldwide: "{list} cover claims brought anywhere in the world.",
+      india: "{list} cover claims brought in India only.",
+      coverages: "{insurer}'s top coverages are {list}. Open its coverages to see everything it covers.",
+      exclusions: "{insurer} doesn't cover {list}.",
+      compare: "{a} is {priceA} and {b} is {priceB}. {a} leads with {topA}; {b} leads with {topB}. Tick Add To Compare on both to see them side by side.",
+      goldLocked: "Your Gold Quote is ready. Select Reveal Quote to see it.",
+      goldRevealed: "Your Gold Quote is from {insurer} at {price}, with {list}, built by BimaNetra from your verified details.",
+      sumInsured: "Every quote here is for {sum} of cover. You can change it with Edit Details.",
+      details: "These quotes are for {company}: {list}. Use Edit Details to change anything.",
+      noRecommend:
+        "I can't pick an insurer for you, but I can show how they differ. Try asking which is the lowest price, which you can buy now, or to compare two of them.",
+      whatIsDo:
+        "Directors & Officers insurance pays legal costs, settlements and damages when your directors or officers are sued over decisions they made running the company.",
+      claimsBasis: "All of these are claims made: they pay for claims first made against you while the policy is active.",
+      help: "You can call our IRDAI-certified experts on {phone}, or keep asking me here.",
+      thanks: "Happy to help. Ask me anything else about these quotes.",
+      greet: "Hi! Ask me about prices, coverages, or how two insurers differ.",
+      fallback:
+        "I'm not sure about that one yet. I can tell you about prices, what each insurer covers or doesn't, which you can buy now, and how two quotes compare.",
+      and: " and ",
+    },
   },
   detailsPanel: {
     title: "Your Details",
@@ -284,43 +338,49 @@ export const mockQuotesPageContent: QuotesPageContent = {
       { label: "Type of Business", value: "IT & Digital Businesses", key: "business" },
       { label: "Company's Annual Turnover", value: "₹50 Cr to ₹250 Cr", key: "turnover" },
       { label: "Company PAN", value: "-", key: "cin" },
-      { label: "Existing Directors and Officers Policy", value: "No", key: "existingPolicy" },
+      { label: "Existing Directors & Officers Policy", value: "No", key: "existingPolicy" },
       { label: "Claims or Incidents in the Last 5 Years", value: "No", key: "claims5y" },
-      { label: "Sum Insured", value: "₹5 Crore", key: "coverage" },
+      { label: "Sum Insured", value: "₹5 Cr", key: "coverage" },
     ],
     upgrade: {
       title: "Ready to Upgrade?",
       body: "We're verifying your business now and are preparing a special quote for you. We'll inform you when it's ready.",
       percent: 29,
-      timeLeft: "3:20 Hrs. Left",
+      timeLeft: "Arriving Soon",
       ctaLabel: "Notify Me",
       notifyToast: {
         title: "We'll let you know",
         description: "You'll get an email and SMS as soon as your Gold Quote is ready.",
       },
       simulateLabel: "Simulate verification",
-      timeSteps: ["1:05 Hrs. Left", "0:12 Hrs. Left", "Almost there"],
+      timeSteps: ["Arriving Soon", "Arriving Soon", "Almost There"],
     },
     noRecords: {
       title: "Want a Sharper Price?",
       body: "We couldn't find public records to verify your business, so these are standard quotes. Our experts can help you find the right cover.",
-      ctaLabel: "Call an Expert",
+      ctaLabel: "Speak to an Expert",
       ctaHref: "tel:+919007296854",
+      webCtaLabel: "Schedule a Call",
     },
     upgraded: {
       title: "You’re Upgraded!",
-      body: "We’ve verified your Business and have created a Gold Quote just for you!",
+      body: "We’ve verified your business and priced a Gold Quote just for you.",
+      titleByCase: { B: "We’re Upgrading You!" },
+      notifyByCase: { B: "Notify Me" },
+      bodyByCase: {
+        B: "We’ve verified parts of your business and drafted a Gold Quote. It gets its price and insurer once our report is ready.",
+      },
       resetLabel: "Reset the upgrade demo",
     },
   },
   feed: {
     checkoutHref: "/directors-and-officers-insurance/checkout/billing",
     quoteInquiryHref: "/directors-and-officers-insurance/quotes/quote-inquiry",
-    availableLabel: "{count} Director’s & Officer’s Insurance Quotes",
-    titleIconSrc: "/media/checkout/product-icon.svg",
+    availableLabel: "{count} Directors & Officers Insurance Quotes",
+    titleIconSrc: "/media/checkout/product-icon.png",
     breadcrumb: [
       { label: "HOME", href: "/directors-and-officers-insurance" },
-      { label: "DIRECTOR’S & OFFICER’S INSURANCE", href: "/directors-and-officers-insurance" },
+      { label: "DIRECTORS & OFFICERS INSURANCE", href: "/directors-and-officers-insurance" },
       { label: "LIVE QUOTES" },
     ],
     needHelp: {
@@ -332,23 +392,17 @@ export const mockQuotesPageContent: QuotesPageContent = {
       chatLabel: "Chat with Us",
       chatIconSrc: "/media/chat-sparkle.svg",
     },
-    filterFieldLabel: "Filter Insurance Brokers",
+    filterFieldLabel: "Filter Insurance Companies",
     filterLabel: "Filtering: {option}",
-    filterOptions: [
-      { id: "all", label: "All" },
-      { id: "priced", label: "Priced" },
-      { id: "onRequest", label: "On Request" },
-    ],
+    filterAllLabel: "All Insurers",
     sortFieldLabel: "Sort Quotes",
-    sortLabel: "Sort By {option}",
+    sortLabel: "{option}",
     sortOptions: [
-      { id: "default", label: "Relevancy" },
-      { id: "priceLow", label: "Lowest Price" },
-      { id: "priceHigh", label: "Highest Price" },
-      { id: "coverage", label: "Widest Cover" },
+      { id: "priceLow", label: "Price: Low to High" },
+      { id: "priceHigh", label: "Price: High to Low" },
     ],
     noResults: {
-      title: "No quotes match these filters",
+      title: "No Quotes Match These Filters",
       body: "Try another filter, or turn off Immediate Purchase Only.",
       resetLabel: "Show All Quotes",
     },
@@ -357,43 +411,51 @@ export const mockQuotesPageContent: QuotesPageContent = {
     quotesByCase: { A: MATCHED_QUOTES, B: MATCHED_QUOTES },
     viewFeaturesLabel: "View All Features",
     featuresDrawer: FEATURES_DRAWER,
-    compareLabel: "Add To Compare",
-    compareSheet: { title: "Compare quotes", ctaLabel: "Compare Now", removeLabel: "Remove {insurer} from compare", min: 2, max: 3 },
+    compareLabel: "Add to Compare",
+    compareSheet: { title: "Compare Quotes", ctaLabel: "Compare Now", removeLabel: "Remove {insurer} from compare", min: 2, max: 3, minTip: "Pick at least 2 quotes to compare" },
     compareView: COMPARE_VIEW,
     comparisonUnavailableLabel: "Unavailable",
-    getQuoteLabel: "Get Quote",
+    getQuoteLabel: "Request Quote",
     sumInsuredLabel: "Sum Insured",
     immediatePurchaseLabel: "Immediate Purchase",
     territoryLabels: { worldwide: "Worldwide Coverage", india: "India Only Coverage" },
+    cardTips: {
+      immediate: TAG_TIPS.immediate,
+      gold: TAG_TIPS.gold,
+      compareOff: "This insurer quotes offline, so it can't be compared",
+      offer: "Down from {from} with BimaNetra",
+      compareFull: "You can compare up to 3 quotes",
+      territory: TAG_TIPS.territory,
+    },
     revealQuoteLabel: "Reveal Quote",
     revealLockedHint: "Unlocks once we've verified your business",
-    revealReadyHint: "Your Personalized Gold Quote is ready",
+    revealReadyHint: "Your Personalised Gold Quote is ready",
+    /* Mock prices are for ₹10 Cr at ₹5–50 Cr turnover (Pepe Jeans): bigger
+       businesses and more cover cost more. */
+    pricing: {
+      referenceCrore: 10,
+      coverExponent: 0.8,
+      turnoverFactors: {
+        "Up to ₹1 Cr": 0.8,
+        "₹1 Cr to ₹5 Cr": 0.9,
+        "₹5 Cr to ₹50 Cr": 1,
+        "₹50 Cr to ₹250 Cr": 1.35,
+        "₹250 Cr to ₹500 Cr": 1.7,
+        "₹500 Cr to ₹700 Cr": 2,
+        "₹700 Cr and Above": 2.4,
+      },
+      roundTo: 100,
+    },
     goldQuote: CASE_B_GOLD,
     goldQuoteByCase: { A: CASE_A_GOLD },
     goldGateByCase: { B: CASE_B_GOLD_GATE },
+    quoteRequestDrawer: QUOTE_REQUEST_DRAWER,
     topCoveragesLabel: "Top Coverages",
+    viewCoveragesLabel: "View Coverages",
     coverageCountLabel: "{count} Top Coverages",
-    personalizedCountLabel: "{count} Personalized Coverages",
+    personalizedCountLabel: "{count} Personalised Coverages",
     coveragesUnavailableLabel: "Unavailable",
     ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },
     poweredByLabel: "Secured with BimaNetra",
-    riskReport: {
-      question: "Are you Interested in a customized Risk Report?",
-      emphasis: "customized Risk Report?",
-      ctaLabel: "Send Risk Report",
-      visualSrc: "/media/risk-report-stack.webp",
-      visualAlt: "BimaNetra Security Risk Report preview",
-      sentText: "Your Risk Report has been sent to your Inbox!",
-      sentEmphasis: "sent to your Inbox",
-    },
-    testimonial: {
-      quote:
-        "BimaKavach made getting our D&O cover genuinely painless. Real quotes in minutes, no jargon, and a team that actually picks up the phone.",
-      name: "Nikhil Kamath",
-      role: "CEO",
-      company: "Zerodha",
-      photoSrc: "/media/testimonial/photo.webp",
-      logoSrc: "/media/testimonial/logo.webp",
-    },
   },
 };

@@ -67,6 +67,7 @@ export function ReviewStep({ content, billing, company, kyc, uploads, valueOf, f
               type="button"
               className={styles.edit}
               disabled={s.locked}
+              data-tooltip={s.locked ? content.lockedEditTip : undefined}
               onClick={s.locked ? undefined : () => onEdit(s.id as "company" | "kyc")}
             >
               {content.editLabel}

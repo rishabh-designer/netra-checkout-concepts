@@ -56,6 +56,8 @@ export interface AdditionalDetailsDrawerProps {
   onClose: () => void;
   /** Everything is in: price the Gold Quote. */
   onProceed: (values: Record<string, string>) => void;
+  /** The insurer already has a price (Royal Sundaram): its own intro. */
+  priced?: boolean;
 }
 
 const seed = (fields: Field[]) => Object.fromEntries(fields.map((f) => [f.key, f.value ?? ""]));
@@ -67,7 +69,7 @@ const seed = (fields: Field[]) => Object.fromEntries(fields.map((f) => [f.key, f
  * Gold Quote" (orange, the Gold tone) enables once every field is in.
  * Usage: <AdditionalDetailsDrawer open={o} content={gate.drawer} onClose={c} onProceed={go} />
  */
-export function AdditionalDetailsDrawer({ open, content, onClose, onProceed }: AdditionalDetailsDrawerProps) {
+export function AdditionalDetailsDrawer({ open, content, onClose, onProceed, priced = false }: AdditionalDetailsDrawerProps) {
   const [values, setValues] = useState<Record<string, string>>(() => seed(content.fields));
   const set = (key: string, v: string) => setValues((d) => ({ ...d, [key]: v }));
 
@@ -97,7 +99,7 @@ export function AdditionalDetailsDrawer({ open, content, onClose, onProceed }: A
       }
     >
       <div className={styles.scroll}>
-        <p className={styles.intro}>{content.intro}</p>
+        <p className={styles.intro}>{priced && content.pricedIntro ? content.pricedIntro : content.intro}</p>
         <div className={styles.fields}>
           {content.fields.map((f) => (
             <CheckoutField

@@ -79,7 +79,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
             paid they sit above the title (Figma 670:51168); in checkout,
             beside it. */}
         {(() => {
-          const immediate = quote.immediate || (quote.gold && !!quote.price);
+          const immediate = !!quote.immediate;
           const pills = (
             <div className={styles.pills}>
               {immediate && (!quote.gold || paid) && (
@@ -87,6 +87,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
                   variant="success"
                   className={styles.tag}
                   label={content.immediateLabel}
+                  tooltip={content.tips.immediate}
                   icon={<ShoppingBagIcon ref={bagRef} size={12} color="var(--color-success)" />}
                   onMouseEnter={() => bagRef.current?.startAnimation()}
                   onMouseLeave={() => bagRef.current?.stopAnimation()}
@@ -97,6 +98,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
                   variant="secondary"
                   className={styles.tag}
                   label={content.poweredByLabel}
+                  tooltip={content.tips.gold}
                   icon={<BadgeCheckIcon ref={eyeRef} size={12} color="var(--color-brand-secondary)" />}
                   onMouseEnter={() => eyeRef.current?.startAnimation()}
                   onMouseLeave={() => eyeRef.current?.stopAnimation()}
@@ -150,7 +152,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
               <IndicatorBadge label={content.excellentLabel} tone="success" size="sm" />
             </span>
           ) : (
-          <svg viewBox="0 0 16 16" width="16" height="16" fill="none" role="img" aria-label={content.insurerInfoLabel} className={styles.info}>
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="none" role="img" aria-label={content.insurerInfoLabel} className={styles.info} data-tooltip={content.tips.insurer.replace("{insurer}", quote.insurer)}>
             <circle cx="8" cy="8" r="6.5" stroke="var(--color-info-fill)" strokeWidth="1" />
             <circle cx="8" cy="5.2" r="0.8" fill="var(--color-info-fill)" />
             <path d="M8 7.3v4" stroke="var(--color-info-fill)" strokeWidth="1" strokeLinecap="round" />
@@ -185,7 +187,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
               <dd>{formatInr(base.gst)}</dd>
             </div>
             <div className={styles.row} data-total={saving ? "plain" : "final"}>
-              <dt>{content.totalLabel}</dt>
+              <dt>{saving ? content.priceLabel : content.totalLabel}</dt>
               <dd>{formatInr(base.total)}</dd>
             </div>
             {saving > 0 && (
@@ -198,7 +200,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
                 </div>
                 {!paid && (
                   <div className={styles.row} data-final>
-                    <dt>{content.finalLabel}</dt>
+                    <dt>{content.totalLabel}</dt>
                     <dd>{formatInr(final)}</dd>
                   </div>
                 )}

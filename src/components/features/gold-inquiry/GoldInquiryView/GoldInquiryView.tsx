@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import { priceFeed } from "@/lib/pricing";
 import { GOLD_DETAILS_KEY, useQuoteFlow } from "@/lib/quote-flow";
 import { resetCheckoutClock } from "@/components/features/checkout/useCheckoutClock";
 import { BreadcrumbTrail } from "@/components/ui/BreadcrumbTrail";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
 import { QuoteCard, type QuoteCardLabels } from "@/components/features/quotes/QuoteCard";
+import { AdditionalDetailsDrawer } from "@/components/features/quotes/GoldGate";
 import type { GoldInquiryContent } from "@/types/goldInquiry";
 import type { QuoteCardData, QuotesFeedContent, QuotesHeaderContent } from "@/types/quotesPage";
 import { BackButton } from "@/components/ui/BackButton";
@@ -52,24 +54,27 @@ const noSubscribe = () => () => {};
  * expert calls to finish it: a thank-you card (what happens next, a questions
  * pill, the inquiry summary: Risk Report in progress, Additional Details
  * missing or verifying), the case's other
- * quotes in a scrolling row (priced ones still check out), and a side column
+ * quotes in a scrolling row (Immediate Purchase ones still check out), and a side column
  * with Need Help contacts and a Rate Your Experience card.
  * Usage: <GoldInquiryView content={c} header={q.header} feed={q.feed} quotesHref="/…/quotes" />
  */
-export function GoldInquiryView({ content, header, feed, quotesHref, variant = "gold" }: GoldInquiryViewProps) {
+export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, variant = "gold" }: GoldInquiryViewProps) {
   const { result, selectedQuote, setSelectedQuote, setCheckout } = useQuoteFlow();
   const router = useRouter();
   const caseId = result?.caseId;
   const sumInsured = result?.values?.["coverage"] || undefined;
+  // Priced for this business, as on the Quotes page.
+  const feed = priceFeed(baseFeed, { sumInsured, turnover: result?.values?.["turnover"] });
   const detailsSent = useSyncExternalStore(noSubscribe, readDetailsSent, () => false);
 
   const allQuotes = ((caseId && feed.quotesByCase?.[caseId]) ?? feed.quotes).map((q) => (sumInsured ? { ...q, sumInsured } : q));
   // Quote request: the offline insurer picked on the Quotes page (else the
   // first offline one); it drops out of Other Quotes.
   const isRequest = variant === "quote";
-  const requested = isRequest ? (selectedQuote && !selectedQuote.price ? selectedQuote : allQuotes.find((q) => !q.price)) : undefined;
+  const onSale = (q: QuoteCardData) => !!q.immediate;
+  const requested = isRequest ? (selectedQuote && !onSale(selectedQuote) ? selectedQuote : allQuotes.find((q) => !onSale(q))) : undefined;
   const quotes = requested ? allQuotes.filter((q) => q.insurer !== requested.insurer) : allQuotes;
-  const fill = (text: string) => text.replace("{insurer}", requested?.insurer ?? "");
+  const fill = (text: string) => text.replace("{insurer}", requested?.insurer ?? "").replace("{price}", requested?.price ?? "");
   const labels: QuoteCardLabels = {
     sumInsured: feed.sumInsuredLabel,
     getQuote: feed.getQuoteLabel,
@@ -77,14 +82,19 @@ export function GoldInquiryView({ content, header, feed, quotesHref, variant = "
     comparisonUnavailable: feed.comparisonUnavailableLabel,
     immediatePurchase: feed.immediatePurchaseLabel,
     territory: feed.territoryLabels,
+    tips: feed.cardTips,
     poweredBy: feed.poweredByLabel,
     topCoverages: feed.topCoveragesLabel,
+    viewCoverages: feed.viewCoveragesLabel,
     coverageCount: feed.coverageCountLabel,
     personalizedCount: feed.personalizedCountLabel,
   };
-  // Priced quotes still check out from here; Get Quote requests the quote.
+  // Immediate Purchase quotes still check out from here; every other
+  // insurer asks the underwriting questions, then requests the quote.
+  const [requestFor, setRequestFor] = useState<QuoteCardData | null>(null);
+  const [requestOpen, setRequestOpen] = useState(false);
   const checkoutFor = (q: QuoteCardData) =>
-    q.price
+    onSale(q)
       ? () => {
           setSelectedQuote(q);
           setCheckout({});
@@ -92,9 +102,15 @@ export function GoldInquiryView({ content, header, feed, quotesHref, variant = "
           router.push(feed.checkoutHref);
         }
       : () => {
-          setSelectedQuote(q);
-          router.push(feed.quoteInquiryHref);
+          setRequestFor(q);
+          setRequestOpen(true);
         };
+  const sendRequest = () => {
+    if (!requestFor) return;
+    setSelectedQuote(requestFor);
+    setRequestOpen(false);
+    router.push(feed.quoteInquiryHref);
+  };
 
   // Other Quotes: the arrows page the row by one card.
   const rowRef = useRef<HTMLDivElement>(null);
@@ -130,7 +146,7 @@ export function GoldInquiryView({ content, header, feed, quotesHref, variant = "
   const breadcrumb = isRequest
     ? content.breadcrumb.map((b, i, all) => (i === all.length - 1 ? { label: quoteRequest.breadcrumbCurrent } : b))
     : content.breadcrumb;
-  const steps = isRequest ? quoteRequest.steps.map(fill) : content.steps;
+  const steps = isRequest ? (requested?.price ? quoteRequest.pricedSteps : quoteRequest.steps).map(fill) : content.steps;
 
   return (
     <div className={styles.page}>
@@ -157,7 +173,7 @@ export function GoldInquiryView({ content, header, feed, quotesHref, variant = "
                 <h1 className={styles.title}>{isRequest ? quoteRequest.title : content.title}</h1>
                 <p className={styles.intro}>{content.intro}</p>
               </div>
-              <div className={styles.inquiryHead}>
+              <div className={styles.inquiryHead} data-variant={isRequest ? "quote" : undefined}>
                 <h2 className={styles.inquiryTitle}>{isRequest ? quoteRequest.inquiryTitle : inquiry.title}</h2>
                 <a href={content.expertHref} className={styles.expert}>
                   {inquiry.ctaLabel}
@@ -198,10 +214,18 @@ export function GoldInquiryView({ content, header, feed, quotesHref, variant = "
                   <dd className={styles.statValue}>{sumInsured ?? quotes[0]?.sumInsured}</dd>
                 </div>
                 {isRequest ? (
-                  <div className={styles.stat}>
-                    <dt className={styles.statLabel}>{quoteRequest.statusLabel}</dt>
-                    <dd className={styles.statPending}>{quoteRequest.statusValue}</dd>
-                  </div>
+                  <>
+                    {requested?.price && (
+                      <div className={styles.stat}>
+                        <dt className={styles.statLabel}>{quoteRequest.priceLabel}</dt>
+                        <dd className={styles.statValue}>{requested.price}</dd>
+                      </div>
+                    )}
+                    <div className={styles.stat}>
+                      <dt className={styles.statLabel}>{quoteRequest.statusLabel}</dt>
+                      <dd className={styles.statPending}>{quoteRequest.statusValue}</dd>
+                    </div>
+                  </>
                 ) : (
                   <>
                     <div className={styles.stat}>
@@ -224,7 +248,7 @@ export function GoldInquiryView({ content, header, feed, quotesHref, variant = "
               <h2 className={styles.othersTitle}>{content.otherQuotes.title}</h2>
               <div className={styles.nav}>
                 <p className={styles.showing}>
-                  {content.otherQuotes.showing.replace("{shown}", String(ends.shown)).replace("{total}", String(quotes.length))}
+                  {content.otherQuotes.showing.replace("{total}", String(quotes.length))}
                 </p>
                 <button type="button" className={styles.navBtn} onClick={() => page(-1)} disabled={ends.start} aria-label={content.otherQuotes.prevLabel} data-tooltip={content.otherQuotes.prevLabel}>
                   <Chevron flip size={12} />
@@ -243,6 +267,7 @@ export function GoldInquiryView({ content, header, feed, quotesHref, variant = "
             </div>
           </section>
         </main>
+        <AdditionalDetailsDrawer open={requestOpen} content={feed.quoteRequestDrawer} onClose={() => setRequestOpen(false)} onProceed={sendRequest} priced={!!requestFor?.price} />
 
         <aside className={styles.aside}>
           {/* Need Help (642:32448) */}
@@ -302,7 +327,7 @@ export function GoldInquiryView({ content, header, feed, quotesHref, variant = "
                   ))}
                 </div>
                 <hr className={styles.rateRule} />
-                <button type="button" className={styles.submit} disabled={!rating} onClick={() => setSent(true)}>
+                <button type="button" className={styles.submit} disabled={!rating} data-tooltip={rating ? undefined : content.rate.submitBlockedTip} onClick={() => setSent(true)}>
                   {content.rate.submitLabel}
                 </button>
               </>

@@ -19,6 +19,8 @@ export interface CheckoutStepperProps {
   barPercent: number;
   /** Finished steps link back to themselves. */
   hrefFor: (step: CheckoutStepId) => string;
+  /** Tooltip on steps not reached yet. */
+  upcomingTip?: string;
 }
 
 type PillState = "done" | "current" | "upcoming";
@@ -60,7 +62,7 @@ function Glyph({ state }: { state: PillState }) {
  * then the next pill blooms and its bar fills.
  * Usage: <CheckoutStepper steps={…} current="company" labels={…} from="billing" barPercent={50} hrefFor={(s) => …} />
  */
-export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null, barPercent, hrefFor }: CheckoutStepperProps) {
+export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null, barPercent, hrefFor, upcomingTip }: CheckoutStepperProps) {
   const reduced = useReducedMotion();
   const at = steps.indexOf(current);
   const was = from ? steps.indexOf(from) : -1;
@@ -76,6 +78,7 @@ export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null
           <motion.span
             className={styles.pill}
             data-state={state}
+            data-tooltip={state === "upcoming" ? upcomingTip : undefined}
             initial={justDone ? { scale: 0.9 } : justCurrent ? { scale: 0.85, opacity: 0.6 } : false}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "tween", duration: HANDOFF.pill, ease: POP, delay: justCurrent ? HANDOFF.land : HANDOFF.begin }}

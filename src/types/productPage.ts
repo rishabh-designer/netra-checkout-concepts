@@ -154,6 +154,10 @@ export interface QuoteSearchBody {
   detailsHeading: string;
   details: string[];
   founderTag?: string;
+  /** The source tag's tooltip: the sources it shortens. */
+  founderTagTip?: string;
+  /** Tooltips for shortened detail lines, by index ("+2" directors). */
+  detailTips?: Record<number, string>;
   footer: string;
   /** true = hedged "best guess" styling (Case B). */
   tentative?: boolean;
@@ -264,6 +268,13 @@ export interface QuoteModalContent {
   totalFlowQuestions: number;
   /** CTA on every step but the last (which shows `ctaLabel`). */
   continueLabel: string;
+  /** Edit Details (form-only): the title and the save CTA. */
+  editTitle: string;
+  saveLabel: string;
+  /** Tooltips on the greyed CTA: why it can't be pressed yet. */
+  submitBlocked: { researching: string; fields: string; consent: string };
+  /** Tooltips on the research source chips, by what each returned. */
+  sourceResultTips: Record<QuoteResearchSource["result"], string>;
   /** Error lines for fields with a `validate` rule. */
   validationMessages: Partial<Record<CheckoutValidator, string>>;
   /** Footer-stepper pills — labels only; the last ("Quotes") is a future step

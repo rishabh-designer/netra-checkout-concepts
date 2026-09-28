@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { QuotesPageContent } from "@/types/quotesPage";
 import type { QuoteModalContent } from "@/types/productPage";
@@ -12,6 +12,9 @@ import { DetailsPanel } from "../DetailsPanel";
 import type { UpgradeStage } from "../UpgradeBanner";
 import { QuotesFeed } from "../QuotesFeed";
 import { QuotesSkeleton } from "../QuotesSkeleton";
+import { QuotesChat } from "../QuotesChat";
+import type { QuotesChatContext } from "@/lib/quotes-chat";
+import { priceFeed } from "@/lib/pricing";
 import styles from "./QuotesView.module.css";
 
 export interface QuotesViewProps {
@@ -46,8 +49,12 @@ export function QuotesView(props: QuotesViewProps) {
 
 function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const { result, setResult } = useQuoteFlow();
-  const notify = useDemoNotice();
   const values = result?.values;
+  // Every price on the page follows this business's cover and turnover.
+  const feed = useMemo(
+    () => priceFeed(content.feed, { sumInsured: values?.["coverage"], turnover: values?.["turnover"] }),
+    [content.feed, values],
+  );
   const caseId = result?.caseId;
   const [detailsCollapsed, setDetailsCollapsed] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -61,6 +68,35 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const lured = caseId === "A" || caseId === "B";
   const [upgradeStage, setUpgradeStage] = useState<UpgradeStage>(() => (lured ? "verifying" : "pending"));
   const [revealed, setRevealed] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  // The chat mounts once, in idle time after the quotes land (so the first
+  // open costs nothing), and stays mounted: its history survives a close.
+  const [chatUsed, setChatUsed] = useState(false);
+  // While the compare view is open the header CTA mails the quotes instead.
+  const [comparing, setComparing] = useState(false);
+  const notify = useDemoNotice();
+  // Opening the chat folds Your Details to its rail so the feed keeps its
+  // width; closing restores whatever the customer had.
+  const [collapsedBeforeChat, setCollapsedBeforeChat] = useState(false);
+  const toggleChat = () => {
+    if (chatOpen) {
+      setChatOpen(false);
+      setDetailsCollapsed(collapsedBeforeChat);
+    } else {
+      setCollapsedBeforeChat(detailsCollapsed);
+      setDetailsCollapsed(true);
+      setChatUsed(true);
+      setChatOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    if (loading || chatUsed) return;
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 400));
+    const cancel = window.cancelIdleCallback ?? window.clearTimeout;
+    const id = idle(() => setChatUsed(true));
+    return () => cancel(id);
+  }, [loading, chatUsed]);
 
   useEffect(() => {
     setLoading(true);
@@ -68,19 +104,44 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
     return () => window.clearTimeout(id);
   }, [loadKey]);
 
-  const feedQuotes = (caseId && content.feed.quotesByCase?.[caseId]) ?? content.feed.quotes;
+  const feedQuotes = (caseId && feed.quotesByCase?.[caseId]) ?? feed.quotes;
   const cardCount = feedQuotes.length + (caseId === "A" || caseId === "B" ? 1 : 0);
+
+  // What Ask BimaNetra can see: the feed, the Gold Quote (priced only once
+  // revealed), Your Details as the sidebar shows them.
+  const chatContext = useMemo<QuotesChatContext>(() => {
+    const rows = content.detailsPanel.rows.map((row) => ({
+      label: row.label,
+      value: (row.key && values?.[row.key]?.trim()) || row.value,
+    }));
+    const gold = lured ? ((caseId && feed.goldQuoteByCase?.[caseId]) ?? feed.goldQuote) : undefined;
+    return {
+      quotes: feedQuotes,
+      gold: gold && { quote: gold, revealed },
+      company: result?.companyName || content.detailsPanel.companyLabel,
+      sumInsured: values?.["coverage"] || rows.find((r) => r.label === feed.sumInsuredLabel)?.value || "",
+      details: rows,
+      phone: feed.needHelp.phone,
+    };
+  }, [content, feed, values, caseId, lured, feedQuotes, revealed, result?.companyName]);
 
   return (
     <div className={styles.page}>
       {/* Header CTA: Chat with Us, the sparkle after the label (in white). */}
-      <QuotesHeader
-        content={content.header}
-        icon={<span className={styles.sparkle} style={{ "--icon": `url(${content.feed.needHelp.chatIconSrc})` } as CSSProperties} aria-hidden />}
-        iconAfter
-        tone="secondary"
-        onCta={() => notify("askBimaNetra")}
-      />
+      {comparing ? (
+        // Compare view: the primary Mail Quotes (the header's default mail icon).
+        <QuotesHeader content={content.header} label={content.header.compareCtaLabel} onCta={() => notify("mailQuotes")} />
+      ) : (
+        <QuotesHeader
+          content={content.header}
+          icon={<span className={styles.sparkle} style={{ "--icon": `url(${feed.needHelp.chatIconSrc})` } as CSSProperties} aria-hidden />}
+          iconAfter
+          tone="secondary"
+          label={chatOpen ? content.chat.closeLabel : undefined}
+          ctaPressed={chatOpen}
+          onCta={toggleChat}
+        />
+      )}
       <main className={styles.body}>
         <AnimatePresence mode="wait" initial={false}>
           {loading ? (
@@ -115,6 +176,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
                 stage={upgradeStage}
                 noRecords={caseId !== "A" && caseId !== "B"}
+                caseId={caseId}
                 companyName={result?.companyName || undefined}
                 verifyFrom={lured ? VERIFY_FROM : undefined}
                 onSimulate={() => setUpgradeStage("verifying")}
@@ -132,13 +194,26 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 unlocked={upgradeStage === "upgraded"}
                 revealed={revealed}
                 onRevealed={() => setRevealed(true)}
-                content={content.feed}
+                content={feed}
                 caseId={caseId}
                 sumInsured={values?.["coverage"] || undefined}
+                onComparingChange={setComparing}
+                helpHidden={chatOpen}
               />
             </motion.div>
           )}
         </AnimatePresence>
+        {/* Ask BimaNetra: a full-height column at the feed's right edge. Its
+            width opens with a CSS transition (no per-frame script), and the
+            chat stays mounted after the first open so it reopens instantly
+            with its conversation intact. */}
+        <aside className={styles.chatSlot} data-open={chatOpen || undefined} aria-hidden={!chatOpen} inert={!chatOpen}>
+          {chatUsed && (
+            <div className={styles.chatInner}>
+              <QuotesChat content={content.chat} context={chatContext} iconSrc={feed.needHelp.chatIconSrc} open={chatOpen} />
+            </div>
+          )}
+        </aside>
       </main>
 
       {/* Edit Details — the quote form only (no AI-search column), prefilled. */}

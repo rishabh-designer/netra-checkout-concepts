@@ -75,7 +75,7 @@ export function CompareSheet({ content, picked, onRemove, onCompare }: CompareSh
               ))}
             </ul>
             <span className={styles.ctaDivider} aria-hidden />
-            <button type="button" className={styles.cta} disabled={!ready} onClick={ready ? onCompare : undefined}>
+            <button type="button" className={styles.cta} disabled={!ready} data-tooltip={ready ? undefined : content.minTip} onClick={ready ? onCompare : undefined}>
               {content.ctaLabel}
               <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
                 <path d="M2.5 8h11M9.5 4l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />

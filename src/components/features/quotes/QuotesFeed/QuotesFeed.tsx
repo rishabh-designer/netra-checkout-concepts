@@ -32,6 +32,10 @@ export interface QuotesFeedProps {
   /** Cases A and B: the Gold Quote has been revealed. */
   revealed?: boolean;
   onRevealed?: () => void;
+  /** Tells the page when the compare view opens or closes (its header CTA). */
+  onComparingChange?: (comparing: boolean) => void;
+  /** Ask BimaNetra is open: its chat stands in for the Need Help card. */
+  helpHidden?: boolean;
 }
 
 /* The grid picks its column count from the feed's width: one up, until two
@@ -62,11 +66,9 @@ function arrange(list: QuoteCardData[], filter: QuoteFilter, sort: QuoteSort, im
   const kept = list.filter(
     (q) =>
       (!immediateOnly || q.immediate) &&
-      (filter === "all" || (filter === "priced" ? !!q.price : !q.price)),
+      (filter === "all" || q.insurer === filter),
   );
-  if (sort === "default") return kept;
   const bySort = (a: QuoteCardData, b: QuoteCardData) => {
-    if (sort === "coverage") return (b.coverages?.length ?? 0) - (a.coverages?.length ?? 0) || priceOf(a) - priceOf(b);
     const pa = priceOf(a);
     const pb = priceOf(b);
     if (pa === Infinity || pb === Infinity) return pa === pb ? 0 : pa === Infinity ? 1 : -1;
@@ -78,14 +80,13 @@ function arrange(list: QuoteCardData[], filter: QuoteFilter, sort: QuoteSort, im
 /**
  * QuotesFeed — the middle column (Figma 564:32970). A fixed top (breadcrumb + count,
  * controls, ikkat rule) over a scroll area that holds the vertical quote stack
- * (480 wide). Only the scroll area moves. (The testimonial and risk report now
- * live in the Help Desk column.) Matched cases (A and B) lead the stack with
+ * (480 wide). Only the scroll area moves. Matched cases (A and B) lead the stack with
  * a ghost "Reveal Quote" card that the customer opens to unveil their Gold
  * Quote. Filtering, sorting and "Immediate Purchase Only" rearrange the
  * rest; the reveal slot stays pinned first.
  * Usage: <QuotesFeed content={feed} caseId="B" sumInsured="₹10 Cr" />
  */
-export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed }: QuotesFeedProps) {
+export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed, onComparingChange, helpHidden = false }: QuotesFeedProps) {
   const feedRef = useRef<HTMLDivElement>(null);
   const [cols, setCols] = useState(1);
   useLayoutEffect(() => {
@@ -103,8 +104,10 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     comparisonUnavailable: content.comparisonUnavailableLabel,
     immediatePurchase: content.immediatePurchaseLabel,
     territory: content.territoryLabels,
+    tips: content.cardTips,
     poweredBy: content.poweredByLabel,
     topCoverages: content.topCoveragesLabel,
+    viewCoverages: content.viewCoveragesLabel,
     coverageCount: content.coverageCountLabel,
     personalizedCount: content.personalizedCountLabel,
     viewFeatures: content.viewFeaturesLabel,
@@ -154,8 +157,18 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   // Get Quote requests it instead: the quote request page for that insurer.
   const router = useRouter();
   const { setSelectedQuote, setCheckout } = useQuoteFlow();
+  const [requestFor, setRequestFor] = useState<QuoteCardData | null>(null);
+  const [requestOpen, setRequestOpen] = useState(false);
+  const sendRequest = () => {
+    if (!requestFor) return;
+    setSelectedQuote(requestFor);
+    router.push(content.quoteInquiryHref);
+  };
+  // Only an Immediate Purchase quote (Case A's Gold Quote is one) checks out
+  // online. Every other insurer, priced or not, asks the underwriting
+  // questions first, then goes to the Quote Request page.
   const checkoutFor = (q: QuoteCardData) =>
-    q.price
+    q.immediate
       ? () => {
           setSelectedQuote(q);
           setCheckout({});
@@ -163,8 +176,9 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           router.push(content.checkoutHref);
         }
       : () => {
-          setSelectedQuote(q);
-          router.push(content.quoteInquiryHref);
+          setFeaturesOpen(false);
+          setRequestFor(q);
+          setRequestOpen(true);
         };
   // The Gold Quote's button: the gate (or, once the details are in, the Gold
   // Inquiry page) for a gated case; else checkout.
@@ -205,6 +219,9 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     .filter((q): q is QuoteCardData => !!q);
   // Compare Now opens the side-by-side view; removing the last quote closes it.
   const [comparing, setComparing] = useState(false);
+  useEffect(() => {
+    onComparingChange?.(comparing);
+  }, [comparing, onComparingChange]);
   const closeCompare = useCallback(() => setComparing(false), [setComparing]);
   const removeCompare = (q: QuoteCardData) => {
     const next = picked.filter((x) => x !== compareKey(q));
@@ -212,9 +229,16 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     if (next.length === 0) setComparing(false);
   };
   const [filter, setFilter] = useState<QuoteFilter>("all");
-  const [sort, setSort] = useState<QuoteSort>("default");
+  const [sort, setSort] = useState<QuoteSort>("priceLow");
   const [immediateOnly, setImmediateOnly] = useState(false);
-  const pinned = rest.filter((q) => q.gold);
+  // The Gold Quote stays pinned on top, unless another insurer is picked.
+  const pinned = rest.filter((q) => q.gold && (filter === "all" || q.insurer === filter));
+  // Every insurer quoting right now, in feed order (the Gold's placeholder
+  // name is left out; its real insurer is already in the feed).
+  const filterOptions = [
+    { id: "all", label: content.filterAllLabel },
+    ...[...new Set(rest.filter((q) => !q.gold).map((q) => q.insurer))].map((name) => ({ id: name, label: name })),
+  ];
   const arranged = arrange(rest.filter((q) => !q.gold), filter, sort, immediateOnly);
   const shown = [...pinned, ...arranged];
   const shownCount = shown.length + (ghostFirst && revealed ? 1 : 0);
@@ -268,7 +292,21 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
               </span>
             </h1>
           </div>
-          <NeedHelpCard content={content.needHelp} />
+          {/* Dissolves while Ask BimaNetra is open (the chat covers help), and
+              comes back when it closes. */}
+          <AnimatePresence initial={false}>
+            {!helpHidden && (
+              <motion.div
+                key="help"
+                initial={{ opacity: 0, filter: "blur(6px)", scale: 0.98 }}
+                animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
+                exit={{ opacity: 0, filter: "blur(6px)", scale: 0.98 }}
+                transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+              >
+                <NeedHelpCard content={content.needHelp} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <IkkatDivider unit={23.8} height={4} className={styles.rule} />
       </div>
@@ -279,7 +317,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           filterFieldLabel={content.filterFieldLabel}
           sortFieldLabel={content.sortFieldLabel}
           filterLabel={content.filterLabel}
-          filterOptions={content.filterOptions}
+          filterOptions={filterOptions}
           filter={filter}
           onFilterChange={setFilter}
           sortLabel={content.sortLabel}
@@ -387,6 +425,13 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
         onSelect={featuresQuote ? (featuresQuote.gold ? selectGold(goldCard) : checkoutFor(featuresQuote)) : undefined}
       />
 
+      <AdditionalDetailsDrawer
+        open={requestOpen}
+        content={content.quoteRequestDrawer}
+        onClose={() => setRequestOpen(false)}
+        onProceed={sendRequest}
+        priced={!!requestFor?.price}
+      />
       {gate && (
         <>
           <GoldGateModal
