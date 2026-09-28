@@ -22,6 +22,8 @@ const STAGGER = 400;
  * so the row never reflows), its
  * label cross-fading with a 3px drift. Chip i cycles items i, i + visible, …,
  * a beat after the one before it, slowly enough to stay in the background.
+ * When the column can't fit them in one row they stack; on phones a single
+ * chip cycles every line (as on the Focus hero).
  * Usage: <CoverageChips items={focus.coveredChips} iconSrc={focus.coveredIconSrc} />
  */
 export function CoverageChips({ items, iconSrc, visible = 3, interval = 5200 }: CoverageChipsProps) {
@@ -29,10 +31,15 @@ export function CoverageChips({ items, iconSrc, visible = 3, interval = 5200 }: 
     items.filter((_, k) => k % visible === i),
   );
   return (
-    <div className={styles.chips}>
-      {slots.map((slotItems, i) => (
-        <CoverageTicker key={i} items={slotItems} sizeTo={items} iconSrc={iconSrc} interval={interval} delay={i * STAGGER} steady />
-      ))}
-    </div>
+    <>
+      <div className={styles.chips}>
+        {slots.map((slotItems, i) => (
+          <CoverageTicker key={i} items={slotItems} sizeTo={items} iconSrc={iconSrc} interval={interval} delay={i * STAGGER} steady />
+        ))}
+      </div>
+      <div className={styles.single}>
+        <CoverageTicker items={items} sizeTo={items} iconSrc={iconSrc} interval={interval} steady />
+      </div>
+    </>
   );
 }

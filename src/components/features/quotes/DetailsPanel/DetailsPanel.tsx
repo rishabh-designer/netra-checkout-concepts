@@ -128,6 +128,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
                 className={styles.collapse}
                 onClick={onToggleCollapse}
                 aria-label="Collapse details"
+                data-tooltip="Collapse details"
                 tabIndex={collapsed ? -1 : 0}
               >
                 <ToggleGlyph />
@@ -171,6 +172,8 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
             className={styles.railToggle}
             onClick={onToggleCollapse}
             aria-label="Expand details"
+            data-tooltip="Expand details"
+            data-tooltip-side="right"
             tabIndex={collapsed ? 0 : -1}
           >
             <ToggleGlyph />

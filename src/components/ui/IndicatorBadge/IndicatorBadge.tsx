@@ -3,8 +3,9 @@ import styles from "./IndicatorBadge.module.css";
 export interface IndicatorBadgeProps {
   label?: string;
   /** indicator = teal "New" (default); success / info / caution / disabled =
-   *  the quote-rating chips (Figma 584:45338 / 45382 / 45476 / 45508). */
-  tone?: "indicator" | "success" | "info" | "caution" | "disabled";
+   *  the quote-rating chips (Figma 584:45338 / 45382 / 45476 / 45508);
+   *  secondary = peach, for BimaNetra features. */
+  tone?: "indicator" | "secondary" | "success" | "info" | "caution" | "disabled";
   /** md = 14px label (default); sm = 12px label, 2px dot gap. */
   size?: "md" | "sm";
 }

@@ -28,7 +28,7 @@ export function GoldGateModal({ open, content, onClose, onCall, onOnline }: Gold
   return (
     <SideDrawer open={open} onClose={onClose} title={content.title} closeLabel={content.closeLabel} width={517} placement="center" bare>
       <div className={styles.modal}>
-        <button type="button" className={styles.close} onClick={onClose} aria-label={content.closeLabel}>
+        <button type="button" className={styles.close} onClick={onClose} aria-label={content.closeLabel} data-tooltip={content.closeLabel}>
           <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
             <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
           </svg>

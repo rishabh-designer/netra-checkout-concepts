@@ -226,10 +226,10 @@ export function GoldInquiryView({ content, header, feed, quotesHref, variant = "
                 <p className={styles.showing}>
                   {content.otherQuotes.showing.replace("{shown}", String(ends.shown)).replace("{total}", String(quotes.length))}
                 </p>
-                <button type="button" className={styles.navBtn} onClick={() => page(-1)} disabled={ends.start} aria-label={content.otherQuotes.prevLabel}>
+                <button type="button" className={styles.navBtn} onClick={() => page(-1)} disabled={ends.start} aria-label={content.otherQuotes.prevLabel} data-tooltip={content.otherQuotes.prevLabel}>
                   <Chevron flip size={12} />
                 </button>
-                <button type="button" className={styles.navBtn} onClick={() => page(1)} disabled={ends.end} aria-label={content.otherQuotes.nextLabel}>
+                <button type="button" className={styles.navBtn} onClick={() => page(1)} disabled={ends.end} aria-label={content.otherQuotes.nextLabel} data-tooltip={content.otherQuotes.nextLabel}>
                   <Chevron size={12} />
                 </button>
               </div>

@@ -189,6 +189,7 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
                         type="button"
                         className={styles.remove}
                         aria-label={content.removeLabel.replace("{insurer}", q.insurer)}
+                        data-tooltip={content.removeLabel.replace("{insurer}", q.insurer)}
                         onClick={() => onRemove(q)}
                       >
                         <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>

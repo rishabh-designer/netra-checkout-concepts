@@ -53,7 +53,7 @@ function Rows() {
  * 683:56607), drawn in code so it names the customer's company: a back sheet
  * (a risk report, turned -11°) behind the letter itself — a header with the
  * BimaKavach mark, "Risk Held Letter" and the policy line, a section of
- * skeleton rows with a caret typing into one, an Executive Summary, and an
+ * skeleton rows with a still caret in one, an Executive Summary, and an
  * orange pointer. Decorative; the container labels it.
  * Usage: <RiskLetterPreview content={riskHeld.preview} company="Pepe Jeans…" label="…" />
  */

@@ -32,8 +32,8 @@
   width: 100%;
   padding: var(--spacing-12) var(--spacing-16);
   border-radius: var(--radius-12);
-  /* Purple wash, as the modal's "Your Quote is Being Personalized" banner. */
-  background: linear-gradient(to right, var(--color-brand-primary-subtle), transparent);
+  /* Peach (secondary) wash: personalizing is BimaNetra's doing. */
+  background: linear-gradient(to right, var(--color-brand-secondary-subtle), transparent);
 }
 
 .promoLeft {
@@ -46,7 +46,7 @@
   font-size: var(--font-size-100);
   font-weight: 500;
   line-height: 1;
-  color: var(--color-brand-primary);
+  color: var(--color-label-primary);
   white-space: nowrap;
 }
 

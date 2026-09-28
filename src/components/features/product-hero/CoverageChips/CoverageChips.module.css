@@ -3,3 +3,27 @@
   flex-wrap: wrap;
   gap: var(--spacing-8);
 }
+
+/* Phones only: one chip cycling every line. */
+.single {
+  display: none;
+}
+
+/* Three shared-width chips need ~718px; narrower, they stack as one unit
+   instead of wrapping two-and-one. */
+@container (max-width: 720px) {
+  .chips {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 767px) {
+  .chips {
+    display: none;
+  }
+
+  .single {
+    display: flex;
+  }
+}

@@ -30,6 +30,8 @@ export interface LeadFormCardProps {
   quotesPreview?: QuotesPreview;
   /** A row over the promo banner (the Focus hero's product pills). */
   topSlot?: ReactNode;
+  /** A row under the CTA (the classic hero's Policy Provided By logos). */
+  bottomSlot?: ReactNode;
 }
 
 /** Route the typed name to an outcome via the content's alias table (trimmed,
@@ -50,7 +52,7 @@ function resolveCase(name: string, matches: QuoteCaseMatch[]): { caseId: QuoteCa
  * fires a toast instead of opening the modal.
  * Usage: <LeadFormCard content={leadForm} quoteModal={quoteModal} />
  */
-export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlot }: LeadFormCardProps) {
+export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlot, bottomSlot }: LeadFormCardProps) {
   const router = useRouter();
   const { setResult } = useQuoteFlow();
   const [companyName, setCompanyName] = useState("");
@@ -142,7 +144,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
         {topSlot}
         <div className={styles.promoBanner}>
           <div className={styles.promoLeft}>
-            <IndicatorBadge label={content.promoBadge} />
+            <IndicatorBadge label={content.promoBadge} tone="secondary" />
             <span className={styles.promoLabel}>{content.promoLabel}</span>
           </div>
           <div className={styles.promoRight}>
@@ -206,6 +208,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
           <p className={styles.privacy}>{focus.privacyLine}</p>
         )}
       </div>
+      {bottomSlot}
       <QuoteModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}

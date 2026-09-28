@@ -331,7 +331,7 @@ export function QuoteModal({
                 <header className={styles.header}>
                   <div className={styles.headerLead}>
                     {stepIndex > 0 && (
-                      <button type="button" className={styles.ctrl} aria-label="Back" onClick={handleBack}>
+                      <button type="button" className={styles.ctrl} aria-label="Back" data-tooltip="Back" onClick={handleBack}>
                         <ChevronLeft />
                       </button>
                     )}
@@ -354,6 +354,7 @@ export function QuoteModal({
                     type="button"
                     className={styles.ctrl}
                     aria-label="Close"
+                    data-tooltip="Close"
                     onClick={onClose}
                   >
                     <HeaderClose />

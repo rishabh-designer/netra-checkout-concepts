@@ -256,6 +256,9 @@
 }
 
 .offerPct {
+  /* One point under the price, and one point more room before it. */
+  margin-right: 1px;
+  font-size: calc(var(--font-size-300) - 1px);
   color: var(--color-label-disabled);
 }
 

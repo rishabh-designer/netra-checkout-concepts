@@ -254,6 +254,7 @@ export function InteractiveInput({
               type="button"
               className={styles.clearBtn}
               aria-label="Clear"
+              data-tooltip="Clear"
               onClick={() => {
                 onClear?.();
                 onChange?.("");

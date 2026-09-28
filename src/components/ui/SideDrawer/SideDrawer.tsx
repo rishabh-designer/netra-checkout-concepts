@@ -99,7 +99,7 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
             <div className={styles.body} style={headGap !== undefined ? { gap: headGap } : undefined}>
               <div className={styles.head}>
                 <h2 id={titleId} className={styles.title}>{title}</h2>
-                <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={closeLabel}>
+                <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={closeLabel} data-tooltip={closeLabel}>
                   <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
                     <path d="M4 4l8 8M12 4l-8 8" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>

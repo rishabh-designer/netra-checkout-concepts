@@ -63,7 +63,7 @@ export function Toast({ open, title, description, onClose, duration = 4000, tone
               <p className={styles.title}>{title}</p>
               {description && <p className={styles.desc}>{description}</p>}
             </div>
-            <button className={styles.close} onClick={onClose} aria-label="Dismiss">
+            <button className={styles.close} onClick={onClose} aria-label="Dismiss" data-tooltip="Dismiss">
               <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
                 <path
                   d="m4.5 4.5 7 7m0-7-7 7"

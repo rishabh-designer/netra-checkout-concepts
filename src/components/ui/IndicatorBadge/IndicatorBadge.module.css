@@ -34,6 +34,18 @@
   font-size: var(--font-size-75);
 }
 
+/* Secondary: peach, for BimaNetra features ("New Feature"). */
+.badge[data-tone="secondary"] {
+  border-color: var(--color-brand-secondary-border);
+  background: var(--color-brand-secondary-subtle);
+}
+.badge[data-tone="secondary"] .dot {
+  background: var(--color-brand-secondary);
+}
+.badge[data-tone="secondary"] .label {
+  color: var(--color-brand-secondary);
+}
+
 /* Rating tones */
 .badge[data-tone="success"] {
   border-color: var(--color-success-border);

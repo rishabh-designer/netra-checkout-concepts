@@ -16,6 +16,7 @@ import "@/styles/globals.css";
 import { QuoteFlowProvider } from "@/lib/quote-flow";
 import { DemoNoticeProvider } from "@/lib/demo-notice";
 import { getDemoNotices } from "@/lib/api/demoNotices";
+import { TooltipLayer } from "@/components/ui/Tooltip";
 
 /*
  * Typography mandate: only Anek (every script it ships) and Instrument Serif
@@ -73,6 +74,7 @@ export default async function RootLayout({
       <body>
         <QuoteFlowProvider>
           <DemoNoticeProvider content={notices}>{children}</DemoNoticeProvider>
+          <TooltipLayer />
         </QuoteFlowProvider>
       </body>
     </html>

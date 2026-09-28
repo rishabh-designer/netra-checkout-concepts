@@ -115,7 +115,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
     >
       {quote && (
         <div className={styles.modal} data-tone={tone}>
-          <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={content.closeLabel}>
+          <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={content.closeLabel} data-tooltip={content.closeLabel}>
             <svg viewBox="0 0 12 12" width="10" height="10" fill="none" aria-hidden>
               <path d="m3 3 6 6M9 3 3 9" stroke="var(--color-label-secondary)" strokeWidth="1.2" strokeLinecap="round" />
             </svg>

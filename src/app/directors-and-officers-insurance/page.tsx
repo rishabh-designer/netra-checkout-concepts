@@ -59,11 +59,13 @@ export default async function DirectorsAndOfficersInsurancePage() {
                   quoteModal={content.quoteModal}
                   quotesPreview={quotesPreview}
                   topSlot={<MediaComposition media={content.media} />}
+                  bottomSlot={
+                    <div className={styles.providersArea}>
+                      <p className={styles.providersHeading}>{content.leadForm.providersHeading}</p>
+                      <InsurerLogoShowcase slots={content.leadForm.providerShowcase} />
+                    </div>
+                  }
                 />
-                <div className={styles.providersArea}>
-                  <p className={styles.providersHeading}>{content.leadForm.providersHeading}</p>
-                  <InsurerLogoShowcase slots={content.leadForm.providerShowcase} />
-                </div>
               </div>
             </div>
           </main>

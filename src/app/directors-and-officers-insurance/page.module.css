@@ -27,10 +27,10 @@
   padding: var(--spacing-32) var(--spacing-32) var(--spacing-32);
 }
 
-/* Widest screens: a roomier 40 inset. */
+/* Widest screens: a roomier 40 inset, 32 at the foot. */
 @media (min-width: 1440px) {
   .body {
-    padding: var(--spacing-40);
+    padding: var(--spacing-40) var(--spacing-40) var(--spacing-32);
   }
 }
 
@@ -53,10 +53,10 @@
 /*
  * Desktop: two INDEPENDENT columns (flex), so each flows on its own — the
  * stat band sits right under the text regardless of the media's height, and
- * media→form→logos stack tightly on the right. Below 1200 the whole thing
+ * media→form→logos stack inside the card on the right. Below 1200 the whole thing
  * becomes a five-area grid (see the media queries) where each block reflows
  * on its own: ProductHeroLeft and .rightCol both go display:contents so their
- * children (text/stats, media/form/logos) drop into the grid as named areas.
+ * children (text/stats, the card) drop into the grid as named areas.
  * Figma tablet 288:19771, mobile 288:22902.
  */
 .columns {
@@ -75,11 +75,10 @@
 }
 
 .providersArea {
-  grid-area: logos;
+  /* Inside the lead card, under the CTA. */
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
-  padding-left: var(--spacing-12);
   overflow: hidden;
 }
 
@@ -112,7 +111,7 @@
   }
 }
 
-/* Below web (<1000): single column: text, form (with the media inside), logos, stats. */
+/* Below web (<1000): single column: text, form (media and logos inside), stats. */
 @media (max-width: 999px) {
   .body {
     padding: var(--spacing-16);
@@ -126,7 +125,6 @@
     grid-template-areas:
       "text"
       "form"
-      "logos"
       "stats";
   }
 
@@ -135,9 +133,6 @@
   }
 
   .providersArea {
-    grid-area: logos;
     align-items: flex-start;
-    padding-left: 0;
-    margin-top: 0;
   }
 }

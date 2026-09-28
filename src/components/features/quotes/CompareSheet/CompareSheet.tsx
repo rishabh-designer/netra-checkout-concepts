@@ -58,6 +58,7 @@ export function CompareSheet({ content, picked, onRemove, onCompare }: CompareSh
                         type="button"
                         className={styles.remove}
                         aria-label={content.removeLabel.replace("{insurer}", q.insurer)}
+                        data-tooltip={content.removeLabel.replace("{insurer}", q.insurer)}
                         onClick={() => onRemove(q)}
                       >
                         <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>

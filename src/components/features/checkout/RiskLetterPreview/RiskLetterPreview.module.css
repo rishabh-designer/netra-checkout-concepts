@@ -134,7 +134,7 @@
   background: var(--color-brand-primary-subtle-bold);
 }
 
-/* The typing caret (683:56636): a pale blue highlight led by a blue bar. */
+/* The caret (683:56636), held still: a pale blue highlight led by a blue bar. */
 .typing {
   position: absolute;
   top: 1px;
@@ -143,8 +143,6 @@
   height: 21px;
   border-radius: 2px;
   background: linear-gradient(to right, var(--color-card), var(--color-info-subtle));
-  animation: typing 2.4s ease-in-out infinite;
-  transform-origin: left;
 }
 
 .caret {
@@ -155,7 +153,6 @@
   height: 21px;
   border-radius: 4px;
   background: var(--color-info-fill);
-  animation: blink 1s steps(1) infinite;
 }
 
 .summaryLabel {
@@ -184,27 +181,4 @@
   left: 218px;
   /* The path's tip is top right; mirrored, it points up-left as in Figma. */
   transform: scaleX(-1);
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
-
-@keyframes typing {
-  0%,
-  100% {
-    transform: scaleX(0.4);
-  }
-  50% {
-    transform: scaleX(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .typing,
-  .caret {
-    animation: none;
-  }
 }

@@ -237,7 +237,6 @@ export const mockProductPageContent: ProductPageContent = {
   ],
   tags: [
     { label: "Immediate Purchase", variant: "success", icon: "shoppingBag" },
-    { label: "Secured with BimaNetra", variant: "secondary", icon: "badgeCheck" },
   ],
   title: "Get [₹10 Crore] Cover\nat [₹10,000/Year].",
   subtitle: "Protects executives when business decisions lead to lawsuits",
@@ -253,7 +252,7 @@ export const mockProductPageContent: ProductPageContent = {
   },
   leadForm: {
     promoBadge: "New",
-    promoLabel: "Personalize My Quote",
+    promoLabel: "Personalize my quote with BimaNetra",
     promoLinkLabel: "Know More",
     // Placeholder copy; marketing will supply the final version.
     knowMore: {
