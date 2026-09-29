@@ -112,7 +112,7 @@ const BEAM_MS = 9000; // one revolution; matches beam-rotate in the CSS
 /** Phase-locks the beam to the page clock, so a remount (the Gold card
  *  swapping from its reveal layer to the feed) picks up at the same angle
  *  instead of restarting from the top. */
-function lockBeam(el: HTMLElement | null) {
+export function lockBeam(el: HTMLElement | null) {
   const now = Number(document.timeline?.currentTime ?? performance.now());
   if (el) el.style.animationDelay = `${-(now % BEAM_MS)}ms`;
 }

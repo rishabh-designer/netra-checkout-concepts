@@ -16,8 +16,8 @@ export function generateStaticParams() {
  * a fallback quote (the first priced Case C quote, for cold opens), then hands
  * off to the client <CheckoutView>, which reads the chosen quote + flow values.
  */
-export default async function CheckoutPage({ params }: { params: Promise<{ step: string }> }) {
-  const { step } = await params;
+export default async function CheckoutPage({ params }: { params: Promise<{ caseSlug: string; step: string }> }) {
+  const { caseSlug, step } = await params;
   if (!STEPS.includes(step as CheckoutStepId)) notFound();
   const [content, quotes] = await Promise.all([getCheckoutContent(), getQuotesPageContent()]);
   const fallbackQuote = quotes.feed.quotes.find((q) => q.price) ?? quotes.feed.quotes[0];
@@ -25,8 +25,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ step:
     <CheckoutView
       step={step as CheckoutStepId}
       steps={STEPS}
-      basePath="/directors-and-officers-insurance/checkout"
-      quotesHref="/directors-and-officers-insurance/quotes"
+      basePath={`/directors-and-officers-insurance/${caseSlug}/checkout`}
+      quotesHref={`/directors-and-officers-insurance/${caseSlug}/quotes`}
       content={content}
       fallbackQuote={fallbackQuote}
     />

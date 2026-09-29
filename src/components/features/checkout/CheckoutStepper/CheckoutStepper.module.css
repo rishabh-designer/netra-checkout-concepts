@@ -91,7 +91,7 @@
   font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1;
-  letter-spacing: -0.12px;
+  letter-spacing: var(--track-500);
   white-space: nowrap;
   color: var(--color-label-secondary);
 }
@@ -100,7 +100,6 @@
 .pill[data-state="current"] .label,
 .pill[data-state="done"] .label {
   font-size: var(--font-size-100);
-  letter-spacing: -0.14px;
 }
 
 .pill[data-state="current"] .label {

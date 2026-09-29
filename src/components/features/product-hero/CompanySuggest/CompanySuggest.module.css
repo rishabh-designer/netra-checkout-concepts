@@ -27,6 +27,7 @@
   border-radius: var(--radius-8);
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-secondary);
   cursor: pointer;
   transition: background 0.12s ease;
@@ -98,6 +99,7 @@
   flex-shrink: 0;
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-tertiary);
 }
 

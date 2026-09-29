@@ -80,6 +80,7 @@
 .name {
   font-size: var(--font-size-75);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.1;
   text-align: center;
   white-space: nowrap;
@@ -124,6 +125,7 @@
   background: var(--color-brand-primary);
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   white-space: nowrap;
   color: var(--color-label-inverse);

@@ -198,6 +198,11 @@ export interface FeaturesDrawerContent {
   /** Labels the modal for screen readers (the design shows no title). */
   title: string;
   closeLabel: string;
+  /** Pagination over the shown quotes (727:34231): each chevron's tooltip
+   *  names the quote it goes to, "Quote {n} of {total}". */
+  pagerTip: string;
+  prevQuoteLabel: string;
+  nextQuoteLabel: string;
   /** Foot of the modal's summary card: the D&O mark over the product name
    *  (two lines, split at the newline). */
   productIconSrc: string;

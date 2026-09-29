@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 import styles from "./SquareCheckbox.module.css";
 
-/** DSL tones (Peetal DSL square checkbox, Figma 3467:3524). Only `info` is wired
- *  today; the rest are placeholders for when they're needed. */
-export type SquareCheckboxTone = "info" | "brand" | "success" | "warning";
+/** DSL tones (Peetal DSL square checkbox, Figma 3467:3524). `info` and
+ *  `secondary` (BimaNetra's orange, the Gold Quote) are wired; the rest are
+ *  placeholders for when they're needed. */
+export type SquareCheckboxTone = "info" | "secondary" | "brand" | "success" | "warning";
 export type SquareCheckboxState = "checked" | "indeterminate" | "unchecked";
 
 export interface SquareCheckboxProps {

@@ -11,6 +11,7 @@
   padding: var(--spacing-12) var(--spacing-8);
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   color: var(--color-label-basic);
 }
@@ -108,6 +109,7 @@
   border-right: 1px solid var(--color-input-stroke);
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-tertiary);
 }
 
@@ -118,6 +120,7 @@
   /* 16px value (Figma 503:14272); the hero field opts up to 18px via size="lg" */
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--field-ink);
   white-space: nowrap;
   overflow: hidden;
@@ -189,6 +192,7 @@
   font: inherit;
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--field-ink);
 }
@@ -201,18 +205,21 @@
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
   opacity: 1;
   font-weight: 500;
+  letter-spacing: var(--track-500);
 }
 
 .value[data-empty],
 .input[data-empty] {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
   font-weight: 500;
+  letter-spacing: var(--track-500);
 }
 
 .input::placeholder {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
   opacity: 1; /* Firefox lowers placeholder opacity by default */
   font-weight: 500;
+  letter-spacing: var(--track-500);
 }
 
 .suffix {
@@ -268,7 +275,7 @@
   font-size: var(--font-size-100);
   font-weight: 500;
   line-height: 1.35;
-  letter-spacing: -0.14px;
+  letter-spacing: var(--track-500);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -317,7 +324,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: 0.12px;
+  letter-spacing: var(--track-500);
   color: var(--color-label-tertiary);
 }
 
@@ -377,6 +384,7 @@
   overflow: hidden;
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   white-space: pre;
   pointer-events: none;
 }

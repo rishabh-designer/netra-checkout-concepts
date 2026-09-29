@@ -17,6 +17,7 @@
   background: var(--color-caution-subtle);
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-caution-label);
 }
@@ -47,6 +48,7 @@
 .sectionTitle {
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   color: var(--color-label-primary);
 }
@@ -68,7 +70,7 @@
   background: var(--color-card);
   font-size: var(--font-size-100);
   font-weight: 600;
-  letter-spacing: -0.14px;
+  letter-spacing: var(--track-600);
   color: var(--color-label-primary);
 }
 

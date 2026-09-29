@@ -208,6 +208,7 @@
   background: var(--color-card);
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   white-space: nowrap;
   color: var(--color-success);
@@ -266,6 +267,7 @@
   flex-direction: column;
   font-size: var(--font-size-300);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.1;
   color: var(--color-label-primary);
 }
@@ -301,6 +303,7 @@
 .sumLabel {
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   color: var(--color-label-muted-primary);
 }
@@ -308,6 +311,7 @@
 .sumValue {
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   color: var(--color-brand-primary);
 }
@@ -327,6 +331,7 @@
   border-radius: var(--radius-16);
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
@@ -436,7 +441,7 @@
   font-size: var(--font-size-75);
   font-weight: 600;
   line-height: 1;
-  letter-spacing: -0.12px;
+  letter-spacing: var(--track-600);
   white-space: nowrap;
   color: var(--color-info);
   cursor: pointer;
@@ -466,7 +471,7 @@
   font-size: var(--font-size-75);
   font-weight: 600;
   line-height: 1;
-  letter-spacing: 0.12px;
+  letter-spacing: var(--track-600);
   white-space: nowrap;
 }
 

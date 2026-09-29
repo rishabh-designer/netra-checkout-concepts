@@ -59,7 +59,7 @@
 .itemLabel {
   font-size: var(--font-size-100);
   font-weight: 500;
-  letter-spacing: 0.14px;
+  letter-spacing: var(--track-500);
   line-height: 1;
   height: 14px;
   white-space: nowrap;
@@ -115,6 +115,7 @@
   color: var(--color-label-inverse);
   font-size: var(--font-size-75);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   cursor: pointer;
 }

@@ -32,7 +32,7 @@
   font-size: var(--font-size-100);
   font-weight: 600;
   line-height: 1;
-  letter-spacing: 0.14px;
+  letter-spacing: calc(var(--track-600) + 0.01em);
   text-transform: uppercase;
   color: var(--color-label-primary);
 }
@@ -41,6 +41,8 @@
   font-family: var(--font-display);
   font-feature-settings: var(--font-display-features);
   font-weight: 400;
+  /* Instrument Serif keeps its own spacing, not Anek's. */
+  letter-spacing: 0;
   font-size: var(--font-size-display-xs);
   /* Italic at 48, in the focus hero's price-line style: neutral primary, with
      the cover and the price highlighted in brand purple. */
@@ -67,6 +69,7 @@
 .subtitle {
   font-size: var(--font-size-300);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   /* Muted primary, as the focus hero's subtitle. */
   color: var(--color-label-muted-primary);

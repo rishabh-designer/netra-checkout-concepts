@@ -54,13 +54,14 @@
   font-size: var(--font-size-heading-sm);
   font-weight: 600;
   line-height: 1.1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--track-600);
   color: var(--color-label-primary);
 }
 
 .subtitle {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-muted-primary);
 }
 
@@ -104,6 +105,7 @@
   color: var(--color-brand-primary);
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   white-space: nowrap;
 }
@@ -154,6 +156,7 @@
 .insurer {
   font-size: var(--font-size-300);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.15;
   color: var(--color-label-primary);
 }
@@ -172,6 +175,7 @@
   border-radius: var(--radius-16);
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
@@ -222,6 +226,7 @@
   color: var(--color-brand-primary);
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
@@ -264,6 +269,7 @@
   color: var(--color-brand-primary-muted);
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
@@ -322,6 +328,7 @@
   flex: 1;
   font-size: var(--font-size-400);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   color: var(--color-label-primary);
 }
@@ -363,6 +370,7 @@
   color: var(--color-label-primary);
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.3;
   text-align: left;
 }
@@ -378,6 +386,7 @@ button.rowTitle .chevron {
 .rowBody {
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-label-secondary);
 }
@@ -387,6 +396,7 @@ button.rowTitle .chevron {
   padding: var(--spacing-16);
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.4;
   color: var(--color-label-primary);
 }
@@ -394,6 +404,7 @@ button.rowTitle .chevron {
 .price {
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
 }
 
 .muted {

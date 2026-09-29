@@ -104,6 +104,7 @@
   background: linear-gradient(180deg, var(--color-success-subtle), var(--color-card));
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   white-space: nowrap;
   color: var(--color-label-primary);
@@ -152,6 +153,7 @@
 .title {
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.2;
   color: var(--color-label-primary);
 }
@@ -159,6 +161,7 @@
 .copy {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.35;
   color: var(--color-label-secondary);
 }
@@ -195,11 +198,13 @@
 
 .statusLabel {
   font-weight: 600;
+  letter-spacing: var(--track-600);
   color: var(--color-label-secondary);
 }
 
 .statusTime {
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -215,7 +220,7 @@
   font-size: var(--font-size-100);
   font-weight: 600;
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--track-600);
   white-space: nowrap;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -235,6 +240,7 @@
   color: var(--color-brand-primary);
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;

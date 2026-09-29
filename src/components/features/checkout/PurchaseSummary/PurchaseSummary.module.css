@@ -53,6 +53,7 @@
 .title {
   font-size: var(--font-size-300);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   color: var(--color-label-primary);
 }
@@ -60,6 +61,7 @@
 .company {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-label-secondary);
 }
@@ -113,6 +115,7 @@
   flex-direction: column;
   font-size: var(--font-size-400);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   color: var(--color-brand-primary);
 }
@@ -170,6 +173,7 @@
   flex-direction: column;
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.2;
   color: var(--color-label-primary);
 }
@@ -190,6 +194,7 @@
 .priceTitle {
   font-size: var(--font-size-200);
   font-weight: 650;
+  letter-spacing: var(--track-650);
   line-height: 1.2;
   color: var(--color-brand-primary);
 }
@@ -209,6 +214,7 @@
 .row dt {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-tertiary);
 }
 
@@ -216,6 +222,7 @@
   margin: 0;
   font-size: var(--font-size-300);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-primary);
 }
 
@@ -235,6 +242,7 @@
 
 .row[data-total="final"] dd {
   font-weight: 700;
+  letter-spacing: var(--track-700);
   color: var(--color-brand-primary);
 }
 
@@ -303,6 +311,7 @@
   color: var(--color-info-fill);
   font-size: var(--font-size-75);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
 }
 
@@ -328,6 +337,7 @@
   border-radius: var(--radius-8);
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   color: var(--color-label-primary);
 }
@@ -357,6 +367,7 @@
 .paidLabel {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-primary);
 }
 

@@ -17,6 +17,7 @@
   text-align: left;
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--field-ink);
   white-space: nowrap;
   overflow: hidden;
@@ -38,6 +39,7 @@
 .trigger[data-empty] {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
   font-weight: 500;
+  letter-spacing: var(--track-500);
 }
 
 /* Floating option card under the field */
@@ -68,6 +70,7 @@
   border-radius: var(--radius-8);
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-secondary);
   cursor: pointer;
   transition: background 0.12s ease;

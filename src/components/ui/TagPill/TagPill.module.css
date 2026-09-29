@@ -71,7 +71,7 @@
 .label {
   font-size: var(--font-size-75);
   font-weight: 500;
-  letter-spacing: -0.12px;
+  letter-spacing: var(--track-500);
   line-height: 1;
   white-space: nowrap;
 }

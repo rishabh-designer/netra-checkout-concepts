@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
+import { useCaseHref } from "@/lib/use-case-href";
 import { GOLD_DETAILS_KEY, useQuoteFlow } from "@/lib/quote-flow";
 import { resetCheckoutClock } from "@/components/features/checkout/useCheckoutClock";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -156,13 +157,14 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   // applies in our flows), including Case A's priced Gold. An offline quote's
   // Get Quote requests it instead: the quote request page for that insurer.
   const router = useRouter();
+  const href = useCaseHref();
   const { setSelectedQuote, setCheckout } = useQuoteFlow();
   const [requestFor, setRequestFor] = useState<QuoteCardData | null>(null);
   const [requestOpen, setRequestOpen] = useState(false);
   const sendRequest = () => {
     if (!requestFor) return;
     setSelectedQuote(requestFor);
-    router.push(content.quoteInquiryHref);
+    router.push(href(content.quoteInquiryHref));
   };
   // Only an Immediate Purchase quote (Case A's Gold Quote is one) checks out
   // online. Every other insurer, priced or not, asks the underwriting
@@ -173,7 +175,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           setSelectedQuote(q);
           setCheckout({});
           resetCheckoutClock();
-          router.push(content.checkoutHref);
+          router.push(href(content.checkoutHref));
         }
       : () => {
           setFeaturesOpen(false);
@@ -186,7 +188,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     !gate
       ? checkoutFor(q)
       : goldDetailsIn
-        ? () => router.push(gate.inquiryHref)
+        ? () => router.push(href(gate.inquiryHref))
         : () => {
             setFeaturesOpen(false);
             setGateStep("modal");
@@ -196,7 +198,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
       window.sessionStorage.setItem(GOLD_DETAILS_KEY, JSON.stringify(values));
     } catch {}
     setGoldDetailsIn(true);
-    router.push(gate!.inquiryHref);
+    router.push(href(gate!.inquiryHref));
   };
   // Add To Compare: quotes in the order picked, up to the bar's max. Keyed
   // by insurer, with the Gold Quote apart (Case A's shares Generali's name).
@@ -240,6 +242,20 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   const arranged = arrange(rest.filter((q) => !q.gold), filter, sort, immediateOnly);
   const shown = [...pinned, ...arranged];
   const shownCount = shown.length + (ghostFirst && revealed ? 1 : 0);
+  // Policy details page through the quotes in feed order (the Gold Quote
+  // first once revealed), matched by insurer (the Gold one by its flag).
+  const pagerList = [...(ghostFirst && revealed ? [goldCard] : []), ...shown];
+  const pagerIndex = featuresQuote ? pagerList.findIndex((q) => (featuresQuote.gold ? q.gold : !q.gold && q.insurer === featuresQuote.insurer)) : -1;
+  const pager =
+    pagerIndex >= 0
+      ? {
+          index: pagerIndex,
+          total: pagerList.length,
+          // Cycles: back from the first goes to the last, and on from the last to the first.
+          onPrev: () => setFeaturesQuote(pagerList[(pagerIndex - 1 + pagerList.length) % pagerList.length]),
+          onNext: () => setFeaturesQuote(pagerList[(pagerIndex + 1) % pagerList.length]),
+        }
+      : undefined;
   const resetFilters = () => {
     setFilter([]);
     setImmediateOnly(false);
@@ -425,6 +441,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
         tone={featuresQuote ? toneOf(featuresQuote) : "quote"}
         labels={labels}
         onSelect={featuresQuote ? (featuresQuote.gold ? selectGold(goldCard) : checkoutFor(featuresQuote)) : undefined}
+        pager={pager}
       />
 
       <AdditionalDetailsDrawer
@@ -442,7 +459,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
             onClose={closeGate}
             // A call instead of the form: the inquiry page shows the
             // Additional Details as Missing.
-            onCall={() => router.push(gate.inquiryHref)}
+            onCall={() => router.push(href(gate.inquiryHref))}
             onOnline={() => setGateStep("drawer")}
           />
           <AdditionalDetailsDrawer open={gateStep === "drawer"} content={gate.drawer} onClose={closeGate} onProceed={proceedWithGold} />

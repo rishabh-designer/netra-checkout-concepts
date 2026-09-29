@@ -19,6 +19,7 @@
   color: var(--color-label-inverse);
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.2s ease, box-shadow 0.2s ease;

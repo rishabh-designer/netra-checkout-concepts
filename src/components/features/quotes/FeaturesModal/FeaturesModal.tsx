@@ -7,7 +7,8 @@ import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/Move
 import { BadgeCheckIcon } from "@/components/icons/BadgeCheckIcon";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
-import { coverageChipLabel, type QuoteCardLabels } from "../QuoteCard";
+import { coverageChipLabel, lockBeam, type QuoteCardLabels } from "../QuoteCard";
+import cardStyles from "../QuoteCard/QuoteCard.module.css";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./FeaturesModal.module.css";
 
@@ -25,6 +26,16 @@ export interface FeaturesModalProps {
   labels: QuoteCardLabels;
   /** Footer price button: same action as the card's (starts checkout). */
   onSelect?: () => void;
+  /** Where this quote sits among those shown, to page through them. */
+  pager?: { index: number; total: number; onPrev: () => void; onNext: () => void };
+}
+
+function Chevron({ dir }: { dir: "left" | "right" }) {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+      <path d={dir === "left" ? "M10 4 6 8l4 4" : "M6 4l4 4-4 4"} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
 }
 
 /** The tabs a quote's own policy fills; the rest (territory, deductibles)
@@ -34,8 +45,9 @@ type PolicyTab = (typeof POLICY_TABS)[number];
 const isPolicyTab = (key: string): key is PolicyTab => (POLICY_TABS as readonly string[]).includes(key);
 
 /** Item marker per tab tone: blue tick (658:50478), red cross, purple dot. */
-function Marker({ tone }: { tone: FeatureTab["tone"] }) {
-  if (tone === "covered") return <SquareCheckbox tone="info" state="checked" size={16} className={styles.marker} />;
+function Marker({ tone, gold = false }: { tone: FeatureTab["tone"]; gold?: boolean }) {
+  // The Gold Quote's ticks are BimaNetra's orange; every other quote's are blue.
+  if (tone === "covered") return <SquareCheckbox tone={gold ? "secondary" : "info"} state="checked" size={16} className={styles.marker} />;
   if (tone === "excluded") {
     return (
       <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden className={styles.marker}>
@@ -57,13 +69,14 @@ function Marker({ tone }: { tone: FeatureTab["tone"] }) {
  * price / Get Quote button.
  * Usage: <FeaturesModal open={o} onClose={c} content={c} quote={q} tone="immediate" labels={…} />
  */
-export function FeaturesModal({ open, onClose, content, quote, tone, labels, onSelect }: FeaturesModalProps) {
+export function FeaturesModal({ open, onClose, content, quote, tone, labels, onSelect, pager }: FeaturesModalProps) {
   const reduced = useReducedMotion();
   const [active, setActive] = useState(content.defaultTab);
   const arrowRef = useRef<MoveRightIconHandle>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const baseId = useId();
+  const tipFor = (i: number) => content.pagerTip.replace("{n}", String(i + 1)).replace("{total}", String(pager?.total ?? 0));
 
   // Each opening starts on the default tab, with focus on ×.
   useEffect(() => {
@@ -115,9 +128,22 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
     >
       {quote && (
         <div className={styles.modal} data-tone={tone}>
+          {/* The Gold card's beam, round the whole modal (same comet, same
+              phase), with its halo just outside. */}
+          {tone === "gold" && (
+            <>
+              <span className={styles.beamGlow} aria-hidden>
+                <span ref={lockBeam} className={cardStyles.beamSpin} />
+              </span>
+              <span className={styles.beamRing} aria-hidden>
+                <span ref={lockBeam} className={cardStyles.beamSpin} />
+              </span>
+            </>
+          )}
           <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={content.closeLabel} data-tooltip={content.closeLabel}>
-            <svg viewBox="0 0 12 12" width="10" height="10" fill="none" aria-hidden>
-              <path d="m3 3 6 6M9 3 3 9" stroke="var(--color-label-secondary)" strokeWidth="1.2" strokeLinecap="round" />
+            {/* The drawers' close (SideDrawer): 24 square, 16 cross. */}
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+              <path d="M4 4l8 8M12 4l-8 8" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </button>
 
@@ -126,6 +152,18 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
             <div className={styles.summaryTop}>
               <div className={styles.identity}>
                 <div className={styles.tagRow}>
+                  {/* pagination (727:34231), chevrons only: each one's tooltip
+                      names the quote it goes to ("Quote 2 of 7"). */}
+                  {pager && pager.total > 1 && (
+                    <div className={styles.pager}>
+                      <button type="button" className={styles.pagerBtn} onClick={pager.onPrev} aria-label={content.prevQuoteLabel} data-tooltip={tipFor((pager.index - 1 + pager.total) % pager.total)}>
+                        <Chevron dir="left" />
+                      </button>
+                      <button type="button" className={styles.pagerBtn} onClick={pager.onNext} aria-label={content.nextQuoteLabel} data-tooltip={tipFor((pager.index + 1) % pager.total)}>
+                        <Chevron dir="right" />
+                      </button>
+                    </div>
+                  )}
                   {quote.territory && labels.territory && (
                     <span className={styles.tag} data-tone="territory" data-tooltip={labels.tips?.territory[quote.territory]}>
                       {labels.territory[quote.territory]}
@@ -156,7 +194,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                   <ul className={styles.coverageList}>
                     {summary.map((c) => (
                       <li key={c} className={styles.coverage}>
-                        <SquareCheckbox tone="info" state="checked" size={12} />
+                        <SquareCheckbox tone={tone === "gold" ? "secondary" : "info"} state="checked" size={12} />
                         {c}
                       </li>
                     ))}
@@ -219,7 +257,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                   {items.map((item) => (
                     <li key={item.title} className={styles.item}>
                       <p className={styles.itemTitle} data-tone={tab.tone}>
-                        <Marker tone={tab.tone} />
+                        <Marker tone={tab.tone} gold={tone === "gold"} />
                         {item.title}
                         {item.top && (
                           <span className={styles.topPill} data-tooltip={quote.gold ? content.personalizedTip : content.topFeatureTip}>

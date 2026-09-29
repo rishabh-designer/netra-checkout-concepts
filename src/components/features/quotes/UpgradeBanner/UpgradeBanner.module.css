@@ -10,6 +10,8 @@
 
 .title {
   font-family: var(--font-display);
+  /* Instrument Serif keeps its own spacing, not Anek's. */
+  letter-spacing: 0;
   font-feature-settings: var(--font-display-features);
   font-style: italic;
   font-size: var(--font-size-heading-sm);
@@ -20,6 +22,7 @@
 .body {
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.4;
   color: var(--color-brand-primary-muted);
 }
@@ -40,6 +43,7 @@
   font: inherit;
   font-size: var(--font-size-300);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   font-variant-numeric: tabular-nums;
   text-align: left;
@@ -124,6 +128,7 @@
   display: inline-block;
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-tertiary);
 }
 
@@ -135,6 +140,7 @@
   color: var(--color-brand-primary);
   font-size: var(--font-size-75);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   cursor: pointer;
   transition: background 0.15s ease;
 }
@@ -172,6 +178,8 @@ a.cta {
   z-index: 1;
   display: flex;
   font-family: var(--font-display);
+  /* Instrument Serif keeps its own spacing, not Anek's. */
+  letter-spacing: 0;
   font-feature-settings: var(--font-display-features);
   font-style: italic;
   font-size: var(--font-size-heading-md);
@@ -181,7 +189,7 @@ a.cta {
 .upgradedBody {
   font-size: var(--font-size-75);
   font-weight: 500;
-  letter-spacing: 0.12px;
+  letter-spacing: var(--track-500);
 }
 
 /* Each title letter rises out of its own mask. */

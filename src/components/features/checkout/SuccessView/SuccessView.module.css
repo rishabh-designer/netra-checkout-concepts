@@ -65,6 +65,7 @@
 .greeting {
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-label-primary);
 }
@@ -100,6 +101,7 @@
 .stat dt {
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   color: var(--color-label-tertiary);
 }
@@ -108,6 +110,7 @@
   margin: 0;
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   white-space: nowrap;
   color: var(--color-brand-primary);
@@ -145,6 +148,7 @@
 .nextText {
   font-size: var(--font-size-300);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-label-muted-primary);
 }
@@ -162,6 +166,7 @@
   color: var(--color-label-inverse);
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
@@ -312,7 +317,7 @@
   font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1;
-  letter-spacing: 0.12px;
+  letter-spacing: var(--track-500);
   white-space: nowrap;
   color: var(--color-success);
 }

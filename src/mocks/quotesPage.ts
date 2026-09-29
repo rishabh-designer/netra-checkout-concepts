@@ -219,6 +219,9 @@ const COMPARE_VIEW: CompareViewContent = {
 const FEATURES_DRAWER: FeaturesDrawerContent = {
   title: "Policy Details",
   closeLabel: "Close policy details",
+  pagerTip: "Quote {n} of {total}",
+  prevQuoteLabel: "Previous Quote",
+  nextQuoteLabel: "Next Quote",
   productIconSrc: "/media/checkout/product-icon.png",
   productName: "Directors & Officers\nInsurance",
   territoryItems: { worldwide: WORLDWIDE_TERRITORY, india: INDIA_TERRITORY },

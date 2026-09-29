@@ -85,6 +85,7 @@
 .providersHeading {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-label-basic);
   white-space: nowrap;

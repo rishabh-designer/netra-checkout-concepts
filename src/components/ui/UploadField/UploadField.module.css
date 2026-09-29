@@ -12,6 +12,7 @@
   padding: var(--spacing-12) var(--spacing-8);
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   color: var(--color-label-basic);
 }
@@ -114,6 +115,7 @@
   gap: var(--spacing-2);
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.5;
   color: var(--color-info-fill);
 }
@@ -147,18 +149,20 @@
   font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1.5;
-  letter-spacing: 0.12px;
+  letter-spacing: var(--track-500);
   color: var(--color-label-primary);
 }
 
 .fileOk {
   color: var(--color-brand-primary);
   font-weight: 600;
+  letter-spacing: var(--track-600);
 }
 
 .fileBad {
   color: var(--color-label-placeholder);
   font-weight: 600;
+  letter-spacing: var(--track-600);
 }
 
 /* Secondary button (Figma 638:23703): white, hairline subtle stroke, 10/14,
@@ -171,6 +175,7 @@
   color: var(--color-label-primary);
   font-size: var(--font-size-75);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   cursor: pointer;
   transition: border-color 0.15s ease, background-color 0.15s ease;

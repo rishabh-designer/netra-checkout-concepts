@@ -96,6 +96,8 @@
   font-size: var(--font-size-heading-lg);
   font-style: italic;
   font-weight: 400;
+  /* Instrument Serif keeps its own spacing, not Anek's. */
+  letter-spacing: 0;
   line-height: 1;
   color: var(--color-label-primary);
 }
@@ -103,6 +105,7 @@
 .intro {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-label-secondary);
 }
@@ -121,6 +124,7 @@
   gap: var(--spacing-8);
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-label-primary);
 }
@@ -144,6 +148,7 @@
   background: var(--color-brand-primary-subtle);
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-label-secondary);
   text-decoration: none;
@@ -188,6 +193,8 @@
   font-size: var(--font-size-heading-md);
   font-style: italic;
   font-weight: 400;
+  /* Instrument Serif keeps its own spacing, not Anek's. */
+  letter-spacing: 0;
   line-height: 1;
   color: var(--color-brand-secondary);
 }
@@ -213,6 +220,7 @@
   color: var(--color-label-inverse);
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
@@ -249,6 +257,7 @@
 .statLabel {
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-disabled);
 }
 
@@ -256,6 +265,7 @@
 .statPending {
   font-size: var(--font-size-200);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-primary);
 }
 
@@ -284,6 +294,7 @@
 .othersTitle {
   font-size: var(--font-size-300);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   color: var(--color-label-primary);
 }
@@ -301,6 +312,7 @@
   padding: 3px var(--spacing-4);
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   white-space: nowrap;
   color: var(--color-label-secondary);
@@ -404,13 +416,14 @@
 .helpTitle {
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   color: var(--color-label-primary);
 }
 
 .helpSub {
   font-size: var(--font-size-75);
   font-weight: 500;
-  letter-spacing: 0.12px;
+  letter-spacing: var(--track-500);
   color: var(--color-label-warm);
 }
 
@@ -447,6 +460,7 @@
   color: var(--color-brand-primary);
   font-size: var(--font-size-75);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   text-decoration: none;
   transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
@@ -598,13 +612,14 @@
 .rateTitle {
   font-size: var(--font-size-200);
   font-weight: 650;
+  letter-spacing: var(--track-650);
   color: var(--color-label-primary);
 }
 
 .rateSub {
   font-size: var(--font-size-75);
   font-weight: 500;
-  letter-spacing: 0.12px;
+  letter-spacing: var(--track-500);
   color: var(--color-label-tertiary);
 }
 
@@ -623,6 +638,7 @@
   color: var(--color-label-secondary);
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
@@ -649,6 +665,7 @@
   color: var(--color-brand-primary);
   font-size: var(--font-size-100);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
@@ -667,6 +684,7 @@
 .rateThanks {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.4;
   color: var(--color-success);
 }

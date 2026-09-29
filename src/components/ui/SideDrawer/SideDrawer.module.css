@@ -48,6 +48,8 @@
   font-size: var(--font-size-heading-lg);
   font-style: italic;
   font-weight: 400;
+  /* Instrument Serif keeps its own spacing, not Anek's. */
+  letter-spacing: 0;
   line-height: 1;
   color: var(--color-label-primary);
   white-space: nowrap;

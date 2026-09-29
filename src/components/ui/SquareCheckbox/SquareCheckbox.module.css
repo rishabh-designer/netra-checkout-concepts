@@ -10,6 +10,11 @@
   --sqc-ring: var(--color-info-ring);
 }
 
+.box[data-tone="secondary"] {
+  --sqc-fill: var(--color-brand-secondary);
+  --sqc-ring: var(--color-brand-secondary-border);
+}
+
 /* same-tone glow, only on the filled states (echoes the Figma drop shadow) */
 .filled {
   filter: drop-shadow(0 0 3px color-mix(in srgb, var(--sqc-fill) 45%, transparent));

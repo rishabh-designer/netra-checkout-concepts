@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import { useCaseHref } from "@/lib/use-case-href";
 import { priceFeed } from "@/lib/pricing";
 import { useDemoNotice } from "@/lib/demo-notice";
 import { GOLD_DETAILS_KEY, useQuoteFlow } from "@/lib/quote-flow";
@@ -62,6 +63,7 @@ const noSubscribe = () => () => {};
 export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, variant = "gold" }: GoldInquiryViewProps) {
   const { result, selectedQuote, setSelectedQuote, setCheckout } = useQuoteFlow();
   const router = useRouter();
+  const href = useCaseHref();
   const notify = useDemoNotice();
   const caseId = result?.caseId;
   const sumInsured = result?.values?.["coverage"] || undefined;
@@ -101,7 +103,7 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
           setSelectedQuote(q);
           setCheckout({});
           resetCheckoutClock();
-          router.push(feed.checkoutHref);
+          router.push(href(feed.checkoutHref));
         }
       : () => {
           setRequestFor(q);
@@ -111,7 +113,7 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
     if (!requestFor) return;
     setSelectedQuote(requestFor);
     setRequestOpen(false);
-    router.push(feed.quoteInquiryHref);
+    router.push(href(feed.quoteInquiryHref));
   };
 
   // Other Quotes: the arrows page the row by one card.
@@ -145,9 +147,10 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
 
   const [before, after = ""] = content.questions.text.split("{email}");
   const { inquiry, quoteRequest } = content;
+  const crumbs = content.breadcrumb.map((b) => (b.href ? { ...b, href: href(b.href) } : b));
   const breadcrumb = isRequest
-    ? content.breadcrumb.map((b, i, all) => (i === all.length - 1 ? { label: quoteRequest.breadcrumbCurrent } : b))
-    : content.breadcrumb;
+    ? crumbs.map((b, i, all) => (i === all.length - 1 ? { label: quoteRequest.breadcrumbCurrent } : b))
+    : crumbs;
   const steps = isRequest ? (requested?.price ? quoteRequest.pricedSteps : quoteRequest.steps).map(fill) : content.steps;
 
   return (

@@ -61,6 +61,8 @@
   font-size: var(--font-size-heading-lg);
   font-style: italic;
   font-weight: 400;
+  /* Instrument Serif keeps its own spacing, not Anek's. */
+  letter-spacing: 0;
   line-height: 1;
   color: var(--color-label-basic);
 }
@@ -138,12 +140,14 @@
 .emptyTitle {
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   color: var(--color-label-primary);
 }
 
 .emptyBody {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-label-secondary);
 }
 
@@ -155,6 +159,7 @@
   background: var(--color-card);
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   color: var(--color-brand-primary);
   cursor: pointer;
 }

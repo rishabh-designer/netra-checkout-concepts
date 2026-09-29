@@ -7,14 +7,15 @@ import { GoldInquiryView } from "@/components/features/gold-inquiry/GoldInquiryV
  * Server Component: fetches its copy and the Quotes page content (header and
  * the other quotes), then hands off to the client <GoldInquiryView>.
  */
-export default async function GoldInquiryPage() {
+export default async function GoldInquiryPage({ params }: { params: Promise<{ caseSlug: string }> }) {
+  const { caseSlug } = await params;
   const [content, quotes] = await Promise.all([getGoldInquiryContent(), getQuotesPageContent()]);
   return (
     <GoldInquiryView
       content={content}
       header={quotes.header}
       feed={quotes.feed}
-      quotesHref="/directors-and-officers-insurance/quotes"
+      quotesHref={`/directors-and-officers-insurance/${caseSlug}/quotes`}
     />
   );
 }

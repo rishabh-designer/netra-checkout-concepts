@@ -8,8 +8,9 @@ import { SuccessView } from "@/components/features/checkout/SuccessView";
  * opens), then hands off to the client <SuccessView>, which reads the paid
  * quote, the order and the flow values.
  */
-export default async function CheckoutSuccessPage() {
+export default async function CheckoutSuccessPage({ params }: { params: Promise<{ caseSlug: string }> }) {
+  const { caseSlug } = await params;
   const [content, quotes] = await Promise.all([getCheckoutContent(), getQuotesPageContent()]);
   const fallbackQuote = quotes.feed.quotes.find((q) => q.price) ?? quotes.feed.quotes[0];
-  return <SuccessView content={content} quotesHref="/directors-and-officers-insurance/quotes" fallbackQuote={fallbackQuote} />;
+  return <SuccessView content={content} quotesHref={`/directors-and-officers-insurance/${caseSlug}/quotes`} fallbackQuote={fallbackQuote} />;
 }

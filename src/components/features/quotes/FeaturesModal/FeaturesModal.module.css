@@ -1,6 +1,8 @@
 /* Policy details popover (Figma 658:50425): a 1200 × 720 panel, lavender
    washed top and bottom, r24; the summary card left, the details right. */
-.shell {
+/* Outranks the bare drawer's r16 clip, so the panel's r24 ring isn't cut. */
+.shell,
+.shell.shell[data-bare] {
   max-width: 100%;
   border-radius: var(--radius-24);
   overflow: hidden;
@@ -13,14 +15,60 @@
   height: min(720px, calc(100vh - 64px));
   height: min(720px, calc(100dvh - 64px));
   padding: var(--spacing-32) var(--spacing-24);
-  border: 1px solid var(--color-brand-primary-subtle-bold);
+  /* Every quote: plain white on the default hairline. */
+  border: var(--border-hairline) solid var(--color-border-subtle);
   border-radius: var(--radius-24);
+  background: var(--color-card);
+}
+
+/* The Gold Quote's modal: the frame lets the beam's halo show past it. */
+.shell:has(.modal[data-tone="gold"]) {
+  overflow: visible;
+}
+
+/* The Gold card's beam (QuoteCard's .beamSpin) at the modal's r24: a ring
+   over its 0.5px stroke (the same hairline as every quote), and a blurred
+   halo behind it. */
+.beamRing,
+.beamGlow {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.beamRing {
+  inset: calc(-1 * var(--border-hairline));
+  z-index: 3;
+  padding: var(--border-hairline);
+  border-radius: var(--radius-24);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+/* The card's 1200 square doesn't reach the modal's corners (~1320 across). */
+.beamRing > span,
+.beamGlow > span {
+  width: 1600px;
+  height: 1600px;
+}
+
+.beamGlow {
+  inset: -3px;
+  z-index: -1;
+  border-radius: calc(var(--radius-24) + 3px);
+  filter: blur(8px);
+}
+
+/* The Gold Quote: a peach stroke and a peach wash top and bottom. */
+.modal[data-tone="gold"] {
+  border-color: var(--color-brand-secondary-border);
   background: linear-gradient(
     to bottom,
-    var(--color-brand-primary-subtle) 0%,
+    var(--color-brand-secondary-subtle) 0%,
     var(--color-card) 15%,
     var(--color-card) 80%,
-    var(--color-brand-primary-subtle) 100%
+    var(--color-brand-secondary-subtle) 100%
   );
 }
 
@@ -33,20 +81,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   padding: 0;
-  border: var(--border-hairline) solid var(--color-border-subtle);
+  border: var(--border-hairline) solid var(--color-card-recessed);
   border-radius: var(--radius-6);
   background: var(--color-card);
   cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .close:hover {
-  background: var(--color-card-sunken);
+  background: var(--color-brand-primary-subtle);
+  border-color: var(--color-brand-primary-border);
 }
 
-/* Summary card (658:50427): 400 wide, white, info-ring stroke, r24. */
+/* Summary card (658:50427): 400 wide, white, subtle hairline, r24. */
 .summary {
   display: flex;
   flex-direction: column;
@@ -55,7 +105,8 @@
   flex: 0 0 400px;
   min-height: 0;
   padding: var(--spacing-12);
-  border: 1px solid var(--color-info-ring);
+  /* The default hairline for every quote; the Gold Quote's turns peach. */
+  border: var(--border-hairline) solid var(--color-border-subtle);
   border-radius: var(--radius-24);
   background: var(--color-card);
   overflow-y: auto;
@@ -77,8 +128,44 @@
 .tagRow {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: var(--spacing-8);
-  min-height: 29px;
+  /* A tag's height, held with or without tags (Bajaj has none), so the
+     logo and name below never jump as the pager moves between quotes. */
+  height: 31px;
+  flex-shrink: 0;
+}
+
+/* pagination (727:34231): two chevron boxes 8 apart, no label, sized like
+   the modal's × (24 box, 16 glyph); it leads the row, the tags stay right. */
+.pager {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-right: auto;
+}
+
+.pagerBtn {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: var(--border-hairline) solid var(--color-card-recessed);
+  border-radius: var(--radius-6);
+  background: var(--color-card);
+  color: var(--color-label-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.pagerBtn + .pagerBtn {
+  margin-left: var(--spacing-4);
+}
+
+.pagerBtn:hover:not(:disabled) {
+  background: var(--color-brand-primary-subtle);
+  border-color: var(--color-brand-primary-border);
 }
 
 /* card/product-homepage/tag: white → success wash, r12. */
@@ -93,7 +180,7 @@
   font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1.5;
-  letter-spacing: 0.12px;
+  letter-spacing: var(--track-500);
   white-space: nowrap;
   color: var(--color-success);
 }
@@ -125,9 +212,10 @@
 }
 
 .insurer {
-  font-size: var(--font-size-300);
+  font-size: var(--font-size-100);
   font-weight: 600;
   line-height: 1.1;
+  letter-spacing: var(--track-600);
   color: var(--color-label-primary);
 }
 
@@ -144,8 +232,22 @@
 .coveragesTitle {
   font-size: var(--font-size-400);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.2;
   color: var(--color-info);
+}
+
+/* The Gold Quote: its summary and personalised coverages in BimaNetra's orange. */
+.modal[data-tone="gold"] .summary {
+  border-color: var(--color-brand-secondary-border);
+}
+
+.modal[data-tone="gold"] .coverages {
+  background: linear-gradient(to bottom, var(--color-brand-secondary-subtle), var(--color-card));
+}
+
+.modal[data-tone="gold"] .coveragesTitle {
+  color: var(--color-brand-secondary);
 }
 
 .coverageList {
@@ -166,6 +268,7 @@
   background: var(--color-card);
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   color: var(--color-label-primary);
 }
@@ -197,6 +300,8 @@
   font-size: var(--font-size-heading-sm);
   font-style: italic;
   font-weight: 400;
+  /* Instrument Serif keeps its own spacing, not Anek's. */
+  letter-spacing: 0;
   line-height: 1;
   color: var(--color-label-basic);
 }
@@ -209,7 +314,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-24);
-  padding-bottom: var(--spacing-12);
 }
 
 /* Tab row (587:64696): edge to edge over a 0.5px lilac baseline. */
@@ -236,6 +340,7 @@
   color: var(--color-brand-primary-muted);
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   font-feature-settings: "zero" 1, "dlig" 1;
   white-space: nowrap;
@@ -291,6 +396,7 @@
   padding: 0 var(--spacing-2);
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   /* Covered items: black title, the blue tick carries the colour. */
   color: var(--color-label-primary);
@@ -318,9 +424,16 @@
   background: var(--color-info-subtle);
   font-size: var(--font-size-75);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.3;
   color: var(--color-info);
   white-space: nowrap;
+}
+
+.modal[data-tone="gold"] .topPill {
+  border-color: var(--color-brand-secondary-border);
+  background: var(--color-brand-secondary-subtle);
+  color: var(--color-brand-secondary);
 }
 
 .dot {
@@ -336,6 +449,7 @@
 .itemBody {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.2;
   color: var(--color-label-primary);
 }
@@ -348,16 +462,32 @@
   justify-content: space-between;
   gap: var(--spacing-12);
   flex-shrink: 0;
+  /* Pinned to the panel's foot (level with the summary card); the 12 that
+     used to sit under it now sits above. */
+  margin-top: var(--spacing-12);
   padding: var(--spacing-12);
-  border-top: 1px solid var(--color-border-neutral);
-  border-radius: var(--radius-16);
-  background: var(--color-card);
-  box-shadow: 0 -8px 12px rgba(169, 172, 177, 0.32);
+  /* No stroke or shadow on any quote's footer: just its fill. */
+  border: 0;
+  /* Concentric with the r24 button inside it: its radius + the 12 padding. */
+  border-radius: calc(var(--radius-24) + var(--spacing-12));
+  background: var(--color-brand-primary-subtle);
 }
 
+/* The same fill as its card's price bar (QuoteCard --bar-fill): lavender,
+   grey for a Get Quote, peach for the Gold Quote. */
+.modal[data-tone="quote"] .footer {
+  background: var(--color-card-sunken);
+}
+
+.modal[data-tone="gold"] .footer {
+  background: var(--color-brand-secondary-subtle);
+}
+
+/* 12 more than the footer's 12, clear of its r36 curve. */
 .sum {
   display: flex;
   flex-direction: column;
+  padding-left: var(--spacing-12);
   gap: var(--spacing-2);
   white-space: nowrap;
 }
@@ -365,6 +495,7 @@
 .sumLabel {
   font-size: var(--font-size-100);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   color: var(--color-label-subtle-primary);
 }
@@ -372,6 +503,7 @@
 .sumValue {
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   color: var(--color-brand-primary);
 }
@@ -390,6 +522,7 @@
   border-radius: var(--radius-24); /* one step rounder than Figma's r16 (house rule) */
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;

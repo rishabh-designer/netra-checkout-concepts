@@ -2,6 +2,7 @@
 
 import { useCallback, useId, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { withCase } from "@/lib/case-route";
 import type { LeadFormContent, QuoteCaseMatch, QuoteModalContent } from "@/types/productPage";
 import type { QuotesPreview } from "@/types/quotesPage";
 import { QuotesBackdrop } from "@/components/features/quotes/QuotesBackdrop";
@@ -135,7 +136,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
       reportInterest: values["reportInterest"] ?? "",
     });
     setModalOpen(false);
-    router.push("/directors-and-officers-insurance/quotes");
+    router.push(withCase("/directors-and-officers-insurance/quotes", caseId));
   };
 
   return (

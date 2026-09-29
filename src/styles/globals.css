@@ -130,6 +130,20 @@
 
   /* borders */
   --border-hairline: 0.5px;
+
+  /* Adaptive tracking (Anek Latin): each weight's letter spacing, so a word
+     keeps Medium's width at every weight (bolder = tighter). Measured from
+     the font (canvas, a UI corpus) and identical at every size, since glyphs
+     and em both scale with the font size. Every Anek rule takes the one for
+     its weight: letter-spacing: var(--track-600). Figma 729:34248. */
+  --track-300: 0.0116em;
+  --track-400: 0.0053em;
+  --track-500: 0em;
+  --track-550: -0.0059em;
+  --track-600: -0.0117em;
+  --track-650: -0.0165em;
+  --track-700: -0.0213em;
+  --track-800: -0.0305em;
   /* Every top bar (landing Navbar, QuotesHeader): 12 padding + a 29px button
      + the hairline. Buttons in a bar never exceed --nav-button-height. */
   --nav-height: 53.5px;
@@ -209,6 +223,12 @@ select,
 textarea,
 option {
   font-family: inherit;
+}
+
+/* Bold without a rule of its own still tracks as Bold. */
+b,
+strong {
+  letter-spacing: var(--track-700);
 }
 
 a {

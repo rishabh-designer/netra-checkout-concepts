@@ -55,6 +55,7 @@
 .title {
   font-size: 15px;
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.2;
   color: var(--color-brand-primary);
 }
@@ -64,6 +65,7 @@
   margin-left: auto;
   font-size: 7.75px;
   font-weight: 600;
+  letter-spacing: calc(var(--track-600) + 0.01em);
   line-height: 1.2;
   text-transform: uppercase;
   color: var(--color-label-secondary);
@@ -72,6 +74,7 @@
 .backEyebrow {
   font-size: 8.75px;
   font-weight: 600;
+  letter-spacing: calc(var(--track-600) + 0.01em);
   line-height: 1.25;
   text-transform: uppercase;
   color: var(--color-label-secondary);
@@ -80,6 +83,7 @@
 .backTitle {
   font-size: 15px;
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.2;
   color: var(--color-label-primary);
 }
@@ -158,6 +162,7 @@
 .summaryLabel {
   font-size: 8.75px;
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-brand-primary-muted);
 }

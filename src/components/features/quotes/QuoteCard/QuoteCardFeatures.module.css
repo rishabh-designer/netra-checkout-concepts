@@ -53,6 +53,7 @@ article:not([data-tone="gold"]) > .mark {
   min-width: 0;
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.1;
   color: var(--color-brand-primary);
 }
@@ -86,6 +87,7 @@ article:not([data-tone="gold"]) > .mark {
 .coverageLabel {
   font-size: var(--font-size-75);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.7;
   color: var(--color-success);
 }
@@ -107,6 +109,7 @@ article:not([data-tone="gold"]) > .mark {
   border-radius: var(--radius-6);
   font-size: var(--font-size-75);
   font-weight: 500;
+  letter-spacing: var(--track-500);
   line-height: 1;
   white-space: nowrap;
   color: var(--color-label-primary);
@@ -131,7 +134,7 @@ article:not([data-tone="gold"]) > .mark {
   font-size: var(--font-size-75);
   font-weight: 500;
   line-height: 1;
-  letter-spacing: 0.12px;
+  letter-spacing: var(--track-500);
   color: var(--color-label-tertiary);
 }
 
@@ -156,7 +159,7 @@ article:not([data-tone="gold"]) > .mark {
   font-size: var(--font-size-75);
   font-weight: 600;
   line-height: 1;
-  letter-spacing: -0.12px;
+  letter-spacing: var(--track-600);
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;

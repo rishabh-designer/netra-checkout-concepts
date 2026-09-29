@@ -29,6 +29,7 @@
 .title {
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   color: var(--color-label-primary);
 }
 
@@ -36,7 +37,7 @@
   max-width: 150px;
   font-size: var(--font-size-75);
   font-weight: 500;
-  letter-spacing: 0.12px;
+  letter-spacing: var(--track-500);
   color: var(--color-label-warm);
 }
 
@@ -58,6 +59,7 @@
   background: var(--color-card);
   font-size: var(--font-size-75);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   color: var(--color-brand-primary);
 }

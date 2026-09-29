@@ -35,6 +35,7 @@
 .label {
   font-size: var(--font-size-200);
   font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1.5;
   /* <button> defaults to text-align:center; force the sentence left. */
   text-align: left;
