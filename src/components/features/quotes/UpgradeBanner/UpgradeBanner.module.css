@@ -246,3 +246,10 @@ a.cta {
     display: none;
   }
 }
+
+/* Mobile (the stacked page): the upgraded heading at 24. */
+@media (max-width: 1100px) {
+  .upgradedTitle {
+    font-size: var(--font-size-heading-sm);
+  }
+}

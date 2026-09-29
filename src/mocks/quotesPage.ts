@@ -418,6 +418,9 @@ export const mockQuotesPageContent: QuotesPageContent = {
     filterCountLabel: "{count} Insurers",
     filterResetLabel: "Reset All",
     filterApplyLabel: "Apply Changes",
+    sortFilterLabel: "Sort & Filter",
+    sortFilterTitle: "Sort & Filter",
+    sortFilterCloseLabel: "Close",
     sortFieldLabel: "Sort Quotes",
     sortLabel: "{option}",
     sortOptions: [

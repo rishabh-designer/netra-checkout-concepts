@@ -1,11 +1,13 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { SideDrawer } from "@/components/ui/SideDrawer";
 import { SelectMenu } from "@/components/ui/SelectMenu";
 import { MultiSelectMenu } from "@/components/ui/MultiSelectMenu";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import type { QuoteFilter, QuoteSort } from "@/types/quotesPage";
 import styles from "./FeedControls.module.css";
+import { Chevron } from "@/components/icons/Chevron";
 
 export interface FeedControlsProps {
   /** Field labels over the dropdowns ("Filter Insurance Companies", "Sort Quotes"). */
@@ -27,6 +29,10 @@ export interface FeedControlsProps {
   sort: QuoteSort;
   onSortChange: (id: QuoteSort) => void;
   switchLabel: string;
+  /** Mobile: the "Sort & Filter" button and its bottom sheet's title / ×. */
+  sheetLabel: string;
+  sheetTitle: string;
+  sheetCloseLabel: string;
   immediateOnly: boolean;
   onImmediateOnlyChange: (on: boolean) => void;
 }
@@ -49,12 +55,9 @@ function SortIcon() {
   );
 }
 
-function Chevron() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <path d="m4 6 4 4 4-4" stroke="var(--color-label-tertiary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+/** The field's chevron at its 14px value size, as on every select. */
+function FieldChevron() {
+  return <Chevron size={14} color="var(--color-label-tertiary)" />;
 }
 
 /** One Filtering / Sorting field: a label over the DSL SelectMenu, drawn as
@@ -92,7 +95,7 @@ function Dropdown<T extends string>({
           triggerClassName={styles.trigger}
           adornment={
             <span className={styles.suffix}>
-              <Chevron />
+              <FieldChevron />
               <span className={styles.divider} />
               {icon}
             </span>
@@ -122,7 +125,7 @@ function FilterDropdown(props: FeedControlsProps) {
           triggerClassName={styles.trigger}
           adornment={
             <span className={styles.suffix}>
-              <Chevron />
+              <FieldChevron />
               <span className={styles.divider} />
               <FilterIcon />
             </span>
@@ -142,7 +145,60 @@ function FilterDropdown(props: FeedControlsProps) {
  * Usage: <FeedControls filterLabel filterOptions filter onFilterChange sortLabel … />
  */
 export function FeedControls(props: FeedControlsProps) {
+  // Mobile sheet: the picks are a draft until Apply Changes; Reset All clears
+  // them (all insurers, the first sort).
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [draftFilter, setDraftFilter] = useState<QuoteFilter[]>(props.filter);
+  const [draftSort, setDraftSort] = useState<QuoteSort>(props.sort);
+  const openSheet = () => {
+    setDraftFilter(props.filter);
+    setDraftSort(props.sort);
+    setSheetOpen(true);
+  };
+  const apply = () => {
+    props.onFilterChange(draftFilter);
+    props.onSortChange(draftSort);
+    setSheetOpen(false);
+  };
+  const changed = draftSort !== props.sort || draftFilter.length !== props.filter.length || draftFilter.some((f) => !props.filter.includes(f));
+  const clean = draftFilter.length === 0 && draftSort === props.sortOptions[0]?.id;
+
   return (
+    <>
+    {/* Mobile (Figma 732:34288): the switch left, "Sort & Filter" right, on a
+        lilac hairline; the fields move into a bottom sheet (732:34326). */}
+    <div className={styles.mobileBar}>
+      <ToggleSwitch checked={props.immediateOnly} onChange={props.onImmediateOnlyChange} label={props.switchLabel} size="sm" />
+      <button type="button" className={styles.sheetButton} onClick={openSheet} aria-haspopup="dialog">
+        {props.sheetLabel}
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
+          <path d="M2.5 4.5h11M4.5 8h7M6.5 11.5h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+        </svg>
+      </button>
+    </div>
+    <SideDrawer
+      open={sheetOpen}
+      onClose={() => setSheetOpen(false)}
+      title={props.sheetTitle}
+      closeLabel={props.sheetCloseLabel}
+      placement="bottom"
+      headGap={24}
+      footer={
+        <div className={styles.sheetFoot}>
+          <button type="button" className={styles.sheetReset} onClick={() => { setDraftFilter([]); setDraftSort(props.sortOptions[0]?.id ?? draftSort); }} disabled={clean}>
+            {props.filterResetLabel}
+          </button>
+          <button type="button" className={styles.sheetApply} onClick={apply} disabled={!changed}>
+            {props.filterApplyLabel}
+          </button>
+        </div>
+      }
+    >
+      <div className={styles.sheetFields}>
+        <Dropdown fieldLabel={props.sortFieldLabel} label={props.sortLabel} options={props.sortOptions} value={draftSort} onChange={setDraftSort} icon={<SortIcon />} />
+        <FilterDropdown {...props} filter={draftFilter} onFilterChange={setDraftFilter} />
+      </div>
+    </SideDrawer>
     <div className={styles.row}>
       <div className={styles.dropdowns}>
         <FilterDropdown {...props} />
@@ -152,5 +208,6 @@ export function FeedControls(props: FeedControlsProps) {
         <ToggleSwitch checked={props.immediateOnly} onChange={props.onImmediateOnlyChange} label={props.switchLabel} size="sm" />
       </div>
     </div>
+    </>
   );
 }

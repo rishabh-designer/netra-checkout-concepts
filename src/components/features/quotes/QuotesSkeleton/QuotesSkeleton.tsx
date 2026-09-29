@@ -23,32 +23,35 @@ const d = (n: number) => Math.min(n * STEP, MAX_DELAY);
  * grid. The 1 / 2 / 3-up choice is made in CSS (container queries on the
  * feed's width), so the grid is right from the first server paint.
  * Blocks stagger in top-left → bottom-right and the shimmer cascades.
+ * Mobile follows the stacked page: the details fold to their header bar (the
+ * accordion, closed), the help card runs full width and the controls become
+ * the one-line bar (Immediate switch | Sort & Filter).
  * Usage: <QuotesSkeleton cardCount={7} collapsed={false} />
  */
 export function QuotesSkeleton({ cardCount, collapsed = false, rowCount = 7 }: QuotesSkeletonProps) {
   return (
     <div className={styles.body} data-collapsed={collapsed || undefined} role="status" aria-label="Loading your quotes">
       {/* Your Details rail */}
+      {/* Your Details rail. Collapsed: empty on web (the 70px rail); on
+          mobile just its header bar, the accordion shut. */}
       <aside className={styles.rail}>
-        {!collapsed && (
-          <>
-            <div className={styles.railTop}>
-              <div className={styles.railHead}>
-                <Skeleton width="42%" height={16} delay={d(0)} />
-                <Skeleton variant="rounded" width={80} height={28} delay={d(1)} />
-              </div>
-              <div className={styles.rows}>
-                {Array.from({ length: rowCount }, (_, i) => (
-                  <div key={i} className={styles.row}>
-                    <Skeleton width="64%" height={14} delay={d(2 + i)} />
-                    <Skeleton width={i % 3 === 1 ? "44%" : "80%"} height={16} delay={d(2 + i) + 20} />
-                  </div>
-                ))}
-              </div>
+        <div className={styles.railTop}>
+          <div className={styles.railHead}>
+            <Skeleton width="42%" height={16} delay={d(0)} />
+            <Skeleton variant="rounded" width={80} height={30} delay={d(1)} />
+          </div>
+          {!collapsed && (
+            <div className={styles.rows}>
+              {Array.from({ length: rowCount }, (_, i) => (
+                <div key={i} className={styles.row}>
+                  <Skeleton width="64%" height={14} delay={d(2 + i)} />
+                  <Skeleton width={i % 3 === 1 ? "44%" : "80%"} height={16} delay={d(2 + i) + 20} />
+                </div>
+              ))}
             </div>
-            <Skeleton variant="rounded" height={95} delay={d(rowCount + 2)} className={styles.full} />
-          </>
-        )}
+          )}
+        </div>
+        {!collapsed && <Skeleton variant="rounded" height={95} delay={d(rowCount + 2)} className={styles.full} />}
       </aside>
 
       {/* Feed: top section, controls, grid */}
@@ -57,11 +60,11 @@ export function QuotesSkeleton({ cardCount, collapsed = false, rowCount = 7 }: Q
           <div className={styles.topRow}>
             <div className={styles.heading}>
               <Skeleton width={336} height={12} delay={d(1)} />
-              <Skeleton width={446} height={32} delay={d(2)} />
+              <Skeleton width={446} delay={d(2)} className={styles.titleBar} />
             </div>
-            <Skeleton variant="rounded" width={307} height={116} delay={d(3)} className={styles.help} />
+            <Skeleton variant="rounded" height={116} delay={d(3)} className={styles.help} />
           </div>
-          <Skeleton height={4} delay={d(4)} className={styles.full} />
+          <Skeleton height={4} delay={d(4)} className={styles.rule} />
         </div>
         <div className={styles.controls}>
           <div className={styles.fields}>
@@ -69,6 +72,11 @@ export function QuotesSkeleton({ cardCount, collapsed = false, rowCount = 7 }: Q
             <Skeleton variant="rounded" width={260} height={56} delay={d(5) + 20} />
           </div>
           <Skeleton variant="rounded" width={200} height={32} delay={d(6)} />
+        </div>
+        {/* Mobile controls bar (FeedControls ≤760): switch | Sort & Filter. */}
+        <div className={styles.mobileBar}>
+          <Skeleton width={190} height={16} delay={d(5)} />
+          <Skeleton width={96} height={20} delay={d(5) + 20} />
         </div>
         <div className={styles.stack}>
           {Array.from({ length: cardCount }, (_, i) => {

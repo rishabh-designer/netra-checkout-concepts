@@ -70,7 +70,7 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
     title: "Rate Your Experience",
     subtitle: "Your rating will help us do better",
     badgeSrc: "/media/gold-inquiry/rate-badge.png",
-    options: ["🤩 Excellent", "😀 Good", "☹️ Bad"],
+    options: ["☹️ Bad", "🙂 Fine", "😀 Good"],
     submitLabel: "Submit Feedback",
     submitBlockedTip: "Pick a rating first",
     thanks: "Thanks! Your feedback helps us do better.",

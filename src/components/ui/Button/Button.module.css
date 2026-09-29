@@ -1,0 +1,83 @@
+/* The large button (Figma 638:17439): 16/28, hairline, r16 → 24 (house
+   rule), 16 SemiBold. The tone sets its fill and ink. */
+.button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-16) var(--spacing-28);
+  border: var(--border-hairline) solid var(--btn-edge);
+  border-radius: var(--radius-24);
+  background: var(--btn-fill);
+  color: var(--btn-ink);
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, filter 0.2s ease, transform 0.12s ease;
+}
+
+.button[data-tone="primary"] {
+  --btn-fill: var(--color-brand-primary);
+  --btn-edge: var(--color-brand-primary);
+  --btn-ink: var(--color-label-inverse);
+}
+
+.button[data-tone="secondary"] {
+  --btn-fill: var(--color-brand-secondary);
+  --btn-edge: var(--color-brand-secondary);
+  --btn-ink: var(--color-label-inverse);
+}
+
+.button[data-tone="outline"] {
+  --btn-fill: var(--color-card);
+  --btn-edge: var(--color-border-subtle);
+  --btn-ink: var(--color-brand-primary);
+}
+
+.button[data-block] {
+  width: 100%;
+}
+
+/* With an arrow: the label left, the arrow right (the same when it hugs). */
+.button[data-arrow] {
+  justify-content: space-between;
+}
+
+.button[data-tone="primary"]:hover:not(:disabled) {
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.button[data-tone="secondary"]:hover:not(:disabled) {
+  box-shadow: var(--shadow-button-secondary-hover);
+  filter: brightness(0.96);
+}
+
+.button[data-tone="outline"]:hover:not(:disabled) {
+  border-color: var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.arrow {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.button:hover:not(:disabled) .arrow {
+  transform: translateX(3px);
+}
+
+.button:disabled {
+  border-color: var(--color-input-stroke);
+  background: var(--color-fill-disabled);
+  color: var(--color-label-disabled);
+  cursor: not-allowed;
+}

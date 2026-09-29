@@ -1,15 +1,25 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { CloseButton } from "@/components/ui/IconButton";
 import styles from "./SideDrawer.module.css";
 
 /** Same scrim as the Edit Details drawer (A9ACB1 @ 80% + 6px blur, 249:3516). */
-const SCRIM = {
+export const SCRIM = {
   hidden: { backgroundColor: "rgba(169, 172, 177, 0)", backdropFilter: "blur(0px)" },
   shown: { backgroundColor: "rgba(169, 172, 177, 0.8)", backdropFilter: "blur(6px)" },
 };
+
+// Phones (the sheet tier, ≤900): `sheetOnMobile` drawers rise as bottom sheets.
+const SHEET_QUERY = "(max-width: 900px)";
+const subscribeSheet = (cb: () => void) => {
+  const mq = window.matchMedia(SHEET_QUERY);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+const readSheet = () => window.matchMedia(SHEET_QUERY).matches;
 
 export interface SideDrawerProps {
   open: boolean;
@@ -23,7 +33,9 @@ export interface SideDrawerProps {
    *  the Quotes page's Edit Details). */
   width?: number;
   /** "right" (default) docks the drawer; "center" floats it as a popup. */
-  placement?: "right" | "center";
+  placement?: "right" | "center" | "bottom";
+  /** Phones (≤900): rise as a bottom sheet whatever `placement` says. */
+  sheetOnMobile?: boolean;
   /** Space between the title row and the content, in px (default 32). */
   headGap?: number;
   /** Centre only: no padding, title row or pinned footer; the children draw
@@ -39,12 +51,16 @@ export interface SideDrawerProps {
  * Instrument Serif title + boxed ×, a flexible body and an optional pinned
  * footer. Slides in from the right; Esc, × or a scrim click closes it; focus
  * lands on × when it opens. Shared by View All Features and the checkout edit
- * drawers. placement="center" floats it as a content-height popup that
+ * drawers. placement="bottom" rises as a full-width sheet from the foot of
+ * the screen (mobile). placement="center" floats it as a content-height popup that
  * scales in (Know More).
  * Usage: <SideDrawer open={o} onClose={c} title="KYC" closeLabel="Close" footer={…}>…</SideDrawer>
  */
-export function SideDrawer({ open, onClose, title, closeLabel, children, footer, width = 624, placement = "right", headGap, bare = false, className }: SideDrawerProps) {
+export function SideDrawer({ open, onClose, title, closeLabel, children, footer, width = 624, placement: placementProp = "right", sheetOnMobile = false, headGap, bare = false, className }: SideDrawerProps) {
+  const phone = useSyncExternalStore(subscribeSheet, readSheet, () => false);
+  const placement = sheetOnMobile && phone ? "bottom" : placementProp;
   const centered = placement === "center";
+  const sheet = placement === "bottom";
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -87,11 +103,11 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
             aria-modal="true"
             aria-labelledby={bare ? undefined : titleId}
             aria-label={bare ? title : undefined}
-            style={{ width }}
+            style={sheet ? undefined : { width }}
             onClick={(e) => e.stopPropagation()}
-            initial={centered ? { opacity: 0, y: reduced ? 0 : 12, scale: reduced ? 1 : 0.97 } : { x: reduced ? 0 : "calc(100% + 32px)" }}
-            animate={centered ? { opacity: 1, y: 0, scale: 1 } : { x: 0 }}
-            exit={centered ? { opacity: 0, y: reduced ? 0 : 8, scale: reduced ? 1 : 0.98 } : { x: reduced ? 0 : "calc(100% + 32px)" }}
+            initial={centered ? { opacity: 0, y: reduced ? 0 : 12, scale: reduced ? 1 : 0.97 } : sheet ? { y: reduced ? 0 : "100%" } : { x: reduced ? 0 : "calc(100% + 32px)" }}
+            animate={centered ? { opacity: 1, y: 0, scale: 1 } : sheet ? { y: 0 } : { x: 0 }}
+            exit={centered ? { opacity: 0, y: reduced ? 0 : 8, scale: reduced ? 1 : 0.98 } : sheet ? { y: reduced ? 0 : "100%" } : { x: reduced ? 0 : "calc(100% + 32px)" }}
             transition={{ duration: centered ? 0.35 : 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
             {bare ? children : (
@@ -99,11 +115,7 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
             <div className={styles.body} style={headGap !== undefined ? { gap: headGap } : undefined}>
               <div className={styles.head}>
                 <h2 id={titleId} className={styles.title}>{title}</h2>
-                <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={closeLabel} data-tooltip={closeLabel}>
-                  <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-                    <path d="M4 4l8 8M12 4l-8 8" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </button>
+                <CloseButton ref={closeRef} label={closeLabel} onClick={onClose} />
               </div>
               <div className={styles.content}>{children}</div>
             </div>

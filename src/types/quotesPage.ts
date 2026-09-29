@@ -263,6 +263,10 @@ export interface QuotesFeedContent {
   filterCountLabel: string;
   filterResetLabel: string;
   filterApplyLabel: string;
+  /** Mobile: the "Sort & Filter" button, its sheet's title and ×. */
+  sortFilterLabel: string;
+  sortFilterTitle: string;
+  sortFilterCloseLabel: string;
   sortLabel: string;
   sortOptions: { id: QuoteSort; label: string }[];
   switchLabel: string;

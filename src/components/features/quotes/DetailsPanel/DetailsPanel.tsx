@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import type { DetailsPanelContent } from "@/types/quotesPage";
 import type { QuoteCaseId } from "@/lib/quote-flow";
@@ -8,6 +8,7 @@ import { InteractiveInput } from "@/components/ui/InteractiveInput";
 import { NoRecordsBanner, UpgradeBanner, type UpgradeStage } from "../UpgradeBanner";
 import { useDemoNotice } from "@/lib/demo-notice";
 import styles from "./DetailsPanel.module.css";
+import { Chevron } from "@/components/icons/Chevron";
 
 export interface DetailsPanelProps {
   content: DetailsPanelContent;
@@ -41,6 +42,23 @@ export interface DetailsPanelProps {
 }
 
 /** Panel toggle glyph — `[< |]` (collapse); flipped via CSS to `[| >]` (expand). */
+/* Below 1100px the page stacks, so the panel folds up and down (an
+   accordion) instead of narrowing to a side rail. */
+const ACCORDION_QUERY = "(max-width: 1100px)";
+const subscribeAccordion = (cb: () => void) => {
+  const mq = window.matchMedia(ACCORDION_QUERY);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+const readAccordion = () => window.matchMedia(ACCORDION_QUERY).matches;
+
+/** The accordion's chevron: down when folded, up when open. */
+function ChevronGlyph({ open }: { open: boolean }) {
+  return (
+    <Chevron style={{ transform: open ? "rotate(180deg)" : undefined, transition: "transform 0.3s ease" }} />
+  );
+}
+
 function ToggleGlyph() {
   return (
     <svg viewBox="0 0 18 18" width="16" height="16" fill="none" aria-hidden>
@@ -62,6 +80,7 @@ function ToggleGlyph() {
  *          collapsed={bool} onToggleCollapse={fn} />
  */
 export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false, verifyFrom, companyName, caseId }: DetailsPanelProps) {
+  const accordion = useSyncExternalStore(subscribeAccordion, readAccordion, () => false);
   const notify = useDemoNotice();
   const reduced = useReducedMotion();
   const start = Math.max(0, Math.min(100, content.upgrade.percent));
@@ -118,9 +137,10 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
   ) : undefined;
 
   return (
-    <aside className={styles.panel} data-collapsed={collapsed || undefined}>
-      {/* Expanded layer — defines the panel height; clipped + faded when collapsed. */}
-      <div className={styles.expanded} aria-hidden={collapsed}>
+    <aside className={styles.panel} data-collapsed={collapsed || undefined} data-accordion={accordion || undefined}>
+      {/* Expanded layer — defines the panel height; clipped + faded when collapsed
+          (on the accordion it stays, only its details list folds). */}
+      <div className={styles.expanded} aria-hidden={collapsed && !accordion}>
         <div className={styles.details}>
           <div className={styles.head}>
             <h2 className={styles.title}>{content.title}</h2>
@@ -132,11 +152,12 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
                 type="button"
                 className={styles.collapse}
                 onClick={onToggleCollapse}
-                aria-label="Collapse details"
-                data-tooltip="Collapse details"
-                tabIndex={collapsed ? -1 : 0}
+                aria-label={accordion && collapsed ? "Expand details" : "Collapse details"}
+                data-tooltip={accordion && collapsed ? "Expand details" : "Collapse details"}
+                aria-expanded={accordion ? !collapsed : undefined}
+                tabIndex={collapsed && !accordion ? -1 : 0}
               >
-                <ToggleGlyph />
+                {accordion ? <ChevronGlyph open={!collapsed} /> : <ToggleGlyph />}
               </button>
             </div>
           </div>

@@ -343,6 +343,9 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           sort={sort}
           onSortChange={setSort}
           switchLabel={content.switchLabel}
+          sheetLabel={content.sortFilterLabel}
+          sheetTitle={content.sortFilterTitle}
+          sheetCloseLabel={content.sortFilterCloseLabel}
           immediateOnly={immediateOnly}
           onImmediateOnlyChange={setImmediateOnly}
         />

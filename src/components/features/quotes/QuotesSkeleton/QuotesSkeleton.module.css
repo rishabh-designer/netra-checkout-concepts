@@ -99,6 +99,29 @@
 
 .help {
   flex-shrink: 0;
+  width: 307px;
+}
+
+/* The serif title's line (32 on web). */
+.titleBar {
+  height: 32px;
+}
+
+/* The ikkat rule under the top section, with the real rule's 8 of room
+   above and below. */
+.rule {
+  width: 100%;
+  margin-block: var(--spacing-8);
+}
+
+/* Web collapsed rail (70px): nothing in it. */
+.body[data-collapsed] .railHead {
+  display: none;
+}
+
+/* Mobile's controls bar; web keeps the fields row. */
+.mobileBar {
+  display: none;
 }
 
 .controls {
@@ -163,10 +186,42 @@
   .feed {
     height: auto;
   }
+  /* Mirrors the mobile Details panel: no padding, 16 corners. */
+  .rail {
+    padding: 0;
+    border-radius: var(--radius-16);
+  }
+  /* The accordion, shut: just its header, no underline. */
+  .body[data-collapsed] .railHead {
+    display: flex;
+    border-bottom-color: transparent;
+  }
 }
 
 @media (max-width: 760px) {
   .topRow {
     flex-direction: column;
+  }
+  /* Heading bars never wider than the screen; the help card full width. */
+  .heading > * {
+    max-width: 100%;
+  }
+  .help {
+    width: 100%;
+  }
+  .titleBar {
+    height: 24px;
+  }
+  .controls {
+    display: none;
+  }
+  .mobileBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 46px;
+    padding: var(--spacing-12) 0;
+    border-bottom: var(--border-hairline) solid var(--color-divider);
+    margin-bottom: var(--spacing-8);
   }
 }

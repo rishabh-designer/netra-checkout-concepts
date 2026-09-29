@@ -153,31 +153,6 @@
   color: var(--color-label-muted-primary);
 }
 
-/* button/primary.fill, 48 tall: Figma r16, one step rounder. */
-.nextCta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-16);
-  flex-shrink: 0;
-  padding: var(--spacing-16) 28px;
-  border: var(--border-hairline) solid var(--color-brand-primary);
-  border-radius: var(--radius-24);
-  background: var(--color-brand-primary);
-  color: var(--color-label-inverse);
-  font-size: var(--font-size-200);
-  font-weight: 600;
-  letter-spacing: var(--track-600);
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.nextCta:hover {
-  background: var(--color-brand-primary-hover);
-  box-shadow: var(--shadow-button-primary-hover);
-}
-
 /* Side column (692:58373): summary over the RM card, 32 apart. */
 .side {
   display: flex;

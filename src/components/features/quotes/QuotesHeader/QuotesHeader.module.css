@@ -82,3 +82,10 @@
   background: var(--color-brand-primary-subtle);
   box-shadow: none;
 }
+
+/* Mobile: 12 either side. */
+@media (max-width: 999px) {
+  .bar {
+    padding-inline: var(--spacing-12);
+  }
+}

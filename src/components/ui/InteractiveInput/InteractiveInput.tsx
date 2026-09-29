@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { SelectMenu } from "@/components/ui/SelectMenu";
 import { ghostFor } from "@/lib/completions";
 import styles from "./InteractiveInput.module.css";
@@ -136,6 +136,25 @@ export function InteractiveInput({
   const helpId = `${uid}-help`;
   const tipId = `${uid}-tip`;
   const [menuOpen, setMenuOpen] = useState(false);
+  // Multi-line entry never scrolls: the textarea is as tall as its text,
+  // re-measured as the value changes and whenever its width does (rewraps).
+  useLayoutEffect(() => {
+    const el = inputRef.current;
+    if (control !== "textarea" || !el) return;
+    const fit = () => {
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    };
+    fit();
+    let width = el.clientWidth;
+    const ro = new ResizeObserver(() => {
+      if (el.clientWidth === width) return; // its own height change: ignore
+      width = el.clientWidth;
+      fit();
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [control, value]);
   // Ghost completion: only while focused with the caret at the end, and only
   // while the text isn't scrolled (the ghost has to sit right after it).
   const [caretAtEnd, setCaretAtEnd] = useState(false);

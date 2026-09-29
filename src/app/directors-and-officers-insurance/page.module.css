@@ -45,6 +45,22 @@
   min-width: 0;
 }
 
+/* Mobile's evenly spaced marks, flush with the line's left edge; web keeps
+   the masked line. */
+.breadcrumbMarks.breadcrumbMarks {
+  display: none;
+  padding: 0;
+}
+
+@media (max-width: 999px) {
+  .breadcrumbLine.webOnly {
+    display: none;
+  }
+  .breadcrumbMarks.breadcrumbMarks {
+    display: flex;
+  }
+}
+
 .breadcrumbRow > :last-child {
   flex-shrink: 0;
   padding: 0 var(--spacing-12);
@@ -133,7 +149,8 @@
     display: contents;
   }
 
+  /* Below web: "Policy Provided by" centred over the logo row. */
   .providersArea {
-    align-items: flex-start;
+    align-items: center;
   }
 }

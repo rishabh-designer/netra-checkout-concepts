@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { DitherImage } from "@/components/ui/DitherImage";
 import type { QuoteCardData, QuoteRating, QuoteTerritory } from "@/types/quotesPage";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
@@ -11,13 +12,12 @@ import { PriceMorph, type PriceIntro } from "../PriceMorph";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./QuoteCard.module.css";
 import fx from "./QuoteCardFeatures.module.css";
+import { Chevron } from "@/components/icons/Chevron";
 
 /** 12px chevron on View All Features (Figma 587:62128), success green. */
 function FeaturesChevron() {
   return (
-    <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-      <path d="M4.125 2.25 7.875 6 4.125 9.75" stroke="var(--color-success)" strokeWidth="1.23539" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <Chevron dir="right" size={12} color="var(--color-success)" />
   );
 }
 
@@ -29,13 +29,10 @@ const RATING_TONE = {
   na: "disabled",
 } as const;
 
-/** 10px chevron on the coverages chip (Figma 658:48100), info blue. */
+/** The coverages chip's chevron (Figma 658:48100), info blue, at the chip's
+ *  12px label size. */
 function ChipChevron() {
-  return (
-    <svg viewBox="0 0 10 10" width="10" height="10" fill="none" aria-hidden>
-      <path d="M3.75 2 6.75 5l-3 3" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+  return <Chevron dir="right" size={12} />;
 }
 
 /** Ikkat rule colour per card tone (Figma 658:49326 / 49729 / 49915). */
@@ -107,7 +104,11 @@ export function coverageChipLabel(quote: QuoteCardData, labels: QuoteCardLabels)
   return (quote.gold ? labels.personalizedCount : labels.coverageCount).replace("{count}", String(count));
 }
 
-const BEAM_MS = 9000; // one revolution; matches beam-rotate in the CSS
+const BEAM_MS = 9000;
+/** Hover shimmer: the burst on entry, then a calmer glitter while hovered. */
+const SHINE_BURST_MS = 380;
+const SHINE_REST = 0.35;
+const SHINE_FADE_MS = 280; // one revolution; matches beam-rotate in the CSS
 
 /** Phase-locks the beam to the page clock, so a remount (the Gold card
  *  swapping from its reveal layer to the feed) picks up at the same angle
@@ -179,7 +180,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
       ) : (
         (quote.price ?? labels.getQuote)
       )}
-      <MoveRightIcon ref={arrowRef} size={12} loop className={styles.arrow} />
+      <MoveRightIcon ref={arrowRef} size={14} loop className={styles.arrow} />
     </button>
   );
 
@@ -208,9 +209,27 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
     </span>
   );
 
+  // Hover: the D&O mark shimmers and glitters (the Focus hero's PlpMark
+  // effect; monochrome off the Gold Quote). The canvas mounts only while
+  // hovered, igniting on entry, and fades out before it unmounts.
+  const [shine, setShine] = useState<"off" | "on" | "leaving">("off");
+  const shineEnergy = useRef(0);
+  const shineTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(shineTimer.current), []);
   const hover = {
-    onMouseEnter: () => arrowRef.current?.startAnimation(),
-    onMouseLeave: () => arrowRef.current?.stopAnimation(),
+    onMouseEnter: () => {
+      arrowRef.current?.startAnimation();
+      window.clearTimeout(shineTimer.current);
+      shineEnergy.current = 1;
+      setShine("on");
+      shineTimer.current = window.setTimeout(() => (shineEnergy.current = SHINE_REST), SHINE_BURST_MS);
+    },
+    onMouseLeave: () => {
+      arrowRef.current?.stopAnimation();
+      window.clearTimeout(shineTimer.current);
+      setShine("leaving");
+      shineTimer.current = window.setTimeout(() => setShine("off"), SHINE_FADE_MS);
+    },
   };
 
   // The previous Top Coverages layout (640:24913): logo beside the name, the
@@ -288,6 +307,15 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
       <span className={styles.markClip} aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/media/checkout/product-icon.png" alt="" className={styles.mark} />
+        {shine !== "off" && (
+          <DitherImage
+            src="/media/checkout/product-icon.png"
+            width={130}
+            height={130}
+            energy={shineEnergy}
+            className={`${styles.markShine} ${shine === "leaving" ? styles.markShineOut : ""}`}
+          />
+        )}
       </span>
       {tag}
 

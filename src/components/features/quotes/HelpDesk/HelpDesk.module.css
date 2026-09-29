@@ -53,7 +53,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--spacing-10) 14px;
+  padding: var(--spacing-10) var(--spacing-12);
   border: var(--border-hairline) solid var(--color-border-subtle);
   border-radius: var(--radius-12); /* one step rounder than Figma's r10 (house rule) */
   background: var(--color-card);

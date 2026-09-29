@@ -1,3 +1,6 @@
+"use client";
+
+import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import type { CheckoutSuccessContent } from "@/types/checkout";
 import styles from "./RiskLetterPreview.module.css";
 
@@ -17,6 +20,9 @@ const ROWS: [number, number][] = [
   [113, 104],
   [113, 217],
 ];
+/* The stage's drawn size (Figma 683:56607); narrower boxes scale it down whole. */
+const STAGE_W = 484;
+
 /* The row where the caret types (a blue cursor over a pale highlight). */
 const TYPING = 4;
 const SUMMARY = [343, 259, 254, 352, 334, 286, 321, 259];
@@ -54,11 +60,25 @@ function Rows() {
  * (a risk report, turned -11°) behind the letter itself — a header with the
  * BimaKavach mark, "Risk Held Letter" and the policy line, a section of
  * skeleton rows with a still caret in one, an Executive Summary, and an
- * orange pointer. Decorative; the container labels it.
+ * orange pointer. Decorative; the container labels it. Drawn at 484 × 300
+ * and scaled down as one piece when its box is narrower (phones).
  * Usage: <RiskLetterPreview content={riskHeld.preview} company="Pepe Jeans…" label="…" />
  */
 export function RiskLetterPreview({ content, company, label }: RiskLetterPreviewProps) {
+  const fitRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  useLayoutEffect(() => {
+    const el = fitRef.current;
+    if (!el) return;
+    const measure = () => setScale(Math.min(1, el.clientWidth / STAGE_W));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
+    <div ref={fitRef} className={styles.fit} style={{ "--stage-scale": scale } as CSSProperties}>
     <div className={styles.stage} role="img" aria-label={label}>
       <Sheet back>
         <div className={styles.backHead}>
@@ -94,6 +114,7 @@ export function RiskLetterPreview({ content, company, label }: RiskLetterPreview
           />
         </svg>
       </Sheet>
+    </div>
     </div>
   );
 }

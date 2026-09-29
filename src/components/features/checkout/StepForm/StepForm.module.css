@@ -29,3 +29,14 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Below web: every field's text (value, placeholder, +91 prefix, the locked
+   company name) at 16 instead of the checkout's 18, like the landing
+   page's company field. The doubled class outranks InteractiveInput's own
+   `.field[data-size="lg"] .input`. */
+@media (max-width: 999px) {
+  .grid.grid [data-size="lg"] > div > :is(input, textarea, span),
+  .grid.grid [data-size="lg"] > div > span > :is(input, textarea) {
+    font-size: var(--font-size-200);
+  }
+}

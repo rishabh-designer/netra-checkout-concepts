@@ -17,8 +17,8 @@
   pointer-events: none;
 }
 
-/* Same as the compact view: only the Gold Quote keeps the mark's colour. */
-article:not([data-tone="gold"]) > .mark {
+/* Same as the compact view: the Gold Quote and Immediate Purchase keep the mark's colour. */
+article:not([data-tone="gold"]):not([data-tone="immediate"]) > .mark {
   mix-blend-mode: luminosity;
 }
 

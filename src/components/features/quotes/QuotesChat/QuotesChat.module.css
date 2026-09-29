@@ -217,3 +217,11 @@
   opacity: 0.4;
   cursor: default;
 }
+
+/* Mobile: the chat's text entry at 16, so iOS doesn't zoom in on focus
+   (shared by Ask BimaNetra and the Request a Quote chat). */
+@media (max-width: 999px) {
+  .input {
+    font-size: var(--font-size-200);
+  }
+}

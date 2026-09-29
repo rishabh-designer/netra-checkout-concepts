@@ -91,6 +91,8 @@ export interface CheckoutReviewContent extends CheckoutStepChrome {
   consentText: string;
   /** Final CTA: immediate purchases pay, priced quotes request. */
   payLabel: string;
+  /** Mobile: the footer shows the price beside the CTA. */
+  payNowLabel: string;
   requestLabel: string;
 }
 
@@ -131,6 +133,9 @@ export interface CheckoutContent {
   /** Agent Progress above the summary: runs from checkout's first step until
    *  the final CTA is pressed. */
   preparingLabel: string;
+  /** Mobile: the pinned footer (Figma 734:35259 / 734:34798): the final
+   *  price's label beside the CTA, and the toggle that opens the summary. */
+  footer: { totalLabel: string; showSummaryLabel: string; hideSummaryLabel: string };
   /** Step CTA (Billing, Company, KYC). */
   saveLabel: string;
   /** Tooltips on the greyed step CTA: why it can't be pressed yet. */

@@ -73,27 +73,25 @@
 }
 
 /* Boxed × (chevron.controls, 659:50843): 20px, r6.67. */
-.close {
+/* Web: just the × in the corner. Mobile: a row, pager left, × right. */
+.topBar {
   position: absolute;
   top: 14px;
   right: 14px;
   z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: var(--border-hairline) solid var(--color-card-recessed);
-  border-radius: var(--radius-6);
-  background: var(--color-card);
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.close:hover {
-  background: var(--color-brand-primary-subtle);
-  border-color: var(--color-brand-primary-border);
+.pagerTop {
+  display: none;
+}
+
+.pagerInCard {
+  display: contents;
+}
+
+/* The shared CloseButton, above the beam. */
+.close {
+  z-index: 1;
 }
 
 /* Summary card (658:50427): 400 wide, white, subtle hairline, r24. */
@@ -144,28 +142,9 @@
   gap: var(--spacing-4);
   margin-right: auto;
 }
-
-.pagerBtn {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: var(--border-hairline) solid var(--color-card-recessed);
-  border-radius: var(--radius-6);
-  background: var(--color-card);
-  color: var(--color-label-secondary);
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
+/* The shared IconButton (18); a pair, 4 apart. */
 .pagerBtn + .pagerBtn {
   margin-left: var(--spacing-4);
-}
-
-.pagerBtn:hover:not(:disabled) {
-  background: var(--color-brand-primary-subtle);
-  border-color: var(--color-brand-primary-border);
 }
 
 /* card/product-homepage/tag: white → success wash, r12. */
@@ -508,60 +487,6 @@
   color: var(--color-brand-primary);
 }
 
-/* button/primary.fill at 16/28, r16, 16px label + 16px arrow. */
-.buttonFilled,
-.buttonOutline {
-  --btn: var(--color-brand-primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-16);
-  flex-shrink: 0;
-  padding: var(--spacing-16) 28px;
-  border: var(--border-hairline) solid var(--btn);
-  border-radius: var(--radius-24); /* one step rounder than Figma's r16 (house rule) */
-  font-size: var(--font-size-200);
-  font-weight: 600;
-  letter-spacing: var(--track-600);
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.buttonFilled {
-  background: var(--btn);
-  color: var(--color-label-inverse);
-}
-
-.buttonFilled:hover {
-  background: var(--color-brand-primary-hover);
-  border-color: var(--color-brand-primary-subtle);
-  box-shadow: var(--shadow-button-primary-hover);
-}
-
-.modal[data-tone="gold"] .buttonFilled {
-  --btn: var(--color-brand-secondary);
-}
-
-.modal[data-tone="gold"] .buttonFilled:hover {
-  background: var(--color-brand-secondary);
-  border-color: var(--color-brand-secondary-subtle-bold);
-  box-shadow: var(--shadow-button-secondary-hover);
-}
-
-.buttonOutline {
-  border-color: var(--color-border-subtle);
-  background: var(--color-card);
-  color: var(--btn);
-}
-
-.buttonOutline:hover {
-  background: var(--color-brand-primary-subtle);
-  border-color: var(--color-brand-primary);
-  box-shadow: var(--shadow-button-primary-hover);
-}
-
 .arrow {
   display: inline-flex;
   flex-shrink: 0;
@@ -570,17 +495,105 @@
 
 /* Narrow screens: the summary stacks over the details and the panel scrolls. */
 @media (max-width: 900px) {
+  /* Mobile: the insurer's logo at 32 high. */
+  .logo {
+    height: 32px;
+  }
+  /* The product name at the card's foot at 20. */
+  .productName {
+    font-size: var(--font-size-400);
+  }
+  /* Tab items: each point's heading at 14, its copy at 12. */
+  .itemTitle {
+    font-size: var(--font-size-100);
+  }
+  .itemBody {
+    font-size: var(--font-size-75);
+  }
+  /* The product foot: the rule, then the mark (32) beside its name. */
+  .product {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .productRule {
+    flex-basis: 100%;
+  }
+  .productIcon {
+    width: 32px;
+    height: 32px;
+  }
+  /* The tab's points 16 apart. */
+  .list {
+    gap: var(--spacing-16);
+  }
+  /* The summary's coverage chips 8 apart. */
+  .coverageList {
+    gap: var(--spacing-8);
+  }
+  /* The coverages count heading at 18. */
+  .coveragesTitle {
+    font-size: var(--font-size-300);
+  }
+  /* Tighter tags: 4 top and bottom, 6 left and right. */
+  .tag {
+    padding: var(--spacing-4) var(--spacing-6);
+  }
+  /* Mobile: a bottom sheet (SideDrawer placement="bottom"), full width,
+     rounded on top, the full screen height; 12 top and 16 sides/bottom inside, the
+     pager and × on the top row. It scrolls as one, and the Sum Insured +
+     price footer stays pinned to its foot. */
+  .shell,
+  .shell.shell[data-bare] {
+    width: 100%;
+    border-radius: var(--radius-24) var(--radius-24) 0 0;
+  }
   .modal {
     flex-direction: column;
-    height: auto;
-    max-height: calc(100dvh - 32px);
+    height: 100dvh;
+    max-height: 100dvh;
     overflow-y: auto;
+    padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
+    border-radius: var(--radius-24) var(--radius-24) 0 0;
+  }
+  .content {
+    flex: none;
+    overflow: visible;
+  }
+  .footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    /* The sheet's white round it (16 each side, and down to the edge), so
+       the list never shows beside or under the pinned footer. */
+    box-shadow: 0 0 0 var(--spacing-16) var(--color-card), 0 var(--spacing-16) 0 var(--spacing-16) var(--color-card);
+  }
+  /* Pinned to the sheet's top while it scrolls, on a white band that runs
+     to its edges (it covers the 12 top padding too). */
+  .topBar {
+    position: sticky;
+    top: calc(-1 * var(--spacing-12));
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    margin: calc(-1 * var(--spacing-12)) calc(-1 * var(--spacing-16)) 0;
+    padding: var(--spacing-12) var(--spacing-16) var(--spacing-8);
+    background: var(--color-card);
+  }
+  .pagerTop {
+    display: contents;
+  }
+  .pagerInCard {
+    display: none;
   }
   .summary {
     flex: none;
     overflow: visible;
   }
   .panel {
-    min-height: 480px;
+    flex: none;
+    min-height: 0;
   }
 }

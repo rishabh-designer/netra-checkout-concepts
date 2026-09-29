@@ -3,6 +3,7 @@ import { getQuotesPageContent } from "@/lib/api/quotesPage";
 import type { QuotesPreview } from "@/types/quotesPage";
 import { BreadcrumbTrail } from "@/components/ui/BreadcrumbTrail";
 import { IkkatLine } from "@/components/ui/IkkatLine";
+import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { ProductHeroLeft } from "@/components/features/product-hero/ProductHeroLeft";
 import { MediaComposition } from "@/components/features/product-hero/MediaComposition";
 import { LeadFormCard } from "@/components/features/product-hero/LeadFormCard";
@@ -10,6 +11,7 @@ import { InsurerLogoShowcase } from "@/components/ui/InsurerLogoShowcase";
 import { ProductTicker } from "@/components/features/product-hero/ProductTicker";
 import { HeroFlourish } from "@/components/features/product-hero/HeroFlourish";
 import { LandingShell } from "@/components/features/product-hero/LandingShell";
+import { cn } from "@/lib/utils";
 import styles from "./page.module.css";
 
 /** Directors & Officers Insurance product page — Figma node 179:65816, hero fold. */
@@ -41,7 +43,11 @@ export default async function DirectorsAndOfficersInsurancePage() {
         classic={
           <main key="classic" className={styles.body}>
             <div className={styles.breadcrumbRow}>
-              <IkkatLine className={styles.breadcrumbLine} />
+              {/* Web: the masked line. Mobile: marks counted to the width and
+                  spaced evenly (the line's whole tiles leave one big gap
+                  when only two fit). */}
+              <IkkatLine className={cn(styles.breadcrumbLine, styles.webOnly)} />
+              <IkkatDivider unit={22} className={cn(styles.breadcrumbLine, styles.breadcrumbMarks)} />
               <BreadcrumbTrail items={content.breadcrumbs} />
             </div>
             <div className={styles.columns}>

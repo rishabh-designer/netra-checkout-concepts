@@ -3,6 +3,9 @@
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import styles from "./SuccessTimeline.module.css";
+import { Chevron } from "@/components/icons/Chevron";
+import { ArrowRight } from "@/components/icons/ArrowRight";
+import { IconButton } from "@/components/ui/IconButton";
 
 export type SuccessStepState = "done" | "active" | "pending";
 
@@ -99,18 +102,9 @@ export function SuccessTimeline({ items, delay = 0, toggleLabels }: SuccessTimel
           <li key={it.pill} className={styles.step} data-state={it.state} data-open={isOpen || undefined}>
             <div className={styles.head}>
               {/* chevron.controls (713:59196), before the pill: folds the step's copy away. */}
-              <button
-                type="button"
-                className={styles.toggle}
-                aria-expanded={isOpen}
-                aria-label={label}
-                data-tooltip={label}
-                onClick={() => toggle(it.pill)}
-              >
-                <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-                  <path d="M3 7.5 6 4.5l3 3" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
+              <IconButton size="sm" label={label} open={isOpen} aria-expanded={isOpen} onClick={() => toggle(it.pill)}>
+                <Chevron size={12} />
+              </IconButton>
             <motion.span
               className={styles.pill}
               data-state={it.state}
@@ -170,9 +164,7 @@ export function SuccessTimeline({ items, delay = 0, toggleLabels }: SuccessTimel
                     {it.action && (
                       <button type="button" className={styles.action} disabled={it.state === "pending"} data-tooltip={it.state === "pending" ? it.action.pendingTip : undefined} onClick={it.action.onClick}>
                         {it.action.label}
-                        <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-                          <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+                        <ArrowRight size={14} />
                       </button>
                     )}
                   </div>

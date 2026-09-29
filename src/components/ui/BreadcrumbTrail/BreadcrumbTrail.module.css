@@ -64,3 +64,12 @@
   font-feature-settings: inherit;
   cursor: pointer;
 }
+
+/* Mobile: a trail too long for the screen wraps between crumbs rather than
+   pushing the page sideways. */
+@media (max-width: 999px) {
+  .trail {
+    flex-wrap: wrap;
+    row-gap: var(--spacing-6);
+  }
+}

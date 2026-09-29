@@ -58,6 +58,9 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
   const { setResult } = useQuoteFlow();
   const [companyName, setCompanyName] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  // Get Instant Quotes pressed: the Quotes skeleton holds the screen until
+  // the route swaps (the landing page never shows through the hand-off).
+  const [handingOff, setHandingOff] = useState(false);
   const [caseId, setCaseId] = useState<QuoteCaseId>("C");
   // The name carried into the modal / Quotes page (canonical when matched).
   const [resolvedName, setResolvedName] = useState("");
@@ -135,6 +138,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
       values,
       reportInterest: values["reportInterest"] ?? "",
     });
+    setHandingOff(true);
     setModalOpen(false);
     router.push(withCase("/directors-and-officers-insurance/quotes", caseId));
   };
@@ -218,6 +222,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
         companyName={resolvedName}
         onComplete={handleComplete}
         backdrop={quotesPreview && <QuotesBackdrop preview={quotesPreview} caseId={caseId} />}
+        handingOff={handingOff}
       />
       <SideDrawer
         open={knowMoreOpen}

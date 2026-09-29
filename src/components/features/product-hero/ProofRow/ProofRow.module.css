@@ -30,6 +30,8 @@
   font-size: var(--font-size-75);
   font-weight: 500;
   letter-spacing: var(--track-500);
+  line-height: 1.125; /* Anek's normal, made explicit so lines can be counted */
+  text-wrap: balance;
   color: var(--color-label-primary);
 }
 
@@ -43,4 +45,33 @@
   align-items: flex-start;
   text-align: left;
   white-space: nowrap;
+}
+
+/* Below web: the three stats share the row equally (12 apart), centred,
+   their labels wrapping, so all three always fit; the row never scrolls. */
+@media (max-width: 999px) {
+  /* Top-aligned, so the numbers line up when one label wraps and another
+     doesn't. */
+  .proof[data-align="start"] {
+    align-items: flex-start;
+    gap: var(--spacing-12);
+  }
+
+  /* No ikkat marks between the stats on mobile. */
+  .proof[data-align="start"] > :not(.stat) {
+    display: none;
+  }
+
+  .proof[data-align="start"] .stat {
+    flex: 1 0 0;
+    align-items: center;
+    text-align: center;
+    white-space: normal;
+  }
+
+}
+
+/* One label wrapped: the rest break too, so every label is two lines. */
+.proof[data-two-line] .statLabel[data-single] {
+  width: min-content;
 }

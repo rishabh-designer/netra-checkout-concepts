@@ -27,6 +27,10 @@ export interface PurchaseSummaryProps {
   /** The lavender border beam (checkout). Off once paid: the success page's
    *  greeting card carries the beam instead. */
   beam?: boolean;
+  /** Checkout's mobile footer (Figma 734:35562): tighter 12 padding, r16,
+   *  title and pill on one line (no company), smaller type, the icon tucked
+   *  under the insurer box beside the product name. */
+  compact?: boolean;
 }
 
 /* The ikkat rule under the title, in the chosen quote's colour (as on its card). */
@@ -46,7 +50,7 @@ const RULE_COLOR = {
  * quote's coverages and ends on the paid amount (`coverages`, `paid`).
  * Usage: <PurchaseSummary content={summary} quote={q} />
  */
-export function PurchaseSummary({ content, quote, coverages, paid, company, beam = true }: PurchaseSummaryProps) {
+export function PurchaseSummary({ content, quote, coverages, paid, company, beam = true, compact = false }: PurchaseSummaryProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<BadgeCheckIconHandle>(null);
   // An offer prices the original, then takes the saving off it.
@@ -56,24 +60,28 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
   const pct = base.total ? Math.round((saving / base.total) * 100) : 0;
   const tone = quote.gold ? "gold" : quote.immediate ? "immediate" : "neutral";
   const [line1, line2] = splitName(quote.insurer);
+  const productIcon = (
+    <span className={styles.productIconCrop} aria-hidden>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={content.productIconSrc} alt="" className={styles.productIcon} />
+    </span>
+  );
 
   return (
     <div className={styles.column}>
       {/* A soft lavender beam circles the card's edge (after the Gold Quote's,
           but slower and paler): a halo behind, a hairline ring on top. */}
-      <div className={styles.beam}>
+      <div className={styles.beam} data-compact={compact || undefined}>
         {beam && (
           <span className={styles.beamGlow} aria-hidden>
             <span className={styles.beamSpin} />
           </span>
         )}
-      <section className={styles.card} data-tone={tone === "neutral" ? undefined : tone} data-paid={paid ? true : undefined}>
+      <section className={styles.card} data-tone={tone === "neutral" ? undefined : tone} data-paid={paid ? true : undefined} data-compact={compact || undefined}>
         {/* Product icon (Figma 635:16096): a 100px mark cropped to its top half
-            in a 100×50 window, pinned to the card beside the product name. */}
-        <span className={styles.productIconCrop} aria-hidden>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={content.productIconSrc} alt="" className={styles.productIcon} />
-        </span>
+            in a 100×50 window, pinned to the card beside the product name
+            (compact: hung off the name row itself). */}
+        {!compact && productIcon}
         {/* Pills: Secured with BimaNetra on the Gold Quote, Immediate Purchase on
             anything bought online (a priced Gold Quote carries both). Once
             paid they sit above the title (Figma 670:51168); in checkout,
@@ -109,7 +117,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
           const heading = (
             <div className={styles.heading}>
               <h2 className={styles.title}>{content.title}</h2>
-              {company && <p className={styles.company}>{company}</p>}
+              {company && !compact && <p className={styles.company}>{company}</p>}
             </div>
           );
           return paid ? (
@@ -131,6 +139,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
             <span>{content.productLines[0]}</span>
             <span>{content.productLines[1]}</span>
           </p>
+          {compact && productIcon}
         </div>
 
         <div className={styles.insurer}>

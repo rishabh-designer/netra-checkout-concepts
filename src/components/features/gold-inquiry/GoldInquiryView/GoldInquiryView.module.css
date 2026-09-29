@@ -318,34 +318,6 @@
   color: var(--color-label-secondary);
 }
 
-/* chevron.controls: 18 square, r6 → 8 (house rule), subtle hairline, 12
-   chevron in the hint grey; at the row's end only the chevron fades. */
-.navBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: var(--border-hairline) solid var(--color-border-subtle);
-  border-radius: var(--radius-8);
-  background: var(--color-card);
-  color: var(--color-label-tertiary);
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.navBtn:hover:not(:disabled) {
-  border-color: var(--color-brand-primary-border);
-  background: var(--color-brand-primary-subtle);
-  color: var(--color-brand-primary);
-}
-
-.navBtn:disabled {
-  color: var(--color-label-disabled);
-  cursor: default;
-}
-
 /* The row scrolls sideways under the arrows; its right edge fades out. */
 .row {
   display: flex;
@@ -710,6 +682,54 @@
   .topRow {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* Mobile (RESPONSIVENESS.md): the 16 page gutter with the header 16 above
+   (not 47); the thank-you card's padding down to 12 so gutters don't
+   double; serif headings a step down (32 → 28, 28 → 24); the stats two by
+   two; Other Quotes run to the gutter and swipe one whole card at a time
+   (no fade over it); the pager's 18px chevrons get 44px-tall hit areas. */
+@media (max-width: 999px) {
+  .body {
+    padding: var(--spacing-16);
+  }
+  .main {
+    padding: 0;
+  }
+  .aside {
+    padding-bottom: 0;
+  }
+  .thanks {
+    padding: var(--spacing-12);
+  }
+  .title {
+    font-size: var(--font-size-heading-md);
+  }
+  .inquiryTitle {
+    font-size: var(--font-size-heading-sm);
+  }
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-16);
+    padding: 0;
+  }
+  .others {
+    padding-inline: 0;
+  }
+  .row {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .cell {
+    flex-basis: 100%;
+  }
+  /* The rating chips share the row equally, 12 apart. */
+  .options {
+    gap: var(--spacing-12);
+  }
+  .option {
+    flex: 1;
   }
 }
 

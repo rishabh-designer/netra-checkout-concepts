@@ -64,48 +64,10 @@
   background: var(--color-card-sunken);
 }
 
-/* 48 tall, 16/28; Figma r16, one step rounder. */
-.primary,
-.secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-16) 28px;
-  border: var(--border-hairline) solid var(--color-brand-primary);
-  border-radius: var(--radius-24);
-  font-size: var(--font-size-200);
-  font-weight: 600;
-  letter-spacing: var(--track-600);
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.primary {
-  background: var(--color-brand-primary);
-  color: var(--color-label-inverse);
-}
-
-.primary:hover {
-  background: var(--color-brand-primary-hover);
-  box-shadow: var(--shadow-button-primary-hover);
-}
-
-.secondary {
-  border-color: var(--color-card);
-  background: var(--color-card);
-  color: var(--color-brand-primary);
-}
-
-.secondary:hover {
-  border-color: var(--color-brand-primary);
-  background: var(--color-brand-primary-subtle);
-}
-
 @media (max-width: 560px) {
+  /* The letter scales to the box, so the box follows its height. */
   .preview {
-    height: 220px;
+    height: auto;
   }
   .actions {
     flex-direction: column-reverse;

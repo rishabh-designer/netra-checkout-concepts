@@ -56,7 +56,7 @@ export function CtaButton({ label = "Continue", meta, onClick }: CtaButtonProps)
       </span>
       <ChevronRightIcon
         ref={chevronRef}
-        size={20}
+        size={16}
         color="var(--color-label-inverse)"
         className={styles.chevron}
       />

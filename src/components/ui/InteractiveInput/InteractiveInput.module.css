@@ -171,7 +171,8 @@
   border-color: var(--color-brand-primary);
 }
 
-/* Multi-line (address): text wraps at 1.5, icons pin to the top, vertical resize. */
+/* Multi-line (address): text wraps at 1.5, icons pin to the top; the box
+   grows with its text (sized in the TSX), so it never scrolls or resizes. */
 .wrapper[data-multiline] {
   align-items: flex-start;
 }
@@ -188,7 +189,8 @@
   border: 0;
   background: none;
   outline: none;
-  resize: vertical;
+  resize: none;
+  overflow: hidden;
   font: inherit;
   font-size: var(--font-size-200);
   font-weight: 500;

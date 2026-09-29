@@ -1,11 +1,20 @@
-/* 484 × 300 stage (683:56607); the sheets run off its foot. */
+/* The stage's box: as tall as the scaled stage, so nothing reflows. */
+.fit {
+  --stage-scale: 1;
+  width: 100%;
+  height: calc(300px * var(--stage-scale));
+}
+
+/* 484 × 300 stage (683:56607); the sheets run off its foot. Scaled whole
+   (from its top centre) when the box is narrower. */
 .stage {
   position: relative;
+  left: 50%;
   width: 484px;
-  max-width: 100%;
   height: 300px;
-  margin: 0 auto;
   overflow: hidden;
+  transform: translateX(-50%) scale(var(--stage-scale));
+  transform-origin: top center;
 }
 
 /* A sheet: white, grey hairline, r15, the faintest shadow, 20/13 inset. */

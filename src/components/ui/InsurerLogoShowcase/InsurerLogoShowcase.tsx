@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { InsurerLogo } from "@/types/productPage";
 import styles from "./InsurerLogoShowcase.module.css";
@@ -20,11 +20,57 @@ export interface InsurerLogoShowcaseProps {
   fadeScale?: number;
 }
 
+/** Least space between two slots when deciding how many fit. */
+const MIN_GAP = 16;
+
+const widthOf = (logos: InsurerLogo[]) => Math.max(...logos.map((l) => l.width));
+
+/** The first `n` slots, with the hidden slots' logos dealt onto them so
+ *  every insurer still gets its turn: widest first, each into the slot it
+ *  widens least (then the one with the fewest logos). */
+function fold(slots: InsurerLogo[][], n: number): InsurerLogo[][] {
+  // Folded rows show each logo once: a repeat is dropped, in the shown
+  // slots and among the ones dealt onto them.
+  const seen = new Set<string>();
+  const kept = slots.slice(0, n).map((s) => s.filter((l) => !seen.has(l.src) && (seen.add(l.src), true)));
+  const hidden = slots
+    .slice(n)
+    .flat()
+    .filter((l) => !seen.has(l.src) && (seen.add(l.src), true))
+    .sort((a, b) => b.width - a.width);
+  for (const logo of hidden) {
+    let best = 0;
+    let bestCost = Infinity;
+    kept.forEach((slot, i) => {
+      const cost = Math.max(0, logo.width - widthOf(slot)) * 100 + slot.length;
+      if (cost < bestCost) {
+        bestCost = cost;
+        best = i;
+      }
+    });
+    kept[best].push(logo);
+  }
+  return kept;
+}
+
+/** As many slots as fit the row's width (at least one), folded. */
+function fit(slots: InsurerLogo[][], width: number | null): InsurerLogo[][] {
+  if (width === null || !slots.length) return slots;
+  for (let n = slots.length; n > 1; n--) {
+    const folded = fold(slots, n);
+    const need = folded.reduce((sum, s) => sum + widthOf(s), 0) + MIN_GAP * (n - 1);
+    if (need <= width) return folded;
+  }
+  return fold(slots, 1);
+}
+
 /**
  * InsurerLogoShowcase — a fixed row of logo slots. Every `interval` the whole
  * wall advances to the next set, each slot blurring its logo out and the next
  * one in; the per-slot `stagger` makes the change ripple left→right. Each slot
- * is sized to its widest logo so the row never reflows as logos swap.
+ * is sized to its widest logo so the row never reflows as logos swap. The
+ * row shows only as many slots as fit its width (six on web, four on a
+ * phone); the hidden slots' logos join the cycles of the ones shown.
  * Usage: <InsurerLogoShowcase slots={providerShowcase} />
  */
 export function InsurerLogoShowcase({
@@ -36,7 +82,17 @@ export function InsurerLogoShowcase({
   fadeScale = 20 / 24,
 }: InsurerLogoShowcaseProps) {
   const reduced = useReducedMotion();
-  const cycleLength = slots.reduce((max, s) => Math.max(max, s.length), 1);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [rowWidth, setRowWidth] = useState<number | null>(null);
+  useEffect(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const ro = new ResizeObserver(([entry]) => setRowWidth(entry.contentRect.width));
+    ro.observe(row);
+    return () => ro.disconnect();
+  }, []);
+  const shown = useMemo(() => fit(slots, rowWidth), [slots, rowWidth]);
+  const cycleLength = shown.reduce((max, s) => Math.max(max, s.length), 1);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -48,9 +104,10 @@ export function InsurerLogoShowcase({
   }, [reduced, cycleLength, interval]);
 
   return (
-    <div className={styles.row}>
-      {slots.map((logos, s) => {
-        const slotWidth = Math.max(...logos.map((l) => l.width));
+    // Hidden until measured, so a phone never flashes all six slots first.
+    <div ref={rowRef} className={styles.row} style={rowWidth === null ? { visibility: "hidden" } : undefined}>
+      {shown.map((logos, s) => {
+        const slotWidth = widthOf(logos);
         const active = index % logos.length;
         return (
           <div
@@ -60,7 +117,7 @@ export function InsurerLogoShowcase({
           >
             {logos.map((logo, l) => (
               <motion.img
-                key={logo.src}
+                key={`${logo.src}-${l}`}
                 src={logo.src}
                 alt={logo.alt}
                 className={styles.logo}

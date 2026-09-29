@@ -7,6 +7,7 @@ import type { CheckoutField, CheckoutUpload, CheckoutUploadCopy } from "@/types/
 import type { CheckoutState } from "../useCheckout";
 import { StepForm } from "../StepForm";
 import styles from "./CheckoutEditDrawer.module.css";
+import { Button } from "@/components/ui/Button";
 
 export interface CheckoutEditDrawerProps {
   /** Which section is being edited, or null when closed. */
@@ -58,9 +59,9 @@ export function CheckoutEditDrawer({ section, title, fields, uploads, uploadCopy
       closeLabel={labels.close}
       width={480}
       footer={
-        <button type="button" className={styles.save} disabled={!valid} onClick={save}>
+        <Button block disabled={!valid} onClick={save}>
           {labels.save}
-        </button>
+        </Button>
       }
     >
       <div className={styles.body}>

@@ -85,3 +85,113 @@
   border-radius: var(--radius-8);
   background: var(--color-card);
 }
+
+/* ---- Mobile: one bar + a bottom sheet (Figma 732:34288 / 732:34326) ---- */
+.mobileBar {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .row {
+    display: none;
+  }
+
+  /* The switch left, "Sort & Filter" right, 12 above and below, on a lilac
+     hairline. */
+  .mobileBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-16);
+    width: 100%;
+    padding: var(--spacing-12) 0;
+    border-bottom: var(--border-hairline) solid var(--color-brand-primary-border);
+  }
+}
+
+/* 14 SemiBold label + the 14 bars-filter glyph (icon = label size). */
+.sheetButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-10);
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  line-height: 1.5;
+  color: var(--color-label-basic);
+  cursor: pointer;
+}
+
+/* The sheet: Sort, a rule, then Filter; each field full width, its option
+   list opening in place (pushing the rest down) rather than floating. */
+.sheetFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding-bottom: var(--spacing-8);
+}
+
+.sheetFields .field {
+  width: 100%;
+}
+
+.sheetFields .dropdown {
+  flex-direction: column;
+}
+
+.sheetFields .dropdown > * > [role="listbox"],
+.sheetFields .dropdown > * > div:has(> [role="listbox"]) {
+  position: static;
+  margin-top: var(--spacing-4);
+}
+
+.sheetFields .dropdown > * {
+  flex-direction: column;
+}
+
+/* Reset All + Apply Changes, the multiselect's pair at full size. */
+.sheetFoot {
+  display: flex;
+  gap: var(--spacing-16);
+  padding-top: var(--spacing-12);
+}
+
+.sheetReset,
+.sheetApply {
+  flex: 1;
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-neutral);
+  border-radius: var(--radius-16);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sheetReset {
+  background: var(--color-card);
+  color: var(--color-label-primary);
+}
+
+.sheetApply {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+}
+
+.sheetApply:hover:not(:disabled) {
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.sheetReset:disabled,
+.sheetApply:disabled {
+  border-color: rgba(169, 172, 177, 0.6);
+  background: var(--color-fill-disabled);
+  color: var(--color-label-tertiary);
+  cursor: not-allowed;
+}

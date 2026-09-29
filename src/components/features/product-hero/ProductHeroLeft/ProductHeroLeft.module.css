@@ -115,9 +115,11 @@
     padding: 0;
   }
 
+  /* Under the logos: the grid's 20, the rule, 20, the stats (not 93). */
   .trustSignals {
-    margin-top: var(--spacing-24);
-    padding: var(--spacing-24) 0;
+    gap: var(--spacing-20);
+    margin-top: 0;
+    padding: 0 0 var(--spacing-24);
   }
 
   .dividerLine {

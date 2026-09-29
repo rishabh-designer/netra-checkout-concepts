@@ -6,6 +6,7 @@ import type { CheckoutSuccessContent } from "@/types/checkout";
 import { useDemoNotice } from "@/lib/demo-notice";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./SuccessMore.module.css";
+import { ArrowRight } from "@/components/icons/ArrowRight";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -99,9 +100,7 @@ export function Suggestions({ suggestions, delay = 0 }: SuggestionsProps) {
                 }}
               >
                 {suggestions.ctaLabel}
-                <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-                  <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <ArrowRight size={14} />
               </button>
             </div>
           </motion.li>

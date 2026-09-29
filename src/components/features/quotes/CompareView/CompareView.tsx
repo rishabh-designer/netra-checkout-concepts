@@ -10,6 +10,8 @@ import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import type { QuoteCardLabels } from "../QuoteCard";
 import styles from "./CompareView.module.css";
+import { Chevron } from "@/components/icons/Chevron";
+import { ArrowRight } from "@/components/icons/ArrowRight";
 
 export interface CompareViewProps {
   open: boolean;
@@ -41,12 +43,8 @@ function Mark({ tone }: { tone: FeatureTab["tone"] }) {
   return <span className={styles.dot} aria-hidden />;
 }
 
-function Chevron({ open }: { open: boolean }) {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden className={styles.chevron} data-open={open || undefined}>
-      <path d="m4 6 4 4 4-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+function RowChevron({ open }: { open: boolean }) {
+  return <Chevron className={styles.chevron} data-open={open || undefined} />;
 }
 
 /**
@@ -209,9 +207,7 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
                         onClick={onSelect(q)}
                       >
                         {q.price ?? labels.getQuote}
-                        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-                          <path d="M2.5 8h11M9.5 4l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+                        <ArrowRight size={14} />
                       </button>
                     </article>
                   ) : (
@@ -271,7 +267,7 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
                           <Mark tone={s.tone} />
                         </span>
                         <span className={styles.sectionTitle}>{s.title}</span>
-                        <Chevron open={!shut} />
+                        <RowChevron open={!shut} />
                       </button>
                       {!shut &&
                         s.rows.map((r) => {
@@ -289,7 +285,7 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
                                     onClick={() => setExpanded((e) => toggle(e, id))}
                                   >
                                     {r.title}
-                                    <Chevron open={more} />
+                                    <RowChevron open={more} />
                                   </button>
                                 ) : (
                                   <span className={styles.rowTitle}>{r.title}</span>

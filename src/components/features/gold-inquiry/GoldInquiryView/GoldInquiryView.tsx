@@ -16,6 +16,9 @@ import type { GoldInquiryContent } from "@/types/goldInquiry";
 import type { QuoteCardData, QuotesFeedContent, QuotesHeaderContent } from "@/types/quotesPage";
 import { BackButton } from "@/components/ui/BackButton";
 import styles from "./GoldInquiryView.module.css";
+import { Chevron } from "@/components/icons/Chevron";
+import { ArrowRight } from "@/components/icons/ArrowRight";
+import { IconButton } from "@/components/ui/IconButton";
 
 export interface GoldInquiryViewProps {
   content: GoldInquiryContent;
@@ -28,16 +31,11 @@ export interface GoldInquiryViewProps {
   variant?: "gold" | "quote";
 }
 
-const Arrow = () => (
-  <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
-    <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
+/** A button's trailing arrow, at its label's size (14, or 12 in the header). */
+const Arrow = ({ size = 14 }: { size?: number }) => <ArrowRight size={size} />;
 
-const Chevron = ({ flip = false, size = 16 }: { flip?: boolean; size?: number }) => (
-  <svg viewBox="0 0 16 16" width={size} height={size} fill="none" aria-hidden style={flip ? { transform: "scaleX(-1)" } : undefined}>
-    <path d="M5.5 3 10.5 8l-5 5" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
+const PagerChevron = ({ flip = false, size = 16 }: { flip?: boolean; size?: number }) => (
+  <Chevron dir={flip ? "left" : "right"} size={size} />
 );
 
 /** Were Case B's Additional Details sent (Unlock Quote), or skipped for a call? */
@@ -158,7 +156,7 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
       <QuotesHeader
         content={{ ...header, ctaLabel: content.headerCtaLabel }}
         onCta={() => window.location.assign(content.expertHref)}
-        icon={<Arrow />}
+        icon={<Arrow size={12} />}
         iconAfter
       />
       <div className={styles.body}>
@@ -208,7 +206,7 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
                   <span className={styles.email}>{content.questions.email}</span>
                   {after}
                 </span>
-                <Chevron />
+                <PagerChevron />
               </a>
 
               <dl className={styles.stats}>
@@ -263,12 +261,12 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
                 <p className={styles.showing}>
                   {content.otherQuotes.showing.replace("{total}", String(quotes.length))}
                 </p>
-                <button type="button" className={styles.navBtn} onClick={() => page(-1)} disabled={ends.start} aria-label={content.otherQuotes.prevLabel} data-tooltip={content.otherQuotes.prevLabel}>
-                  <Chevron flip size={12} />
-                </button>
-                <button type="button" className={styles.navBtn} onClick={() => page(1)} disabled={ends.end} aria-label={content.otherQuotes.nextLabel} data-tooltip={content.otherQuotes.nextLabel}>
-                  <Chevron size={12} />
-                </button>
+                <IconButton size="sm" label={content.otherQuotes.prevLabel} onClick={() => page(-1)} disabled={ends.start}>
+                  <PagerChevron flip size={12} />
+                </IconButton>
+                <IconButton size="sm" label={content.otherQuotes.nextLabel} onClick={() => page(1)} disabled={ends.end}>
+                  <PagerChevron size={12} />
+                </IconButton>
               </div>
             </div>
             <div ref={rowRef} className={styles.row} onScroll={syncEnds}>

@@ -146,6 +146,14 @@
 }
 
 @media (max-width: 1100px) {
+  /* Mobile: the Checkout heading at 34. */
+  .title {
+    font-size: var(--font-size-display-2xs);
+  }
+  /* 16 either side on mobile, like the quotes page. */
+  .content {
+    padding-inline: var(--spacing-16);
+  }
   .page {
     height: auto;
     overflow: visible;

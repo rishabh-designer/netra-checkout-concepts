@@ -55,27 +55,6 @@
   white-space: nowrap;
 }
 
-/* Same boxed 24px control as the Edit Details drawer (QuoteModal .ctrl). */
-.close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: var(--border-hairline) solid var(--color-card-recessed);
-  border-radius: var(--radius-6);
-  background: var(--color-card);
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.close:hover {
-  background: var(--color-brand-primary-subtle);
-  border-color: var(--color-brand-primary-border);
-}
-
 .content {
   flex: 1;
   min-height: 0;
@@ -94,16 +73,54 @@
   max-height: 100%;
 }
 
+/* Bottom sheet (mobile): from the screen's foot with 4 of scrim either side,
+   content height up to 85%, rounded on top only. */
+.overlay[data-placement="bottom"] {
+  align-items: flex-end;
+  justify-content: stretch;
+  padding: 0 var(--spacing-4);
+}
+
+.overlay[data-placement="bottom"] .drawer {
+  width: 100%;
+  height: auto;
+  max-height: 85%;
+  padding: var(--spacing-8) var(--spacing-16) var(--spacing-16);
+  border-radius: var(--radius-24) var(--radius-24) 0 0;
+}
+
+/* A bare sheet: its children draw the panel, flush to the edges. */
+.overlay[data-placement="bottom"] .drawer[data-bare] {
+  padding: 0;
+  max-height: 100%;
+}
+
+.overlay[data-placement="bottom"] .content {
+  overflow-y: auto;
+}
+
 .overlay[data-placement="center"] .content {
   overflow-y: auto;
 }
 
 @media (max-width: 700px) {
+  /* The floating drawer: 4 either side on phones, 16 above and below.
+     Centred popups keep 16 all round. */
   .overlay {
+    padding: var(--spacing-16) var(--spacing-4);
+  }
+  .overlay[data-placement="center"] {
     padding: var(--spacing-16);
   }
   .drawer {
     padding: var(--spacing-8) var(--spacing-16) var(--spacing-16);
+  }
+}
+
+/* Mobile: the drawer title at 28. */
+@media (max-width: 999px) {
+  .title {
+    font-size: var(--font-size-heading-md);
   }
 }
 

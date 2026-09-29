@@ -86,6 +86,49 @@
   position: relative;
 }
 
+/* Below web: the company name (and its placeholder) at 16 instead of the
+   hero field's 18, so the prompt fits a phone; the promo banner tightens
+   (8/12, r12) and stacks: the New badge with Know More top-right beside it,
+   then the label across the full width under both. */
+@media (max-width: 999px) {
+  .promoBanner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--spacing-6) var(--spacing-12);
+    padding: var(--spacing-8) var(--spacing-12);
+    border-radius: var(--radius-12);
+  }
+
+  /* Its badge and label join the banner's grid directly. */
+  .promoLeft {
+    display: contents;
+  }
+
+  .promoLeft > :first-child {
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .promoRight {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  .promoLabel {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    line-height: 1.3;
+    white-space: normal;
+  }
+
+  /* Tripled class: outranks the input's own `.field[data-size="lg"] .input`. */
+  .nameField.nameField.nameField input {
+    font-size: var(--font-size-200);
+  }
+}
+
 /* Know More popup body: intro, then the three things BimaNetra does, each
    on a soft lilac tile. */
 .knowMore {

@@ -2,6 +2,8 @@
 
 import { useId, useState } from "react";
 import styles from "./Disclaimer.module.css";
+import { Chevron } from "@/components/icons/Chevron";
+import { IconButton } from "@/components/ui/IconButton";
 
 export interface DisclaimerProps {
   title: string;
@@ -22,19 +24,9 @@ export function Disclaimer({ title, toggleLabel, paragraphs }: DisclaimerProps) 
     <section className={styles.wrap}>
       <div className={styles.head}>
         <h2 className={styles.title}>{title}</h2>
-        <button
-          type="button"
-          className={styles.toggle}
-          aria-expanded={open}
-          aria-controls={bodyId}
-          aria-label={toggleLabel}
-          data-tooltip={toggleLabel}
-          onClick={() => setOpen((o) => !o)}
-        >
-          <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden data-open={open || undefined}>
-            <path d="M2.25 4.125 6 7.875l3.75-3.75" stroke="var(--color-brand-primary-deep)" strokeWidth="1.24" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+        <IconButton size="sm" label={toggleLabel} open={open} aria-expanded={open} aria-controls={bodyId} onClick={() => setOpen((o) => !o)}>
+          <Chevron size={14} />
+        </IconButton>
       </div>
       {open && (
         <div id={bodyId} className={styles.body}>

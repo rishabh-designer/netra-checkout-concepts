@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { FeatureItem, FeatureTab, FeaturesDrawerContent, QuoteCardData } from "@/types/quotesPage";
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
 import { BadgeCheckIcon } from "@/components/icons/BadgeCheckIcon";
+import { CloseButton, IconButton } from "@/components/ui/IconButton";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { coverageChipLabel, lockBeam, type QuoteCardLabels } from "../QuoteCard";
 import cardStyles from "../QuoteCard/QuoteCard.module.css";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./FeaturesModal.module.css";
+import { Chevron } from "@/components/icons/Chevron";
+import { Button } from "@/components/ui/Button";
 
 export type QuoteTone = "gold" | "immediate" | "priced" | "quote";
 
@@ -30,27 +33,30 @@ export interface FeaturesModalProps {
   pager?: { index: number; total: number; onPrev: () => void; onNext: () => void };
 }
 
-function Chevron({ dir }: { dir: "left" | "right" }) {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <path d={dir === "left" ? "M10 4 6 8l4 4" : "M6 4l4 4-4 4"} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 /** The tabs a quote's own policy fills; the rest (territory, deductibles)
  *  are standard. */
 const POLICY_TABS = ["overview", "coverages", "exclusions"] as const;
 type PolicyTab = (typeof POLICY_TABS)[number];
 const isPolicyTab = (key: string): key is PolicyTab => (POLICY_TABS as readonly string[]).includes(key);
 
+/* Mobile (the stacked modal, ≤900px): the item markers drop to 14, with
+   their 14px headings (marker = label size). */
+const MOBILE_QUERY = "(max-width: 900px)";
+const subscribeMobile = (cb: () => void) => {
+  const mq = window.matchMedia(MOBILE_QUERY);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+const readMobile = () => window.matchMedia(MOBILE_QUERY).matches;
+
 /** Item marker per tab tone: blue tick (658:50478), red cross, purple dot. */
 function Marker({ tone, gold = false }: { tone: FeatureTab["tone"]; gold?: boolean }) {
+  const size = useSyncExternalStore(subscribeMobile, readMobile, () => false) ? 14 : 16;
   // The Gold Quote's ticks are BimaNetra's orange; every other quote's are blue.
-  if (tone === "covered") return <SquareCheckbox tone={gold ? "secondary" : "info"} state="checked" size={16} className={styles.marker} />;
+  if (tone === "covered") return <SquareCheckbox tone={gold ? "secondary" : "info"} state="checked" size={size} className={styles.marker} />;
   if (tone === "excluded") {
     return (
-      <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden className={styles.marker}>
+      <svg viewBox="0 0 16 16" width={size} height={size} fill="none" aria-hidden className={styles.marker}>
         <rect width="16" height="16" rx="4" fill="var(--color-error)" />
         <path d="m5.3 5.3 5.4 5.4m0-5.4-5.4 5.4" stroke="var(--color-label-inverse)" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
@@ -115,13 +121,30 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
   const filled = tone === "gold" || !!quote?.price;
   const [nameTop, nameBottom] = content.productName.split("\n");
 
+  // pagination (727:34231), chevrons only: each one's tooltip names the
+  // quote it goes to ("Quote 2 of 7"). In the summary's tag row on web; on
+  // mobile it moves up beside ×.
+  const pagerEl = pager && pager.total > 1 ? (
+    <div className={styles.pager}>
+      <IconButton size="sm" label={content.prevQuoteLabel} className={styles.pagerBtn} onClick={pager.onPrev} data-tooltip={tipFor((pager.index - 1 + pager.total) % pager.total)}>
+        <Chevron dir="left" size={12} />
+      </IconButton>
+      <IconButton size="sm" label={content.nextQuoteLabel} className={styles.pagerBtn} onClick={pager.onNext} data-tooltip={tipFor((pager.index + 1) % pager.total)}>
+        <Chevron dir="right" size={12} />
+      </IconButton>
+    </div>
+  ) : null;
+
+  // Mobile: a bottom sheet (its footer pinned) instead of the centred popup.
+  const mobile = useSyncExternalStore(subscribeMobile, readMobile, () => false);
+
   return (
     <SideDrawer
       open={open && !!quote}
       onClose={onClose}
       title={content.title}
       closeLabel={content.closeLabel}
-      placement="center"
+      placement={mobile ? "bottom" : "center"}
       bare
       width={1200}
       className={styles.shell}
@@ -140,12 +163,11 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
               </span>
             </>
           )}
-          <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={content.closeLabel} data-tooltip={content.closeLabel}>
-            {/* The drawers' close (SideDrawer): 24 square, 16 cross. */}
-            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-              <path d="M4 4l8 8M12 4l-8 8" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
+          {/* Top bar: × (top-right); on mobile the pager joins it, top-left. */}
+          <div className={styles.topBar}>
+            {pagerEl && <div className={styles.pagerTop}>{pagerEl}</div>}
+            <CloseButton ref={closeRef} label={content.closeLabel} className={styles.close} onClick={onClose} />
+          </div>
 
           {/* Summary card (658:50427) */}
           <aside className={styles.summary}>
@@ -154,16 +176,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                 <div className={styles.tagRow}>
                   {/* pagination (727:34231), chevrons only: each one's tooltip
                       names the quote it goes to ("Quote 2 of 7"). */}
-                  {pager && pager.total > 1 && (
-                    <div className={styles.pager}>
-                      <button type="button" className={styles.pagerBtn} onClick={pager.onPrev} aria-label={content.prevQuoteLabel} data-tooltip={tipFor((pager.index - 1 + pager.total) % pager.total)}>
-                        <Chevron dir="left" />
-                      </button>
-                      <button type="button" className={styles.pagerBtn} onClick={pager.onNext} aria-label={content.nextQuoteLabel} data-tooltip={tipFor((pager.index + 1) % pager.total)}>
-                        <Chevron dir="right" />
-                      </button>
-                    </div>
-                  )}
+                  {pagerEl && <div className={styles.pagerInCard}>{pagerEl}</div>}
                   {quote.territory && labels.territory && (
                     <span className={styles.tag} data-tone="territory" data-tooltip={labels.tips?.territory[quote.territory]}>
                       {labels.territory[quote.territory]}
@@ -277,16 +290,15 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                 <span className={styles.sumLabel}>{labels.sumInsured}</span>
                 <span className={styles.sumValue}>{quote.sumInsured}</span>
               </div>
-              <button
-                type="button"
-                className={filled ? styles.buttonFilled : styles.buttonOutline}
+              <Button
+                tone={!filled ? "outline" : tone === "gold" ? "secondary" : "primary"}
                 onClick={onSelect}
                 onMouseEnter={() => arrowRef.current?.startAnimation()}
                 onMouseLeave={() => arrowRef.current?.stopAnimation()}
               >
                 {quote.price ?? labels.getQuote}
                 <MoveRightIcon ref={arrowRef} size={16} loop className={styles.arrow} />
-              </button>
+              </Button>
             </div>
           </div>
         </div>

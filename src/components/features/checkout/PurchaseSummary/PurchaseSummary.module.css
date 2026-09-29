@@ -447,3 +447,116 @@
     opacity: 0.2;
   }
 }
+
+/*
+ * Compact (checkout's mobile footer, Figma 734:35562): 12 padding, r16; the
+ * title (18 SemiBold / 1.5) and pill on one line; the product name at 18
+ * with the icon hung off its row, right-aligned, its lower half tucked under
+ * the insurer box (the box paints over it); the insurer box 8 + 8 in, a 28
+ * logo and a 12 name; prices 12 in, a 14 title, rows 20 apart and groups 24.
+ */
+.card[data-compact] {
+  padding: var(--spacing-12);
+  border-radius: var(--radius-16);
+}
+
+.card[data-compact] .title {
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.card[data-compact] .product {
+  z-index: 0;
+}
+
+.card[data-compact] .productName {
+  font-size: var(--font-size-300);
+}
+
+/* 97.5 square, its top 7 below the name's, cut off where the insurer box
+   starts (16 under the name row). */
+.card[data-compact] .productIconCrop {
+  top: 7px;
+  right: 0;
+  bottom: calc(-1 * var(--spacing-16));
+  width: 97.5px;
+  height: auto;
+  z-index: -1;
+}
+
+.card[data-compact] .productIcon {
+  width: 97.5px;
+  height: 97.5px;
+}
+
+.card[data-compact] .insurer {
+  z-index: 1;
+  min-height: 0;
+  padding: var(--spacing-16);
+}
+
+.card[data-compact] .logo {
+  width: 43px;
+  height: 28px;
+}
+
+.card[data-compact] .vr {
+  margin: var(--spacing-4) 0;
+}
+
+.card[data-compact] .insurerName {
+  font-size: var(--font-size-75);
+}
+
+.card[data-compact] .prices {
+  gap: var(--spacing-16);
+  padding: var(--spacing-12);
+}
+
+.card[data-compact] .priceTitle {
+  font-size: var(--font-size-100);
+  line-height: 1;
+}
+
+.card[data-compact] .rows {
+  gap: 20px;
+}
+
+.card[data-compact] .row dt {
+  font-size: var(--font-size-75);
+}
+
+/* Rule 20 above the total and 20 under it. */
+.card[data-compact] .row[data-total] {
+  margin-top: 0;
+  padding-top: 20px;
+}
+
+/* The offer's rules sit 24 off the rows either side, 20 off its own line. */
+.card[data-compact] .row[data-offer] {
+  margin: var(--spacing-4) 0;
+  padding: 20px 0;
+}
+
+.card[data-compact] .row[data-final] dd {
+  font-size: var(--font-size-heading-md);
+  letter-spacing: -0.01em;
+}
+
+/* Compact: the beam follows the card's r16. */
+.beam[data-compact],
+.beam[data-compact] .beamRing {
+  border-radius: var(--radius-16);
+}
+
+.beam[data-compact] .beamGlow {
+  border-radius: calc(var(--radius-16) + 2px);
+}
+
+/* Mobile: the paid amount at 32. */
+@media (max-width: 999px) {
+  .paidAmount {
+    font-size: var(--font-size-heading-lg);
+    letter-spacing: -0.01em;
+  }
+}

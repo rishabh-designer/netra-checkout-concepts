@@ -111,64 +111,65 @@
   background: var(--color-card-sunken);
 }
 
-/* Compare Now (button/primary.fill): 16/28, 16px label + 16px arrow; Figma
-   r16, one step rounder. Disabled grey until enough quotes are picked. */
-.cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-16);
-  flex-shrink: 0;
-  padding: var(--spacing-16) 28px;
-  border: var(--border-hairline) solid var(--color-brand-primary);
-  border-radius: var(--radius-24);
-  background: var(--color-brand-primary);
-  font-size: var(--font-size-200);
-  font-weight: 600;
-  letter-spacing: var(--track-600);
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--color-label-inverse);
-  cursor: pointer;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+.hint {
+  display: none;
 }
 
-.cta:hover:not(:disabled) {
-  background: var(--color-brand-primary-hover);
-  box-shadow: var(--shadow-button-primary-hover);
-}
-
-.cta:disabled {
-  border-color: rgba(169, 172, 177, 0.6);
-  background: rgba(169, 172, 177, 0.24);
-  color: var(--color-label-hint);
-  cursor: not-allowed;
-}
-
-/* Narrow screens: tighter padding, the slots scroll if they must. */
+/* Mobile (layout after checkout-flow 115:28865): the hint top-right, the
+   three slots sharing the row, a hairline, then Compare Now full width. */
 @media (max-width: 760px) {
   .sheet {
     padding: var(--spacing-16);
+    border-radius: var(--radius-24) var(--radius-24) 0 0;
   }
-  .inner,
+  .hint {
+    display: block;
+    margin-bottom: var(--spacing-12);
+    font-size: var(--font-size-75);
+    font-weight: 500;
+    letter-spacing: var(--track-500);
+    line-height: 1.2;
+    text-align: right;
+    color: var(--color-label-secondary);
+  }
+  .inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-16);
+  }
   .slots {
-    gap: var(--spacing-12);
+    gap: var(--spacing-16);
+    padding-bottom: var(--spacing-16);
+    border-bottom: var(--border-hairline) solid var(--color-border-neutral);
   }
-  .slots {
-    overflow-x: auto;
-    padding-right: 10px;
-  }
-  .picked {
-    padding: var(--spacing-12) var(--spacing-16);
-  }
-  .picked,
-  .open {
-    min-width: 72px;
-  }
+  .divider,
   .ctaDivider {
     display: none;
   }
-  .cta {
-    padding: var(--spacing-12) var(--spacing-16);
+  .slot {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .picked,
+  .open {
+    width: 100%;
+    min-width: 0;
+  }
+  .picked {
+    padding: var(--spacing-12) var(--spacing-8);
+  }
+  .logo {
+    max-width: 100%;
+  }
+  .remove {
+    top: 0;
+    right: -6px;
+    translate: 0 -40%;
+  }
+  /* The shared Button, full width with 20 sides. Doubled: outranks its own
+     padding whatever order the modules load in. */
+  .cta.cta {
+    width: 100%;
+    padding: var(--spacing-16) var(--spacing-20);
   }
 }

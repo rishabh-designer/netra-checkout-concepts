@@ -19,6 +19,13 @@
   color: var(--color-label-basic);
 }
 
+/* Below web the question often wraps: 120% leading so its lines breathe. */
+@media (max-width: 999px) {
+  .label {
+    line-height: 1.2;
+  }
+}
+
 .req {
   color: var(--color-error);
 }

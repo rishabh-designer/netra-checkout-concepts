@@ -1,0 +1,127 @@
+/* footer.regular (734:35263): white, 0.5 subtle stroke, r24 on top, 24/12,
+   12 gap, a soft shadow cast upward. Pinned to the foot of the screen; open,
+   it grows up to just under the top edge and the summary scrolls. */
+.footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  max-height: calc(100dvh - var(--spacing-24));
+  padding: var(--spacing-24) var(--spacing-12) max(var(--spacing-24), env(safe-area-inset-bottom));
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-bottom: 0;
+  border-radius: var(--radius-24) var(--radius-24) 0 0;
+  background: var(--color-card);
+  box-shadow: var(--shadow-footer);
+}
+
+/* The clock row, 8 in from the right, is the toggle. */
+.toggle {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: 0 var(--spacing-8) 0 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--color-brand-primary-border);
+  outline-offset: 4px;
+  border-radius: var(--radius-8);
+}
+
+/* "Preparing Checkout" 14 SemiBold secondary (the time is hidden, as on web). */
+.preparing {
+  height: 24px;
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1;
+}
+
+.preparingLabel {
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  line-height: 1;
+  color: var(--color-label-secondary);
+}
+
+.rule {
+  flex-shrink: 0;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: var(--border-hairline) solid var(--color-divider);
+}
+
+/* The summary between the rule and the price row; scrolls if the screen is
+   short. It reaches 12 past the card on every side (the footer's padding
+   and gaps) so the beam's glow isn't clipped; the top margin cancels the
+   gap above even while it's still folded shut. */
+.summary {
+  flex: 0 1 auto;
+  min-height: 0;
+  margin: calc(-1 * var(--spacing-12)) calc(-1 * var(--spacing-12)) 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.summaryInner {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-12);
+}
+
+/* Open: the page behind blurs (the drawers' scrim, animated in the TSX). */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 19;
+}
+
+/* Price + CTA (734:35264), 16 apart. */
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--spacing-16);
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.totalLabel {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1;
+  color: var(--color-label-primary);
+}
+
+/* Final price: Instrument Serif italic 28, brand purple. */
+.price {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-heading-md);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--color-brand-primary);
+  white-space: nowrap;
+}
+
+.cta {
+  flex: 1;
+  min-width: 0;
+}

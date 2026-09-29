@@ -64,49 +64,21 @@
   outline-offset: 2px;
 }
 
-/* CTA (Figma 638:17439): 16/28, r16 → 24 (house rule), 16px label, 16px
-   arrow, 16 apart, sized to its label. */
-.cta {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-16);
-  padding: var(--spacing-16) var(--spacing-28);
-  border: var(--border-hairline) solid var(--color-brand-primary);
-  border-radius: var(--radius-24);
-  background: var(--color-brand-primary);
-  color: var(--color-label-inverse);
-  font-size: var(--font-size-200);
-  font-weight: 600;
-  letter-spacing: var(--track-600);
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.12s ease;
+/* Footer (checkout's mobile footer, 734:36135): 4/8 in, 6 gap, 14px Medium
+   on 1.4 in primary ink whatever the tone; a 12px box, 0.75 stroke, r4,
+   level with the first line. */
+.consent[data-variant="footer"] {
+  flex: none;
+  gap: var(--spacing-6);
+  padding: var(--spacing-4) var(--spacing-8);
+  font-size: var(--font-size-100);
+  color: var(--color-label-primary);
 }
 
-.cta:hover:not(:disabled) {
-  background: var(--color-brand-primary-hover);
-  box-shadow: var(--shadow-button-primary-hover);
-}
-
-.cta:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.cta:hover:not(:disabled) .ctaArrow {
-  transform: translateX(3px);
-}
-
-.ctaArrow {
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
-
-.cta:disabled {
-  border-color: var(--color-input-stroke);
-  background: var(--color-fill-disabled);
-  color: var(--color-label-disabled);
-  cursor: not-allowed;
+.consent[data-variant="footer"] .check {
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  border-width: 0.75px;
+  background-size: 8px;
 }

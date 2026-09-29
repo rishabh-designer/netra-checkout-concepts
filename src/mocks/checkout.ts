@@ -76,6 +76,7 @@ export const mockCheckoutContent: CheckoutContent = {
   backLabel: "Back to Quotes",
   backToStepLabel: "Back to {step}",
   preparingLabel: "Preparing Checkout",
+  footer: { totalLabel: "Total Cost:", showSummaryLabel: "Show Purchase Summary", hideSummaryLabel: "Hide Purchase Summary" },
   saveLabel: "Save & Continue",
   ctaBlocked: { fields: "Fill in the required fields first", consent: "Tick the box to confirm first" },
   verifyText: "I confirm these details are correct. The insurer issues my policy using them, so I have checked them carefully.",
@@ -159,6 +160,7 @@ export const mockCheckoutContent: CheckoutContent = {
         "I confirm all details provided are correct. I understand the broker is not responsible for policy creation errors, as this depends on the insurance company.",
       // `{price}` is the chosen quote's total (GST included).
       payLabel: "Pay {price}",
+      payNowLabel: "Pay Now",
       requestLabel: "Request Quote",
     },
   },

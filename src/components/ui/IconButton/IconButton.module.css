@@ -1,0 +1,64 @@
+/* chevron.controls (Figma r6 → 8, house rule): white, subtle hairline, the
+   glyph in secondary ink; lilac on hover. */
+.button {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
+  color: var(--color-label-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.button[data-size="sm"] {
+  width: 18px;
+  height: 18px;
+}
+
+.button:hover:not(:disabled, [data-box]) {
+  border-color: var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+  color: var(--color-brand-primary);
+}
+
+.button:disabled {
+  color: var(--color-label-disabled);
+  cursor: default;
+}
+
+/* A disclosure chevron turns over when open. */
+.button svg {
+  transition: transform var(--duration-flip) var(--ease-out);
+}
+
+.button[data-open] svg {
+  transform: rotate(180deg);
+}
+
+/* IconBox: the look only; the control around it takes the pointer. */
+.button[data-box] {
+  cursor: inherit;
+}
+
+.button[data-box]::after {
+  content: none;
+}
+
+/* Touch: 44 tall, and only 4 wider a side, so a pair of controls a few
+   pixels apart never overlap. */
+.button::after {
+  content: "";
+  position: absolute;
+  inset: -10px -4px;
+}
+
+.button[data-size="sm"]::after {
+  inset: -13px -4px;
+}

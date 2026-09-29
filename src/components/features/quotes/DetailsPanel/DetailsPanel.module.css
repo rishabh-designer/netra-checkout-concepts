@@ -209,11 +209,49 @@
 }
 
 @media (max-width: 1100px) {
+  /* Mobile: no padding of its own, 16 corners. */
   .panel {
     width: 100%;
     height: auto;
+    padding: 0;
+    border-radius: var(--radius-16);
   }
   .expanded {
     width: 100%;
+  }
+  /* Accordion: collapsing keeps the panel full width with just its header;
+     the details list folds shut and the banner below hides. No side rail. */
+  .panel[data-collapsed] {
+    width: 100%;
+  }
+  .panel[data-collapsed] .expanded {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .rail {
+    display: none;
+  }
+  .rows {
+    max-height: 640px;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+  }
+  .panel[data-collapsed] .rows {
+    max-height: 0;
+    opacity: 0;
+  }
+  /* Folded, the banner under the list (company, upgraded / no-records
+     note) goes too: only the header row remains. */
+  .panel[data-collapsed] .expanded > :not(.details) {
+    display: none;
+  }
+  /* …and the header's underline, with nothing under it to divide. */
+  .panel[data-collapsed] .head {
+    border-bottom-color: transparent;
+  }
+  /* Nothing under the header once folded, so no gap to it either. */
+  .panel[data-collapsed] .expanded,
+  .panel[data-collapsed] .details {
+    gap: 0;
   }
 }

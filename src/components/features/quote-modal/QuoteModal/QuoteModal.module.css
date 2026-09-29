@@ -79,6 +79,11 @@
   max-width: 100%;
 }
 
+/* The drawer's corners match the shared SideDrawer's (587:63839): r32. */
+.modalFormOnly {
+  border-radius: var(--radius-32);
+}
+
 /* title/nav + fields stack (Figma 503:14942): fills the space above the footer */
 .formStack {
   flex: 1;
@@ -103,20 +108,6 @@
   align-items: center;
   gap: var(--spacing-12);
   min-width: 0;
-}
-
-/* white boxed 24px icon control — back-chevron & close (Figma 306:5068) */
-.ctrl {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  background: var(--color-card);
-  border: var(--border-hairline) solid var(--color-card-recessed);
-  border-radius: var(--radius-6);
-  cursor: pointer;
 }
 
 .title {
@@ -222,32 +213,6 @@
 
 .rowMark {
   --ikkat-color: var(--color-brand-primary);
-}
-
-.submit {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-8);
-  width: 100%;
-  padding: var(--spacing-16) var(--spacing-28);
-  font-size: var(--font-size-200);
-  font-weight: 600;
-  letter-spacing: var(--track-600);
-  /* disabled = the neutral tertiary at Figma's fill/label/stroke alphas */
-  color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
-  background: color-mix(in srgb, var(--color-label-tertiary) 24%, transparent);
-  border: var(--border-hairline) solid var(--color-input-stroke);
-  border-radius: var(--radius-24);
-  cursor: not-allowed;
-  transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
-}
-
-.submitOn {
-  color: var(--color-label-inverse);
-  background: var(--color-brand-primary);
-  border-color: var(--color-brand-primary);
-  cursor: pointer;
 }
 
 .consent {
@@ -816,32 +781,212 @@
    off-screen). The form takes the height and scrolls its fields; the engine
    is capped below it and scrolls internally. */
 @media (max-width: 900px) {
-  .overlay,
-  .overlayDrawer {
-    padding: var(--spacing-16);
-  }
   .modal {
     flex-direction: column;
     width: 100%;
-  }
-  /* the drawer keeps hugging its 320 form panel on narrow screens */
-  .modalFormOnly {
-    width: max-content;
   }
   .left {
     order: 1;
     flex: 1 1 auto;
     width: 100%;
     height: auto;
+    /* 12 top, 16 sides and bottom on mobile (24 on web). */
+    padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
   }
+  /* The engine panel under the form is as short as it can be: just the
+     meter and the task in progress, sized to them, never scrolling (the
+     form above is the one scroll). The request bubble and BimaNetra's
+     message are web-only. */
   .rightGlow {
     order: 2;
-    flex: 0 1 auto;
-    max-height: 30%;
+    flex: none;
     width: 100%;
   }
   .right {
-    padding-top: var(--spacing-24);
+    flex: none;
+    padding: var(--spacing-12) var(--spacing-16);
+  }
+  .rightScroll,
+  .engine,
+  .engineRunner,
+  .taskList {
+    flex: none;
+    overflow: visible;
+  }
+  .engine {
+    gap: 0;
+  }
+  .engineRunner {
+    padding: 0;
+  }
+  .engineIntro {
+    display: none;
+  }
+  .modal {
+    position: relative;
+  }
+  /*
+   * The quote form as a bottom sheet (Figma 737:38615): full width from the
+   * foot of the screen, 40 of scrim above, r24 on top. One pinned header,
+   * the fields as the one scroll (a hairline under them), then the engine
+   * strip (status) right above Continue (the action it gates), pinned.
+   * .left dissolves (display: contents) so its header/fields and footer can
+   * sit either side of the engine strip. Edit Details (form-only) is the
+   * same sheet without the engine strip.
+   */
+  .overlay {
+    align-items: flex-end;
+    padding: var(--spacing-40) var(--spacing-4) 0;
+  }
+  .modal {
+    gap: var(--spacing-12);
+    height: 100%;
+    padding: var(--spacing-12);
+    border: var(--border-hairline) solid var(--color-border-subtle);
+    border-bottom: 0;
+    border-radius: var(--radius-24) var(--radius-24) 0 0;
+    background: var(--color-card);
+    box-shadow: var(--shadow-footer);
+  }
+  /* Four rows: header | fields (the one scroll) | engine strip | CTA. The
+     form's wrappers dissolve so all four sit in this grid. */
+  .modal {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+  }
+  .modal .left,
+  .modal .formStack {
+    display: contents;
+  }
+  /* One column for all, so the opened card can layer over the fields'
+     row (auto-placement would push it into a second column instead). */
+  .modal .header,
+  .modal .fields,
+  .modal .rightGlow,
+  .modal .actionRow {
+    grid-column: 1;
+  }
+  .modal .header {
+    grid-row: 1;
+    padding-top: var(--spacing-12);
+  }
+  .modal .fields {
+    grid-row: 2;
+    border-bottom: var(--border-hairline) solid var(--color-divider);
+  }
+  .modal .rightGlow {
+    grid-row: 3;
+  }
+  .modal .right {
+    padding: var(--spacing-8) var(--spacing-12);
+    border-radius: var(--radius-12);
+  }
+  .modal .actionRow {
+    grid-row: 4;
+    gap: var(--spacing-12);
+  }
+  /* A plain hairline (under the fields) replaces the ikkat bead rule. */
+  .modal .rowSep {
+    display: none;
+  }
+  /* Edit Details: header | fields | Save (no engine row). */
+  .modalFormOnly {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+  .modalFormOnly .actionRow {
+    grid-row: 3;
+  }
+  /* A drawer title, 28 on phones as on every other drawer. */
+  .modalFormOnly .title {
+    font-size: var(--font-size-heading-md);
+  }
+  /* The engine card open (Figma 738:38839 / 739:40166 / 739:40764; state
+     on the modal, data-engine): the header and CTA stay; the card grows up
+     from its folded height (--engine-from) into the fields' row, its meter
+     and tasks riding the top edge, while the fields slide down and fade
+     behind it. Closing plays it back. Slow and soft both ways: 600ms on
+     cubic-bezier(1, 0, 0, 1). "intro" arrives already open (no rise). */
+  .modal[data-engine="intro"] .rightGlow,
+  .modal[data-engine="open"] .rightGlow,
+  .modal[data-engine="closing"] .rightGlow {
+    position: relative;
+    z-index: 1;
+    grid-row: 2 / 4;
+    align-self: end;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--radius-12);
+  }
+  .modal[data-engine="open"] .rightGlow {
+    animation: engine-grow 0.6s cubic-bezier(1, 0, 0, 1);
+  }
+  .modal[data-engine="closing"] .rightGlow {
+    animation: engine-shrink 0.6s cubic-bezier(1, 0, 0, 1) forwards;
+  }
+  .modal[data-engine]:not([data-engine="closed"]) .right {
+    flex: 1;
+  }
+  .modal[data-engine]:not([data-engine="closed"]) .rightScroll {
+    flex: 1;
+    overflow: hidden auto;
+    scrollbar-width: none;
+  }
+  /* Open, the card tells the whole story: the request and BimaNetra's reply
+     (Profile), the meter, the task in progress, and the ones still to come
+     settled at its foot. */
+  .modal[data-engine]:not([data-engine="closed"]) .engine {
+    flex: 1;
+    gap: var(--spacing-12);
+  }
+  .modal[data-engine]:not([data-engine="closed"]) .engineIntro {
+    display: flex;
+    gap: var(--spacing-12);
+  }
+  .modal[data-engine]:not([data-engine="closed"]) .engineRunner,
+  .modal[data-engine]:not([data-engine="closed"]) .taskList {
+    flex: 1;
+  }
+  .modal[data-engine]:not([data-engine="closed"]) .taskPending {
+    display: flex;
+  }
+  .modal[data-engine]:not([data-engine="closed"]) .taskActiveRow + .taskPending {
+    margin-top: auto;
+  }
+  .modal[data-engine="intro"] .fields,
+  .modal[data-engine="open"] .fields {
+    pointer-events: none;
+    animation: fields-away 0.6s cubic-bezier(1, 0, 0, 1) forwards;
+  }
+  .modal[data-engine="intro"] .fields {
+    animation-duration: 0s;
+  }
+  .modal[data-engine="closing"] .fields {
+    animation: fields-back 0.6s cubic-bezier(1, 0, 0, 1) forwards;
+  }
+  /* Closing the intro: the request and reply fold up out of the card as it
+     shrinks, so the meter lands where the strip keeps it. */
+  .modal[data-engine="closing"] .engineIntro {
+    animation: intro-fold 0.6s cubic-bezier(1, 0, 0, 1) forwards;
+  }
+  /* The title and step pills stack here, so × pins to the top-right
+     instead of centring on the pair. */
+  .header {
+    align-items: flex-start;
+  }
+  /* The step pills always take their own line under the title (Profile
+     included, so the header doesn't reflow when Back appears). */
+  .headerLead {
+    flex-wrap: wrap;
+  }
+  .headerLead .stepRow {
+    flex-basis: 100%;
+  }
+  /* The engine panel (under the form) shows only the meter and the task in
+     progress; the done and upcoming tasks fold away. */
+  .taskDone,
+  .taskPending {
+    display: none;
   }
 }
 
@@ -849,3 +994,39 @@
 .titleFill {
   cursor: pointer;
 }
+
+/* Mobile sheet task card: from / back to its folded height. */
+@keyframes engine-grow {
+  from {
+    height: var(--engine-from, 74px);
+  }
+}
+
+@keyframes engine-shrink {
+  to {
+    height: var(--engine-from, 74px);
+  }
+}
+
+@keyframes intro-fold {
+  to {
+    margin-top: calc(-1 * var(--intro-fold, 0px));
+    opacity: 0;
+  }
+}
+
+/* The fields behind it: down and out, then back up. */
+@keyframes fields-away {
+  to {
+    transform: translateY(48px);
+    opacity: 0;
+  }
+}
+
+@keyframes fields-back {
+  from {
+    transform: translateY(48px);
+    opacity: 0;
+  }
+}
+

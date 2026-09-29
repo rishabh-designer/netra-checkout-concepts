@@ -78,3 +78,19 @@
   opacity: 0.35;
   pointer-events: none;
 }
+
+/* Mobile: the notice banner's copy at 12; the section runs to the page's
+   16 gutter (no side padding of its own), its title stacked over the switch. */
+@media (max-width: 999px) {
+  .banner {
+    font-size: var(--font-size-75);
+  }
+  .body {
+    padding-inline: 0;
+  }
+  /* The section title over the "Buy in Another Person's Name" switch. */
+  .section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

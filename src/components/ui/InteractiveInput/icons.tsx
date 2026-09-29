@@ -1,4 +1,5 @@
 import styles from "./icons.module.css";
+import { Chevron } from "@/components/icons/Chevron";
 
 /**
  * Shared field icons for the Peetal DSL input components (InteractiveInput,
@@ -132,9 +133,7 @@ export function Clear() {
 /** Chevron for a select control. */
 export function ChevronDown({ size = 14, color = "var(--color-label-tertiary)" }: { size?: number; color?: string }) {
   return (
-    <svg viewBox="0 0 16 16" width={size} height={size} fill="none" aria-hidden>
-      <path d="m4 6 4 4 4-4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <Chevron size={size} color={color} />
   );
 }
 

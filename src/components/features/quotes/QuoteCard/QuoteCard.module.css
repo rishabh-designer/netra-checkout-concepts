@@ -181,10 +181,42 @@
   height: 130px;
 }
 
-/* Every card but the Gold Quote: the mark drops its colour (luminosity
-   blend), so only Gold keeps the warm orange. */
-.card:not([data-tone="gold"]) .mark {
+/* The mark keeps its warm orange on the Gold Quote and Immediate Purchase
+   cards, at rest and shimmering; every other card drops its colour
+   (luminosity blend). */
+.card:not([data-tone="gold"]):not([data-tone="immediate"]) .mark,
+.card:not([data-tone="gold"]):not([data-tone="immediate"]) .markShine {
   mix-blend-mode: luminosity;
+}
+
+/* Hover shimmer (DitherImage over the mark): fades in with the hover and
+   out before it unmounts. In the mark's own colour on the Gold Quote and
+   Immediate Purchase cards; monochrome on the rest. */
+.markShine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: mark-shine-in 0.28s ease both;
+}
+
+.card:not([data-tone="gold"]):not([data-tone="immediate"]) .markShine {
+  filter: grayscale(1);
+}
+
+.markShineOut {
+  animation: mark-shine-out 0.28s ease both;
+}
+
+@keyframes mark-shine-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes mark-shine-out {
+  to {
+    opacity: 0;
+  }
 }
 
 /* Tags hang off the top edge, right-aligned, 8 apart. */

@@ -4,6 +4,7 @@ import type { CheckoutSuccessContent } from "@/types/checkout";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { RiskLetterPreview } from "../RiskLetterPreview";
 import styles from "./RiskHeldModal.module.css";
+import { Button } from "@/components/ui/Button";
 
 export interface RiskHeldModalProps {
   open: boolean;
@@ -35,12 +36,12 @@ export function RiskHeldModal({ open, content, onDownload, onWhatsApp, company }
           <p className={styles.body}>{content.body}</p>
         </div>
         <div className={styles.actions}>
-          <button type="button" className={styles.secondary} onClick={onDownload}>
+          <Button tone="outline" onClick={onDownload}>
             {content.downloadLabel}
-          </button>
-          <button type="button" className={styles.primary} onClick={onWhatsApp}>
+          </Button>
+          <Button onClick={onWhatsApp}>
             {content.whatsappLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </SideDrawer>

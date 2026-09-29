@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { useStream } from "@/lib/useStream";
 import { cn, formatPhone } from "@/lib/utils";
@@ -13,6 +13,7 @@ import { InteractiveInput, type FieldStatus } from "@/components/ui/InteractiveI
 import { SegmentedField } from "@/components/ui/SegmentedField";
 import { AgentProgress } from "@/components/ui/AgentProgress";
 import { completionsFor } from "@/lib/completions";
+import { CloseButton, IconButton } from "@/components/ui/IconButton";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { FilledCheck, ChevronDown, SearchIcon } from "@/components/ui/InteractiveInput/icons";
 import type {
@@ -29,6 +30,8 @@ import { ResearchSources } from "../ResearchSources";
 import { useDemoNotice } from "@/lib/demo-notice";
 import { useFieldTip } from "@/lib/field-tips";
 import styles from "./QuoteModal.module.css";
+import { Chevron } from "@/components/icons/Chevron";
+import { Button } from "@/components/ui/Button";
 
 /** Research timeline per probed step (one clock, useResearchTimeline): the
  *  query types in, Agent Progress + the sources scan for PROBE_MS, the
@@ -47,6 +50,16 @@ export type QuoteCaseId = "A" | "B" | "C";
    panel spring, strong ease-out, and the blurred cross-fade between views. */
 const MORPH_EASE = [0.16, 1, 0.3, 1] as const;
 const MORPH_SPRING = { type: "spring", stiffness: 420, damping: 40, mass: 0.5 } as const;
+
+// Phones (≤900): the form is a bottom sheet (Figma 737:38615) that rises
+// from the screen's foot and drops back down, rather than popping in.
+const SHEET_QUERY = "(max-width: 900px)";
+const subscribeSheet = (cb: () => void) => {
+  const mq = window.matchMedia(SHEET_QUERY);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+const readSheet = () => window.matchMedia(SHEET_QUERY).matches;
 function morphView(reduced: boolean | null) {
   return reduced
     ? {
@@ -91,6 +104,10 @@ export interface QuoteModalProps {
   /** Page drawn behind the lightbox while the (non-drawer) modal is open —
    *  e.g. the Quotes page skeleton, so results read as loading behind it. */
   backdrop?: ReactNode;
+  /** The terminal CTA was pressed and the Quotes page is on its way: the
+   *  modal leaves but the backdrop (the Quotes skeleton) stays up until the
+   *  route swaps, so the page under it never shows through. */
+  handingOff?: boolean;
 }
 
 /**
@@ -113,8 +130,45 @@ export function QuoteModal({
   initialValues,
   onComplete,
   backdrop,
+  handingOff = false,
 }: QuoteModalProps) {
   const reduced = useReducedMotion();
+  const sheet = useSyncExternalStore(subscribeSheet, readSheet, () => false);
+  // Mobile sheet's engine card: "intro" (open on arrival, no rise), "open",
+  // "closing" (shrinking back), "closed" (the strip over Continue).
+  const [engineState, setEngineState] = useState<"closed" | "intro" | "open" | "closing">("closed");
+  const glowRef = useRef<HTMLDivElement>(null);
+  // Opened by the choreography (not the user): closes itself on the verdict.
+  const autoOpenRef = useRef(false);
+  const openEngine = (auto: boolean) => {
+    const glow = glowRef.current;
+    if (glow) glow.style.setProperty("--engine-from", `${glow.offsetHeight}px`);
+    autoOpenRef.current = auto;
+    setEngineState("open");
+  };
+  // Before closing, lay the card out closed for a moment (no paint in
+  // between) to read the strip's height, which it shrinks onto, and how far
+  // the meter sits below where the strip keeps it. The intro folds up by that
+  // much as the card shrinks, so the meter rides the top edge down and
+  // nothing jumps once it's closed.
+  const measureFold = () => {
+    const glow = glowRef.current;
+    const modal = glow?.closest<HTMLElement>("[data-engine]");
+    const meter = glow?.querySelector<HTMLElement>(`.${styles.meterRow}`);
+    if (!glow || !modal) return;
+    const meterTop = () => (meter ? meter.getBoundingClientRect().top - glow.getBoundingClientRect().top : 0);
+    const openTop = meterTop();
+    const prev = modal.dataset.engine;
+    modal.dataset.engine = "closed";
+    glow.style.setProperty("--engine-from", `${glow.offsetHeight}px`);
+    glow.style.setProperty("--intro-fold", `${Math.max(0, openTop - meterTop())}px`);
+    modal.dataset.engine = prev;
+  };
+  const closeEngine = () => {
+    autoOpenRef.current = false;
+    measureFold();
+    setEngineState((s) => (s === "open" || s === "intro" ? (reduced ? "closed" : "closing") : s));
+  };
 
   const [stepIndex, setStepIndex] = useState(0);
   const step = content.steps[stepIndex];
@@ -178,6 +232,65 @@ export function QuoteModal({
   useEffect(() => {
     if (tl.done && !step.collectMode) probedRef.current.add(stepIndex);
   }, [tl.done, stepIndex, step.collectMode]);
+
+  // Mobile sheet choreography (Figma 739:40166 → 739:40764). Profile opens
+  // with the engine card up (the introduction: what BimaNetra is doing) and it
+  // settles down once the reply has typed. On a researched step with data
+  // (Cases A and B) the form visibly moves on, the card rises a beat later to
+  // show the research, and closes onto the filled fields when it's done.
+  // Revisited steps, Case C and reduced motion stay at rest.
+  const introSeenRef = useRef(false);
+  const autoResearch = !!qc.search.body && !!content.engine.tasks[stepIndex]?.hasSearch && !instant;
+  useEffect(() => {
+    autoOpenRef.current = false;
+    /* eslint-disable react-hooks/set-state-in-effect -- the card follows the step */
+    if (!open || !sheet || formOnly || reduced) {
+      if (!open) introSeenRef.current = false;
+      setEngineState("closed");
+      return;
+    }
+    // Marked seen only once it plays out (onReplyDone), so re-running this
+    // (Strict Mode, or a re-render) never cuts the intro short.
+    if (stepIndex === 0) {
+      setEngineState(introSeenRef.current ? "closed" : "intro");
+      return;
+    }
+    setEngineState("closed");
+    /* eslint-enable react-hooks/set-state-in-effect */
+    if (!autoResearch) return;
+    const id = window.setTimeout(() => openEngine(true), AUTO_OPEN_MS);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- per step / open
+  }, [open, stepIndex, sheet]);
+  // The research has landed: linger on the verdict, then close onto the form.
+  useEffect(() => {
+    if (!tl.done || engineState !== "open" || !autoOpenRef.current) return;
+    const id = window.setTimeout(closeEngine, RESULT_HOLD_MS);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tl.done, engineState]);
+  // Closing plays out, then the card is back to the strip.
+  useEffect(() => {
+    if (engineState !== "closing") return;
+    const id = window.setTimeout(() => setEngineState("closed"), ENGINE_MS);
+    return () => window.clearTimeout(id);
+  }, [engineState]);
+  const onReplyDone = () => {
+    if (!sheet) return;
+    window.setTimeout(() => {
+      introSeenRef.current = true;
+      measureFold();
+      setEngineState((s) => (s === "intro" ? "closing" : s));
+    }, INTRO_HOLD_MS);
+  };
+  function toggleEngine() {
+    if (engineState === "closed") openEngine(false);
+    else if (engineState !== "closing") closeEngine();
+  }
+  const engineSheet: EngineSheet | undefined =
+    sheet && !formOnly
+      ? { expanded: engineState !== "closed", closing: engineState === "closing", toggle: toggleEngine }
+      : undefined;
 
   useEffect(() => {
     if (!open) return;
@@ -276,7 +389,7 @@ export function QuoteModal({
 
   return (
     <AnimatePresence>
-      {open && backdrop && !formOnly && (
+      {(open || handingOff) && backdrop && !formOnly && (
         <motion.div
           key="backdrop"
           className={styles.backdrop}
@@ -313,20 +426,29 @@ export function QuoteModal({
         >
           <motion.div
             className={cn(styles.modal, formOnly && styles.modalFormOnly)}
+            data-engine={engineSheet ? engineState : undefined}
             role="dialog"
             aria-modal="true"
             aria-label={formOnly ? content.editTitle : step.title}
             onClick={(e) => e.stopPropagation()}
             // Drawer slides in from the left edge past its 32px gutter
-            // (Figma 514:19015); the centred modal rises and fades.
-            {...(formOnly
+            // (Figma 514:19015); on phones it rises as the form's sheet does.
+            // The centred modal rises and fades.
+            {...(formOnly && !sheet
               ? {
                   initial: { x: reduced ? 0 : "calc(-100% - 32px)" },
                   animate: { x: 0 },
                   exit: { x: reduced ? 0 : "calc(-100% - 32px)" },
                   transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
                 }
-              : {
+              : sheet
+                ? {
+                    initial: { y: reduced ? 0 : "100%" },
+                    animate: { y: 0 },
+                    exit: { y: reduced ? 0 : "100%", transition: { duration: 0.28, ease: [0.4, 0, 1, 1] } },
+                    transition: { duration: 0.45, ease: MORPH_EASE },
+                  }
+                : {
                   // Morphing Modal (beui.dev): the panel springs up from 20px
                   // below at 97% scale, and leaves quickly.
                   initial: { y: reduced ? 0 : 20, scale: reduced ? 1 : 0.97, opacity: 0 },
@@ -350,9 +472,9 @@ export function QuoteModal({
                 <header className={styles.header}>
                   <div className={styles.headerLead}>
                     {stepIndex > 0 && !formOnly && (
-                      <button type="button" className={styles.ctrl} aria-label="Back" data-tooltip="Back" onClick={handleBack}>
+                      <IconButton label="Back" onClick={handleBack}>
                         <ChevronLeft />
-                      </button>
+                      </IconButton>
                     )}
                     {/* The title mirrors the current step's pill label.
                         Hidden demo shortcut: on a step whose case has
@@ -375,15 +497,7 @@ export function QuoteModal({
                       </>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    className={styles.ctrl}
-                    aria-label="Close"
-                    data-tooltip="Close"
-                    onClick={onClose}
-                  >
-                    <HeaderClose />
-                  </button>
+                  <CloseButton label="Close" onClick={onClose} />
                 </header>
 
                 <AnimatePresence mode="wait" initial={false}>
@@ -435,9 +549,9 @@ export function QuoteModal({
                     <span>{qc.consentText}</span>
                   </label>
                 )}
-                <button
-                  type="button"
-                  className={cn(styles.submit, canSubmit && styles.submitOn)}
+                <Button
+                  arrow
+                  block
                   disabled={!canSubmit}
                   data-tooltip={
                     canSubmit
@@ -450,16 +564,15 @@ export function QuoteModal({
                   }
                   onClick={handleSubmit}
                 >
-                  <span>{formOnly ? content.saveLabel : stepIndex < lastStep ? content.continueLabel : content.ctaLabel}</span>
-                  <Arrow />
-                </button>
+                  {formOnly ? content.saveLabel : stepIndex < lastStep ? content.continueLabel : content.ctaLabel}
+                </Button>
               </div>
             </div>
 
             {/* Left visual — the persistent "Intelligence Engine" task-runner.
                 Hidden in form-only (Edit Details) mode. */}
             {!formOnly && (
-              <div className={styles.rightGlow}>
+              <div ref={glowRef} className={styles.rightGlow}>
                 <div className={styles.right}>
                   <div className={styles.rightScroll}>
                     <IntelligenceEngine
@@ -473,6 +586,8 @@ export function QuoteModal({
                       search={qc.search}
                       activeTab={step.activeTab}
                       reduced={!!reduced}
+                      sheet={engineSheet}
+                      onReplyDone={onReplyDone}
                     />
                   </div>
                 </div>
@@ -847,6 +962,8 @@ function IntelligenceEngine({
   search,
   activeTab,
   reduced,
+  sheet,
+  onReplyDone,
 }: {
   engine: IntelligenceEngineContent;
   stepIndex: number;
@@ -860,6 +977,9 @@ function IntelligenceEngine({
   search: QuoteSearchPanel;
   activeTab: string;
   reduced: boolean;
+  sheet?: EngineSheet;
+  /** BimaNetra's intro message has finished typing. */
+  onReplyDone?: () => void;
 }) {
   const message = engine.messageTemplate.replace("{company}", companyName || "your company");
   const request = engine.requestLabel.replace("{company}", companyName || "your company");
@@ -867,6 +987,10 @@ function IntelligenceEngine({
   // in brand purple (its own piece, so it's coloured as it types).
   const [replyBefore, replyAfter = ""] = engine.messageTemplate.split("{company}");
   const reply = useStream([replyBefore, companyName || "your company", replyAfter]);
+  useEffect(() => {
+    if (reply.done) onReplyDone?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per reply
+  }, [reply.done]);
   return (
     <motion.div
       className={styles.engine}
@@ -975,6 +1099,7 @@ function IntelligenceEngine({
               activeTab={activeTab}
               companyName={companyName}
               reduced={reduced}
+              sheet={sheet}
             />
           ))}
         </motion.ol>
@@ -985,7 +1110,25 @@ function IntelligenceEngine({
   );
 }
 
+/** Mobile sheet: the engine card opens and closes slowly and softly
+ *  (CSS engine-grow / engine-shrink, 600ms on cubic-bezier(1, 0, 0, 1)). */
+const ENGINE_MS = 600;
+/** The Profile intro holds this long after BimaNetra's message has typed. */
+const INTRO_HOLD_MS = 900;
+/** A beat after a step changes (the form visibly moves) before the card opens. */
+const AUTO_OPEN_MS = 450;
+/** The card lingers on the verdict before closing onto the filled form. */
+const RESULT_HOLD_MS = 900;
+
+/** The mobile sheet's engine card, as TaskRow sees it. */
+interface EngineSheet {
+  expanded: boolean;
+  closing: boolean;
+  toggle: () => void;
+}
+
 function TaskRow({
+  sheet,
   task,
   state,
   profileComplete,
@@ -1003,10 +1146,17 @@ function TaskRow({
   activeTab: string;
   companyName: string;
   reduced: boolean;
+  /** Mobile sheet: the engine card's state, owned by the modal. */
+  sheet?: EngineSheet;
 }) {
-  // Active task with an embedded search is a real accordion — open by default,
-  // collapsible via its head. Hook stays above the done/pending early returns.
-  const [expanded, setExpanded] = useState(true);
+  // Active task with an embedded search is a real accordion — open by default
+  // on web; collapsible via its head. On the mobile sheet the modal drives it
+  // (`sheet`: the engine card's open / closing state and its toggle). Hooks
+  // stay above the done/pending early returns.
+  const [localExpanded, setLocalExpanded] = useState(true);
+  const expanded = sheet ? sheet.expanded : localExpanded;
+  const closing = sheet?.closing ?? false;
+  const toggle = () => (sheet ? sheet.toggle() : setLocalExpanded((v) => !v));
 
   // Position-only layout: rows slide to their new spot without Motion scaling
   // them (full `layout` scale-warps the label and lurches the column). The one
@@ -1055,8 +1205,9 @@ function TaskRow({
         <button
           type="button"
           className={cn(styles.taskHead, styles.taskHeadButton)}
-          onClick={() => setExpanded((v) => !v)}
+          onClick={toggle}
           aria-expanded={expanded}
+          data-closing={closing || undefined}
         >
           <RingSweep />
           <AITextLoading text={label} className={styles.taskActiveLabel} />
@@ -1084,7 +1235,7 @@ function TaskRow({
               className={styles.taskBody}
               initial={reduced ? false : { opacity: 0 }}
               animate={{ opacity: 1, transition: { duration: reduced ? 0 : 0.2 } }}
-              exit={{ opacity: 0, transition: { duration: reduced ? 0 : 0.2 } }}
+              exit={{ opacity: 0, transition: { duration: reduced || closing ? 0 : 0.2 } }}
             >
               {/* The body's height is layout-driven (it fills the active row, Figma
                   503:13700), so the reveal is a content fade rather than a height
@@ -1096,7 +1247,7 @@ function TaskRow({
                   opacity: 1,
                   transition: { duration: reduced ? 0 : 0.28, delay: reduced ? 0 : 0.12, ease: [0.4, 0, 0.2, 1] },
                 }}
-                exit={reduced ? { opacity: 0 } : { opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 0.2, 1] } }}
+                exit={reduced || closing ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 0.2, 1] } }}
               >
                 <SearchResult
                   compact
@@ -1162,11 +1313,7 @@ function StepPills({ steps, active }: { steps: string[]; active: number }) {
 
 /* Header back-chevron (Figma 306:5068, 16px in a 24px box, hint grey #6f7378). */
 function ChevronLeft() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <path d="M10 12 6 8l4-4" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+  return <Chevron dir="left" />;
 }
 
 /* 4px status dot in a 4px box: purple (current), green (done), muted grey (upcoming). */
@@ -1194,22 +1341,8 @@ function splitHighlight(sentence: string, highlight: string): [string, string, s
 /* ---- inline icons ---- (status roundels/affordances now live in
    ui/InteractiveInput/icons; FilledCheck, ChevronDown, SearchIcon imported above) */
 
-/* Header close X (Figma 306:5068, 16px in a 24px box, hint grey #6f7378). */
-function HeaderClose() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <path d="M4 4l8 8M12 4l-8 8" stroke="var(--color-label-secondary)" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
 
-function Arrow() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden>
-      <path d="M5 12h13m-5-5 5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
+
 
 /** Neutral "i" for the no-records readout (a tick would read as success). */
 function InfoDot() {

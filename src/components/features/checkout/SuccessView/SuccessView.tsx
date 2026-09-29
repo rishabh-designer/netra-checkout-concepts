@@ -14,6 +14,8 @@ import { BadgeCheckIcon, type BadgeCheckIconHandle } from "@/components/icons/Ba
 import { DitherBurst } from "@/components/ui/DitherBurst";
 import { Toast } from "@/components/ui/Toast";
 import { useCheckoutClock } from "../useCheckoutClock";
+import { useCheckoutMobile } from "../useCheckoutMobile";
+import { CheckoutFooter } from "../CheckoutFooter";
 import { PurchaseSummary } from "../PurchaseSummary";
 import { Disclaimer } from "../Disclaimer";
 import { SuccessTimeline, type SuccessTimelineItem } from "../SuccessTimeline";
@@ -23,6 +25,7 @@ import { SuccessBadge } from "../SuccessBadge";
 import { RiskHeldModal } from "../RiskHeldModal";
 import { readOrder, type PaidOrder } from "../order";
 import styles from "./SuccessView.module.css";
+import { Button } from "@/components/ui/Button";
 
 export interface SuccessViewProps {
   content: CheckoutContent;
@@ -79,6 +82,7 @@ export function SuccessView(props: SuccessViewProps) {
 
 function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps) {
   const reduced = useReducedMotion();
+  const mobile = useCheckoutMobile();
   const s = content.success;
   const { result, selectedQuote, checkout } = useQuoteFlow();
   const quote = selectedQuote ?? fallbackQuote;
@@ -185,7 +189,8 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
         logoHref={quotesHref}
         variant="outline"
         onCta={() => notify("contactSupport")}
-        leadCta={{ label: s.signLabel, onClick: sign }}
+        // Mobile: Sign Mandate Letter moves to a footer (735:36146).
+        leadCta={mobile ? undefined : { label: s.signLabel, onClick: sign }}
         icon={<span className={styles.headset} style={{ "--icon": `url(${content.header.supportIconSrc})` } as CSSProperties} aria-hidden />}
       />
 
@@ -253,12 +258,9 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                   {!s.hideNextUp && (
                     <motion.div className={styles.next} {...rise(1.25)}>
                       <p className={styles.nextText}>{s.nextUp}</p>
-                      <button type="button" className={styles.nextCta} onClick={sign}>
+                      <Button arrow onClick={sign}>
                         {s.signLabel}
-                        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-                          <path d="M2.5 8h11M9.5 4l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </button>
+                      </Button>
                     </motion.div>
                   )}
                 </main>
@@ -302,6 +304,8 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
           )}
         </AnimatePresence>
       </div>
+
+      {mobile && <CheckoutFooter cta={{ label: s.signLabel, enabled: true, onClick: sign }} />}
 
       <RiskHeldModal
         open={riskHeld}

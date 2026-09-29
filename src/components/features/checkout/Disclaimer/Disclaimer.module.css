@@ -21,34 +21,6 @@
   color: var(--color-brand-primary-muted);
 }
 
-/* 28px boxed chevron (r8 → 12, house rule). */
-.toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid var(--color-brand-primary-border);
-  border-radius: var(--radius-12);
-  background: var(--color-card-sunken);
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.toggle:hover {
-  background: var(--color-brand-primary-subtle);
-}
-
-/* Chevron points down while collapsed, flips up once open. */
-.toggle svg {
-  transition: transform 0.2s ease;
-}
-
-.toggle svg[data-open] {
-  transform: rotate(180deg);
-}
-
 .body {
   display: flex;
   flex-direction: column;

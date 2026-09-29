@@ -4,6 +4,7 @@ import { Fragment } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { QuoteCardData, QuotesFeedContent } from "@/types/quotesPage";
 import styles from "./CompareSheet.module.css";
+import { Button } from "@/components/ui/Button";
 
 export interface CompareSheetProps {
   content: QuotesFeedContent["compareSheet"];
@@ -39,6 +40,8 @@ export function CompareSheet({ content, picked, onRemove, onCompare }: CompareSh
           exit={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         >
+          {/* Mobile: the "pick at least 2" hint sits over the slots. */}
+          {!ready && <p className={styles.hint}>{content.minTip}</p>}
           <div className={styles.inner}>
             <ul className={styles.slots}>
               {slots.map((q, i) => (
@@ -75,12 +78,9 @@ export function CompareSheet({ content, picked, onRemove, onCompare }: CompareSh
               ))}
             </ul>
             <span className={styles.ctaDivider} aria-hidden />
-            <button type="button" className={styles.cta} disabled={!ready} data-tooltip={ready ? undefined : content.minTip} onClick={ready ? onCompare : undefined}>
+            <Button arrow className={styles.cta} disabled={!ready} blockedTip={content.minTip} onClick={ready ? onCompare : undefined}>
               {content.ctaLabel}
-              <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-                <path d="M2.5 8h11M9.5 4l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
+            </Button>
           </div>
         </motion.section>
       )}

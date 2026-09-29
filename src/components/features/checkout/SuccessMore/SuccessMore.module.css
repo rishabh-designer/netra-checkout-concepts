@@ -255,3 +255,11 @@
 }
 
 
+
+/* Mobile: the manager's note and the product names at 14. */
+@media (max-width: 999px) {
+  .rmBody,
+  .cardName {
+    font-size: var(--font-size-100);
+  }
+}

@@ -94,9 +94,16 @@
   --spacing-48: 48px;
   --spacing-64: 64px;
 
+  /* motion: one curve per job (lib/motion.ts mirrors these for Motion) */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* things arriving, and flips */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1); /* scrims, fades */
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1); /* height tweens */
+  --duration-flip: 0.25s; /* a chevron turning over */
+
   /* shadows */
   --shadow-raised: 0 0 12px rgba(169, 172, 177, 0.24);
   --shadow-raised-wide: 0 0 24px rgba(169, 172, 177, 0.24); /* Focus lead form */
+  --shadow-footer: 0 -12px 16px rgba(169, 172, 177, 0.24); /* Checkout's mobile footer */
   --shadow-ghost-glow: inset 0 0 24px rgba(255, 119, 0, 0.08);
   --shadow-card-hover: 0 0 12px rgba(169, 172, 177, 0.6);
   --shadow-button-primary-hover: 0 0 16px rgba(65, 0, 207, 0.48);

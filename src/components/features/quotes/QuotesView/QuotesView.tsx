@@ -62,7 +62,16 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
     [content.feed, values],
   );
   const caseId = result?.caseId;
-  const [detailsCollapsed, setDetailsCollapsed] = useState(false);
+  // Mobile (the stacked page, ≤1100px): Your Details starts folded shut. Read
+  // up front (this screen is client-only), so neither the skeleton nor the
+  // panel paints open first.
+  const [detailsCollapsed, setDetailsCollapsed] = useState(() => {
+    try {
+      return window.matchMedia("(max-width: 1100px)").matches;
+    } catch {
+      return false;
+    }
+  });
   const [editOpen, setEditOpen] = useState(false);
   // Bumped on each Edit Details save → re-runs the loading skeleton.
   const [loadKey, setLoadKey] = useState(0);

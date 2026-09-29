@@ -11,6 +11,7 @@ import { useQuoteFlow } from "@/lib/quote-flow";
 import { useDemoNotice } from "@/lib/demo-notice";
 import { useCheckout } from "../useCheckout";
 import { useCheckoutClock } from "../useCheckoutClock";
+import { useCheckoutMobile } from "../useCheckoutMobile";
 import { CheckoutStepper } from "../CheckoutStepper";
 import { FormCard } from "../FormCard";
 import { StepForm } from "../StepForm";
@@ -18,9 +19,11 @@ import { ReviewStep } from "../ReviewStep";
 import { StepActions } from "../StepActions";
 import { CheckoutEditDrawer } from "../CheckoutEditDrawer";
 import { PurchaseSummary } from "../PurchaseSummary";
+import { CheckoutFooter } from "../CheckoutFooter";
 import { Disclaimer } from "../Disclaimer";
 import { readLastCheckout, writeLastCheckout } from "../lastStep";
 import { writeOrder } from "../order";
+import { formatInr, splitPrice } from "@/lib/checkout";
 import { BackButton } from "@/components/ui/BackButton";
 import styles from "./CheckoutView.module.css";
 
@@ -65,6 +68,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
   const [editing, setEditing] = useState<"company" | "kyc" | null>(null);
   // The step we arrived from, so the stepper animates the hand-off.
   const [from] = useState(() => readLastCheckout());
+  const mobile = useCheckoutMobile();
 
   const i = steps.indexOf(step);
   const chrome = content.steps[step];
@@ -89,7 +93,12 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
   const cta =
     step === "review"
       ? {
-          label: co.quote.price ? content.steps.review.payLabel.replace("{price}", co.quote.price) : content.steps.review.requestLabel,
+          // Mobile: the footer shows the price beside it, so just "Pay Now".
+          label: co.quote.price
+            ? mobile
+              ? content.steps.review.payNowLabel
+              : content.steps.review.payLabel.replace("{price}", co.quote.price)
+            : content.steps.review.requestLabel,
           enabled: consent,
           blockedTip: content.ctaBlocked.consent,
           // Pay ends the journey: the clock stops, the order is written and
@@ -197,13 +206,15 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
               )}
             </FormCard>
 
-            <StepActions cta={cta} consent={stepConsent} />
+            {/* Mobile: the CTA and its consent live in the footer. */}
+            {!mobile && <StepActions cta={cta} consent={stepConsent} />}
 
             <Disclaimer title={content.disclaimer.title} toggleLabel={content.disclaimer.toggleLabel} paragraphs={[content.disclaimer.contextual.checkout, ...content.disclaimer.paragraphs]} />
           </main>
         </div>
         {/* Summary panel (638:17106): the timer, the summary, and a kolam
-            trailing below it. */}
+            trailing below it. On mobile it's the footer instead. */}
+        {!mobile && (
         <aside className={styles.summaryPanel}>
           <div className={styles.summaryStack}>
             <AgentProgress
@@ -220,8 +231,21 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
             <img src={content.header.kolamSrc} alt="" aria-hidden className={styles.kolam} />
           </div>
         </aside>
+        )}
 
       </div>
+
+      {mobile && (
+        <CheckoutFooter
+          preparing={{ label: content.preparingLabel, seconds: clock.seconds, running: clock.running }}
+          labels={{ total: content.footer.totalLabel, show: content.footer.showSummaryLabel, hide: content.footer.hideSummaryLabel }}
+          price={co.quote.price ? formatInr(splitPrice(co.quote.price, content.summary.gstRate).total) : undefined}
+          cta={cta}
+          consent={stepConsent}
+        >
+          <PurchaseSummary content={content.summary} quote={co.quote} compact />
+        </CheckoutFooter>
+      )}
 
       <CheckoutEditDrawer
         section={editing}

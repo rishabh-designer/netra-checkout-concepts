@@ -4,3 +4,12 @@
   align-items: flex-start;
   gap: var(--spacing-12);
 }
+
+/* Below web, the hero's tags sit tighter than the shared TagPill (6/8):
+   4 top and bottom, 6 left and right. Doubled class outranks TagPill's own
+   .pill. */
+@media (max-width: 999px) {
+  .pills.pills > * {
+    padding: var(--spacing-4) var(--spacing-6);
+  }
+}
