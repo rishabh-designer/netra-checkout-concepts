@@ -39,7 +39,7 @@ export function DemoNoticeProvider({ content, children }: { content: DemoNoticeC
   return (
     <DemoNoticeContext.Provider value={notify}>
       {children}
-      <Toast open={open && !!notice} title={notice?.title ?? ""} description={notice?.description} onClose={close} />
+      <Toast open={open && !!notice} title={notice?.title ?? ""} description={notice?.description} tone={notice?.tone} onClose={close} />
     </DemoNoticeContext.Provider>
   );
 }

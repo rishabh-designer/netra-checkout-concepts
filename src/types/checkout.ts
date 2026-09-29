@@ -34,6 +34,11 @@ export interface CheckoutField {
   keepForOtherPerson?: boolean;
   /** Shown but not editable (greyed): the company name on Billing. */
   locked?: boolean;
+  /** Read off this upload (by key): locked until it's uploaded, then filled
+   *  in from the document and editable (the GSTIN from the certificate). */
+  readFrom?: string;
+  /** The placeholder while it waits for that upload. */
+  lockedPlaceholder?: string;
   /** A rupee amount: digits only, Indian grouping as they type, and the
    *  amount in words under the field ("Rupees 800 Crore"). */
   amountWords?: AmountWords;
@@ -146,6 +151,9 @@ export interface CheckoutContent {
       cases: Record<QuoteCaseId, CheckoutField[]>;
       /** Documents already fetched from the MCA, by upload key (Case A). */
       fetched?: Partial<Record<QuoteCaseId, Record<string, string>>>;
+      /** GST state codes by state, to "read" a GSTIN off an uploaded
+       *  certificate: code + PAN + "1Z5". */
+      gstStateCodes: Record<string, string>;
     };
     review: CheckoutReviewContent;
   };
@@ -156,6 +164,9 @@ export interface CheckoutContent {
   success: CheckoutSuccessContent;
   drawer: { saveLabel: string; closeLabel: string };
   validationMessages: Record<CheckoutValidator, string>;
+  /** Buying in another person's name: their email must be at the company's
+   *  domain (`{domain}`, from the email on file). */
+  companyEmailMessage: string;
   /** [pincode prefix, Place of Incorporation] pairs for the pincode autofill. */
   pincodePlaces: [string, string][];
   /** Lead-flow values used when checkout is opened without a flow (reload / direct URL). */

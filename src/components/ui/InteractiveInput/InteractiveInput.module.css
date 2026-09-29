@@ -203,6 +203,7 @@
   font-weight: 500;
 }
 
+.value[data-empty],
 .input[data-empty] {
   color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
   font-weight: 500;
@@ -351,4 +352,56 @@
   --check-ink: var(--color-input-stroke);
   border-bottom-color: var(--color-input-stroke);
   background: var(--color-fill-disabled);
+}
+
+/* Ghost completion: the field and a mirror of its text share a box; the
+   mirror hides the typed part and shows the rest in muted primary, right
+   after the caret. The ghost itself takes a click or tap. */
+.control {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.control > .input,
+.control > .textarea {
+  width: 100%;
+}
+
+.ghostMirror {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  white-space: pre;
+  pointer-events: none;
+}
+
+.wrapper[data-multiline] .ghostMirror {
+  display: block;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.field[data-size="lg"] .ghostMirror {
+  font-size: var(--font-size-300);
+}
+
+.field[data-size="sm"] .ghostMirror {
+  font-size: var(--font-size-100);
+}
+
+.ghostTyped {
+  visibility: hidden;
+}
+
+.ghost {
+  color: var(--color-brand-primary-muted);
+  pointer-events: auto;
+  cursor: pointer;
 }

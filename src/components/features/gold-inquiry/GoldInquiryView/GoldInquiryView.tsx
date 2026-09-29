@@ -308,14 +308,22 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
           </div>
 
           {/* Rate Your Experience (642:32530) */}
-          <div className={styles.rate}>
+          {/* Once sent: the badge turns a lap and the payment-success green
+              beam runs round the card. */}
+          <div className={styles.rateWrap}>
+          {sent && (
+            <span className={styles.beamGlow} aria-hidden>
+              <span className={styles.beamSpin} />
+            </span>
+          )}
+          <div className={styles.rate} data-sent={sent || undefined}>
             <div className={styles.rateTop}>
               <div className={styles.rateText}>
                 <p className={styles.rateTitle}>{content.rate.title}</p>
                 <p className={styles.rateSub}>{content.rate.subtitle}</p>
               </div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={content.rate.badgeSrc} alt="" aria-hidden width={56} height={56} />
+              <img src={content.rate.badgeSrc} alt="" aria-hidden width={56} height={56} className={styles.rateBadge} />
             </div>
             {sent ? (
               <p className={styles.rateThanks}>{content.rate.thanks}</p>
@@ -342,6 +350,12 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
                 </button>
               </>
             )}
+            {sent && (
+              <span className={styles.beamRing} aria-hidden>
+                <span className={styles.beamSpin} />
+              </span>
+            )}
+          </div>
           </div>
         </aside>
       </div>

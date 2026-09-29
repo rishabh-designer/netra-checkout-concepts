@@ -1,0 +1,23 @@
+/* Fills the drawer's body: the log scrolls, the composer sits under it. */
+.chat {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+/* The drawer already pads its body. */
+.list {
+  padding: 0;
+}
+
+/* Answers wrap side by side under the question. */
+.choices {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.composer {
+  margin: 0;
+}

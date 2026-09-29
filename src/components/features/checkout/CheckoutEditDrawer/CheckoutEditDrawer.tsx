@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { completionsFor } from "@/lib/completions";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import type { CheckoutField, CheckoutUpload, CheckoutUploadCopy } from "@/types/checkout";
 import type { CheckoutState } from "../useCheckout";
@@ -77,6 +78,13 @@ export function CheckoutEditDrawer({ section, title, fields, uploads, uploadCopy
               file: (key) => draft[key] ?? "",
               fetched: (key) => co.isFetched(key, draft[key] ?? ""),
               onChange: (key, v) => setDraft((d) => ({ ...d, ...co.patchFor(key, v, (k) => d[k] ?? "") })),
+              completions: (f) => {
+                const read = (k: string) => {
+                  const field = fields.find((x) => x.key === k);
+                  return draft[k] ?? (field ? co.valueOf(field) : co.get(k));
+                };
+                return completionsFor(f.key, { pincode: read("pincode"), place: read("place"), emailDomain: co.companyDomain });
+              },
             }}
           />
         )}

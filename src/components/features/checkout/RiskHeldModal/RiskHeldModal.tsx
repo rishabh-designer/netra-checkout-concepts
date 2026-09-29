@@ -19,7 +19,7 @@ const noop = () => {};
 /**
  * RiskHeldModal — the Risk Held Letter popup (Figma 683:56601), centred on
  * the lightbox scrim. Not dismissable: no ×, and neither the scrim nor Esc
- * closes it; Download Now or Send to WhatsApp does. A letter preview, the
+ * closes it; View or Send to WhatsApp does. A letter preview, the
  * serif title and a line on what the letter is, over a grey action bar.
  * Usage: <RiskHeldModal open={o} content={s.riskHeld} onDownload={fn} onWhatsApp={fn} />
  */

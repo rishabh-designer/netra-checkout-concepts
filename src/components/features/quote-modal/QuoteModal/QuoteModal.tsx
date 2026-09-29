@@ -12,6 +12,7 @@ import { AITextLoading } from "@/components/ui/AITextLoading";
 import { InteractiveInput, type FieldStatus } from "@/components/ui/InteractiveInput";
 import { SegmentedField } from "@/components/ui/SegmentedField";
 import { AgentProgress } from "@/components/ui/AgentProgress";
+import { completionsFor } from "@/lib/completions";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { FilledCheck, ChevronDown, SearchIcon } from "@/components/ui/InteractiveInput/icons";
 import type {
@@ -467,6 +468,7 @@ export function QuoteModal({
                       companyName={companyName}
                       percent={percent}
                       profileComplete={profileComplete}
+                      formDone={canSubmit}
                       research={research}
                       search={qc.search}
                       activeTab={step.activeTab}
@@ -608,6 +610,7 @@ function Field({
       onBlur={() => setTouched(true)}
       infoTooltip={field.infoTooltip ?? sharedTip}
       showHelp
+      completions={completionsFor(field.key, {})}
     />
     </div>
   );
@@ -839,6 +842,7 @@ function IntelligenceEngine({
   companyName,
   percent,
   profileComplete,
+  formDone,
   research,
   search,
   activeTab,
@@ -849,6 +853,8 @@ function IntelligenceEngine({
   companyName: string;
   percent: number;
   profileComplete: boolean;
+  /** The step's CTA is enabled: only then does the timer show. */
+  formDone: boolean;
   /** The active step's research timeline. */
   research: ResearchView;
   search: QuoteSearchPanel;
@@ -933,6 +939,9 @@ function IntelligenceEngine({
             key={stepIndex}
             label={engine.headingLabels[stepIndex] ?? engine.headingLabels[0]}
             running={stepIndex === 0 ? !profileComplete : !research.done}
+            // Out of sight until the form is done: a ticking clock while
+            // someone retypes a field only adds anxiety.
+            hideTime={!formDone}
             labelClassName={styles.meterHeading}
           />
           <div className={styles.meterRight}>

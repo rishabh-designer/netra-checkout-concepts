@@ -22,13 +22,13 @@ export interface LandingShellProps {
 }
 
 /**
- * LandingShell — prototype switch between the "Focus" landing hero (default)
- * and the original classic hero. Clicking Login toggles the two (crossfade);
+ * LandingShell — prototype switch between the "Focus" landing hero
+ * and the classic hero (default, with the artwork). Clicking Login toggles the two (crossfade);
  * Focus also shows the "Talk to an Expert" button. Usage (in the page):
  * <LandingShell content={c} classic={<main…/>} flourish={<HeroFlourish/>} ticker={…} foregroundClassName={…} />
  */
 export function LandingShell({ content, classic, flourish, ticker, foregroundClassName, quotesPreview }: LandingShellProps) {
-  const [variant, setVariant] = useState<"classic" | "focus">("focus");
+  const [variant, setVariant] = useState<"classic" | "focus">("classic");
   const focus = variant === "focus";
 
   return (

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { SelectMenu } from "@/components/ui/SelectMenu";
+import { ghostFor } from "@/lib/completions";
 import styles from "./InteractiveInput.module.css";
 import {
   ChevronDown,
@@ -76,6 +77,9 @@ export interface InteractiveInputProps {
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void;
   /** The text input drives a suggestion list (ARIA combobox). */
   combobox?: { listId: string; expanded: boolean; activeId?: string };
+  /** Phrases to complete inline: the rest shows as a muted ghost after the
+   *  caret; Tab, → or a click/tap on it fills it in. */
+  completions?: string[];
 }
 
 /**
@@ -124,6 +128,7 @@ export function InteractiveInput({
   onBlur,
   onKeyDown,
   combobox,
+  completions,
 }: InteractiveInputProps) {
   const inputRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const uid = useId();
@@ -131,6 +136,52 @@ export function InteractiveInput({
   const helpId = `${uid}-help`;
   const tipId = `${uid}-tip`;
   const [menuOpen, setMenuOpen] = useState(false);
+  // Ghost completion: only while focused with the caret at the end, and only
+  // while the text isn't scrolled (the ghost has to sit right after it).
+  const [caretAtEnd, setCaretAtEnd] = useState(false);
+  const trackCaret = () => {
+    const el = inputRef.current;
+    setCaretAtEnd(!!el && document.activeElement === el && el.selectionStart === el.value.length && el.selectionEnd === el.value.length && el.scrollWidth <= el.clientWidth + 1 && el.scrollHeight <= el.clientHeight + 1);
+  };
+  const match = completions?.length && caretAtEnd ? ghostFor(value, completions) : null;
+  const acceptGhost = () => {
+    if (!match) return;
+    onChange?.(match.accept);
+    requestAnimationFrame(trackCaret);
+  };
+  const ghostKeys = (e: KeyboardEvent<HTMLElement>) => {
+    if (match && !e.shiftKey && (e.key === "Tab" || e.key === "ArrowRight")) {
+      e.preventDefault();
+      acceptGhost();
+    }
+  };
+  const caretEvents = completions?.length
+    ? { onSelect: trackCaret, onKeyUp: trackCaret, onInput: () => requestAnimationFrame(trackCaret), onFocusCapture: () => requestAnimationFrame(trackCaret), onBlurCapture: () => setCaretAtEnd(false) }
+    : {};
+  // The field and its ghost share a box, so the ghost lines up with the text.
+  const withGhost = (control: ReactNode) =>
+    completions?.length ? (
+      <span className={styles.control}>
+        {control}
+        {ghost}
+      </span>
+    ) : (
+      control
+    );
+  const ghost = match && (
+    <span className={styles.ghostMirror} aria-hidden>
+      <span className={styles.ghostTyped}>{value}</span>
+      <span
+        className={styles.ghost}
+        onPointerDown={(e) => {
+          e.preventDefault(); // keep focus in the field
+          acceptGhost();
+        }}
+      >
+        {match.ghost}
+      </span>
+    </span>
+  );
 
   // Desktop-only autofocus: skip coarse/touch pointers so mobile keyboards
   // don't pop on load. Guarded — matchMedia can throw in odd contexts.
@@ -180,7 +231,9 @@ export function InteractiveInput({
         )}
 
         {readOnly || locked ? (
-          <span className={styles.value} data-tooltip-overflow>{value}</span>
+          <span className={styles.value} data-tooltip-overflow data-empty={isEmpty || undefined}>
+            {value || placeholder}
+          </span>
         ) : isSelect ? (
           <SelectMenu
             id={inputId}
@@ -193,7 +246,7 @@ export function InteractiveInput({
             onOpenChange={setMenuOpen}
           />
         ) : isTextarea ? (
-          <textarea
+          withGhost(<textarea
             id={inputId}
             ref={inputRef}
             rows={2}
@@ -209,9 +262,11 @@ export function InteractiveInput({
             onChange={(e) => onChange?.(e.target.value)}
             onFocus={onFocus}
             onBlur={onBlur}
-          />
+            onKeyDown={ghostKeys}
+            {...caretEvents}
+          />)
         ) : (
-          <input
+          withGhost(<input
             id={inputId}
             ref={inputRef}
             type="text"
@@ -236,10 +291,13 @@ export function InteractiveInput({
             aria-activedescendant={combobox?.expanded ? combobox.activeId : undefined}
             autoComplete={combobox ? "off" : undefined}
             onKeyDown={(e) => {
+              ghostKeys(e);
+              if (e.defaultPrevented) return;
               onKeyDown?.(e);
               if (!e.defaultPrevented && e.key === "Enter") onSubmit?.();
             }}
-          />
+            {...caretEvents}
+          />)
         )}
 
         <div className={styles.suffix}>

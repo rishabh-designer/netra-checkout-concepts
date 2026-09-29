@@ -1,0 +1,157 @@
+/* Static root: the panel anchors to the host field wrapper (position:
+   relative), as SelectMenu's list does. */
+.root {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+/* Trigger reads like the field's value text (16 / 500 / field ink). */
+.trigger {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  text-align: left;
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  color: var(--field-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* _ActionListItemGroup: white, 1px neutral ring, r12, low-raised shadow;
+   12/8 inside. */
+.panel {
+  position: absolute;
+  top: calc(100% + var(--spacing-4));
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-12) var(--spacing-8);
+  background: var(--color-card);
+  border: 1px solid var(--color-border-neutral);
+  border-radius: var(--radius-12);
+  box-shadow: 0 2px 16px rgba(169, 172, 177, 0.24);
+}
+
+/* Rows 8 apart. */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  list-style: none;
+}
+
+/* _ActionListItem: 12/8, r8; grey 16/500 label, the checkbox on the right.
+   Picked and hovered rows take the lavender fill; hover inks the label. */
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) var(--spacing-8);
+  border-radius: var(--radius-8);
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-label-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.option[data-picked],
+.option[data-active] {
+  background: var(--color-brand-primary-subtle);
+}
+
+.option[data-active] {
+  color: var(--color-label-primary);
+}
+
+.label {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Checkbox (16, r4): an empty white box with a green hairline; the checked
+   one is the DSL asset (its glow bleeds 8 past the box). */
+.box {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: var(--border-hairline) solid var(--color-success);
+  border-radius: 4px;
+  background: var(--color-card);
+}
+
+.checked {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin: -8px;
+}
+
+/* Divider, then the two actions 16 apart. */
+.foot {
+  display: flex;
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-12);
+  padding-top: var(--spacing-16);
+  border-top: var(--border-hairline) solid var(--color-border-neutral);
+}
+
+/* Button/1.2: 8 padding, r16 (Figma r12 + one step), 12 SemiBold. */
+.reset,
+.apply {
+  flex: 1;
+  padding: var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-border-neutral);
+  border-radius: var(--radius-16);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.reset {
+  background: var(--color-card);
+  color: var(--color-label-primary);
+}
+
+.reset:hover:not(:disabled) {
+  background: var(--color-card-sunken);
+}
+
+.apply {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+}
+
+.apply:hover:not(:disabled) {
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+.reset:disabled,
+.apply:disabled {
+  border-color: rgba(169, 172, 177, 0.6);
+  background: var(--color-fill-disabled);
+  color: var(--color-label-tertiary);
+  cursor: not-allowed;
+}

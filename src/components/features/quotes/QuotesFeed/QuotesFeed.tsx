@@ -62,11 +62,11 @@ const priceOf = (q: QuoteCardData) => (q.price ? Number(q.price.replace(/\D/g, "
 
 /** Filter + sort the non-gold quotes (the Gold Quote stays pinned on top).
  *  Price-on-request quotes always sink below priced ones in a premium sort. */
-function arrange(list: QuoteCardData[], filter: QuoteFilter, sort: QuoteSort, immediateOnly: boolean) {
+function arrange(list: QuoteCardData[], filter: QuoteFilter[], sort: QuoteSort, immediateOnly: boolean) {
   const kept = list.filter(
     (q) =>
       (!immediateOnly || q.immediate) &&
-      (filter === "all" || q.insurer === filter),
+      (filter.length === 0 || filter.includes(q.insurer)),
   );
   const bySort = (a: QuoteCardData, b: QuoteCardData) => {
     const pa = priceOf(a);
@@ -228,22 +228,20 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     setPicked(next);
     if (next.length === 0) setComparing(false);
   };
-  const [filter, setFilter] = useState<QuoteFilter>("all");
+  // Picked insurers; none picked shows them all.
+  const [filter, setFilter] = useState<QuoteFilter[]>([]);
   const [sort, setSort] = useState<QuoteSort>("priceLow");
   const [immediateOnly, setImmediateOnly] = useState(false);
   // The Gold Quote stays pinned on top, unless another insurer is picked.
-  const pinned = rest.filter((q) => q.gold && (filter === "all" || q.insurer === filter));
+  const pinned = rest.filter((q) => q.gold && (filter.length === 0 || filter.includes(q.insurer)));
   // Every insurer quoting right now, in feed order (the Gold's placeholder
   // name is left out; its real insurer is already in the feed).
-  const filterOptions = [
-    { id: "all", label: content.filterAllLabel },
-    ...[...new Set(rest.filter((q) => !q.gold).map((q) => q.insurer))].map((name) => ({ id: name, label: name })),
-  ];
+  const filterOptions = [...new Set(rest.filter((q) => !q.gold).map((q) => q.insurer))];
   const arranged = arrange(rest.filter((q) => !q.gold), filter, sort, immediateOnly);
   const shown = [...pinned, ...arranged];
   const shownCount = shown.length + (ghostFirst && revealed ? 1 : 0);
   const resetFilters = () => {
-    setFilter("all");
+    setFilter([]);
     setImmediateOnly(false);
   };
   // Cards rise in one after another as the results reveal (after the skeleton).
@@ -320,6 +318,10 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           filterOptions={filterOptions}
           filter={filter}
           onFilterChange={setFilter}
+          filterAllLabel={content.filterAllLabel}
+          filterCountLabel={content.filterCountLabel}
+          filterResetLabel={content.filterResetLabel}
+          filterApplyLabel={content.filterApplyLabel}
           sortLabel={content.sortLabel}
           sortOptions={content.sortOptions}
           sort={sort}

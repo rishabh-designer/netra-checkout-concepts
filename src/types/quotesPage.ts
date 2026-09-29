@@ -254,6 +254,10 @@ export interface QuotesFeedContent {
   filterLabel: string;
   /** The "every insurer" option; the insurers themselves come from the quotes. */
   filterAllLabel: string;
+  /** Trigger value for two or more picks: `{count}`. */
+  filterCountLabel: string;
+  filterResetLabel: string;
+  filterApplyLabel: string;
   sortLabel: string;
   sortOptions: { id: QuoteSort; label: string }[];
   switchLabel: string;
@@ -332,6 +336,9 @@ export interface GoldGateContent {
     fields: CheckoutField[];
     upload: CheckoutUpload;
     uploadCopy: CheckoutUploadCopy;
+    /** Ask the questions as a BimaNetra chat instead of the fields (Request
+     *  a Quote); its answers replace the fields and the upload. */
+    chat?: RequestChatContent;
   };
   /** Where "Schedule A Call" and "Unlock Quote" go: the Gold Inquiry page
    *  (an expert calls to finish the quote). */
@@ -397,4 +404,16 @@ export interface QuotesPreview {
   rowCount: number;
   /** Cards per case (incl. Case B's ghost card). */
   cardCounts: Record<QuoteCaseId, number>;
+}
+
+/** Request a Quote's chat: each question in turn, typed (a date) or tapped. */
+export interface RequestChatContent {
+  steps: { key: string; question: string; answer: "date" | "choice"; options?: string[]; placeholder?: string }[];
+  /** After the last answer. */
+  done: string;
+  /** A date that isn't a real past DD/MM/YYYY. */
+  invalidDate: string;
+  thinkingLabel: string;
+  sendLabel: string;
+  iconSrc: string;
 }

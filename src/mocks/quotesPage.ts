@@ -1,4 +1,4 @@
-import type { CompareViewContent, FeaturesDrawerContent, GoldGateContent, QuotesPageContent, QuoteCardData } from "@/types/quotesPage";
+import type { CompareViewContent, FeaturesDrawerContent, GoldGateContent, QuotesPageContent, QuoteCardData, RequestChatContent } from "@/types/quotesPage";
 import { TAG_TIPS } from "./tagTips";
 import { mockCheckoutContent } from "./checkout";
 import { GOLD_A_POLICY, GOLD_B_POLICY, INSURER_POLICIES } from "./policies";
@@ -28,6 +28,21 @@ const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, insurer: "Generali Central I
    or a price yet: no logo, and the button reads Get Quote. */
 const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "", coverages: GOLD_B_POLICY.top, policy: GOLD_B_POLICY };
 
+/* The questions BimaNetra asks in chat (the Gold Quote's Additional
+   Details and every Request a Quote), one at a time. */
+const REQUEST_CHAT: RequestChatContent = {
+  steps: [
+    { key: "incorporatedOn", question: "When was your company incorporated?", answer: "date", placeholder: "DD/MM/YYYY" },
+    { key: "listingStatus", question: "What's your company's listing status?", answer: "choice", options: ["Unlisted", "Listed on NSE / BSE", "Listed Overseas"] },
+    { key: "pendingClaims", question: "Are there any pending claims against your directors?", answer: "choice", options: ["Yes", "No"] },
+  ],
+  done: "Thanks, that's everything. Tap Request Quote and we'll send it to the insurer.",
+  invalidDate: "That doesn't look like a date. Could you type it as DD/MM/YYYY?",
+  thinkingLabel: "Thinking",
+  sendLabel: "Send",
+  iconSrc: "/media/chat-sparkle.svg",
+};
+
 /* Case B's gate: the Additional Details go to an expert, who calls to price
    and finish the Gold Quote (the Gold Inquiry page). */
 const CASE_B_GOLD_GATE: GoldGateContent = {
@@ -42,7 +57,7 @@ const CASE_B_GOLD_GATE: GoldGateContent = {
   },
   drawer: {
     title: "Additional Details",
-    intro: "We've filled in what we could find. Check it, add the rest, and your Gold Quote is ready to buy.",
+    intro: "A few quick questions and your Gold Quote is ready to buy.",
     ctaLabel: "Unlock Quote",
     closeLabel: "Close",
     fields: [
@@ -60,6 +75,7 @@ const CASE_B_GOLD_GATE: GoldGateContent = {
       title: "Upload Financial Statement",
     },
     uploadCopy: mockCheckoutContent.upload,
+    chat: { ...REQUEST_CHAT, done: "Thanks, that's everything. Tap Unlock Quote to see your Gold Quote." },
   },
   inquiryHref: "/directors-and-officers-insurance/quotes/gold-inquiry",
 };
@@ -73,6 +89,7 @@ const QUOTE_REQUEST_DRAWER: GoldGateContent["drawer"] = {
   ctaLabel: "Request Quote",
   pricedIntro: "This insurer has priced your cover, but needs a few more details before it can sell online. Answer these and our expert will finish the rest.",
   fields: CASE_B_GOLD_GATE.drawer.fields.map((f) => ({ ...f, value: undefined, status: "empty" as const })),
+  chat: { ...REQUEST_CHAT, done: "Thanks, that's everything. Tap Request Quote and we'll send it to the insurer." },
 };
 
 
@@ -395,6 +412,9 @@ export const mockQuotesPageContent: QuotesPageContent = {
     filterFieldLabel: "Filter Insurance Companies",
     filterLabel: "Filtering: {option}",
     filterAllLabel: "All Insurers",
+    filterCountLabel: "{count} Insurers",
+    filterResetLabel: "Reset All",
+    filterApplyLabel: "Apply Changes",
     sortFieldLabel: "Sort Quotes",
     sortLabel: "{option}",
     sortOptions: [

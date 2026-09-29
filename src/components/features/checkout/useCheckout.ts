@@ -28,6 +28,8 @@ export interface CheckoutState {
   patchFor: (key: string, value: string, current: (key: string) => string) => Record<string, string>;
   otherPerson: boolean;
   setOtherPerson: (on: boolean) => void;
+  /** The company's email domain, from the email on file ("studio2rs.in"). */
+  companyDomain: string;
   /** Mandatory fields filled + valid, uploads done on KYC, and the step
    *  verified when it carries guessed details. */
   isComplete: (step: Exclude<CheckoutStepId, "review">) => boolean;
@@ -84,9 +86,19 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
     [content],
   );
 
+  // The company's email domain, from the email on file (studio2rs.in).
+  const companyDomain = (flow.email ?? "").split("@")[1]?.trim().toLowerCase() ?? "";
   const errorOf = useCallback(
-    (field: CheckoutField, value?: string) => validateField(field, value ?? valueOf(field), content.validationMessages),
-    [valueOf, content.validationMessages],
+    (field: CheckoutField, value?: string) => {
+      const v = value ?? valueOf(field);
+      const error = validateField(field, v, content.validationMessages);
+      if (error) return error;
+      // Someone else buying for the company writes from the company's domain.
+      if (otherPerson && field.validate === "email" && companyDomain && v.trim() && v.trim().split("@")[1]?.toLowerCase() !== companyDomain)
+        return content.companyEmailMessage.replace("{domain}", companyDomain);
+      return null;
+    },
+    [valueOf, content.validationMessages, content.companyEmailMessage, otherPerson, companyDomain],
   );
 
   const statusOf = useCallback(
@@ -119,13 +131,26 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
   const patchFor = useCallback(
     (key: string, value: string, current: (key: string) => string) => {
       const patch: Record<string, string> = { [key]: value };
+      // An upload a field reads from: a new document fills the field in
+      // (demo: the GSTIN from the state code + PAN); removing it clears it.
+      const reader = content.steps.kyc.cases[caseId].find((f) => f.readFrom === key);
+      if (reader) {
+        const read = (k: string) => {
+          const f = [...fieldsFor("company"), ...fieldsFor("kyc")].find((x) => x.key === k);
+          return current(k) || (f ? valueOf(f) : "");
+        };
+        const state = read("place").split(",")[1]?.trim() ?? "";
+        const pan = read("pan").trim().toUpperCase();
+        patch[reader.key] = value && pan ? `${content.steps.kyc.gstStateCodes[state] ?? "19"}${pan}1Z5` : "";
+        return patch;
+      }
       if (key !== "pincode") return patch;
       const next = placeForPincode(value, content.pincodePlaces);
       const place = current("place");
       if (next && (!place || place === placeForPincode(current("pincode"), content.pincodePlaces))) patch.place = next;
       return patch;
     },
-    [content.pincodePlaces],
+    [content, caseId, fieldsFor, valueOf],
   );
 
   const needsVerify = useCallback(
@@ -184,6 +209,7 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
       patchFor,
       otherPerson,
       setOtherPerson,
+      companyDomain,
       isComplete,
       progressOf,
       needsVerify,
@@ -191,6 +217,6 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
       setVerified,
       isFetched,
     }),
-    [caseId, selectedQuote, fallbackQuote, fieldsFor, valueOf, statusOf, errorOf, get, set, patchFor, otherPerson, setOtherPerson, isComplete, progressOf, needsVerify, verified, setVerified, isFetched],
+    [caseId, selectedQuote, fallbackQuote, fieldsFor, valueOf, statusOf, errorOf, get, set, patchFor, otherPerson, setOtherPerson, companyDomain, isComplete, progressOf, needsVerify, verified, setVerified, isFetched],
   );
 }

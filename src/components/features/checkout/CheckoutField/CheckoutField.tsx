@@ -16,6 +16,8 @@ export interface CheckoutFieldProps {
   variant?: "boxed" | "underline";
   /** Reserve the 28px help row even without a message (Company / KYC grids). */
   reserveHelp?: boolean;
+  /** Phrases for the inline ghost completion. */
+  completions?: string[];
 }
 
 /**
@@ -25,7 +27,7 @@ export interface CheckoutFieldProps {
  * reads neutral, not wrong); once shown they clear live as the user fixes it.
  * Usage: <CheckoutField field={f} value={v} status={s} error={e} onChange={set} />
  */
-export function CheckoutField({ field, value, status, error, onChange, variant = "underline", reserveHelp = false }: CheckoutFieldProps) {
+export function CheckoutField({ field, value, status, error, onChange, variant = "underline", reserveHelp = false, completions }: CheckoutFieldProps) {
   // A prefilled value counts as touched, so a bad seed still shows its error.
   const [touched, setTouched] = useState(value !== "");
   const tip = useFieldTip(field.key);
@@ -59,6 +61,7 @@ export function CheckoutField({ field, value, status, error, onChange, variant =
       showHelp={reserveHelp || !!shown || !!field.amountWords}
       onFocus={() => !error && setTouched(false)}
       onBlur={() => setTouched(true)}
+      completions={completions}
     />
   );
 }

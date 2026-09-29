@@ -40,7 +40,7 @@ function kycFields(
   pan: { value?: string; seedFrom?: string; status: CheckoutField["status"] },
 ): CheckoutField[] {
   return [
-    { key: "gstin", label: "Company GST Number", mandatory: true, control: "text", value: gst.value, status: gst.status, placeholder: "Enter GST Number", maxLength: 15, validate: "gstin", upper: true },
+    { key: "gstin", label: "Company GST Number", mandatory: true, control: "text", value: gst.value, status: gst.status, placeholder: "Enter GST Number", maxLength: 15, validate: "gstin", upper: true, readFrom: "gstinFile", lockedPlaceholder: "Read from your GST certificate" },
     { key: "pan", label: "Company PAN", reviewLabel: "Company PAN", mandatory: true, control: "text", value: pan.value, seedFrom: pan.seedFrom, status: pan.status, placeholder: "Enter PAN Number", maxLength: 10, validate: "pan", upper: true },
   ];
 }
@@ -132,6 +132,18 @@ export const mockCheckoutContent: CheckoutContent = {
       // A: both documents came back from the MCA with the registry match.
       fetched: {
         A: { gstinFile: "PepeJeans-GST-Certificate.pdf", panFile: "PepeJeans-PAN-Card.pdf" },
+      },
+      gstStateCodes: {
+        Karnataka: "29",
+        "Tamil Nadu": "33",
+        Haryana: "06",
+        Telangana: "36",
+        "Madhya Pradesh": "23",
+        Rajasthan: "08",
+        "West Bengal": "19",
+        Maharashtra: "27",
+        Delhi: "07",
+        "Uttar Pradesh": "09",
       },
     },
     review: {
@@ -291,9 +303,9 @@ export const mockCheckoutContent: CheckoutContent = {
         summaryLabel: "Executive Summary",
       },
       imageAlt: "A preview of your Risk Held Letter",
-      downloadLabel: "Download Now",
+      downloadLabel: "View",
       whatsappLabel: "Send to WhatsApp",
-      downloadToast: { title: "Risk Held Letter downloaded", description: "We've also emailed a copy to {email}." },
+      downloadToast: { title: "Opening your Document Vault", description: "We'll take you to BimaKendra's Document Vault, where your Risk Held Letter is kept safe." },
       whatsappToast: { title: "Sent to WhatsApp", description: "Your Risk Held Letter is on its way to +91 {phone}." },
       delayMs: 4000,
     },
@@ -314,6 +326,7 @@ export const mockCheckoutContent: CheckoutContent = {
   },
   pincodePlaces: PINCODE_PLACES,
   drawer: { saveLabel: "Save Changes", closeLabel: "Close" },
+  companyEmailMessage: "Use a company email ending in @{domain}",
   validationMessages: {
     phone: "Enter a 10-digit mobile number",
     email: "Enter a valid email address",

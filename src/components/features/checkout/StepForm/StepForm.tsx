@@ -15,6 +15,8 @@ export interface FormModel {
   /** The upload still holds the document fetched from the MCA. */
   fetched?: (key: string) => boolean;
   onChange: (key: string, value: string) => void;
+  /** Phrases a field's ghost can complete to. */
+  completions?: (field: Field) => string[];
 }
 
 export interface StepFormProps {
@@ -46,6 +48,7 @@ export function StepForm({ step, fields, uploads = [], uploadCopy, model, stacke
       status={model.status(f)}
       error={model.error(f)}
       onChange={(v) => model.onChange(f.key, v)}
+      completions={model.completions?.(f)}
       reserveHelp
     />
   );
@@ -70,7 +73,6 @@ export function StepForm({ step, fields, uploads = [], uploadCopy, model, stacke
     <div className={styles.grid} data-stacked={stacked || undefined} data-kyc>
       {uploads.map((u, i) => (
         <div key={u.key} className={styles.kycColumn}>
-          {fields[i] && input(fields[i])}
           <UploadField
             label={u.label}
             title={u.title}
@@ -80,6 +82,14 @@ export function StepForm({ step, fields, uploads = [], uploadCopy, model, stacke
             onChange={(name) => model.onChange(u.key, name)}
             copy={uploadCopy}
           />
+          {/* The number under its document; one read off the upload waits
+              (locked) until the document is in. */}
+          {fields[i] &&
+            input(
+              fields[i].readFrom && !model.file(fields[i].readFrom!)
+                ? { ...fields[i], locked: true, placeholder: fields[i].lockedPlaceholder ?? fields[i].placeholder }
+                : fields[i],
+            )}
         </div>
       ))}
     </div>

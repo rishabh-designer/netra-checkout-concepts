@@ -17,6 +17,7 @@ export const mockDemoNotices: DemoNoticeContent = {
   notifyReport: {
     title: "You're on the list",
     description: "We'll contact you once our report is ready, so we can price your risk better.",
+    tone: "success",
   },
   contactSupport: {
     title: "Speak to an Expert is next",

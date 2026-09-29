@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { UploadField } from "@/components/ui/UploadField";
 import type { FieldStatus } from "@/components/ui/InteractiveInput";
 import type { CheckoutField as Field } from "@/types/checkout";
 import type { GoldGateContent } from "@/types/quotesPage";
 import { CheckoutField } from "../../checkout/CheckoutField";
+import { RequestChat } from "../RequestChat";
 import styles from "./GoldGate.module.css";
 
 export interface GoldGateModalProps {
@@ -79,7 +80,18 @@ export function AdditionalDetailsDrawer({ open, content, onClose, onProceed, pri
     return v === (f.value ?? "") ? f.status : "userFilled";
   };
   const file = values[content.upload.key] ?? "";
-  const valid = content.fields.every((f) => !f.mandatory || (values[f.key] ?? "").trim()) && !!file;
+  // The chat's answers, once every question is in.
+  const [answers, setAnswers] = useState<Record<string, string> | null>(null);
+  // Each opening starts a fresh chat (kept mounted while the drawer closes).
+  const [session, setSession] = useState(0);
+  useEffect(() => {
+    if (!open) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setAnswers(null);
+    setSession((n) => n + 1);
+  }, [open]);
+  const valid = content.chat ? !!answers : content.fields.every((f) => !f.mandatory || (values[f.key] ?? "").trim()) && !!file;
+  const intro = priced && content.pricedIntro ? content.pricedIntro : content.intro;
 
   return (
     <SideDrawer
@@ -90,7 +102,7 @@ export function AdditionalDetailsDrawer({ open, content, onClose, onProceed, pri
       width={480}
       headGap={16}
       footer={
-        <button type="button" className={styles.proceed} disabled={!valid} onClick={() => onProceed(values)}>
+        <button type="button" className={styles.proceed} disabled={!valid} onClick={() => onProceed(answers ?? values)}>
           <span>{content.ctaLabel}</span>
           <svg className={styles.proceedArrow} viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden>
             <path d="M5 12h13m-5-5 5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -98,8 +110,11 @@ export function AdditionalDetailsDrawer({ open, content, onClose, onProceed, pri
         </button>
       }
     >
+      {content.chat ? (
+        <RequestChat key={session} content={content.chat} intro={intro} onDone={setAnswers} />
+      ) : (
       <div className={styles.scroll}>
-        <p className={styles.intro}>{priced && content.pricedIntro ? content.pricedIntro : content.intro}</p>
+        <p className={styles.intro}>{intro}</p>
         <div className={styles.fields}>
           {content.fields.map((f) => (
             <CheckoutField
@@ -121,6 +136,7 @@ export function AdditionalDetailsDrawer({ open, content, onClose, onProceed, pri
           />
         </div>
       </div>
+      )}
     </SideDrawer>
   );
 }

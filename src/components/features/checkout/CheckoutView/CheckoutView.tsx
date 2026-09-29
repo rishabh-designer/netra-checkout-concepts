@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { completionsFor } from "@/lib/completions";
 import { useRouter } from "next/navigation";
 import type { CheckoutContent, CheckoutStepId } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
@@ -130,6 +131,8 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
     file: co.get,
     fetched: co.isFetched,
     onChange: (key: string, v: string) => co.set(co.patchFor(key, v, live)),
+    completions: (f: Parameters<typeof co.errorOf>[0]) =>
+      completionsFor(f.key, { pincode: live("pincode"), place: live("place"), emailDomain: co.companyDomain }),
   };
 
   return (

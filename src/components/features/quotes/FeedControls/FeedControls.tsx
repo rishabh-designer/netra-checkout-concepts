@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { SelectMenu } from "@/components/ui/SelectMenu";
+import { MultiSelectMenu } from "@/components/ui/MultiSelectMenu";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import type { QuoteFilter, QuoteSort } from "@/types/quotesPage";
 import styles from "./FeedControls.module.css";
@@ -12,9 +13,15 @@ export interface FeedControlsProps {
   sortFieldLabel: string;
   /** Trigger copy with an `{option}` slot ("Filtering: {option}"). */
   filterLabel: string;
-  filterOptions: { id: QuoteFilter; label: string }[];
-  filter: QuoteFilter;
-  onFilterChange: (id: QuoteFilter) => void;
+  /** The insurers to pick from; none picked shows every insurer. */
+  filterOptions: QuoteFilter[];
+  filter: QuoteFilter[];
+  onFilterChange: (picked: QuoteFilter[]) => void;
+  /** Trigger values: none picked, and two or more (`{count}`). */
+  filterAllLabel: string;
+  filterCountLabel: string;
+  filterResetLabel: string;
+  filterApplyLabel: string;
   sortLabel: string;
   sortOptions: { id: QuoteSort; label: string }[];
   sort: QuoteSort;
@@ -96,6 +103,36 @@ function Dropdown<T extends string>({
   );
 }
 
+/** The insurer filter: the DSL multiselect in the same underlined field. */
+function FilterDropdown(props: FeedControlsProps) {
+  const { filter } = props;
+  const value =
+    filter.length === 0 ? props.filterAllLabel : filter.length === 1 ? filter[0] : props.filterCountLabel.replace("{count}", String(filter.length));
+  return (
+    <div className={styles.field}>
+      <span className={styles.fieldLabel}>{props.filterFieldLabel}</span>
+      <div className={styles.dropdown}>
+        <MultiSelectMenu
+          value={filter}
+          options={props.filterOptions}
+          onChange={props.onFilterChange}
+          triggerLabel={props.filterLabel.replace("{option}", value)}
+          resetLabel={props.filterResetLabel}
+          applyLabel={props.filterApplyLabel}
+          triggerClassName={styles.trigger}
+          adornment={
+            <span className={styles.suffix}>
+              <Chevron />
+              <span className={styles.divider} />
+              <FilterIcon />
+            </span>
+          }
+        />
+      </div>
+    </div>
+  );
+}
+
 /**
  * FeedControls — the row above the quote grid (Figma 658:45930): a labelled
  * Filtering and Sorting field on the left (260 wide, underlined; value,
@@ -108,7 +145,7 @@ export function FeedControls(props: FeedControlsProps) {
   return (
     <div className={styles.row}>
       <div className={styles.dropdowns}>
-        <Dropdown fieldLabel={props.filterFieldLabel} label={props.filterLabel} options={props.filterOptions} value={props.filter} onChange={props.onFilterChange} icon={<FilterIcon />} />
+        <FilterDropdown {...props} />
         <Dropdown fieldLabel={props.sortFieldLabel} label={props.sortLabel} options={props.sortOptions} value={props.sort} onChange={props.onSortChange} icon={<SortIcon />} />
       </div>
       <div className={styles.toggleBox}>
