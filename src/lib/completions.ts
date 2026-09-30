@@ -20,7 +20,8 @@ export function completionsFor(key: string, ctx: CompletionContext): string[] {
   if (key === "address") {
     const [city, state] = (ctx.place ?? "").split(",").map((s) => s.trim());
     const pin = ctx.pincode?.trim() ?? "";
-    return [city && pin && `${city} ${pin}`, city && state && pin && `${city}, ${state} ${pin}`, state && pin && `${state} ${pin}`, city, state].filter(
+    // "Kolk…" → "Kolkata, 700029" first, then the longer forms.
+    return [city && pin && `${city}, ${pin}`, city && state && pin && `${city}, ${state} ${pin}`, state && pin && `${state} ${pin}`, city, state].filter(
       (s): s is string => !!s,
     );
   }

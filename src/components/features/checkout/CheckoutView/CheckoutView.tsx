@@ -119,9 +119,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
   const stepConsent =
     step === "review"
       ? { text: content.steps.review.consentText, checked: consent, onToggle: () => setConsent((c) => !c), tone: "review" as const }
-      : co.needsVerify(formStep!)
-        ? { text: content.verifyText, checked: co.verified(formStep!), onToggle: () => co.setVerified(formStep!, !co.verified(formStep!)), tone: "verify" as const }
-        : undefined;
+      : undefined;
 
   // Live value of a Company field by key (seed or edit), for the pincode autofill.
   const live = (key: string) => {

@@ -30,23 +30,17 @@ export interface CheckoutState {
   setOtherPerson: (on: boolean) => void;
   /** The company's email domain, from the email on file ("studio2rs.in"). */
   companyDomain: string;
-  /** Mandatory fields filled + valid, uploads done on KYC, and the step
-   *  verified when it carries guessed details. */
+  /** Mandatory fields filled + valid, and uploads done on KYC. A guessed
+   *  (fuzzy) value needs no tick: Save & Continue is the confirmation. */
   isComplete: (step: Exclude<CheckoutStepId, "review">) => boolean;
-  /** The step carries guessed (fuzzy) details, so the customer must confirm
-   *  them before Save & Continue (Case B). */
-  needsVerify: (step: Exclude<CheckoutStepId, "review">) => boolean;
-  verified: (step: Exclude<CheckoutStepId, "review">) => boolean;
-  setVerified: (step: Exclude<CheckoutStepId, "review">, on: boolean) => void;
-  /** How much of a step is done: its mandatory fields (filled and valid), its
-   *  uploads, and its verification when it needs one. */
+  /** How much of a step is done: its mandatory fields (filled and valid)
+   *  and its uploads. */
   progressOf: (step: Exclude<CheckoutStepId, "review">) => { done: number; total: number };
   /** The upload (or a draft `value` for it) is still the document fetched
    *  from the MCA. */
   isFetched: (key: string, value?: string) => boolean;
 }
 
-const verifyKey = (step: string) => `verified:${step}`;
 
 /**
  * useCheckout — the checkout's view of the shared flow store. Seeds every field
@@ -153,42 +147,23 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
     [content, caseId, fieldsFor, valueOf],
   );
 
-  const needsVerify = useCallback(
-    (step: Exclude<CheckoutStepId, "review">) => fieldsFor(step).some((f) => f.status === "fuzzy"),
-    [fieldsFor],
-  );
-  const verified = useCallback((step: Exclude<CheckoutStepId, "review">) => checkout[verifyKey(step)] === "1", [checkout]);
-  const setVerified = useCallback(
-    (step: Exclude<CheckoutStepId, "review">, on: boolean) => {
-      const next = { ...checkout };
-      if (on) next[verifyKey(step)] = "1";
-      else delete next[verifyKey(step)];
-      setCheckout(next);
-    },
-    [checkout, setCheckout],
-  );
-
   const isComplete = useCallback(
     (step: Exclude<CheckoutStepId, "review">) => {
       const fieldsOk = fieldsFor(step).every((f) => !f.mandatory || (valueOf(f).trim() && !errorOf(f)));
       const uploadsOk = step !== "kyc" || content.steps.kyc.uploads.every((u) => !!get(u.key));
-      return fieldsOk && uploadsOk && (!needsVerify(step) || verified(step));
+      return fieldsOk && uploadsOk;
     },
-    [fieldsFor, valueOf, errorOf, content, get, needsVerify, verified],
+    [fieldsFor, valueOf, errorOf, content, get],
   );
 
   const progressOf = useCallback(
     (step: Exclude<CheckoutStepId, "review">) => {
       const fields = fieldsFor(step).filter((f) => f.mandatory);
       const uploads = step === "kyc" ? content.steps.kyc.uploads : [];
-      const verify = needsVerify(step);
-      const done =
-        fields.filter((f) => valueOf(f).trim() && !errorOf(f)).length +
-        uploads.filter((u) => !!get(u.key)).length +
-        (verify && verified(step) ? 1 : 0);
-      return { done, total: fields.length + uploads.length + (verify ? 1 : 0) };
+      const done = fields.filter((f) => valueOf(f).trim() && !errorOf(f)).length + uploads.filter((u) => !!get(u.key)).length;
+      return { done, total: fields.length + uploads.length };
     },
-    [fieldsFor, content, needsVerify, valueOf, errorOf, get, verified],
+    [fieldsFor, content, valueOf, errorOf, get],
   );
 
   const isFetched = useCallback(
@@ -212,11 +187,8 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
       companyDomain,
       isComplete,
       progressOf,
-      needsVerify,
-      verified,
-      setVerified,
       isFetched,
     }),
-    [caseId, selectedQuote, fallbackQuote, fieldsFor, valueOf, statusOf, errorOf, get, set, patchFor, otherPerson, setOtherPerson, companyDomain, isComplete, progressOf, needsVerify, verified, setVerified, isFetched],
+    [caseId, selectedQuote, fallbackQuote, fieldsFor, valueOf, statusOf, errorOf, get, set, patchFor, otherPerson, setOtherPerson, companyDomain, isComplete, progressOf, isFetched],
   );
 }

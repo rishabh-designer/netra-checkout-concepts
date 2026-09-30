@@ -17,20 +17,20 @@ const PLACES = [
 ];
 
 /* Company step fields (Figma 638:20126 exact / 638:18865 fuzzy): Pincode +
-   Place side by side and Address full width. An exact match (A) leads with
-   the pincode; a guess (B) leads with the address, the part to check first.
-   Values and states differ per case. */
+   Place side by side, then Address full width under them (typing it offers
+   "Kolkata, 700029" from the two). The address can carry its own state: a
+   web guess (B) is fuzzy while the pincode and place are confirmed. */
 function companyFields(
   status: CheckoutField["status"],
   pincode: string,
   place: string,
   address: string,
-  addressFirst = false,
+  addressStatus: CheckoutField["status"] = status,
 ): CheckoutField[] {
   const pin: CheckoutField = { key: "pincode", label: "Pincode", mandatory: true, control: "text", value: pincode, status, placeholder: "Enter Pincode", inputMode: "numeric", maxLength: 6, validate: "pincode" };
   const plc: CheckoutField = { key: "place", label: "Place of Incorporation", mandatory: true, control: "select", value: place, status, placeholder: "Select Place of Incorporation", options: PLACES };
-  const addr: CheckoutField = { key: "address", label: "Address", mandatory: true, control: "textarea", value: address, status, placeholder: "Enter your company's registered address" };
-  return addressFirst ? [addr, pin, plc] : [pin, plc, addr];
+  const addr: CheckoutField = { key: "address", label: "Address", mandatory: true, control: "textarea", value: address, status: addressStatus, placeholder: "Enter your company's registered address" };
+  return [pin, plc, addr];
 }
 
 /* KYC number fields (Figma 484:26922), index-aligned with the uploads above
@@ -79,7 +79,6 @@ export const mockCheckoutContent: CheckoutContent = {
   footer: { totalLabel: "Total Cost:", showSummaryLabel: "Show Purchase Summary", hideSummaryLabel: "Hide Purchase Summary" },
   saveLabel: "Save & Continue",
   ctaBlocked: { fields: "Fill in the required fields first", consent: "Tick the box to confirm first" },
-  verifyText: "I confirm these details are correct. The insurer issues my policy using them, so I have checked them carefully.",
   stepperLabels: { billing: "Billing", company: "Company", kyc: "KYC", review: "Review" },
   stepperUpcomingTip: "Finish the earlier steps first",
   stepperAriaLabel: "Checkout progress",
@@ -108,9 +107,9 @@ export const mockCheckoutContent: CheckoutContent = {
       cases: {
         // A: registry match, filled and verified (purple, Figma 638:20126).
         A: companyFields("verified", "560095", "Bengaluru, Karnataka", "2nd Floor, Pepe Jeans House, 18 Hosur Road, Koramangala, Bengaluru, Karnataka 560095"),
-        // B: the customer confirmed their details on the way to the quotes,
-        // so nothing reads as a guess here: verified, still editable.
-        B: companyFields("verified", "700029", "Kolkata, West Bengal", "1st Floor, 4B Panditia Road, Ballygunge, Kolkata, West Bengal 700029", true),
+        // B: pincode and place verified; the address is a web guess (fuzzy)
+        // for the customer to check.
+        B: companyFields("verified", "700029", "Kolkata, West Bengal", "1st Floor, 4B Panditia Road, Ballygunge, Kolkata, West Bengal 700029", "fuzzy"),
         // C: nothing found, entered by hand.
         C: companyFields("empty", "", "", ""),
       },

@@ -140,9 +140,6 @@ export interface CheckoutContent {
   saveLabel: string;
   /** Tooltips on the greyed step CTA: why it can't be pressed yet. */
   ctaBlocked: { fields: string; consent: string };
-  /** Verification for guessed (fuzzy) details: steps with a guessed field
-   *  need this ticked before Save & Continue (Case B). */
-  verifyText: string;
   stepperLabels: Record<CheckoutStepId, string>;
   /** Tooltip on steps not reached yet. */
   stepperUpcomingTip: string;
