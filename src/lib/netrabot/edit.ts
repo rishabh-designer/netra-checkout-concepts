@@ -3,7 +3,19 @@
  * mutates its input, so React state updates stay simple.
  */
 
-import type { AnimationStep, BotDefinition, Expression, NetraAnimation } from "@/types/netrabot";
+import type {
+  AnimationKind,
+  AnimationStep,
+  BotDefinition,
+  Expression,
+  ExpressionCategory,
+  MoodPoint,
+  NamedExpression,
+  NetraAnimation,
+} from "@/types/netrabot";
+
+/** Fields that flip sign when an edit is copied to the other eye, so a symmetrical face stays symmetrical. */
+const MIRRORED_FIELDS = new Set(["angle", "skew"]);
 
 export function getPath(target: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>((node, key) => (node as Record<string, unknown> | undefined)?.[key], target);
@@ -18,14 +30,14 @@ export function setPath<T>(target: T, path: string, value: unknown): T {
 
 /**
  * Set one expression field. With `linked` on, an edit to one eye is copied to the
- * other; the tilt mirrors so a symmetrical face stays symmetrical.
+ * other; tilt and lean mirror so a symmetrical face stays symmetrical.
  */
 export function setExpressionField(expression: Expression, path: string, value: unknown, linked: boolean): Expression {
   let next = setPath(expression, path, value);
   const match = /^(left|right)\.(.+)$/.exec(path);
   if (linked && match) {
     const other = match[1] === "left" ? "right" : "left";
-    const mirrored = match[2] === "angle" && typeof value === "number" ? -value : value;
+    const mirrored = MIRRORED_FIELDS.has(match[2]) && typeof value === "number" ? -value : value;
     next = setPath(next, `${other}.${match[2]}`, mirrored);
   }
   return next;
@@ -43,13 +55,24 @@ export function uniqueKey(label: string, taken: string[]): string {
   return `${base}${n}`;
 }
 
-export function addExpression(definition: BotDefinition, label: string, values: Expression) {
+export function addExpression(
+  definition: BotDefinition,
+  label: string,
+  values: Expression,
+  details: { category?: ExpressionCategory; mood?: MoodPoint } = {}
+) {
   const key = uniqueKey(label, definition.expressionOrder);
+  const named: NamedExpression = {
+    label,
+    category: details.category ?? "mine",
+    ...(details.mood ? { mood: { ...details.mood } } : {}),
+    values: structuredClone(values),
+  };
   return {
     key,
     definition: {
       ...definition,
-      expressions: { ...definition.expressions, [key]: { label, values: structuredClone(values) } },
+      expressions: { ...definition.expressions, [key]: named },
       expressionOrder: [...definition.expressionOrder, key],
     },
   };
@@ -78,7 +101,21 @@ export function updateExpression(definition: BotDefinition, key: string, values:
   return { ...definition, expressions: { ...definition.expressions, [key]: { ...definition.expressions[key], values } } };
 }
 
-export function addAnimation(definition: BotDefinition, label: string, from?: NetraAnimation) {
+/** Change a face's label, category or place on the emotion pad (mood: null takes it off the pad). */
+export function updateExpressionDetails(
+  definition: BotDefinition,
+  key: string,
+  details: { category?: ExpressionCategory; mood?: MoodPoint | null }
+): BotDefinition {
+  const current = definition.expressions[key];
+  const { mood, ...rest } = current;
+  const next: NamedExpression = { ...rest, ...(details.category ? { category: details.category } : {}) };
+  const nextMood = details.mood === undefined ? mood : details.mood;
+  if (nextMood) next.mood = nextMood;
+  return { ...definition, expressions: { ...definition.expressions, [key]: next } };
+}
+
+export function addAnimation(definition: BotDefinition, label: string, from?: NetraAnimation, kind: AnimationKind = "loop") {
   const key = uniqueKey(label, definition.animationOrder);
   const base: NetraAnimation = from
     ? structuredClone(from)
@@ -86,9 +123,28 @@ export function addAnimation(definition: BotDefinition, label: string, from?: Ne
         label,
         group: "Custom",
         description: "",
-        playbackMode: "loop",
-        steps: [{ expression: definition.expressionOrder[0], holdMs: 1500, transitionMs: 400, easing: "smooth", bounce: 0.3 }],
-        blink: { enabled: true, initialDelayMs: 1800, minIntervalMs: 2800, maxIntervalMs: 5000, durationMs: 260, closedHeight: 4 },
+        kind,
+        playbackMode: kind === "loop" ? "loop" : "once",
+        steps: [
+          {
+            expression: definition.expressionOrder[0],
+            holdMs: 1500,
+            transitionMs: 400,
+            easing: "smooth",
+            bounce: 0.3,
+            intensity: 1,
+            effect: "none",
+          },
+        ],
+        blink: {
+          enabled: true,
+          initialDelayMs: 1800,
+          minIntervalMs: 2800,
+          maxIntervalMs: 5000,
+          durationMs: 260,
+          closedHeight: 4,
+          doubleChance: 0.12,
+        },
       };
   return {
     key,
@@ -113,7 +169,11 @@ export function updateAnimation(definition: BotDefinition, key: string, animatio
 
 export function addStep(animation: NetraAnimation, expression: string): NetraAnimation {
   const last = animation.steps[animation.steps.length - 1];
-  const step: AnimationStep = { ...(last ?? { holdMs: 1200, transitionMs: 400, easing: "smooth", bounce: 0.3 }), expression };
+  const step: AnimationStep = {
+    ...(last ?? { holdMs: 1200, transitionMs: 400, easing: "smooth", bounce: 0.3, intensity: 1, effect: "none" }),
+    effect: "none",
+    expression,
+  };
   return { ...animation, steps: [...animation.steps, step] };
 }
 
@@ -132,4 +192,37 @@ export function moveStep(animation: NetraAnimation, index: number, direction: -1
 
 export function updateStep(animation: NetraAnimation, index: number, path: string, value: unknown): NetraAnimation {
   return { ...animation, steps: animation.steps.map((step, i) => (i === index ? setPath(step, path, value) : step)) };
+}
+
+/** Key of the animation `withHeldExpression` adds. */
+export const HELD_ANIMATION_KEY = "__held";
+
+/**
+ * The definition plus one loop that simply holds `expressionKey` (still
+ * blinking, with its ambient motion), so any saved face can be a resting state:
+ * <NetraBot expression="sceptical" />.
+ */
+export function withHeldExpression(definition: BotDefinition, expressionKey: string): BotDefinition {
+  if (!definition.expressions[expressionKey]) return definition;
+  const blink = definition.animations.idle?.blink ?? definition.animations[definition.animationOrder[0]]?.blink;
+  const held: NetraAnimation = {
+    label: definition.expressions[expressionKey].label,
+    group: "Held face",
+    description: "",
+    kind: "loop",
+    playbackMode: "loop",
+    steps: [
+      { expression: expressionKey, holdMs: 4000, transitionMs: 400, easing: "smooth", bounce: 0.3, intensity: 1, effect: "none" },
+    ],
+    blink: blink ?? {
+      enabled: true,
+      initialDelayMs: 1800,
+      minIntervalMs: 2800,
+      maxIntervalMs: 5000,
+      durationMs: 260,
+      closedHeight: 4,
+      doubleChance: 0.12,
+    },
+  };
+  return { ...definition, animations: { ...definition.animations, [HELD_ANIMATION_KEY]: held } };
 }

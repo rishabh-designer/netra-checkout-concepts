@@ -3,3 +3,12 @@
   flex-shrink: 0;
   overflow: visible;
 }
+
+/* A positioned box the size of the bot, so a spark burst centres on it. */
+.frame {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  line-height: 0;
+  vertical-align: middle;
+}

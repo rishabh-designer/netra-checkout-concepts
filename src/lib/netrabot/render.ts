@@ -2,8 +2,10 @@
  * NetraBot renderer. Turns a body + expression into SVG path data.
  *
  * The pipeline: each face feature (an eye, the nose) is a rounded rectangle in
- * flat face units -> the surface lays it onto the front of the body ->
- * the head rotates it in 3D -> a camera projects it to 2D.
+ * flat face units, bent, tapered or leaned (warp.ts) -> the surface lays it
+ * onto the front of the body -> the head rotates it in 3D -> a camera projects
+ * it to 2D. Presence (size, lift, squash, opacity, blur, dither, floor clip)
+ * comes back alongside, for the whole drawing (presence.ts).
  *
  * The body is the surface's mesh put through the same rotation and projection.
  * Only the quads facing the camera are drawn (they cover the whole silhouette,
@@ -22,11 +24,11 @@ import type {
 } from "@/types/netrabot";
 import { bodyMotionOffset, eyeMotionOffset } from "./motion";
 import { DEG, clamp, makeRotator, project, smoothstep, type Vec2, type Vec3 } from "./math";
+import { presenceFrame } from "./presence";
 import { shade } from "./shade";
 import { getSurface, type Surface } from "./surfaces";
+import { featureOutline, type FeatureWarp } from "./warp";
 
-const CORNER_STEPS = 6;
-const EDGE_STEPS = 3;
 const MIN_FEATURE_SIZE = 1;
 const CAMERA_RADII = 3;
 /** The nose is a line with round ends: fully rounded. */
@@ -78,36 +80,6 @@ export interface RenderInput {
   detail?: DetailLevel;
 }
 
-/** A rounded rectangle outline, centred on the origin, as a closed loop of points. */
-function roundedRectangle(width: number, height: number, roundness: number): Vec2[] {
-  const hw = width / 2;
-  const hh = height / 2;
-  const radius = clamp(roundness, 0, 1) * Math.min(hw, hh);
-  const corners: [number, number, number][] = [
-    [hw - radius, -hh + radius, -90],
-    [hw - radius, hh - radius, 0],
-    [-hw + radius, hh - radius, 90],
-    [-hw + radius, -hh + radius, 180],
-  ];
-  const arcs = corners.map(([cx, cy, start]) =>
-    Array.from({ length: CORNER_STEPS + 1 }, (_, i): Vec2 => {
-      const angle = (start + (90 * i) / CORNER_STEPS) * DEG;
-      return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];
-    })
-  );
-  const loop: Vec2[] = [];
-  arcs.forEach((arc, index) => {
-    loop.push(...arc);
-    const from = arc[arc.length - 1];
-    const to = arcs[(index + 1) % arcs.length][0];
-    for (let i = 1; i <= EDGE_STEPS; i++) {
-      const t = i / (EDGE_STEPS + 1);
-      loop.push([from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t]);
-    }
-  });
-  return loop;
-}
-
 interface FeatureSpec {
   width: number;
   height: number;
@@ -116,6 +88,7 @@ interface FeatureSpec {
   centreX: number;
   centreY: number;
   angleDeg: number;
+  warp: FeatureWarp;
 }
 
 interface Camera {
@@ -136,7 +109,7 @@ function renderFeature(spec: FeatureSpec, camera: Camera): BotFeatureFrame {
   const sin = Math.sin(angle);
 
   const visible: Vec2[] = [];
-  for (const [x, y] of roundedRectangle(spec.width, spec.height, spec.roundness)) {
+  for (const [x, y] of featureOutline(spec.width, spec.height, spec.roundness, spec.warp)) {
     const sample = surface.faceSample(spec.centreX + x * cos + y * sin, spec.centreY - x * sin + y * cos);
     if (rotate(sample.normal)[2] <= 0) continue;
     visible.push(project(rotate(sample.point), perspective, distance));
@@ -235,6 +208,7 @@ export function renderBotFrame(body: BotBody, input: RenderInput): BotFrame {
         centreX: (side * expression.spacing) / 2 + geometry.x + glance[0],
         centreY: geometry.y + glance[1],
         angleDeg: geometry.angle,
+        warp: { bend: geometry.bend, taper: geometry.taper, skew: geometry.skew, bendAxis: "x" },
       },
       camera
     );
@@ -243,7 +217,15 @@ export function renderBotFrame(body: BotBody, input: RenderInput): BotFrame {
   const noseFrame =
     nose.width > 0 && nose.height > 0
       ? renderFeature(
-          { width: nose.width, height: nose.height, roundness: NOSE_ROUNDNESS, centreX: nose.x, centreY: nose.y, angleDeg: nose.angle },
+          {
+            width: nose.width,
+            height: nose.height,
+            roundness: NOSE_ROUNDNESS,
+            centreX: nose.x,
+            centreY: nose.y,
+            angleDeg: nose.angle,
+            warp: { bend: nose.bend, taper: nose.taper, skew: nose.skew, bendAxis: "y" },
+          },
           camera
         )
       : HIDDEN;
@@ -252,6 +234,7 @@ export function renderBotFrame(body: BotBody, input: RenderInput): BotFrame {
     layers: renderBody(expression.bodyColor ?? body.color, camera, input.detail ?? "high"),
     eyeColor: expression.eyeColor ?? input.defaultEyeColor,
     features: [eye(-1, expression.left), eye(1, expression.right), noseFrame],
+    presence: presenceFrame(body, expression, sway),
   };
 }
 

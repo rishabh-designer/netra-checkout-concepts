@@ -1,0 +1,108 @@
+/* A square pad with a draggable handle, axis words round the edge. */
+
+.pad {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-4);
+  width: 100%;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-6);
+  width: 100%;
+}
+
+.axisTop,
+.axisBottom,
+.axisSide {
+  color: var(--color-label-tertiary);
+  font-size: var(--font-size-50);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  white-space: nowrap;
+}
+
+.axisSide:first-child {
+  justify-self: end;
+}
+
+.area {
+  position: relative;
+  width: 240px;
+  aspect-ratio: 1;
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-16);
+  background: var(--color-brand-primary-subtle);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.pad[data-size="small"] .area {
+  width: 132px;
+}
+
+.area:focus-visible {
+  outline: 2px solid var(--color-brand-primary-border);
+  outline-offset: 2px;
+}
+
+.crossX,
+.crossY {
+  position: absolute;
+  background: var(--color-brand-primary-faint);
+  pointer-events: none;
+}
+
+.crossX {
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.crossY {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+
+/* A preset face: a small dot you can click to jump to. */
+.mark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  padding: 0;
+  border: 1.5px solid var(--color-card);
+  border-radius: 50%;
+  corner-shape: round;
+  background: var(--color-brand-primary-muted);
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.mark:hover {
+  transform: scale(1.4);
+  background: var(--color-brand-primary);
+}
+
+.mark[data-active] {
+  background: var(--color-brand-primary);
+}
+
+.handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--color-brand-primary);
+  border-radius: 50%;
+  corner-shape: round;
+  background: var(--color-card);
+  box-shadow: var(--shadow-button-primary-hover);
+  pointer-events: none;
+}

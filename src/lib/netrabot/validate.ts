@@ -1,10 +1,13 @@
 /**
- * NetraBot definition validation, used when importing JSON from the studio.
- * Returns the first problem found as a readable message.
+ * NetraBot definition validation, used when importing JSON from the studio
+ * and when reading the design saved in this browser. Older schemas are
+ * migrated first (migrate.ts). Returns the first problem found as a readable
+ * message.
  */
 
 import type { BotDefinition } from "@/types/netrabot";
 import { DEFAULT_GAZE } from "./gaze";
+import { SUPPORTED_SCHEMAS, migrateDefinition } from "./migrate";
 import { SURFACE_KEYS } from "./surfaces";
 import { samplePath } from "./svgPath";
 
@@ -32,16 +35,22 @@ function findBadNumber(node: unknown, path: string): string | null {
   return null;
 }
 
-export function parseNetraBotDefinition(text: string): ValidationResult {
-  let data: unknown;
+export interface ParseOptions {
+  /** The built-in design: its presets are offered to older designs, and fill in missing categories. */
+  presets?: BotDefinition;
+}
+
+export function parseNetraBotDefinition(text: string, options: ParseOptions = {}): ValidationResult {
+  let raw: unknown;
   try {
-    data = JSON.parse(text);
+    raw = JSON.parse(text);
   } catch {
     return { ok: false, error: "That is not valid JSON." };
   }
-  if (!isObject(data) || data.schema !== "bimanetra/netrabot" || data.schemaVersion !== 1) {
-    return { ok: false, error: "This file is not a NetraBot definition (schema bimanetra/netrabot v1)." };
+  if (!isObject(raw) || raw.schema !== "bimanetra/netrabot" || !SUPPORTED_SCHEMAS.includes(raw.schemaVersion as number)) {
+    return { ok: false, error: "This file is not a NetraBot definition (schema bimanetra/netrabot v1 or v2)." };
   }
+  const data = migrateDefinition(raw, options.presets);
   const body = data.body;
   if (!isObject(body) || !SURFACE_KEYS.includes(body.surface as never)) {
     return { ok: false, error: "The body needs a known surface." };

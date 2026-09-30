@@ -9,8 +9,31 @@
 }
 
 .header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--spacing-12) var(--spacing-24);
   max-width: 1280px;
   margin: 0 auto var(--spacing-24);
+}
+
+.headerText {
+  max-width: 640px;
+}
+
+.headerTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8) var(--spacing-12);
+}
+
+.shortcuts {
+  color: var(--color-label-tertiary);
+  font-size: var(--font-size-50);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
 }
 
 .title {
@@ -64,6 +87,37 @@
 .stageCanvas[data-tone="dark"],
 .sizes[data-tone="dark"] {
   background: var(--color-label-basic);
+}
+
+/* The bot on the stage can be grabbed and shaped (mouse and pen). */
+.stageCanvas svg {
+  cursor: grab;
+}
+
+.stageCanvas svg [data-feature] {
+  cursor: move;
+}
+
+.stageCanvas[data-dragging] svg,
+.stageCanvas[data-dragging] svg [data-feature] {
+  cursor: grabbing;
+}
+
+.stageHint {
+  position: absolute;
+  right: var(--spacing-12);
+  bottom: var(--spacing-12);
+  left: var(--spacing-12);
+  color: var(--color-label-tertiary);
+  font-size: var(--font-size-50);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  text-align: center;
+  pointer-events: none;
+}
+
+.stageCanvas[data-tone="dark"] .stageHint {
+  color: var(--color-label-secondary);
 }
 
 .stageCaption {
@@ -362,6 +416,14 @@ h3.sectionTitle {
   list-style: none;
 }
 
+/* A long list of faces scrolls on its own, so the editor below stays in reach. */
+.cardsScroll {
+  max-height: 292px;
+  padding: var(--spacing-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .card {
   display: flex;
   flex-direction: column;
@@ -501,6 +563,307 @@ h3.sectionTitle {
   font-size: var(--font-size-75);
   font-weight: 500;
   user-select: all;
+}
+
+/* Stage actions: appear, disappear, reactions */
+
+.stageActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8) var(--spacing-12);
+}
+
+.stageAction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.inlineSelect {
+  max-width: 180px;
+  padding: var(--spacing-6) var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-input-stroke);
+  border-radius: var(--radius-12);
+  background: var(--color-input-fill);
+  color: var(--color-label-primary);
+  font-family: inherit;
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  cursor: pointer;
+}
+
+.inlineSelect:focus-visible {
+  border-color: var(--color-brand-primary);
+  outline: none;
+  background: var(--color-brand-primary-subtle);
+}
+
+/* A field whose label has a hint gets a dotted underline, so the tooltip is discoverable. */
+.fieldLabel[data-hint] {
+  text-decoration: underline dotted var(--color-border-neutral);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
+.fieldEnd {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.resetLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-brand-primary);
+  font-family: inherit;
+  font-size: var(--font-size-50);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  cursor: pointer;
+}
+
+.resetLink:hover {
+  text-decoration: underline;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-label-tertiary);
+  font-size: var(--font-size-50);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.5;
+}
+
+/* Thumbnails keep their drawing inside their box (lifted and dropped faces). */
+.thumbSvg {
+  overflow: hidden;
+}
+
+/* Pose: the quick layer */
+
+.quick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-16);
+  background: var(--color-card);
+}
+
+.quickHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.quickTitle {
+  margin: 0;
+  color: var(--color-label-primary);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+}
+
+.quickRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+
+.quickLook {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.quickActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+/* Chips: animation lists and library filters */
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.groupTitle {
+  margin: 0;
+  color: var(--color-label-tertiary);
+  font-size: var(--font-size-50);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  text-transform: uppercase;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: var(--spacing-4) var(--spacing-10);
+  border: var(--border-hairline) solid var(--color-border-neutral);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+  color: var(--color-label-primary);
+  font-family: inherit;
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--color-brand-primary-border);
+  color: var(--color-brand-primary);
+}
+
+.chip[data-selected] {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary-subtle-bold);
+  color: var(--color-brand-primary);
+}
+
+.chip:focus-visible,
+.presetButton:focus-visible,
+.presetLink:focus-visible {
+  outline: 2px solid var(--color-brand-primary-border);
+  outline-offset: 1px;
+}
+
+/* Library cards */
+
+.presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.preset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.presetButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+  width: 100%;
+  padding: var(--spacing-8) var(--spacing-6);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-16);
+  background: var(--color-card);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.presetButton:hover {
+  border-color: var(--color-brand-primary-border);
+  background: var(--color-brand-primary-subtle);
+}
+
+.presetButton[data-selected] {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary-subtle);
+}
+
+.presetLabel {
+  color: var(--color-label-primary);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.presetMeta {
+  color: var(--color-label-tertiary);
+  font-size: var(--font-size-50);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+}
+
+.presetActions {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-8);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.preset:hover .presetActions,
+.preset:focus-within .presetActions {
+  opacity: 1;
+}
+
+.presetLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-brand-primary);
+  font-family: inherit;
+  font-size: var(--font-size-50);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  cursor: pointer;
+}
+
+.presetLink:hover {
+  text-decoration: underline;
+}
+
+/* Steps: the selected one, and the easing curve */
+
+.step[data-selected] {
+  border-color: var(--color-brand-primary);
+}
+
+.curve {
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.curveGuide {
+  stroke: var(--color-border-neutral);
+  stroke-width: 0.75;
+  stroke-dasharray: 2 2;
+}
+
+.curveLine {
+  fill: none;
+  stroke: var(--color-brand-primary);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Touch screens have no hover: the card actions stay visible. */
+@media (hover: none) {
+  .presetActions {
+    opacity: 1;
+  }
 }
 
 /* Below 1000px the stage stacks above the panel and nothing sticks. */

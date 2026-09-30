@@ -12,10 +12,40 @@
   letter-spacing: var(--track-500);
 }
 
+/* A label with a hint gets a dotted underline, so the tooltip is discoverable. */
+.label[data-hint] {
+  text-decoration: underline dotted var(--color-border-neutral);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
 .readout {
   display: inline-flex;
   align-items: baseline;
   gap: var(--spacing-2);
+}
+
+.reset {
+  margin-right: var(--spacing-4);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-brand-primary);
+  font-family: inherit;
+  font-size: var(--font-size-50);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  cursor: pointer;
+}
+
+.reset:hover {
+  text-decoration: underline;
+}
+
+.reset:focus-visible {
+  outline: 2px solid var(--color-brand-primary-border);
+  outline-offset: 1px;
+  border-radius: var(--radius-6);
 }
 
 .number {

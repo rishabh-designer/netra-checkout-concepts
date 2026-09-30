@@ -39,7 +39,7 @@ export function ExportPanel({ lab }: { lab: NetraLabApi }) {
   };
 
   const apply = () => {
-    const result = parseNetraBotDefinition(incoming);
+    const result = parseNetraBotDefinition(incoming, { presets: lab.presets });
     if (!result.ok) return setError(result.error);
     setError("");
     lab.setDefinition(result.value);
@@ -80,7 +80,11 @@ export function ExportPanel({ lab }: { lab: NetraLabApi }) {
         </button>
       </div>
       <h3 className={styles.sectionTitle}>{copy.usage}</h3>
-      <code className={styles.code}>{LAB_COPY.usageSnippet}</code>
+      {LAB_COPY.usageSnippets.map((snippet) => (
+        <code key={snippet} className={styles.code}>
+          {snippet}
+        </code>
+      ))}
     </div>
   );
 }

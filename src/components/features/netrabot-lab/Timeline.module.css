@@ -1,0 +1,153 @@
+/* The animation as a strip of steps, sized by time, with a live playhead. */
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+}
+
+.title {
+  color: var(--color-label-primary);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+}
+
+.total {
+  color: var(--color-label-tertiary);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  height: 56px;
+  padding: 2px;
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-12);
+  background: var(--color-card-sunken);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.block {
+  position: relative;
+  flex-basis: 0;
+  min-width: 20px;
+  overflow: hidden;
+  border-radius: var(--radius-8);
+  background: var(--color-brand-primary-subtle-bold);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.block:hover {
+  background: var(--color-brand-primary-border);
+}
+
+.block[data-selected] {
+  box-shadow: inset 0 0 0 1.5px var(--color-brand-primary);
+}
+
+.block[data-returning] {
+  opacity: 0.45;
+}
+
+/* The travel part of a step: hatched, so holds and moves read apart. */
+.travel {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-brand-primary-faint) 0 3px,
+    transparent 3px 7px
+  );
+  pointer-events: none;
+}
+
+.thumb {
+  position: absolute;
+  top: 50%;
+  left: var(--spacing-4);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.travelMark {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  width: 10px;
+  margin-left: -5px;
+  cursor: ew-resize;
+}
+
+.travelMark::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--color-brand-primary-muted);
+}
+
+.edge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.edge::after {
+  content: "";
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  right: 2px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--color-brand-primary);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.block:hover .edge::after {
+  opacity: 1;
+}
+
+.playhead {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: 0;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--color-brand-secondary);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-label-tertiary);
+  font-size: var(--font-size-50);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.5;
+}
