@@ -102,6 +102,11 @@
   color: var(--color-label-primary);
 }
 
+/* The line break after "Quote Requested!": narrower screens only. */
+.titleBreak {
+  display: none;
+}
+
 .intro {
   font-size: var(--font-size-100);
   font-weight: 500;
@@ -233,6 +238,11 @@
   filter: brightness(0.96);
 }
 
+/* The pinned request footer (phones only, Figma 746:41285). */
+.requestFooter {
+  display: none;
+}
+
 /* Stats wrap as a grid; each spans a shared label row and value row
    (subgrid), so if one label wraps, the whole line's values stay level. */
 .stats {
@@ -299,23 +309,12 @@
   color: var(--color-label-primary);
 }
 
-/* Pagination (642:32821): the count, then the two chevrons, 8 apart. */
+/* Pagination (642:32821): the two chevrons, 8 apart (the count is in the title). */
 .nav {
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
   padding: var(--spacing-4) 0;
-}
-
-.showing {
-  margin-right: var(--spacing-4);
-  padding: 3px var(--spacing-4);
-  font-size: var(--font-size-75);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--color-label-secondary);
 }
 
 /* The row scrolls sideways under the arrows; its right edge fades out. */
@@ -683,6 +682,9 @@
     flex-direction: column;
     align-items: flex-start;
   }
+  .titleBreak {
+    display: inline;
+  }
 }
 
 /* Mobile (RESPONSIVENESS.md): the 16 page gutter with the header 16 above
@@ -724,6 +726,72 @@
   .cell {
     flex-basis: 100%;
   }
+  /* A quote request's head leaves the card for a footer pinned to the
+     screen's foot (746:41285): lavender to white, hairline, r24 on top,
+     16/12/12, the title (serif 24) over the full-width orange action. */
+  .inquiryHead[data-variant="quote"] {
+    display: none;
+  }
+  /* With the head gone, the intro sits 24 over the steps (the card's 32,
+     pulled in 8). */
+  .titleBlock:has(+ .inquiryHead[data-variant="quote"]) {
+    margin-bottom: calc(-1 * var(--spacing-8));
+  }
+  .requestFooter {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-12);
+    padding: var(--spacing-16) var(--spacing-12) max(var(--spacing-12), env(safe-area-inset-bottom));
+    border: var(--border-hairline) solid var(--color-card);
+    border-bottom: 0;
+    border-radius: var(--radius-24) var(--radius-24) 0 0;
+    background: linear-gradient(to right, var(--color-brand-primary-subtle), var(--color-card));
+  }
+  .requestFooterTitle {
+    font-family: var(--font-display);
+    font-feature-settings: var(--font-display-features);
+    font-size: var(--font-size-heading-sm);
+    font-style: italic;
+    font-weight: 400;
+    /* Instrument Serif keeps its own spacing, not Anek's. */
+    letter-spacing: 0;
+    line-height: 1;
+    color: var(--color-brand-primary);
+  }
+  /* The ikkat rule runs edge to edge (no side inset), its marks about 24
+     apart (22 per mark: 14 across a 317 card). Doubled: outranks the
+     divider's own padding whatever order the modules load in. */
+  /* 16 above and below it (the card's 32 gaps, pulled in 16 each side). */
+  .rule {
+    margin-block: calc(-1 * var(--spacing-16));
+    padding: 0;
+  }
+  .ruleMarks.ruleMarks {
+    --ikkat-unit: 22px;
+    padding-inline: 0;
+  }
+  /* The questions pill: tighter (6/10), rounder (r16), its copy at 12 and
+     the chevron with it (icon = label size). */
+  .questions {
+    padding: var(--spacing-6) var(--spacing-10);
+    border-radius: var(--radius-16);
+    font-size: var(--font-size-75);
+  }
+  .questions svg {
+    width: 12px;
+    height: 12px;
+  }
+  /* What happens next: the copy and its tick at 14. */
+  .step {
+    font-size: var(--font-size-100);
+  }
+  .tick {
+    width: 14px;
+    height: 14px;
+  }
   /* The rating chips share the row equally, 12 apart. */
   .options {
     gap: var(--spacing-12);
@@ -740,8 +808,9 @@
   .step {
     align-items: flex-start;
   }
+  /* Centred on the first 21px line of the 14px copy. */
   .step .tick {
-    margin-top: 4px;
+    margin-top: 3.5px;
   }
   .inquiryHead {
     flex-direction: column;

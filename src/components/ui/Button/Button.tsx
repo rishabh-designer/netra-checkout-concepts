@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, Ref } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, Ref } from "react";
 import { ArrowRight } from "@/components/icons/ArrowRight";
 import { cn } from "@/lib/utils";
 import styles from "./Button.module.css";
@@ -38,5 +38,21 @@ export function Button({ tone = "primary", arrow, block, blockedTip, disabled, c
       {arrow ? <span>{children}</span> : children}
       {arrow && <ArrowRight size={16} className={styles.arrow} />}
     </button>
+  );
+}
+
+export interface ButtonLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>, Pick<ButtonProps, "tone" | "arrow" | "block"> {}
+
+/**
+ * ButtonLink — Button's look on a link (a tel: or a page), for an action
+ * that navigates.
+ * Usage: <ButtonLink tone="secondary" arrow block href="tel:…">Speak to an Expert</ButtonLink>
+ */
+export function ButtonLink({ tone = "primary", arrow, block, className, children, ...rest }: ButtonLinkProps) {
+  return (
+    <a className={cn(styles.button, className)} data-tone={tone} data-arrow={arrow || undefined} data-block={block || undefined} {...rest}>
+      {arrow ? <span>{children}</span> : children}
+      {arrow && <ArrowRight size={16} className={styles.arrow} />}
+    </a>
   );
 }

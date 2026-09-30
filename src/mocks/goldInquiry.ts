@@ -34,7 +34,7 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
     detailsMissing: "Missing",
     detailsVerifying: "Verifying",
   },
-  otherQuotes: { title: "Other Quotes for This Policy", showing: "{total} Alternative Quotes", prevLabel: "Previous quotes", nextLabel: "More quotes" },
+  otherQuotes: { title: "{total} Alternative Quotes for This Policy", prevLabel: "Previous quotes", nextLabel: "More quotes" },
   needHelp: {
     title: "Need Help?",
     subtitle: "For any assistance, contact our IRDAI-certified experts",

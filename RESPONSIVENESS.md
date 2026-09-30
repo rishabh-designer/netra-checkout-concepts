@@ -1,6 +1,6 @@
 # Responsiveness
 
-How BimaNetra adapts to a phone. Distilled from the September 2026 mobile pass, which took every screen from the landing page to the success page through a 375 × 812 review. Read this before building or changing a mobile layout, and add to it when you learn something new.
+How BimaNetra adapts to a phone. Distilled from the September 2026 mobile pass, which took every screen from the landing page to the success page through a 375 × 812 review. Read this before building or changing a mobile layout, and add to it when you learn something new. `learnmobiledesign.md` records the design review of the Quote Requested page; where the two disagree, it is newer.
 
 ---
 
@@ -115,7 +115,7 @@ A pinned footer pairs the system's status with the CTA it gates:
 
 CTA copy can shorten when the price sits beside it: "Pay ₹10,000" becomes "Pay Now".
 
-If the primary CTA is already visible on arrival and nothing below gates it, leave it inline.
+~~If the primary CTA is already visible on arrival and nothing below gates it, leave it inline.~~ Superseded: when a page exists for one next action, pin it on mobile even if it's visible on arrival (`learnmobiledesign.md` 3.1).
 
 ### 5.6 Popups become bottom sheets
 - **Shape:** full width, rounded 24 on top, anchored to the screen's foot, rising from the bottom.
@@ -252,7 +252,7 @@ Applied and checked at 375 (Case A priced request, Case B Gold inquiry), with we
 - **Other Quotes** swipes one full card at a time (no fade over the card), and its pager chevrons get 44px hit areas.
 - **Rate Your Experience:** the Bad / Fine / Good chips share the row equally, 12 apart (web keeps them spread apart at their own widths).
 - **"Request a Quote" drawer** becomes a bottom sheet on phones (`sheetOnMobile`), and its chat input goes from 14 to 16 so iOS doesn't zoom on focus. The Ask BimaNetra chat shares that input (`QuotesChat`).
-- **CTA stays inline:** "Request Payment Link" / "Speak to an Expert" is visible on arrival, so it isn't pinned (5.5).
+- **Pinned request footer (quote requests only, Figma 746:41285):** "Your Quote Request" and its one action ("Speak to an Expert" or "Request Payment Link") leave the card for a footer pinned to the screen's foot: lavender to white, r24 on top, 16/12/12, serif 24 over a full-width orange button. The Gold inquiry keeps its head in the card.
 
 ---
 

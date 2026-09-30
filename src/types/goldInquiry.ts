@@ -39,7 +39,8 @@ export interface GoldInquiryContent {
     detailsVerifying: string;
   };
   /** `showing` fills {total} (the other quotes on offer). */
-  otherQuotes: { title: string; showing: string; prevLabel: string; nextLabel: string };
+  /** `title` carries the count: "{total} Alternative Quotes for This Policy". */
+  otherQuotes: { title: string; prevLabel: string; nextLabel: string };
   needHelp: {
     title: string;
     subtitle: string;

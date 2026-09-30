@@ -19,6 +19,7 @@ import styles from "./GoldInquiryView.module.css";
 import { Chevron } from "@/components/icons/Chevron";
 import { ArrowRight } from "@/components/icons/ArrowRight";
 import { IconButton } from "@/components/ui/IconButton";
+import { Button, ButtonLink } from "@/components/ui/Button";
 
 export interface GoldInquiryViewProps {
   content: GoldInquiryContent;
@@ -29,6 +30,20 @@ export interface GoldInquiryViewProps {
   /** "gold" (Case B's Gold Quote, the default) or "quote": an offline
    *  quote's Get Quote, a quote request to the insurer the user picked. */
   variant?: "gold" | "quote";
+}
+
+/** "Quote Requested! Sit Back…": the exclamation ends the first line where
+ *  the title wraps (the break shows on narrower screens only). */
+function breakAfterExclaim(title: string, breakClass: string) {
+  const at = title.indexOf("! ");
+  if (at < 0) return title;
+  return (
+    <>
+      {title.slice(0, at + 2)}
+      <br className={breakClass} />
+      {title.slice(at + 2)}
+    </>
+  );
 }
 
 /** A button's trailing arrow, at its label's size (14, or 12 in the header). */
@@ -170,10 +185,10 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
 
             <div className={styles.content}>
               <div className={styles.rule}>
-                <IkkatDivider unit={32} height={4} />
+                <IkkatDivider unit={32} height={4} className={styles.ruleMarks} />
               </div>
               <div className={styles.titleBlock}>
-                <h1 className={styles.title}>{isRequest ? quoteRequest.title : content.title}</h1>
+                <h1 className={styles.title}>{breakAfterExclaim(isRequest ? quoteRequest.title : content.title, styles.titleBreak)}</h1>
                 <p className={styles.intro}>{content.intro}</p>
               </div>
               <div className={styles.inquiryHead} data-variant={isRequest ? "quote" : undefined}>
@@ -256,11 +271,8 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
           {/* Other Quotes for This Policy (642:32815) */}
           <section className={styles.others}>
             <div className={styles.othersHead}>
-              <h2 className={styles.othersTitle}>{content.otherQuotes.title}</h2>
+              <h2 className={styles.othersTitle}>{content.otherQuotes.title.replace("{total}", String(quotes.length))}</h2>
               <div className={styles.nav}>
-                <p className={styles.showing}>
-                  {content.otherQuotes.showing.replace("{total}", String(quotes.length))}
-                </p>
                 <IconButton size="sm" label={content.otherQuotes.prevLabel} onClick={() => page(-1)} disabled={ends.start}>
                   <PagerChevron flip size={12} />
                 </IconButton>
@@ -360,6 +372,22 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
           </div>
         </aside>
       </div>
+      {/* Phones: the request and its one action pinned to the screen's foot
+          (Figma 746:41285), in place of the head in the card. */}
+      {isRequest && (
+        <footer className={styles.requestFooter}>
+          <h2 className={styles.requestFooterTitle}>{quoteRequest.inquiryTitle}</h2>
+          {requested?.price ? (
+            <Button tone="secondary" arrow block onClick={() => notify("paymentLink")}>
+              {quoteRequest.paymentLinkLabel}
+            </Button>
+          ) : (
+            <ButtonLink tone="secondary" arrow block href={content.expertHref}>
+              {inquiry.ctaLabel}
+            </ButtonLink>
+          )}
+        </footer>
+      )}
     </div>
   );
 }

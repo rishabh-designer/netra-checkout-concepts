@@ -6,7 +6,8 @@ import { IkkatMark } from "@/components/ui/IkkatMark";
 import styles from "./IkkatDivider.module.css";
 
 export interface IkkatDividerProps {
-  /** Horizontal px each mark occupies — mark count = container width / unit. */
+  /** Horizontal px each mark occupies — mark count = container width / unit.
+   *  A `--ikkat-unit` set in CSS wins, so a breakpoint can re-space it. */
   unit?: number;
   /** Mark height in px (aspect locked 2:1, so each mark is 2× this wide). */
   height?: number;
@@ -30,7 +31,10 @@ export function IkkatDivider({ unit = 20, height = 4, color, className }: IkkatD
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const measure = () => setCount(Math.max(2, Math.floor(el.clientWidth / unit)));
+    const measure = () => {
+      const u = parseFloat(getComputedStyle(el).getPropertyValue("--ikkat-unit")) || unit;
+      setCount(Math.max(2, Math.floor(el.clientWidth / u)));
+    };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);

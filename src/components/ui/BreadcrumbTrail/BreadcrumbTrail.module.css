@@ -1,7 +1,47 @@
 .trail {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* "…": the folded middle, read like a crumb; tap to show the whole path. */
+.more {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: var(--font-size-50);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  line-height: 1;
+  color: var(--color-label-placeholder);
+  cursor: pointer;
+}
+
+.slash .more {
+  color: var(--color-label-muted-primary);
+}
+
+.more:hover {
+  color: var(--color-brand-primary);
+}
+
+/* The whole trail on one line, out of sight and taking no room (its content
+   width is read from scrollWidth). */
+.measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: var(--spacing-8);
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .entry {
