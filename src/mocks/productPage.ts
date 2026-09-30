@@ -39,10 +39,6 @@ const TABS = ["BimaNetra", "All", "Images", "Videos", "News"];
 // Shown in the reserved help row under web-guessed (fuzzy) fields.
 const FETCH_DISCLAIMER = "Fetched from publicly available sources. BimaNetra can make mistakes.";
 
-/** Shared broker-liability consent (Fuzzy / Case B, both steps). */
-const CONSENT_TEXT =
-  "I confirm these details are correct. The insurer issues my policy using them, so I have checked them carefully.";
-
 /* The left-panel search result persists across steps (same company), so the
    three per-case panels are authored once and reused by both form steps. */
 const SEARCH_MATCHED: QuoteSearchPanel = {
@@ -193,7 +189,6 @@ const RISK_NEWS_C: QuoteSearchPanel = {
    reacts to fill (collectMode), so one case serves A/B/C. The engine task for
    this step carries no search body. */
 const PROFILE_CASE: QuoteCase = {
-  requiresConsent: false,
   search: SEARCH_MATCHED,
   fields: [
     { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "", status: "verified" },
@@ -348,13 +343,12 @@ export const mockProductPageContent: ProductPageContent = {
     stepperLabels: ["Profile", "Business", "Risk"],
     ctaLabel: "Get Instant Quotes",
     // Steps before the last only move the flow on.
-    continueLabel: "Continue",
+    continueLabel: "Confirm and Continue",
     editTitle: "Edit Details",
     saveLabel: "Save Details",
     submitBlocked: {
       researching: "BimaNetra is still filling this step",
       fields: "Fill in the required fields first",
-      consent: "Tick the box to confirm the details",
     },
     sourceResultTips: {
       hit: "Found a match",
@@ -402,7 +396,6 @@ export const mockProductPageContent: ProductPageContent = {
         cases: {
           // A — probe confirmed the record: filled, green, PAN last.
           A: {
-            requiresConsent: false,
             fields: [
               { key: "type", label: "Enter Company Type", mandatory: true, control: "text", value: "Private Limited Company", status: "success" },
               { key: "business", label: "Type of Business", mandatory: true, control: "text", value: "Retail & Wholesale", status: "success" },
@@ -412,10 +405,8 @@ export const mockProductPageContent: ProductPageContent = {
             search: SEARCH_MATCHED,
           },
           // B — MCA confirmed the PAN, but classification is a web guess: PAN green,
-          // type/business orange, turnover blank, consent required.
+          // type/business yellow, turnover blank.
           B: {
-            requiresConsent: true,
-            consentText: CONSENT_TEXT,
             fields: [
               { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Limited Liability Partnership", options: COMPANY_TYPE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "Unclassified / Miscellaneous", options: BUSINESS_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
@@ -424,10 +415,9 @@ export const mockProductPageContent: ProductPageContent = {
             ],
             search: SEARCH_FUZZY,
           },
-          // C — nothing found: empty, manual entry, CIN last, no consent.
+          // C — nothing found: empty, manual entry, CIN last.
           // Clicking the "Business" title fills Studio Two Rupees' details (demo).
           C: {
-            requiresConsent: false,
             demoFill: { type: "Limited Liability Partnership", business: "IT & Digital Businesses", turnover: "Up to ₹1 Cr", cin: "AAABC1234A" },
             fields: [
               { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "", placeholder: "Select Company Type", options: COMPANY_TYPE_OPTIONS, status: "empty" },
@@ -447,7 +437,6 @@ export const mockProductPageContent: ProductPageContent = {
         cases: {
           // A (Matched) — auto-personalized: toggles answered No/No, coverage set, green.
           A: {
-            requiresConsent: false,
             personalize: {
               pendingLabel: "Your quote is being personalised",
               doneLabel: "Your quote is personalised!",
@@ -462,10 +451,8 @@ export const mockProductPageContent: ProductPageContent = {
           },
           // B (Fuzzy) — guessed: toggles orange, the same auto-personalize badge as
           // A (loading → green "Personalised!", Skip goes away), sum insured
-          // in A's purple filled state with a black suggestion line, consent gate.
+          // in A's purple filled state with a black suggestion line.
           B: {
-            requiresConsent: true,
-            consentText: CONSENT_TEXT,
             personalize: {
               pendingLabel: "Your quote is being personalised",
               doneLabel: "Your quote is personalised!",
@@ -481,7 +468,6 @@ export const mockProductPageContent: ProductPageContent = {
           // C (No Data) — nothing found: toggles empty + mandatory, sum insured
           // blank. Clicking the "Risk" title fills No / No / ₹5 Cr (demo).
           C: {
-            requiresConsent: false,
             demoFill: { existingPolicy: "No", claims5y: "No", coverage: "₹5 Cr" },
             fields: [
               { key: "existingPolicy", label: "Does your business have an existing Directors & Officers policy?", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },

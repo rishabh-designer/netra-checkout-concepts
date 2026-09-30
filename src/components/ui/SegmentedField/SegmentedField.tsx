@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import styles from "./SegmentedField.module.css";
 import {
+  Alert,
   FilledCheck,
   Info,
   MutedDot,
@@ -21,7 +22,7 @@ export interface SegmentedFieldProps {
   options?: string[];
   value: string;
   onChange?: (value: string) => void;
-  /** fuzzy → orange selection; loading → spinner replaces the tick. */
+  /** fuzzy → yellow selection with a "!"; loading → spinner replaces the tick. */
   status?: FieldStatus;
   helpText?: string;
   helpTone?: HelpTone;
@@ -34,7 +35,7 @@ export interface SegmentedFieldProps {
  * mandatory mark, optional "(i)"), two rounded-rect option pills each carrying
  * a status roundel, and a reserved help row. Hovering an unselected pill gives
  * a purple outline + hint dot; the selected pill fills purple (green tick) or
- * orange when fuzzy; loading swaps the tick for a spinner.
+ * yellow with a "!" when fuzzy; loading swaps the tick for a spinner.
  * Usage: <SegmentedField label="…" value={v} onChange={setV} />
  */
 export function SegmentedField({
@@ -52,7 +53,6 @@ export function SegmentedField({
   name,
 }: SegmentedFieldProps) {
   const loading = status === "loading";
-  const tick = status === "fuzzy" ? "var(--color-brand-secondary)" : "var(--color-success)";
 
   return (
     <div className={styles.field}>
@@ -82,7 +82,7 @@ export function SegmentedField({
               disabled={loading}
             >
               <span>{opt}</span>
-              {loading ? <Spinner /> : selected ? <FilledCheck color={tick} /> : <MutedDot />}
+              {loading ? <Spinner /> : selected ? status === "fuzzy" ? <Alert /> : <FilledCheck color="var(--color-success)" /> : <MutedDot />}
             </button>
           );
         })}

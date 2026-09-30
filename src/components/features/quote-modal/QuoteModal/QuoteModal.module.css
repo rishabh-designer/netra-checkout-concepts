@@ -192,7 +192,7 @@
   cursor: pointer;
 }
 
-/* Pinned form footer (Figma 503:15072): divider, consent (case B), CTA. */
+/* Pinned form footer (Figma 503:15072): divider, then the CTA. */
 .actionRow {
   display: flex;
   flex-direction: column;
@@ -218,24 +218,6 @@
 
 .rowMark {
   --ikkat-color: var(--color-brand-primary);
-}
-
-.consent {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-8);
-  /* Figma 503:13915: 14px Medium, label-primary */
-  font-size: var(--font-size-100);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1.5;
-  color: var(--color-label-primary);
-  cursor: pointer;
-}
-
-/* The shared tick (ui/Checkbox), level with the first line. */
-.consentBox {
-  margin-top: var(--spacing-4);
 }
 
 /* ---- Intelligence Engine / visualization panel ----

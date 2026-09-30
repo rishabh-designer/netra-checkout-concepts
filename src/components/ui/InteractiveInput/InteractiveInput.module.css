@@ -107,10 +107,11 @@
 .wrapper[data-status="userFilled"] {
   background: var(--color-input-fill);
 }
+/* Fuzzy (Figma 254:19201): caution yellow, never the Gold Quote's orange. */
 .wrapper[data-status="fuzzy"] {
-  border-bottom-color: var(--color-brand-secondary);
-  background: rgba(255, 119, 0, 0.05);
-  --field-ink: var(--color-brand-secondary);
+  border-bottom-color: var(--color-caution-border);
+  background: rgba(255, 207, 14, 0.04);
+  --field-ink: var(--color-caution-label);
 }
 .wrapper[data-status="error"] {
   border-bottom-color: var(--color-error);

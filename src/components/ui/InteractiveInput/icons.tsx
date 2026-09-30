@@ -14,7 +14,7 @@ export type FieldStatus =
   | "verified" // system-known (modal Name) — purple check, purple ink
   | "success" // exact match / validated — green check
   | "userFilled" // reviewing user-supplied data — purple check, basic ink
-  | "fuzzy" // web-guessed — orange "!"
+  | "fuzzy" // web-guessed — yellow "!"
   | "error" // invalid — red "×"
   | "loading"; // probe in flight — spinner
 
@@ -85,11 +85,11 @@ export function StrokeCheck({ color, tick = true }: { color: string; tick?: bool
   );
 }
 
-/** Orange roundel with a "!" — a fuzzy / web-guessed value. */
+/** Caution-yellow roundel with a "!" — a fuzzy / web-guessed value. */
 export function Alert() {
   return (
     <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
-      <circle cx="8" cy="8" r="8" fill="var(--color-brand-secondary)" />
+      <circle cx="8" cy="8" r="8" fill="var(--color-caution)" />
       <path d="M8 4.2v4.4" stroke="var(--color-label-inverse)" strokeWidth="1.6" strokeLinecap="round" />
       <circle cx="8" cy="11.2" r="0.95" fill="var(--color-label-inverse)" />
     </svg>

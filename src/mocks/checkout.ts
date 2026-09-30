@@ -108,8 +108,9 @@ export const mockCheckoutContent: CheckoutContent = {
       cases: {
         // A: registry match, filled and verified (purple, Figma 638:20126).
         A: companyFields("verified", "560095", "Bengaluru, Karnataka", "2nd Floor, Pepe Jeans House, 18 Hosur Road, Koramangala, Bengaluru, Karnataka 560095"),
-        // B: web guess, orange until the user edits it.
-        B: companyFields("fuzzy", "700029", "Kolkata, West Bengal", "1st Floor, 4B Panditia Road, Ballygunge, Kolkata, West Bengal 700029", true),
+        // B: the customer confirmed their details on the way to the quotes,
+        // so nothing reads as a guess here: verified, still editable.
+        B: companyFields("verified", "700029", "Kolkata, West Bengal", "1st Floor, 4B Panditia Road, Ballygunge, Kolkata, West Bengal 700029", true),
         // C: nothing found, entered by hand.
         C: companyFields("empty", "", "", ""),
       },
@@ -125,8 +126,9 @@ export const mockCheckoutContent: CheckoutContent = {
       ],
       cases: {
         A: kycFields({ value: "29AAJCP5565B1Z5", status: "verified" }, { value: "AAJCP5565B", status: "verified" }),
-        // B: the PAN was MCA-confirmed in Business; the GSTIN is a web guess.
-        B: kycFields({ value: "19AATFS4271L1ZQ", status: "fuzzy" }, { value: "AATFS4271L", status: "success" }),
+        // B: the PAN was MCA-confirmed in Business; the GSTIN is prefilled and,
+        // like everything after the quotes page, reads confirmed (not fuzzy).
+        B: kycFields({ value: "19AATFS4271L1ZQ", status: "verified" }, { value: "AATFS4271L", status: "success" }),
         // C: the PAN the user typed in Business; no GSTIN yet.
         C: kycFields({ value: "", status: "empty" }, { seedFrom: "cin", status: "userFilled" }),
       },

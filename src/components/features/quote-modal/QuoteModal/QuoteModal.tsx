@@ -35,7 +35,6 @@ import { Button } from "@/components/ui/Button";
 import { EASE_OUT, EASE_OUT as MORPH_EASE, EASE_STD } from "@/lib/motion";
 import { useAtMost } from "@/lib/media";
 import { useDialog } from "@/lib/dialog";
-import { Checkbox } from "@/components/ui/Checkbox";
 import { SCRIM } from "@/components/ui/SideDrawer";
 import { StepPill, type StepPillState } from "@/components/ui/StepPill";
 
@@ -102,10 +101,10 @@ export interface QuoteModalProps {
 /**
  * QuoteModal — the lead flow opened from the CTA. It slides up over a blurred
  * overlay and walks a multi-step form (Profile → Business → Insurance). The
- * typed name resolves one case — A (confirmed / green), B (fuzzy guess / orange
- * + consent), C (nothing found / manual) — that themes each step. The left panel
+ * typed name resolves one case — A (confirmed / green), B (fuzzy guess /
+ * yellow), C (nothing found / manual) — that themes each step. The left panel
  * is a persistent "Intelligence Engine": an agentic task-runner whose active
- * task expands the Netra search viz and whose meter tracks live flow progress.
+ * task expands the Netra search viz.
  * Figma: Profile 319:25317, Business 320:26136, Insurance 320:26281.
  */
 export function QuoteModal({
@@ -188,10 +187,8 @@ export function QuoteModal({
     () => new Set(content.steps.filter((st) => st.collectMode).flatMap((st) => st.cases[caseId].fields.map((f) => f.key))),
     [content.steps, caseId],
   );
-  const needsConsent = !formOnly && !!qc.requiresConsent;
 
   const [values, setValues] = useState<Record<string, string>>({});
-  const [consent, setConsent] = useState(false);
   /** Steps whose probe has already resolved — revisiting skips the skeleton. */
   const probedRef = useRef<Set<number>>(new Set());
 
@@ -218,7 +215,6 @@ export function QuoteModal({
       });
       return next;
     });
-    setConsent(false);
   }, [open, stepIndex, caseId, companyName, formFields, initialValues]);
 
   // One clock for the step's research. Form-only (edit), Profile (collect
@@ -306,13 +302,13 @@ export function QuoteModal({
 
   const canSubmit = useMemo(() => {
     if (!ready) return false;
-    // Every step gates on its mandatory fields and valid formats; consent
-    // steps (case B) also need the attestation ticked.
+    // Every step gates on its mandatory fields and valid formats. Pressing
+    // Confirm and Continue is the confirmation (no separate tick).
     if (!allMandatoryFilled(formFields)) return false;
     if (formFields.some((f) => errorFor(f))) return false;
-    return needsConsent ? consent : true;
+    return true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, consent, values, formFields, needsConsent]);
+  }, [ready, values, formFields]);
 
   // The closing readout: sources that returned something, fields filled.
   const verdict = step.collectMode
@@ -492,7 +488,7 @@ export function QuoteModal({
                         field={field}
                         caseId={caseId}
                         collectMode={formOnly ? collectKeys.has(field.key) : !!step.collectMode}
-                        consent={consent}
+                        confirmed={formOnly}
                         fetched={formOnly || field.key === "name" || tl.resolved.has(field.key)}
                         value={values[field.key] ?? ""}
                         error={errorFor(field)}
@@ -505,36 +501,25 @@ export function QuoteModal({
                 </AnimatePresence>
               </div>
 
-              {/* Pinned footer (Figma 503:15072): divider → consent → CTA. */}
+              {/* Pinned footer (Figma 503:15072): divider → CTA. */}
               <div className={styles.actionRow}>
                 <div className={styles.rowSep} aria-hidden>
                   <span className={styles.rowSepLine} />
                   <IkkatMark pattern={3} width={12} className={styles.rowMark} />
                   <span className={styles.rowSepLine} />
                 </div>
-                {needsConsent && (
-                  <label className={styles.consent}>
-                    <Checkbox
-                      className={styles.consentBox}
-                      checked={consent}
-                      onChange={(e) => setConsent(e.target.checked)}
-                      disabled={!ready}
-                    />
-                    <span>{qc.consentText}</span>
-                  </label>
-                )}
                 <Button
                   arrow
                   block
+                  // The flow's last step (Get Instant Quotes): BimaNetra's orange.
+                  tone={!formOnly && stepIndex === lastStep ? "secondary" : "primary"}
                   disabled={!canSubmit}
                   data-tooltip={
                     canSubmit
                       ? undefined
                       : !ready
                         ? content.submitBlocked.researching
-                        : needsConsent && !consent && allMandatoryFilled(formFields) && !formFields.some((f) => errorFor(f))
-                          ? content.submitBlocked.consent
-                          : content.submitBlocked.fields
+                        : content.submitBlocked.fields
                   }
                   onClick={handleSubmit}
                 >
@@ -554,7 +539,6 @@ export function QuoteModal({
                       stepIndex={stepIndex}
                       companyName={companyName}
                       profileComplete={profileComplete}
-                      formDone={canSubmit}
                       research={research}
                       search={qc.search}
                       activeTab={step.activeTab}
@@ -580,7 +564,7 @@ function displayStatus(
   caseId: QuoteCaseId,
   value: string,
   collectMode: boolean,
-  consent: boolean,
+  confirmed: boolean,
 ): QuoteFieldStatus {
   // The company name was supplied by the user in the hero field — we're recalling
   // their own data, so it reads as "prefilled by user", not system-verified.
@@ -588,14 +572,17 @@ function displayStatus(
   // Profile (collect mode): status follows whether the field is filled.
   if (collectMode) return value.trim() ? "success" : "empty";
   if (caseId === "A") return "success";
+  // Edit Details (after the quotes): the customer already confirmed these,
+  // so nothing reads as a guess; a cleared field is just empty.
+  if (confirmed) return value.trim() ? "success" : "empty";
   if (caseId === "B") {
-    // A web-guessed (fuzzy) value the user has edited — or attested as factual by
-    // ticking the consent box — is cross-verified → success. Cleared → empty.
+    // A web-guessed (fuzzy) value the user has edited is cross-verified →
+    // success. Cleared → empty.
     if (!value.trim()) return "empty";
     // A field the source already confirmed (e.g. an MCA-verified PAN) reads green
     // from the start, even while sibling fields remain fuzzy guesses.
     if (field.status === "success") return "success";
-    if (consent || value !== field.value) return "success";
+    if (value !== field.value) return "success";
     return "fuzzy";
   }
   return value.trim() ? "success" : "empty";
@@ -605,7 +592,7 @@ function Field({
   field,
   caseId,
   collectMode,
-  consent,
+  confirmed,
   fetched,
   value,
   error,
@@ -615,7 +602,8 @@ function Field({
   field: QuoteModalField;
   caseId: QuoteCaseId;
   collectMode: boolean;
-  consent: boolean;
+  /** Edit Details: values the customer already confirmed (never fuzzy). */
+  confirmed: boolean;
   /** The engine's research has resolved this field (the evidence wave). */
   fetched: boolean;
   value: string;
@@ -632,7 +620,7 @@ function Field({
   const sharedTip = useFieldTip(field.key);
   const isName = field.key === "name";
   const fetching = !isName && !fetched;
-  const status = displayStatus(field, caseId, value, collectMode, consent);
+  const status = displayStatus(field, caseId, value, collectMode, confirmed);
   const uiStatus: FieldStatus = fetching ? "loading" : status;
   // The coverage field reads "Approximating…" while the probe runs (Figma).
   const fetchingLabel = field.key === "coverage" ? "Approximating…" : "Fetching…";
@@ -929,7 +917,6 @@ function IntelligenceEngine({
   stepIndex,
   companyName,
   profileComplete,
-  formDone,
   research,
   search,
   activeTab,
@@ -941,8 +928,6 @@ function IntelligenceEngine({
   stepIndex: number;
   companyName: string;
   profileComplete: boolean;
-  /** The step's CTA is enabled: only then does the timer show. */
-  formDone: boolean;
   /** The active step's research timeline. */
   research: ResearchView;
   search: QuoteSearchPanel;
@@ -1027,16 +1012,13 @@ function IntelligenceEngine({
         variants={container}
       >
         <motion.div variants={item} className={styles.meterRow}>
-          {/* Agent Progress around the step heading (glyph + live timer), in
-              the heading's own type; the timer restarts per step and stops
-              once the step is ready. */}
+          {/* Agent Progress around the step heading (its glyph), in the
+              heading's own type. No timer: the task row says where it's at. */}
           <AgentProgress
             key={stepIndex}
             label={engine.headingLabels[stepIndex] ?? engine.headingLabels[0]}
             running={stepIndex === 0 ? !profileComplete : !research.done}
-            // Out of sight until the form is done: a ticking clock while
-            // someone retypes a field only adds anxiety.
-            hideTime={!formDone}
+            hideTime
             labelClassName={styles.meterHeading}
           />
         </motion.div>

@@ -193,8 +193,6 @@ export interface QuotePersonalize {
 
 export interface QuoteCase {
   fields: QuoteModalField[];
-  requiresConsent: boolean;
-  consentText?: string;
   search: QuoteSearchPanel;
   personalize?: QuotePersonalize;
   /** Demo shortcut: clicking the step title fills these values (by field key). */
@@ -276,7 +274,7 @@ export interface QuoteModalContent {
   editTitle: string;
   saveLabel: string;
   /** Tooltips on the greyed CTA: why it can't be pressed yet. */
-  submitBlocked: { researching: string; fields: string; consent: string };
+  submitBlocked: { researching: string; fields: string };
   /** Tooltips on the research source chips, by what each returned. */
   sourceResultTips: Record<QuoteResearchSource["result"], string>;
   /** Error lines for fields with a `validate` rule. */

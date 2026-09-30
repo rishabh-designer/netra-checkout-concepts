@@ -74,10 +74,11 @@
   border-color: var(--color-brand-primary-border);
 }
 
+/* Fuzzy: caution yellow, as on the text fields (never Gold's orange). */
 .optOn[data-status="fuzzy"] {
-  color: var(--color-brand-secondary);
-  background: var(--color-brand-secondary-subtle);
-  border-color: var(--color-brand-secondary-border);
+  color: var(--color-caution-label);
+  background: rgba(255, 207, 14, 0.04);
+  border-color: var(--color-caution-border);
 }
 
 /* Reserved help row (Figma label.help.text: 28 tall, 8px padding, 12px text).
