@@ -5,6 +5,7 @@ import { AnimatePresence, motion, stagger, useAnimate, useReducedMotion } from "
 import { Sparks } from "@/components/ui/Sparks";
 import { DitherBurst } from "@/components/ui/DitherBurst";
 import styles from "./RevealCard.module.css";
+import { EASE_OUT as OUT_EXPO } from "@/lib/motion";
 
 export interface RevealCardProps {
   /** Verification finished: the Reveal button is live. */
@@ -27,7 +28,6 @@ export interface RevealCardProps {
 type Phase = "idle" | "revealing" | "done";
 
 const BLUR = (px: number) => `blur(${px}px)`;
-const OUT_EXPO = [0.16, 1, 0.3, 1] as const;
 /* Every Gold-card part that cascades in, matched in document (reading) order. */
 const CASCADE = "[data-reveal='pill'], [data-reveal='rule'], [data-reveal='item'], [data-reveal='coverage'], [data-reveal='rating'], [data-reveal='chip'], [data-reveal='bar']";
 

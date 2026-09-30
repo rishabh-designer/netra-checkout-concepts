@@ -6,6 +6,7 @@ import styles from "./SuccessTimeline.module.css";
 import { Chevron } from "@/components/icons/Chevron";
 import { ArrowRight } from "@/components/icons/ArrowRight";
 import { IconButton } from "@/components/ui/IconButton";
+import { EASE_OUT as EASE } from "@/lib/motion";
 
 export type SuccessStepState = "done" | "active" | "pending";
 
@@ -33,7 +34,6 @@ export interface SuccessTimelineProps {
   toggleLabels: { show: string; hide: string };
 }
 
-const EASE = [0.16, 1, 0.3, 1] as const;
 const STEP = 0.14;
 
 /** Rail pill mark: a green tick (done), a purple dot (active), a grey dot. */

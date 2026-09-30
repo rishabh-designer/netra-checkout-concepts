@@ -8,7 +8,7 @@
 
 /* Entrance bookends: the navbar settles first, before the hero's stagger. */
 .navIn {
-  animation: nav-in 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation: nav-in 600ms var(--ease-smooth) backwards;
 }
 
 @keyframes nav-in {

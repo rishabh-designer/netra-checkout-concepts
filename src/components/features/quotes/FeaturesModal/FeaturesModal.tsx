@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { FeatureItem, FeatureTab, FeaturesDrawerContent, QuoteCardData } from "@/types/quotesPage";
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
@@ -14,6 +14,8 @@ import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./FeaturesModal.module.css";
 import { Chevron } from "@/components/icons/Chevron";
 import { Button } from "@/components/ui/Button";
+import { EASE_OUT } from "@/lib/motion";
+import { useAtMost } from "@/lib/media";
 
 export type QuoteTone = "gold" | "immediate" | "priced" | "quote";
 
@@ -41,17 +43,10 @@ const isPolicyTab = (key: string): key is PolicyTab => (POLICY_TABS as readonly 
 
 /* Mobile (the stacked modal, ≤900px): the item markers drop to 14, with
    their 14px headings (marker = label size). */
-const MOBILE_QUERY = "(max-width: 900px)";
-const subscribeMobile = (cb: () => void) => {
-  const mq = window.matchMedia(MOBILE_QUERY);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-};
-const readMobile = () => window.matchMedia(MOBILE_QUERY).matches;
 
 /** Item marker per tab tone: blue tick (658:50478), red cross, purple dot. */
 function Marker({ tone, gold = false }: { tone: FeatureTab["tone"]; gold?: boolean }) {
-  const size = useSyncExternalStore(subscribeMobile, readMobile, () => false) ? 14 : 16;
+  const size = useAtMost("sheet") ? 14 : 16;
   // The Gold Quote's ticks are BimaNetra's orange; every other quote's are blue.
   if (tone === "covered") return <SquareCheckbox tone={gold ? "secondary" : "info"} state="checked" size={size} className={styles.marker} />;
   if (tone === "excluded") {
@@ -126,17 +121,17 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
   // mobile it moves up beside ×.
   const pagerEl = pager && pager.total > 1 ? (
     <div className={styles.pager}>
-      <IconButton size="sm" label={content.prevQuoteLabel} className={styles.pagerBtn} onClick={pager.onPrev} data-tooltip={tipFor((pager.index - 1 + pager.total) % pager.total)}>
-        <Chevron dir="left" size={12} />
+      <IconButton label={content.prevQuoteLabel} className={styles.pagerBtn} onClick={pager.onPrev} data-tooltip={tipFor((pager.index - 1 + pager.total) % pager.total)}>
+        <Chevron dir="left" />
       </IconButton>
-      <IconButton size="sm" label={content.nextQuoteLabel} className={styles.pagerBtn} onClick={pager.onNext} data-tooltip={tipFor((pager.index + 1) % pager.total)}>
-        <Chevron dir="right" size={12} />
+      <IconButton label={content.nextQuoteLabel} className={styles.pagerBtn} onClick={pager.onNext} data-tooltip={tipFor((pager.index + 1) % pager.total)}>
+        <Chevron dir="right" />
       </IconButton>
     </div>
   ) : null;
 
   // Mobile: a bottom sheet (its footer pinned) instead of the centred popup.
-  const mobile = useSyncExternalStore(subscribeMobile, readMobile, () => false);
+  const mobile = useAtMost("sheet");
 
   return (
     <SideDrawer
@@ -265,7 +260,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                   initial={reduced ? false : { opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={reduced ? undefined : { opacity: 0, y: -4 }}
-                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.2, ease: EASE_OUT }}
                 >
                   {items.map((item) => (
                     <li key={item.title} className={styles.item}>

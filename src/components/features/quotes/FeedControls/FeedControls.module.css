@@ -138,6 +138,14 @@
   width: 100%;
 }
 
+/* In the Sort & Filter sheet the labels and values run to the sheet's own
+   padding (no inset of their own). Tripled: outranks the trigger rules
+   above whatever order the stylesheets load in. */
+.sheetFields .fieldLabel,
+.sheetFields .trigger.trigger.trigger {
+  padding-inline: 0;
+}
+
 .sheetFields .dropdown {
   flex-direction: column;
 }

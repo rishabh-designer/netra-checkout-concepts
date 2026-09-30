@@ -6,6 +6,7 @@ import type { RequestChatContent } from "@/types/quotesPage";
 import { AITextLoading } from "@/components/ui/AITextLoading";
 import chat from "../QuotesChat/QuotesChat.module.css";
 import styles from "./RequestChat.module.css";
+import { EASE_OUT as EASE } from "@/lib/motion";
 
 export interface RequestChatProps {
   content: RequestChatContent;
@@ -21,7 +22,6 @@ interface Message {
   text: string;
 }
 
-const EASE = [0.16, 1, 0.3, 1] as const;
 const THINK_MS = 600;
 
 /** "12022021" → "12/02/2021" as it's typed. */
@@ -105,6 +105,10 @@ export function RequestChat({ content, intro, onDone }: RequestChatProps) {
 
   const mark = { "--icon": `url(${content.iconSrc})` } as CSSProperties;
   const choosing = !thinking && current?.answer === "choice";
+  // As Ask BimaNetra: the latest reply's sparkle turns while it waits on the
+  // customer, until they type, pick or send.
+  const last = messages[messages.length - 1];
+  const waitingOn = !thinking && !draft && last?.from === "bot" ? last.id : undefined;
 
   return (
     <div className={styles.chat}>
@@ -118,7 +122,7 @@ export function RequestChat({ content, intro, onDone }: RequestChatProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: EASE }}
           >
-            {m.from === "bot" && <span className={chat.avatar} style={mark} aria-hidden />}
+            {m.from === "bot" && <span className={chat.avatar} style={mark} data-waiting={m.id === waitingOn || undefined} aria-hidden />}
             <p className={chat.bubble}>{m.text}</p>
           </motion.div>
         ))}

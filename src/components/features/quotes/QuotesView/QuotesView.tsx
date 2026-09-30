@@ -12,10 +12,13 @@ import { DetailsPanel } from "../DetailsPanel";
 import type { UpgradeStage } from "../UpgradeBanner";
 import { QuotesFeed } from "../QuotesFeed";
 import { QuotesSkeleton } from "../QuotesSkeleton";
-import { QuotesChat } from "../QuotesChat";
+import { ChatBadge, QuotesChat } from "../QuotesChat";
 import type { QuotesChatContext } from "@/lib/quotes-chat";
 import { priceFeed } from "@/lib/pricing";
 import styles from "./QuotesView.module.css";
+import { EASE_STD } from "@/lib/motion";
+import { isAtMost, useAtMost } from "@/lib/media";
+import { SideDrawer } from "@/components/ui/SideDrawer";
 
 export interface QuotesViewProps {
   content: QuotesPageContent;
@@ -67,7 +70,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   // panel paints open first.
   const [detailsCollapsed, setDetailsCollapsed] = useState(() => {
     try {
-      return window.matchMedia("(max-width: 1100px)").matches;
+      return isAtMost("stack");
     } catch {
       return false;
     }
@@ -84,6 +87,8 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const [upgradeStage, setUpgradeStage] = useState<UpgradeStage>(() => (lured ? "verifying" : "pending"));
   const [revealed, setRevealed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  // Below the two-column width the chat is a drawer, not a column.
+  const stacked = useAtMost("stack");
   // The chat mounts once, in idle time after the quotes land (so the first
   // open costs nothing), and stays mounted: its history survives a close.
   const [chatUsed, setChatUsed] = useState(false);
@@ -181,7 +186,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
               data-collapsed={detailsCollapsed || undefined}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: 0.35, ease: EASE_STD }}
             >
               <DetailsPanel
                 content={content.detailsPanel}
@@ -222,14 +227,23 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
             width opens with a CSS transition (no per-frame script), and the
             chat stays mounted after the first open so it reopens instantly
             with its conversation intact. */}
-        <aside className={styles.chatSlot} data-open={chatOpen || undefined} aria-hidden={!chatOpen} inert={!chatOpen}>
-          {chatUsed && (
-            <div className={styles.chatInner}>
-              <QuotesChat content={content.chat} context={chatContext} iconSrc={feed.needHelp.chatIconSrc} open={chatOpen} />
-            </div>
-          )}
-        </aside>
+        {!stacked && (
+          <aside className={styles.chatSlot} data-open={chatOpen || undefined} aria-hidden={!chatOpen} inert={!chatOpen}>
+            {chatUsed && (
+              <div className={styles.chatInner}>
+                <QuotesChat content={content.chat} context={chatContext} iconSrc={feed.needHelp.chatIconSrc} open={chatOpen} onClose={toggleChat} />
+              </div>
+            )}
+          </aside>
+        )}
       </main>
+
+      {/* Phones: Ask BimaNetra rises as a drawer, like every other popup there. */}
+      {stacked && (
+        <SideDrawer open={chatOpen} onClose={toggleChat} title={content.chat.title} titleIcon={<ChatBadge iconSrc={feed.needHelp.chatIconSrc} />} closeLabel={content.chat.closeLabel} placement="bottom" className={styles.chatDrawer}>
+          <QuotesChat content={content.chat} context={chatContext} iconSrc={feed.needHelp.chatIconSrc} open={chatOpen} variant="drawer" />
+        </SideDrawer>
+      )}
 
       {/* Edit Details — the quote form only (no AI-search column), prefilled. */}
       <QuoteModal

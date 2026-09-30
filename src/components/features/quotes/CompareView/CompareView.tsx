@@ -12,6 +12,7 @@ import type { QuoteCardLabels } from "../QuoteCard";
 import styles from "./CompareView.module.css";
 import { Chevron } from "@/components/icons/Chevron";
 import { ArrowRight } from "@/components/icons/ArrowRight";
+import { EASE_OUT } from "@/lib/motion";
 
 export interface CompareViewProps {
   open: boolean;
@@ -159,7 +160,7 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
           initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           exit={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.35, ease: EASE_OUT }}
         >
           <div className={styles.inner}>
             {/* Sticky head: back + title, a tile per column, then the tabs. */}
@@ -251,7 +252,7 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
                 initial={reduced ? false : { opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={reduced ? undefined : { opacity: 0, y: -4 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.2, ease: EASE_OUT }}
               >
                 {sections.map((s) => {
                   const shut = collapsed.includes(s.key);

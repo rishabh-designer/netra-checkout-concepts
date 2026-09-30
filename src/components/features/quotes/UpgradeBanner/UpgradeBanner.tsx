@@ -15,6 +15,7 @@ import { DitherWash } from "@/components/ui/DitherWash";
 import { Sparks } from "@/components/ui/Sparks";
 import { Toast } from "@/components/ui/Toast";
 import styles from "./UpgradeBanner.module.css";
+import { EASE_OUT as EASE } from "@/lib/motion";
 
 export type UpgradeStage = "pending" | "verifying" | "upgraded";
 
@@ -32,9 +33,12 @@ export interface UpgradeBannerProps {
   company?: ReactNode;
   /** Upgraded: a Notify Me under the body (Case B), and its click. */
   notify?: { label: string; onClick: () => void };
+  /** Changes each time the host shows the banner afresh (the mobile Your
+   *  Details accordion opening): the upgraded banner replays from its
+   *  diagonal dither reveal. */
+  replayKey?: number;
 }
 
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 const enter: Variants = {
   hidden: {},
@@ -58,11 +62,13 @@ const body: Variants = {
  * rises letter by letter while a burst of ikkat sparks fires behind it.
  * Usage: <UpgradeBanner stage={stage} content={upgrade} upgraded={upgraded} progress={mv} onSimulate={fn} />
  */
-export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, onReset, company, notify }: UpgradeBannerProps) {
+export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, onReset, company, notify, replayKey }: UpgradeBannerProps) {
   const reduced = useReducedMotion();
   // Already upgraded on arrival (a reload, an Edit Details save): the banner
   // rests, so its sparks and light stay still too, matching its title.
   const [arrivedUpgraded] = useState(stage === "upgraded");
+  // A replay (the accordion reopened) plays the whole entrance again.
+  const still = arrivedUpgraded && !replayKey;
   const label = useTransform(progress, (v) => `${Math.round(v)}%`);
   const width = useTransform(progress, (v) => `${v}%`);
   const [step, setStep] = useState(-1);
@@ -86,7 +92,7 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
     <AnimatePresence mode="wait" initial={false}>
       {stage === "upgraded" ? (
         <motion.div
-          key="upgraded"
+          key={`upgraded-${replayKey ?? 0}`}
           className={styles.upgradedBanner}
           data-resettable={onReset ? true : undefined}
           role={onReset ? "button" : undefined}
@@ -99,8 +105,8 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
           transition={{ duration: 0.5, ease: EASE }}
         >
           {/* A quiet dithered light rakes across and dissolves into the fill. */}
-          {!arrivedUpgraded && <DitherWash delay={0.15} duration={1.6} />}
-          {!reduced && !arrivedUpgraded && <Sparks count={12} distance={[50, 120]} delay={0.1} />}
+          {!still && <DitherWash delay={0.15} duration={1.6} />}
+          {!reduced && !still && <Sparks count={12} distance={[50, 120]} delay={0.1} />}
           {company && (
             // Clicks on the company row don't reach the hidden reset.
             <div className={styles.company} onClick={(e) => e.stopPropagation()}>

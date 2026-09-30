@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import type { DetailsPanelContent } from "@/types/quotesPage";
 import type { QuoteCaseId } from "@/lib/quote-flow";
@@ -9,6 +9,8 @@ import { NoRecordsBanner, UpgradeBanner, type UpgradeStage } from "../UpgradeBan
 import { useDemoNotice } from "@/lib/demo-notice";
 import styles from "./DetailsPanel.module.css";
 import { Chevron } from "@/components/icons/Chevron";
+import { EASE_OUT } from "@/lib/motion";
+import { useAtMost } from "@/lib/media";
 
 export interface DetailsPanelProps {
   content: DetailsPanelContent;
@@ -44,13 +46,6 @@ export interface DetailsPanelProps {
 /** Panel toggle glyph — `[< |]` (collapse); flipped via CSS to `[| >]` (expand). */
 /* Below 1100px the page stacks, so the panel folds up and down (an
    accordion) instead of narrowing to a side rail. */
-const ACCORDION_QUERY = "(max-width: 1100px)";
-const subscribeAccordion = (cb: () => void) => {
-  const mq = window.matchMedia(ACCORDION_QUERY);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-};
-const readAccordion = () => window.matchMedia(ACCORDION_QUERY).matches;
 
 /** The accordion's chevron: down when folded, up when open. */
 function ChevronGlyph({ open }: { open: boolean }) {
@@ -80,8 +75,16 @@ function ToggleGlyph() {
  *          collapsed={bool} onToggleCollapse={fn} />
  */
 export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false, verifyFrom, companyName, caseId }: DetailsPanelProps) {
-  const accordion = useSyncExternalStore(subscribeAccordion, readAccordion, () => false);
+  const accordion = useAtMost("stack");
   const notify = useDemoNotice();
+  // Mobile: each time the accordion opens, the upgraded banner replays from
+  // its dither reveal (counted as the panel opens, during render).
+  const [prevCollapsed, setPrevCollapsed] = useState(collapsed);
+  const [openCount, setOpenCount] = useState(0);
+  if (collapsed !== prevCollapsed) {
+    setPrevCollapsed(collapsed);
+    if (accordion && !collapsed) setOpenCount((n) => n + 1);
+  }
   const reduced = useReducedMotion();
   const start = Math.max(0, Math.min(100, content.upgrade.percent));
   // One progress value for the banner and the collapsed rail.
@@ -94,7 +97,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
   // Reset: the count eases back down to where verification started.
   useEffect(() => {
     if (stage !== "pending" || progress.get() === start) return;
-    const controls = animate(progress, start, { duration: reduced ? 0.01 : 0.7, ease: [0.16, 1, 0.3, 1] });
+    const controls = animate(progress, start, { duration: reduced ? 0.01 : 0.7, ease: EASE_OUT });
     return () => controls.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
@@ -195,6 +198,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
             onSimulate={onSimulate}
             onReset={onReset}
             company={company}
+            replayKey={accordion ? openCount : undefined}
           />
         )}
       </div>

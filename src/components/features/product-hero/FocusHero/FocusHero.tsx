@@ -17,6 +17,7 @@ import { CoverageTicker } from "../CoverageTicker";
 import { PlpMark } from "../PlpMark";
 import { Highlight } from "@/components/ui/Highlight";
 import styles from "./FocusHero.module.css";
+import { EASE_SMOOTH } from "@/lib/motion";
 
 export interface FocusHeroProps {
   content: ProductPageContent;
@@ -83,7 +84,7 @@ export function FocusHero({ content, focus, quotesPreview }: FocusHeroProps) {
                 initial={reduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={reduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
-                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.22, ease: EASE_SMOOTH }}
               >
                 <Highlight text={focus.priceTemplate.replace("{cover}", cover).replace("{price}", price)} />
               </motion.span>

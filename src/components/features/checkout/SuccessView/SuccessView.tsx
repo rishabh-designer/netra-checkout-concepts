@@ -26,6 +26,7 @@ import { RiskHeldModal } from "../RiskHeldModal";
 import { readOrder, type PaidOrder } from "../order";
 import styles from "./SuccessView.module.css";
 import { Button } from "@/components/ui/Button";
+import { EASE_OUT as EASE, EASE_SMOOTH } from "@/lib/motion";
 
 export interface SuccessViewProps {
   content: CheckoutContent;
@@ -36,7 +37,6 @@ export interface SuccessViewProps {
 
 /** How long the skeleton holds before the page draws in. */
 const LOAD_MS = 1800;
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 /** Fill `{token}`s; each filled value is highlighted (a <mark>, or <u> for links). */
 function fill(template: string, vars: Record<string, string>, links: string[] = []): ReactNode {
@@ -57,7 +57,7 @@ function CountUp({ to, delay }: { to: number; delay: number }) {
   const [n, setN] = useState(reduced ? to : 0);
   useEffect(() => {
     if (reduced) return;
-    const c = animate(0, to, { duration: 1.1, delay, ease: [0.22, 1, 0.36, 1], onUpdate: (v) => setN(Math.round(v)) });
+    const c = animate(0, to, { duration: 1.1, delay, ease: EASE_SMOOTH, onUpdate: (v) => setN(Math.round(v)) });
     return () => c.stop();
   }, [to, delay, reduced]);
   return <>{formatInr(n)}</>;

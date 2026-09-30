@@ -25,7 +25,7 @@ As they stand in the code (`@media (max-width: …)`):
 
 | Width | What switches there |
 |---|---|
-| **1100** | Layouts stack into one column: Quotes page, Your Details accordion, Checkout (and its pinned footer), Success, Quote Requested. The JS hook is `useCheckoutMobile`. |
+| **1100** | Layouts stack into one column: Quotes page, Your Details accordion, Checkout (and its pinned footer), Success, Quote Requested. The JS hook is `useAtMost("stack")` (`useCheckoutMobile`). |
 | **999** | The general "mobile" block: landing (hero, lead form, proof row, pills), checkout fields and banners, header bar, drawer titles, purchase summary, success extras. |
 | **900** | Modals become bottom sheets: Quote form (`QuoteModal`), policy details (`FeaturesModal`), `CompareView`. |
 | **760 / 767** | Quotes feed controls become one bar, plus the compare sheet, quotes feed, step form, coverage chips and upgrade banner. |
@@ -41,7 +41,9 @@ As they stand in the code (`@media (max-width: …)`):
 
 Reuse those three and don't add new ones. Fold the stragglers in when you next touch them.
 
-**When layout needs JS**, read the width with a `matchMedia` hook on `useSyncExternalStore`: `useCheckoutMobile` (1100), `FeaturesModal` (900), `QuoteModal` (`SHEET_QUERY`, 900), `DetailsPanel` (1100). Screens that only render on the client (behind the quote flow's `hydrated` flag) can read `matchMedia` straight in a `useState` initialiser, so the very first paint is already right. Don't set it in an effect, which flashes the web state first.
+**When layout needs JS**, use `lib/media.ts`: `useAtMost("stack" | "mobile" | "sheet")` (1100 / 999 / 900, on `useSyncExternalStore`) re-renders as the width crosses; `isAtMost(bp)` reads it once. `useCheckoutMobile` is `useAtMost("stack")`. Screens that only render on the client (behind the quote flow's `hydrated` flag) call `isAtMost` in a `useState` initialiser, so the very first paint is already right. Don't set it in an effect, which flashes the web state first. Never write a new `matchMedia` hook.
+
+**Motion curves** come from `lib/motion.ts` (`EASE_OUT`, `EASE_STD`, `EASE_SMOOTH`, `EASE_HOLD`) in Motion code and `--ease-out`, `--ease-standard`, `--ease-smooth`, `--ease-hold` in CSS. Never type a cubic-bezier inline.
 
 ---
 

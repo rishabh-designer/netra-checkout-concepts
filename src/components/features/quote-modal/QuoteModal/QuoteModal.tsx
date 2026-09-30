@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { useStream } from "@/lib/useStream";
 import { cn, formatPhone } from "@/lib/utils";
@@ -32,6 +32,8 @@ import { useFieldTip } from "@/lib/field-tips";
 import styles from "./QuoteModal.module.css";
 import { Chevron } from "@/components/icons/Chevron";
 import { Button } from "@/components/ui/Button";
+import { EASE_OUT, EASE_OUT as MORPH_EASE, EASE_STD } from "@/lib/motion";
+import { useAtMost } from "@/lib/media";
 
 /** Research timeline per probed step (one clock, useResearchTimeline): the
  *  query types in, Agent Progress + the sources scan for PROBE_MS, the
@@ -48,18 +50,8 @@ export type QuoteCaseId = "A" | "B" | "C";
 
 /* Morphing Modal motion tokens (beui.dev/components/motion/morphing-modal):
    panel spring, strong ease-out, and the blurred cross-fade between views. */
-const MORPH_EASE = [0.16, 1, 0.3, 1] as const;
 const MORPH_SPRING = { type: "spring", stiffness: 420, damping: 40, mass: 0.5 } as const;
 
-// Phones (≤900): the form is a bottom sheet (Figma 737:38615) that rises
-// from the screen's foot and drops back down, rather than popping in.
-const SHEET_QUERY = "(max-width: 900px)";
-const subscribeSheet = (cb: () => void) => {
-  const mq = window.matchMedia(SHEET_QUERY);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-};
-const readSheet = () => window.matchMedia(SHEET_QUERY).matches;
 function morphView(reduced: boolean | null) {
   return reduced
     ? {
@@ -133,7 +125,9 @@ export function QuoteModal({
   handingOff = false,
 }: QuoteModalProps) {
   const reduced = useReducedMotion();
-  const sheet = useSyncExternalStore(subscribeSheet, readSheet, () => false);
+  // Phones (≤900): the form is a bottom sheet (Figma 737:38615) that rises
+  // from the screen's foot and drops back down, rather than popping in.
+  const sheet = useAtMost("sheet");
   // Mobile sheet's engine card: "intro" (open on arrival, no rise), "open",
   // "closing" (shrinking back), "closed" (the strip over Continue).
   const [engineState, setEngineState] = useState<"closed" | "intro" | "open" | "closing">("closed");
@@ -155,6 +149,7 @@ export function QuoteModal({
     const glow = glowRef.current;
     const modal = glow?.closest<HTMLElement>("[data-engine]");
     const meter = glow?.querySelector<HTMLElement>(`.${styles.meterRow}`);
+    const row = glow?.querySelector<HTMLElement>(`.${styles.taskActiveRow}`);
     if (!glow || !modal) return;
     const meterTop = () => (meter ? meter.getBoundingClientRect().top - glow.getBoundingClientRect().top : 0);
     const openTop = meterTop();
@@ -162,6 +157,8 @@ export function QuoteModal({
     modal.dataset.engine = "closed";
     glow.style.setProperty("--engine-from", `${glow.offsetHeight}px`);
     glow.style.setProperty("--intro-fold", `${Math.max(0, openTop - meterTop())}px`);
+    // The task row's folded height: it shrinks with the card no further.
+    glow.style.setProperty("--task-fold", `${row?.offsetHeight ?? 0}px`);
     modal.dataset.engine = prev;
   };
   const closeEngine = () => {
@@ -414,7 +411,7 @@ export function QuoteModal({
                 initial: DRAWER_SCRIM.hidden,
                 animate: DRAWER_SCRIM.shown,
                 exit: DRAWER_SCRIM.hidden,
-                transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] },
+                transition: { duration: 0.45, ease: EASE_STD },
               }
             : {
                 // Morphing Modal (beui.dev): a quick scrim fade.
@@ -439,7 +436,7 @@ export function QuoteModal({
                   initial: { x: reduced ? 0 : "calc(-100% - 32px)" },
                   animate: { x: 0 },
                   exit: { x: reduced ? 0 : "calc(-100% - 32px)" },
-                  transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
+                  transition: { duration: 0.55, ease: EASE_OUT },
                 }
               : sheet
                 ? {
@@ -768,7 +765,7 @@ const item: Variants = {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 0.55, ease: [0.4, 0, 0.2, 1] },
+    transition: { duration: 0.55, ease: EASE_STD },
   },
 };
 
@@ -864,7 +861,7 @@ function SearchResult({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto", y: 0 }}
               exit={{ opacity: 0, height: 0, y: -8 }}
-              transition={{ duration: reduced ? 0 : 0.3, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: reduced ? 0 : 0.3, ease: EASE_STD }}
             >
               <AgentProgress label={progressLabel} />
             </motion.div>
@@ -904,7 +901,7 @@ function SearchResult({
                               data-tooltip={body.founderTagTip}
                               initial={reduced ? false : { opacity: 0, y: 4 }}
                               animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                              transition={{ duration: 0.22, ease: EASE_OUT }}
                             >
                               {body.founderTag}
                             </motion.span>
@@ -934,7 +931,7 @@ function SearchResult({
             className={cn(styles.verdict, body?.tentative && styles.verdictGuess, !body && styles.verdictEmpty)}
             initial={settled || reduced ? false : { opacity: 0, y: 6, filter: "blur(3px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+            transition={{ duration: 0.45, ease: EASE_OUT, delay: 0.15 }}
           >
             {body ? <FilledCheck color="currentColor" /> : <InfoDot />}
             {verdict}
@@ -1020,7 +1017,7 @@ function IntelligenceEngine({
                     height: 0,
                     marginBottom: -24,
                     transition: {
-                      default: { duration: 0.45, ease: [0.4, 0, 0.2, 1] },
+                      default: { duration: 0.45, ease: EASE_STD },
                       height: { duration: 0.6, ease: [0.65, 0, 0.35, 1], delay: 0.12 },
                       marginBottom: { duration: 0.6, ease: [0.65, 0, 0.35, 1], delay: 0.12 },
                     },
@@ -1081,7 +1078,7 @@ function IntelligenceEngine({
               <motion.div
                 className={styles.meterFill}
                 animate={{ width: `${percent}%` }}
-                transition={{ duration: reduced ? 0 : 0.6, ease: [0.4, 0, 0.2, 1] }}
+                transition={{ duration: reduced ? 0 : 0.6, ease: EASE_STD }}
               />
             </div>
           </div>
@@ -1111,7 +1108,7 @@ function IntelligenceEngine({
 }
 
 /** Mobile sheet: the engine card opens and closes slowly and softly
- *  (CSS engine-grow / engine-shrink, 600ms on cubic-bezier(1, 0, 0, 1)). */
+ *  (CSS engine-grow / engine-shrink, 600ms on --ease-engine, a soft in-out). */
 const ENGINE_MS = 600;
 /** The Profile intro holds this long after BimaNetra's message has typed. */
 const INTRO_HOLD_MS = 900;
@@ -1163,7 +1160,7 @@ function TaskRow({
   // thing that changes height is the accordion body below, on a matched ease.
   const layoutMode = reduced ? false : "position";
   const layoutTransition = {
-    layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
+    layout: { duration: 0.4, ease: EASE_STD },
   };
 
   if (state === "done") {
@@ -1214,7 +1211,7 @@ function TaskRow({
           <motion.span
             className={styles.taskChevron}
             animate={{ rotate: expanded ? 0 : 180 }}
-            transition={{ duration: reduced ? 0 : 0.3, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: reduced ? 0 : 0.3, ease: EASE_STD }}
           >
             <ChevronDown />
           </motion.span>
@@ -1245,9 +1242,9 @@ function TaskRow({
                 initial={reduced ? false : { opacity: 0 }}
                 animate={{
                   opacity: 1,
-                  transition: { duration: reduced ? 0 : 0.28, delay: reduced ? 0 : 0.12, ease: [0.4, 0, 0.2, 1] },
+                  transition: { duration: reduced ? 0 : 0.28, delay: reduced ? 0 : 0.12, ease: EASE_STD },
                 }}
-                exit={reduced || closing ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 0.2, 1] } }}
+                exit={reduced || closing ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, transition: { duration: 0.15, ease: EASE_STD } }}
               >
                 <SearchResult
                   compact

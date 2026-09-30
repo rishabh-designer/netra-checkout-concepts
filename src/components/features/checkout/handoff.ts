@@ -1,3 +1,5 @@
+import { EASE_SMOOTH } from "@/lib/motion";
+
 /**
  * One shared timeline for the step hand-off (Save & Continue / Back), so the
  * title cascade, the stepper and the progress bar move as one gesture instead
@@ -8,7 +10,7 @@
  *   ~1.3  settle  last letter lands as the bar reaches its value; time-left rolls in mid-way
  */
 export const HANDOFF = {
-  ease: [0.22, 1, 0.36, 1] as const,
+  ease: EASE_SMOOTH,
   begin: 0.1,
   land: 0.3,
   /** Title letters: exit / enter per-letter stagger and duration. */

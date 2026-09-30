@@ -9,7 +9,7 @@
   /* between sunken and recessed — reads clearly on white cards */
   background: color-mix(in srgb, var(--color-card-recessed) 70%, var(--color-card-sunken));
   opacity: 0;
-  animation: sk-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) var(--sk-delay) forwards;
+  animation: sk-in 0.4s var(--ease-out) var(--sk-delay) forwards;
 }
 
 .skeleton::after {

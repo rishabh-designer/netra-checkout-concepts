@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { CloseButton } from "@/components/ui/IconButton";
 import styles from "./SideDrawer.module.css";
+import { EASE_OUT, EASE_STD } from "@/lib/motion";
+import { useAtMost } from "@/lib/media";
 
 /** Same scrim as the Edit Details drawer (A9ACB1 @ 80% + 6px blur, 249:3516). */
 export const SCRIM = {
@@ -12,19 +14,13 @@ export const SCRIM = {
   shown: { backgroundColor: "rgba(169, 172, 177, 0.8)", backdropFilter: "blur(6px)" },
 };
 
-// Phones (the sheet tier, ≤900): `sheetOnMobile` drawers rise as bottom sheets.
-const SHEET_QUERY = "(max-width: 900px)";
-const subscribeSheet = (cb: () => void) => {
-  const mq = window.matchMedia(SHEET_QUERY);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-};
-const readSheet = () => window.matchMedia(SHEET_QUERY).matches;
 
 export interface SideDrawerProps {
   open: boolean;
   onClose: () => void;
   title: string;
+  /** A mark before the title (Ask BimaNetra's badge), inside the heading. */
+  titleIcon?: ReactNode;
   closeLabel: string;
   children: ReactNode;
   /** Pinned under the body (e.g. a price bar or Save button). */
@@ -56,8 +52,9 @@ export interface SideDrawerProps {
  * scales in (Know More).
  * Usage: <SideDrawer open={o} onClose={c} title="KYC" closeLabel="Close" footer={…}>…</SideDrawer>
  */
-export function SideDrawer({ open, onClose, title, closeLabel, children, footer, width = 624, placement: placementProp = "right", sheetOnMobile = false, headGap, bare = false, className }: SideDrawerProps) {
-  const phone = useSyncExternalStore(subscribeSheet, readSheet, () => false);
+export function SideDrawer({ open, onClose, title, titleIcon, closeLabel, children, footer, width = 624, placement: placementProp = "right", sheetOnMobile = false, headGap, bare = false, className }: SideDrawerProps) {
+  // Phones (the sheet tier, ≤900): `sheetOnMobile` drawers rise as bottom sheets.
+  const phone = useAtMost("sheet");
   const placement = sheetOnMobile && phone ? "bottom" : placementProp;
   const centered = placement === "center";
   const sheet = placement === "bottom";
@@ -94,7 +91,7 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
           initial={SCRIM.hidden}
           animate={SCRIM.shown}
           exit={SCRIM.hidden}
-          transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+          transition={{ duration: 0.45, ease: EASE_STD }}
         >
           <motion.div
             className={className ? `${styles.drawer} ${className}` : styles.drawer}
@@ -108,13 +105,13 @@ export function SideDrawer({ open, onClose, title, closeLabel, children, footer,
             initial={centered ? { opacity: 0, y: reduced ? 0 : 12, scale: reduced ? 1 : 0.97 } : sheet ? { y: reduced ? 0 : "100%" } : { x: reduced ? 0 : "calc(100% + 32px)" }}
             animate={centered ? { opacity: 1, y: 0, scale: 1 } : sheet ? { y: 0 } : { x: 0 }}
             exit={centered ? { opacity: 0, y: reduced ? 0 : 8, scale: reduced ? 1 : 0.98 } : sheet ? { y: reduced ? 0 : "100%" } : { x: reduced ? 0 : "calc(100% + 32px)" }}
-            transition={{ duration: centered ? 0.35 : 0.55, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: centered ? 0.35 : 0.55, ease: EASE_OUT }}
           >
             {bare ? children : (
             <>
             <div className={styles.body} style={headGap !== undefined ? { gap: headGap } : undefined}>
               <div className={styles.head}>
-                <h2 id={titleId} className={styles.title}>{title}</h2>
+                <h2 id={titleId} className={styles.title} data-icon={titleIcon ? true : undefined}>{titleIcon}{title}</h2>
                 <CloseButton ref={closeRef} label={closeLabel} onClick={onClose} />
               </div>
               <div className={styles.content}>{children}</div>

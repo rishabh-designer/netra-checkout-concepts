@@ -41,7 +41,7 @@ In the order it was asked. "→" is before → after.
 | Ikkat divider | No side padding, more marks if needed | Side inset 20 → 0, edge to edge |
 | Ikkat divider | Marks "24px" apart, a "16px gap" | Mark pitch 34 → 24 (8 mark + 16 gap), 9 → 14 marks |
 | Intro → steps | 32 → "24px" | 24 (the head that sat between them moved to the footer) |
-| Breadcrumb | Fold long trails with "…", tap to expand | Folds when it won't fit on one line: 4 crumbs keep 2 + last, 5+ keep first + 2; "…" expands the full path |
+| Breadcrumb | Fold long trails with "…", tap to expand | Folds when it won't fit on one line: the first crumb, "…", then the last two (HOME / … / LIVE QUOTES / REQUEST QUOTE); "…" expands the full path |
 | Chevron controls | Match the label's height | Already equal (18 box, 18 line); no change |
 
 Changes made on the way that apply beyond this page:

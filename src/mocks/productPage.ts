@@ -243,7 +243,7 @@ export const mockProductPageContent: ProductPageContent = {
   tags: [
     { label: "Immediate Purchase", variant: "success", icon: "shoppingBag" },
   ],
-  title: "Get [₹10 Cr] Cover\nat [₹10,000/Year].",
+  title: "Get [₹10 Cr] Cover at\n[₹10,000/Year].",
   subtitle: "Protects executives when business decisions lead to lawsuits",
   stats: [
     { value: "4,500", label: "Companies Covered" },

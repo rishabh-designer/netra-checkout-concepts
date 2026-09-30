@@ -19,12 +19,11 @@ export interface BreadcrumbTrailProps {
   expandLabel?: string;
 }
 
-/** Which crumbs stay when the trail is folded: three, the rest behind "…".
- *  Four crumbs keep the first two and the last; five or more keep the first
- *  and the last two. */
+/** Which crumbs stay when the trail is folded: the first, then "…", then
+ *  the last two (HOME / … / LIVE QUOTES / REQUEST QUOTE). */
 function foldAt(n: number): { head: number; tail: number } | null {
   if (n <= 3) return null;
-  return n === 4 ? { head: 2, tail: 1 } : { head: 1, tail: 2 };
+  return { head: 1, tail: 2 };
 }
 
 /**

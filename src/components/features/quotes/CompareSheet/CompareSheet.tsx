@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { QuoteCardData, QuotesFeedContent } from "@/types/quotesPage";
 import styles from "./CompareSheet.module.css";
 import { Button } from "@/components/ui/Button";
+import { EASE_OUT } from "@/lib/motion";
 
 export interface CompareSheetProps {
   content: QuotesFeedContent["compareSheet"];
@@ -38,7 +39,7 @@ export function CompareSheet({ content, picked, onRemove, onCompare }: CompareSh
           initial={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           exit={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.35, ease: EASE_OUT }}
         >
           {/* Mobile: the "pick at least 2" hint sits over the slots. */}
           {!ready && <p className={styles.hint}>{content.minTip}</p>}

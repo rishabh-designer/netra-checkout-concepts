@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { TextCascade } from "@/components/ui/TextCascade";
 import styles from "./PriceMorph.module.css";
+import { EASE_SMOOTH as EASE } from "@/lib/motion";
 
 /** idle = old price waiting; play = run the morph; done = the offer at rest. */
 export type PriceIntro = "idle" | "play" | "done";
@@ -18,7 +19,6 @@ export interface PriceMorphProps {
 
 type Phase = "full" | "struck" | "deal";
 
-const EASE = [0.22, 1, 0.36, 1] as const;
 const HOLD_MS = 700; // let the old price register
 const STRIKE_MS = 400; // the line draws, then the deal lands
 const ROLL = { delay: 0.05, exitDelay: 0, stagger: 0.045, enter: 0.55, exit: 0.3, ease: EASE };

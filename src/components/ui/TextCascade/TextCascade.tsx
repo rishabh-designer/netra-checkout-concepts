@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import styles from "./TextCascade.module.css";
+import { EASE_OUT } from "@/lib/motion";
 
 export interface TextCascadeProps {
   /** Current text. Changing it cascades the letters to the new value. */
@@ -16,7 +17,6 @@ export interface TextCascadeProps {
 
 const STAGGER = 0.025;
 const SWAP_SPRING = { type: "spring", stiffness: 460, damping: 30, mass: 0.55 } as const;
-const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
 const LETTER: Variants = {
   initial: { opacity: 0, y: "105%", filter: "blur(3px)" },

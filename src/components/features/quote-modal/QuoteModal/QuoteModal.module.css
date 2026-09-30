@@ -701,7 +701,7 @@
   color: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background var(--duration-fast, 0.15s) ease;
+  transition: background 0.15s ease;
 }
 
 .taskHeadButton:hover {
@@ -906,7 +906,7 @@
      from its folded height (--engine-from) into the fields' row, its meter
      and tasks riding the top edge, while the fields slide down and fade
      behind it. Closing plays it back. Slow and soft both ways: 600ms on
-     cubic-bezier(1, 0, 0, 1). "intro" arrives already open (no rise). */
+     the engine curve (--ease-engine). "intro" arrives already open (no rise). */
   .modal[data-engine="intro"] .rightGlow,
   .modal[data-engine="open"] .rightGlow,
   .modal[data-engine="closing"] .rightGlow {
@@ -919,10 +919,10 @@
     border-radius: var(--radius-12);
   }
   .modal[data-engine="open"] .rightGlow {
-    animation: engine-grow 0.6s cubic-bezier(1, 0, 0, 1);
+    animation: engine-grow 0.6s var(--ease-engine);
   }
   .modal[data-engine="closing"] .rightGlow {
-    animation: engine-shrink 0.6s cubic-bezier(1, 0, 0, 1) forwards;
+    animation: engine-shrink 0.6s var(--ease-engine) forwards;
   }
   .modal[data-engine]:not([data-engine="closed"]) .right {
     flex: 1;
@@ -956,18 +956,33 @@
   .modal[data-engine="intro"] .fields,
   .modal[data-engine="open"] .fields {
     pointer-events: none;
-    animation: fields-away 0.6s cubic-bezier(1, 0, 0, 1) forwards;
+    animation: fields-away 0.6s var(--ease-engine) forwards;
   }
   .modal[data-engine="intro"] .fields {
     animation-duration: 0s;
   }
   .modal[data-engine="closing"] .fields {
-    animation: fields-back 0.6s cubic-bezier(1, 0, 0, 1) forwards;
+    animation: fields-back 0.6s var(--ease-engine) forwards;
   }
   /* Closing the intro: the request and reply fold up out of the card as it
      shrinks, so the meter lands where the strip keeps it. */
   .modal[data-engine="closing"] .engineIntro {
-    animation: intro-fold 0.6s cubic-bezier(1, 0, 0, 1) forwards;
+    animation: intro-fold 0.6s var(--ease-engine) forwards;
+  }
+  /* A research step's search result isn't part of the folded strip: gone
+     once it's closed (so the strip's height is measured without it), and
+     fading as the card folds over it, done by the time the card is halfway. */
+  .modal[data-engine="closed"] .taskBody {
+    display: none;
+  }
+  .modal[data-engine="closing"] .taskBody {
+    animation: body-out 0.3s var(--ease-standard) forwards;
+  }
+  /* The task row shrinks with the card but never below its folded height,
+     so its pill lands intact rather than squashing and popping back. */
+  .modal[data-engine="closing"] .taskActiveRow {
+    min-height: var(--task-fold, 0px);
+    overflow: hidden;
   }
   /* The title and step pills stack here, so × pins to the top-right
      instead of centring on the pair. */
@@ -1005,6 +1020,12 @@
 @keyframes engine-shrink {
   to {
     height: var(--engine-from, 74px);
+  }
+}
+
+@keyframes body-out {
+  to {
+    opacity: 0;
   }
 }
 

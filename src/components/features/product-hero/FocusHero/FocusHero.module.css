@@ -19,7 +19,7 @@
  */
 .enter,
 .draw {
-  animation: hero-rise 720ms cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 70ms + 60ms) backwards;
+  animation: hero-rise 720ms var(--ease-smooth) calc(var(--i, 0) * 70ms + 60ms) backwards;
 }
 
 /* The ikkat rule draws out from the centre instead. */

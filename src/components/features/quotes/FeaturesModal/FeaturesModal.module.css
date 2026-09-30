@@ -142,7 +142,7 @@
   gap: var(--spacing-4);
   margin-right: auto;
 }
-/* The shared IconButton (18); a pair, 4 apart. */
+/* The shared IconButton at the ×'s size (24, 16 chevron); a pair, 4 apart. */
 .pagerBtn + .pagerBtn {
   margin-left: var(--spacing-4);
 }
@@ -550,8 +550,9 @@
   }
   .modal {
     flex-direction: column;
-    height: 100dvh;
-    max-height: 100dvh;
+    /* 40 of scrim above it, as the quote form's sheet. */
+    height: calc(100dvh - var(--spacing-40));
+    max-height: calc(100dvh - var(--spacing-40));
     overflow-y: auto;
     padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
     border-radius: var(--radius-24) var(--radius-24) 0 0;
@@ -568,8 +569,8 @@
        the list never shows beside or under the pinned footer. */
     box-shadow: 0 0 0 var(--spacing-16) var(--color-card), 0 var(--spacing-16) 0 var(--spacing-16) var(--color-card);
   }
-  /* Pinned to the sheet's top while it scrolls, on a white band that runs
-     to its edges (it covers the 12 top padding too). */
+  /* Pinned to the sheet's top while it scrolls, with no fill of its own:
+     the sheet's colour shows behind the pager and ×. */
   .topBar {
     position: sticky;
     top: calc(-1 * var(--spacing-12));
@@ -580,7 +581,6 @@
     flex-shrink: 0;
     margin: calc(-1 * var(--spacing-12)) calc(-1 * var(--spacing-16)) 0;
     padding: var(--spacing-12) var(--spacing-16) var(--spacing-8);
-    background: var(--color-card);
   }
   .pagerTop {
     display: contents;

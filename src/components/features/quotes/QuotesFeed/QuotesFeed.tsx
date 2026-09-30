@@ -20,6 +20,7 @@ import { CompareView } from "../CompareView";
 import { RevealCard } from "../RevealCard";
 import type { PriceIntro } from "../PriceMorph";
 import styles from "./QuotesFeed.module.css";
+import { EASE_OUT, EASE_STD } from "@/lib/motion";
 
 export interface QuotesFeedProps {
   content: QuotesFeedContent;
@@ -267,7 +268,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
       : {
           initial: { opacity: 0, y: 6 },
           animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const, delay: i * 0.06 },
+          transition: { duration: 0.4, ease: EASE_OUT, delay: i * 0.06 },
         };
 
   return (
@@ -296,7 +297,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                       initial={reduced ? { opacity: 0 } : { y: "100%", opacity: 0, filter: "blur(4px)" }}
                       animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
                       exit={reduced ? { opacity: 0 } : { y: "-100%", opacity: 0, filter: "blur(4px)" }}
-                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ duration: 0.5, ease: EASE_OUT }}
                     >
                       {shownCount}
                     </motion.span>
@@ -315,7 +316,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                 initial={{ opacity: 0, filter: "blur(6px)", scale: 0.98 }}
                 animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
                 exit={{ opacity: 0, filter: "blur(6px)", scale: 0.98 }}
-                transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+                transition={{ duration: 0.35, ease: EASE_STD }}
               >
                 <NeedHelpCard content={content.needHelp} />
               </motion.div>

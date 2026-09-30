@@ -55,6 +55,13 @@
   white-space: nowrap;
 }
 
+/* A title with a mark before it: the two on one line, 12 apart. */
+.title[data-icon] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
 .content {
   flex: 1;
   min-height: 0;

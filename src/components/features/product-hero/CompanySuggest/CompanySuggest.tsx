@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { CompanySearchContent } from "@/types/productPage";
 import { ErrorMark, FilledCheck } from "@/components/ui/InteractiveInput/icons";
 import styles from "./CompanySuggest.module.css";
+import { EASE_OUT } from "@/lib/motion";
 
 /**
  * One row of the type-ahead:
@@ -77,7 +78,7 @@ export function CompanySuggest({ id, open, query, options, active, content, onPi
           initial={reduced ? { opacity: 0 } : { opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, transition: { duration: 0.12 } }}
-          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.18, ease: EASE_OUT }}
         >
           {options.map((opt, i) => {
             const on = i === active;

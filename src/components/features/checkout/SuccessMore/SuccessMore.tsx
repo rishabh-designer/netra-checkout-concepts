@@ -7,8 +7,8 @@ import { useDemoNotice } from "@/lib/demo-notice";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./SuccessMore.module.css";
 import { ArrowRight } from "@/components/icons/ArrowRight";
+import { EASE_OUT as EASE } from "@/lib/motion";
 
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 const riseFrom = (reduced: boolean | null, delay: number) => (i: number) =>
   reduced

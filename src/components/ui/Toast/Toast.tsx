@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import styles from "./Toast.module.css";
+import { EASE_OUT } from "@/lib/motion";
 
 export interface ToastProps {
   open: boolean;
@@ -38,7 +39,7 @@ export function Toast({ open, title, description, onClose, duration = 4000, tone
             initial={{ opacity: 0, x: 24, scale: 0.98 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 24, scale: 0.98 }}
-            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.28, ease: EASE_OUT }}
           >
             <span className={styles.icon} aria-hidden>
               {tone === "success" ? (

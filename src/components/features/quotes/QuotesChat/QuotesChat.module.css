@@ -8,30 +8,97 @@
   min-height: 0;
   border: var(--border-hairline) solid var(--color-border-subtle);
   border-radius: var(--radius-16);
-  background: var(--color-card);
+  /* As the phone drawer: white to the middle, BimaNetra's warmth at the foot. */
+  background: linear-gradient(to top, var(--color-brand-secondary-subtle), var(--color-card) 50%);
   box-shadow: var(--shadow-raised);
   overflow: hidden;
 }
 
-/* Header: peach wash (BimaNetra's orange), the sparkle badge, title + line. */
+/* In the phone drawer (SideDrawer draws the surface, title and ×): no
+   chrome of its own, the log and composer filling the sheet. */
+.chat[data-variant="drawer"] {
+  flex: 1;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.chat[data-variant="drawer"] .head {
+  display: none;
+}
+
+.chat[data-variant="drawer"] .list {
+  padding: var(--spacing-12) 0;
+}
+
+.chat[data-variant="drawer"] .composer {
+  margin: 0;
+}
+
+/* Header, as the drawers' (SideDrawer .head / .title): the serif title and
+   the × on one line, no band of its own. */
 .head {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-12);
-  padding: var(--spacing-16) var(--spacing-20);
-  border-bottom: var(--border-hairline) solid var(--color-brand-secondary-border);
-  background: linear-gradient(to right, var(--color-brand-secondary-subtle), var(--color-card));
+  min-height: 32px;
+  padding: var(--spacing-24) var(--spacing-24) 0;
 }
 
+/* The badge: an orange tile (r12) with the white sparkle, the title's
+   height (32; 28 on phones, as the drawer title). */
 .badge {
   display: grid;
   place-items: center;
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
-  flex-shrink: 0;
   border-radius: var(--radius-12);
   background: var(--color-brand-secondary);
   color: var(--color-label-inverse);
+}
+
+.sparkle {
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes sparkle-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The sparkle beside BimaNetra's latest reply turns, ever so slowly, while
+   it waits on the customer (it stops once they type, pick or send). */
+.avatar[data-waiting] {
+  animation: sparkle-turn 8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar[data-waiting] {
+    animation: none;
+  }
+}
+
+@media (max-width: 999px) {
+  .badge {
+    width: 28px;
+    height: 28px;
+  }
+  .sparkle {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-12);
 }
 
 .sparkle,
@@ -43,33 +110,21 @@
   mask: var(--icon) center / contain no-repeat;
 }
 
-.sparkle {
-  width: 16px;
-  height: 16px;
-}
 
-.headText {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-  min-width: 0;
-}
 
 .title {
-  font-size: var(--font-size-200);
-  font-weight: 600;
-  letter-spacing: var(--track-600);
-  line-height: 1.2;
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-size: var(--font-size-heading-lg);
+  font-style: italic;
+  font-weight: 400;
+  /* Instrument Serif keeps its own spacing, not Anek's. */
+  letter-spacing: 0;
+  line-height: 1;
   color: var(--color-label-primary);
+  white-space: nowrap;
 }
 
-.subtitle {
-  font-size: var(--font-size-75);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1.2;
-  color: var(--color-label-secondary);
-}
 
 /* The log: messages 12 apart, scrolling on its own. */
 .list {
@@ -114,8 +169,10 @@
 
 .message[data-from="bot"] .bubble {
   border-bottom-left-radius: var(--radius-6);
-  background: var(--color-card-sunken);
-  color: var(--color-label-primary);
+  /* BimaNetra speaking: its muted orange, the copy in brand purple (4100CF). */
+  border: var(--border-hairline) solid var(--color-brand-secondary-border);
+  background: var(--color-brand-secondary-subtle);
+  color: var(--color-brand-primary);
 }
 
 .message[data-from="you"] .bubble {
@@ -142,9 +199,10 @@
 
 .suggestion {
   padding: var(--spacing-8) var(--spacing-12);
-  border: var(--border-hairline) solid var(--color-brand-secondary-border);
+  /* Options are neutral (the reply is BimaNetra's orange). */
+  border: var(--border-hairline) solid var(--color-border-subtle);
   border-radius: var(--radius-12);
-  background: var(--color-brand-secondary-subtle);
+  background: var(--color-card-sunken);
   color: var(--color-label-primary);
   font-size: var(--font-size-75);
   font-weight: 500;
@@ -157,8 +215,8 @@
 
 .suggestion:hover,
 .suggestion:focus-visible {
-  border-color: var(--color-brand-secondary);
-  background: var(--color-brand-secondary-subtle-bold);
+  border-color: var(--color-border-neutral);
+  background: var(--color-card-recessed);
 }
 
 /* Composer: the input and an orange send button, on a hairline. */

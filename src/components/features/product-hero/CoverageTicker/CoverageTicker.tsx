@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import styles from "./CoverageTicker.module.css";
+import { EASE_STD as EASE } from "@/lib/motion";
 
 export interface CoverageTickerProps {
   /** Covered items, cycled in order (first one shows under reduced motion). */
@@ -22,7 +23,6 @@ export interface CoverageTickerProps {
   sizeTo?: string[];
 }
 
-const EASE = [0.4, 0, 0.2, 1] as const;
 
 /**
  * CoverageTicker — a coverage chip styled exactly like the Quote Card's

@@ -8,6 +8,7 @@ import { StepConsent, StepCta, type StepConsentData, type StepCtaProps } from ".
 import styles from "./CheckoutFooter.module.css";
 import { Chevron } from "@/components/icons/Chevron";
 import { IconBox } from "@/components/ui/IconButton";
+import { EASE_SMOOTH as EASE } from "@/lib/motion";
 
 export interface CheckoutFooterProps {
   /** The "Preparing Checkout" clock (its time hidden, as on web); with the summary
@@ -25,7 +26,6 @@ export interface CheckoutFooterProps {
   children?: ReactNode;
 }
 
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
  * CheckoutFooter — checkout's summary on mobile (Figma 734:35259 closed,

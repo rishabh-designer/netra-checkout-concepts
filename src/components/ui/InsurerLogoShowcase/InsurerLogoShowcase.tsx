@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { InsurerLogo } from "@/types/productPage";
 import styles from "./InsurerLogoShowcase.module.css";
+import { EASE_STD } from "@/lib/motion";
 
 export interface InsurerLogoShowcaseProps {
   /** One entry per slot; each slot cycles through its logos (one per set). */
@@ -131,7 +132,7 @@ export function InsurerLogoShowcase({
                 transition={{
                   duration: fadeDuration,
                   delay: reduced ? 0 : s * stagger,
-                  ease: [0.4, 0, 0.2, 1],
+                  ease: EASE_STD,
                 }}
               />
             ))}

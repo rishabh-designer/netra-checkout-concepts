@@ -30,7 +30,7 @@
   margin: -0.1em 0;
   font-size: var(--font-size-100);
   overflow: hidden;
-  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.35s var(--ease-standard);
 }
 
 @media (prefers-reduced-motion: reduce) {

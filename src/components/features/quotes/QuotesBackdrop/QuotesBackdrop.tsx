@@ -3,6 +3,7 @@ import type { QuoteCaseId } from "@/lib/quote-flow";
 import { QuotesHeader } from "../QuotesHeader";
 import { QuotesSkeleton } from "../QuotesSkeleton";
 import viewStyles from "../QuotesView/QuotesView.module.css";
+import { isAtMost } from "@/lib/media";
 
 export interface QuotesBackdropProps {
   preview: QuotesPreview;
@@ -18,7 +19,7 @@ export interface QuotesBackdropProps {
  */
 export function QuotesBackdrop({ preview, caseId }: QuotesBackdropProps) {
   // Only rendered while the modal is up (client-side), so matchMedia is safe.
-  const collapsed = typeof window !== "undefined" && window.matchMedia("(max-width: 1100px)").matches;
+  const collapsed = isAtMost("stack");
   return (
     <div className={viewStyles.page}>
       <QuotesHeader content={preview.header} />

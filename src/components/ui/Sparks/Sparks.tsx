@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useRef } from "react";
 import { BAYER, BAYER_SIZE } from "../DitherImage/bayer";
 import styles from "./Sparks.module.css";
+import { EASE_OUT } from "@/lib/motion";
 
 export interface SparksProps {
   /** Number of sparks in the burst. */
@@ -147,7 +148,7 @@ export function Sparks({ count = 14, distance = [100, 200], delay = 0, tones = T
           style={{ width: s.size, height: s.size, background: s.color }}
           initial={{ x: 0, y: 0, scale: 0, rotate: 45, opacity: 1 }}
           animate={{ x: s.x, y: s.y, scale: [0, 1.15, 0], rotate: 45 + s.rotate, opacity: [1, 1, 0] }}
-          transition={{ duration: DURATION, delay: s.delay, ease: [0.16, 1, 0.3, 1], times: [0, PEAK, 1] }}
+          transition={{ duration: DURATION, delay: s.delay, ease: EASE_OUT, times: [0, PEAK, 1] }}
         />
       ))}
     </span>

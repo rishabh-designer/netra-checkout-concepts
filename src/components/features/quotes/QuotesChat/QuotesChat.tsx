@@ -6,6 +6,8 @@ import type { QuotesChatContent } from "@/types/quotesPage";
 import { answerQuotesQuestion, type QuotesChatContext } from "@/lib/quotes-chat";
 import { AITextLoading } from "@/components/ui/AITextLoading";
 import styles from "./QuotesChat.module.css";
+import { EASE_OUT as EASE } from "@/lib/motion";
+import { CloseButton } from "@/components/ui/IconButton";
 
 export interface QuotesChatProps {
   content: QuotesChatContent;
@@ -14,6 +16,11 @@ export interface QuotesChatProps {
   iconSrc: string;
   /** The column is showing: the input takes focus. */
   open?: boolean;
+  /** "drawer": inside the shared SideDrawer (phones), which draws the title,
+   *  the × and the surface; the chat is just its log and composer. */
+  variant?: "drawer";
+  /** The ×: the web column closes from its head as a drawer does. */
+  onClose?: () => void;
 }
 
 interface Message {
@@ -22,9 +29,21 @@ interface Message {
   text: string;
 }
 
-const EASE = [0.16, 1, 0.3, 1] as const;
 /** How long BimaNetra "reads" before it answers. */
 const THINK_MS = 700;
+
+/**
+ * ChatBadge — Ask BimaNetra's mark: the sparkle in white on an orange tile,
+ * sized to the title it sits beside (32 on web, 28 on phones).
+ * Usage: <ChatBadge iconSrc={feed.needHelp.chatIconSrc} />
+ */
+export function ChatBadge({ iconSrc }: { iconSrc: string }) {
+  return (
+    <span className={styles.badge} aria-hidden>
+      <span className={styles.sparkle} style={{ "--icon": `url(${iconSrc})` } as CSSProperties} />
+    </span>
+  );
+}
 
 /**
  * QuotesChat — Ask BimaNetra on the Quotes page: a full-height chat column
@@ -35,7 +54,7 @@ const THINK_MS = 700;
  * it never picks an insurer.
  * Usage: <QuotesChat content={content.chat} context={ctx} iconSrc={…} />
  */
-export function QuotesChat({ content, context, iconSrc, open = true }: QuotesChatProps) {
+export function QuotesChat({ content, context, iconSrc, open = true, variant, onClose }: QuotesChatProps) {
   const reduced = useReducedMotion();
   const greeting = content.greeting
     .replace("{count}", String(context.quotes.length + (context.gold?.revealed ? 1 : 0)))
@@ -80,18 +99,22 @@ export function QuotesChat({ content, context, iconSrc, open = true }: QuotesCha
   };
 
   const asked = messages.some((m) => m.from === "you");
+  // BimaNetra's latest reply, in full, waiting on the customer: its sparkle
+  // turns until they start typing, pick a suggestion or send.
+  const last = messages[messages.length - 1];
+  const waitingOn = !thinking && !draft && last?.from === "bot" ? last.id : undefined;
   const mark = { "--icon": `url(${iconSrc})` } as CSSProperties;
 
   return (
-    <section className={styles.chat} aria-label={content.title}>
+    <section className={styles.chat} data-variant={variant} aria-label={content.title}>
+      {/* The drawers' head (the phone drawer's, now on web too): the serif
+          title and the ×. */}
       <header className={styles.head}>
-        <span className={styles.badge} aria-hidden>
-          <span className={styles.sparkle} style={mark} />
-        </span>
-        <div className={styles.headText}>
-          <h2 className={styles.title}>{content.title}</h2>
-          <p className={styles.subtitle}>{content.subtitle}</p>
-        </div>
+        <h2 className={styles.title}>
+          <ChatBadge iconSrc={iconSrc} />
+          {content.title}
+        </h2>
+        {onClose && <CloseButton label={content.closeLabel} onClick={onClose} />}
       </header>
 
       <div ref={listRef} className={styles.list} role="log" aria-live="polite">
@@ -104,7 +127,7 @@ export function QuotesChat({ content, context, iconSrc, open = true }: QuotesCha
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: EASE }}
           >
-            {m.from === "bot" && <span className={styles.avatar} style={mark} aria-hidden />}
+            {m.from === "bot" && <span className={styles.avatar} style={mark} data-waiting={m.id === waitingOn || undefined} aria-hidden />}
             <p className={styles.bubble}>{m.text}</p>
           </motion.div>
         ))}
