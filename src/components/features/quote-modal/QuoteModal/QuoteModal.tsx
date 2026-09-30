@@ -34,6 +34,10 @@ import { Chevron } from "@/components/icons/Chevron";
 import { Button } from "@/components/ui/Button";
 import { EASE_OUT, EASE_OUT as MORPH_EASE, EASE_STD } from "@/lib/motion";
 import { useAtMost } from "@/lib/media";
+import { useDialog } from "@/lib/dialog";
+import { Checkbox } from "@/components/ui/Checkbox";
+import { SCRIM } from "@/components/ui/SideDrawer";
+import { StepPill, type StepPillState } from "@/components/ui/StepPill";
 
 /** Research timeline per probed step (one clock, useResearchTimeline): the
  *  query types in, Agent Progress + the sources scan for PROBE_MS, the
@@ -65,13 +69,6 @@ function morphView(reduced: boolean | null) {
         exit: { opacity: 0, y: -8, filter: "blur(4px)", transition: { duration: 0.16, ease: MORPH_EASE } },
       };
 }
-
-/* Drawer scrim — mirrors .overlay's A9ACB1 @ 80% + 6px blur (design node
-   249:3516), as animatable start/end states. */
-const DRAWER_SCRIM = {
-  hidden: { backgroundColor: "rgba(169, 172, 177, 0)", backdropFilter: "blur(0px)" },
-  shown: { backgroundColor: "rgba(169, 172, 177, 0.8)", backdropFilter: "blur(6px)" },
-};
 
 export interface QuoteModalProps {
   open: boolean;
@@ -151,6 +148,11 @@ export function QuoteModal({
     const meter = glow?.querySelector<HTMLElement>(`.${styles.meterRow}`);
     const row = glow?.querySelector<HTMLElement>(`.${styles.taskActiveRow}`);
     if (!glow || !modal) return;
+    // The open card is scrolled down past the Profile request and reply; the
+    // closed layout doesn't scroll, so measuring it resets that. Kept here and
+    // put back below, or the hidden intro drops into view as the fold starts.
+    const scroller = glow.querySelector<HTMLElement>(`.${styles.rightScroll}`);
+    const scrolled = scroller?.scrollTop ?? 0;
     const meterTop = () => (meter ? meter.getBoundingClientRect().top - glow.getBoundingClientRect().top : 0);
     const openTop = meterTop();
     const prev = modal.dataset.engine;
@@ -160,6 +162,7 @@ export function QuoteModal({
     // The task row's folded height: it shrinks with the card no further.
     glow.style.setProperty("--task-fold", `${row?.offsetHeight ?? 0}px`);
     modal.dataset.engine = prev;
+    if (scroller) scroller.scrollTop = scrolled;
   };
   const closeEngine = () => {
     autoOpenRef.current = false;
@@ -289,14 +292,10 @@ export function QuoteModal({
       ? { expanded: engineState !== "closed", closing: engineState === "closing", toggle: toggleEngine }
       : undefined;
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  // Focus moves into the panel and stays there; Esc closes; the page behind
+  // holds still; focus returns to the CTA that opened it.
+  const panelRef = useRef<HTMLDivElement>(null);
+  useDialog({ open, onClose, panelRef });
 
   const allMandatoryFilled = (fields: QuoteModalField[]) =>
     fields.filter((f) => f.mandatory).every((f) => (values[f.key] ?? "").trim() !== "");
@@ -408,9 +407,9 @@ export function QuoteModal({
           // slides; the centred modal keeps its plain overlay fade.
           {...(formOnly
             ? {
-                initial: DRAWER_SCRIM.hidden,
-                animate: DRAWER_SCRIM.shown,
-                exit: DRAWER_SCRIM.hidden,
+                initial: SCRIM.hidden,
+                animate: SCRIM.shown,
+                exit: SCRIM.hidden,
                 transition: { duration: 0.45, ease: EASE_STD },
               }
             : {
@@ -422,6 +421,8 @@ export function QuoteModal({
               })}
         >
           <motion.div
+            ref={panelRef}
+            tabIndex={-1}
             className={cn(styles.modal, formOnly && styles.modalFormOnly)}
             data-engine={engineSheet ? engineState : undefined}
             role="dialog"
@@ -536,8 +537,7 @@ export function QuoteModal({
                 </div>
                 {needsConsent && (
                   <label className={styles.consent}>
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       className={styles.consentBox}
                       checked={consent}
                       onChange={(e) => setConsent(e.target.checked)}
@@ -1047,7 +1047,7 @@ function IntelligenceEngine({
       <motion.div
         key="runner"
         className={styles.engineRunner}
-        layout={reduced ? false : "position"}
+        layout={reduced || sheet ? false : "position"}
         initial={reduced ? false : "hidden"}
         animate="visible"
         variants={container}
@@ -1158,7 +1158,9 @@ function TaskRow({
   // Position-only layout: rows slide to their new spot without Motion scaling
   // them (full `layout` scale-warps the label and lurches the column). The one
   // thing that changes height is the accordion body below, on a matched ease.
-  const layoutMode = reduced ? false : "position";
+  // On the mobile sheet the card's own fold moves the rows; a layout tween
+  // on top of it sends them on a path of their own (the fold wobbles).
+  const layoutMode = reduced || sheet ? false : "position";
   const layoutTransition = {
     layout: { duration: 0.4, ease: EASE_STD },
   };
@@ -1210,7 +1212,8 @@ function TaskRow({
           <AITextLoading text={label} className={styles.taskActiveLabel} />
           <motion.span
             className={styles.taskChevron}
-            animate={{ rotate: expanded ? 0 : 180 }}
+            // Turns as the card starts to fold, not after it has landed.
+            animate={{ rotate: expanded && !closing ? 0 : 180 }}
             transition={{ duration: reduced ? 0 : 0.3, ease: EASE_STD }}
           >
             <ChevronDown />
@@ -1280,27 +1283,26 @@ function CheckboxTick() {
   );
 }
 
-/* ---- step pills (Figma 306:5036), beside the form title: steps before
-   `active` read as completed (green), `active` is current (purple), the rest
-   upcoming (grey). Labels come from content, never hard-coded. */
+/** The flow's Profile / Business / Risk pills: the checkout stepper's pill
+ *  (StepPill) without its bars. On Continue / Back the step just left pops
+ *  green (or back to grey) and the new one blooms. Keyed by state, so a pill
+ *  whose state changed remounts and plays its entrance. */
 function StepPills({ steps, active }: { steps: string[]; active: number }) {
+  // The step before this one (null on arrival: nothing pops as the form opens).
+  const [shown, setShown] = useState(active);
+  const [prev, setPrev] = useState<number | null>(null);
+  if (shown !== active) {
+    setPrev(shown);
+    setShown(active);
+  }
+  const stateAt = (i: number, at: number): StepPillState => (i < at ? "done" : i === at ? "current" : "upcoming");
   return (
     <ol className={styles.stepRow}>
       {steps.map((label, i) => {
-        const state = i < active ? "done" : i === active ? "current" : "todo";
+        const state = stateAt(i, active);
         return (
-          <li
-            key={label}
-            className={cn(
-              styles.stepPill,
-              state === "current" && styles.stepCurrent,
-              state === "done" && styles.stepDone,
-              state === "todo" && styles.stepTodo,
-            )}
-            aria-current={state === "current" ? "step" : undefined}
-          >
-            <StepBullet state={state} />
-            <span className={styles.stepLabel}>{label}</span>
+          <li key={`${label}-${state}`} aria-current={state === "current" ? "step" : undefined}>
+            <StepPill state={state} label={label} from={prev === null ? undefined : stateAt(i, prev)} />
           </li>
         );
       })}
@@ -1311,21 +1313,6 @@ function StepPills({ steps, active }: { steps: string[]; active: number }) {
 /* Header back-chevron (Figma 306:5068, 16px in a 24px box, hint grey #6f7378). */
 function ChevronLeft() {
   return <Chevron dir="left" />;
-}
-
-/* 4px status dot in a 4px box: purple (current), green (done), muted grey (upcoming). */
-function StepBullet({ state }: { state: "done" | "current" | "todo" }) {
-  const fill =
-    state === "current"
-      ? "var(--color-brand-primary)"
-      : state === "done"
-        ? "var(--color-success)"
-        : "var(--color-label-tertiary)";
-  return (
-    <svg viewBox="0 0 4 4" width="4" height="4" fill="none" aria-hidden>
-      <circle cx="2" cy="2" r="2" fill={fill} />
-    </svg>
-  );
 }
 
 function splitHighlight(sentence: string, highlight: string): [string, string, string] {

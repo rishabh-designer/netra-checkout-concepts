@@ -20,8 +20,13 @@
   padding: var(--spacing-12) var(--spacing-24) var(--spacing-24);
   border-radius: var(--radius-32);
   background: var(--color-card);
-  box-shadow: 0 24px 80px rgba(28, 28, 28, 0.24);
+  box-shadow: var(--shadow-overlay);
   overflow: hidden;
+}
+
+/* The panel takes focus when it has no × to land on; no ring on the sheet. */
+.drawer:focus {
+  outline: none;
 }
 
 /* 587:63840: header, then content, 32 apart. */
@@ -92,7 +97,8 @@
   width: 100%;
   height: auto;
   max-height: 85%;
-  padding: var(--spacing-8) var(--spacing-16) var(--spacing-16);
+  /* Clears the iPhone home bar (viewport-fit=cover in app/layout). */
+  padding: var(--spacing-8) var(--spacing-16) calc(var(--spacing-16) + env(safe-area-inset-bottom));
   border-radius: var(--radius-24) var(--radius-24) 0 0;
 }
 
@@ -135,5 +141,5 @@
 .drawer[data-bare] {
   padding: 0;
   border-radius: var(--radius-16);
-  box-shadow: 0 0 32px rgba(169, 172, 177, 0.6);
+  box-shadow: var(--shadow-popup);
 }

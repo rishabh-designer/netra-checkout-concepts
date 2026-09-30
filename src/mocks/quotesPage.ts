@@ -334,7 +334,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
       goldLocked: "Your Gold Quote is ready. Select Reveal Quote to see it.",
       goldRevealed: "Your Gold Quote is from {insurer} at {price}, with {list}, built by BimaNetra from your verified details.",
       sumInsured: "Every quote here is for {sum} of cover. You can change it with Edit Details.",
-      details: "These quotes are for {company}: {list}. Use Edit Details to change anything.",
+      details: "These quotes are for {company}: {list}. Use Edit Details to change any of these.",
       noRecommend:
         "I can't pick an insurer for you, but I can show how they differ. Try asking which is the lowest price, which you can buy now, or to compare two of them.",
       whatIsDo:
@@ -352,7 +352,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     title: "Your Details",
     editLabel: "Edit Details",
     companyLabel: "Quotes for",
-    companyInfo: "These quotes are for this company. Use Edit Details to change it.",
+    companyInfo: "These quotes are for this company, as registered with the MCA. For a different company, start a new quote.",
     rows: [
       { label: "Enter Company Type", value: "Private Limited Company", key: "type" },
       { label: "Type of Business", value: "IT & Digital Businesses", key: "business" },
@@ -438,7 +438,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     viewFeaturesLabel: "View All Features",
     featuresDrawer: FEATURES_DRAWER,
     compareLabel: "Add to Compare",
-    compareSheet: { title: "Compare Quotes", ctaLabel: "Compare Now", removeLabel: "Remove {insurer} from compare", min: 2, max: 3, minTip: "Pick at least 2 quotes to compare" },
+    compareSheet: { title: "Compare Quotes", ctaLabel: "Compare Now", removeLabel: "Remove {insurer} from compare", min: 2, max: 3, minTip: "Pick at least 2 quotes to compare", goldShortName: "Personalised Quote" },
     compareView: COMPARE_VIEW,
     comparisonUnavailableLabel: "Unavailable",
     getQuoteLabel: "Request Quote",

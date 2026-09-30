@@ -554,7 +554,8 @@
     height: calc(100dvh - var(--spacing-40));
     max-height: calc(100dvh - var(--spacing-40));
     overflow-y: auto;
-    padding: var(--spacing-12) var(--spacing-16) var(--spacing-16);
+    /* The foot clears the iPhone home bar. */
+    padding: var(--spacing-12) var(--spacing-16) calc(var(--spacing-16) + env(safe-area-inset-bottom));
     border-radius: var(--radius-24) var(--radius-24) 0 0;
   }
   .content {
@@ -563,11 +564,12 @@
   }
   .footer {
     position: sticky;
-    bottom: 0;
+    /* Pinned above the iPhone home bar. */
+    bottom: env(safe-area-inset-bottom);
     z-index: 2;
     /* The sheet's white round it (16 each side, and down to the edge), so
        the list never shows beside or under the pinned footer. */
-    box-shadow: 0 0 0 var(--spacing-16) var(--color-card), 0 var(--spacing-16) 0 var(--spacing-16) var(--color-card);
+    box-shadow: 0 0 0 var(--spacing-16) var(--color-card), 0 calc(var(--spacing-16) + env(safe-area-inset-bottom)) 0 var(--spacing-16) var(--color-card);
   }
   /* Pinned to the sheet's top while it scrolls, with no fill of its own:
      the sheet's colour shows behind the pager and ×. */

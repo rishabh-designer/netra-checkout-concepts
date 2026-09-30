@@ -281,7 +281,16 @@ export interface QuotesFeedContent {
   comparisonUnavailableLabel: string;
   /** The compare bar (Figma BK Website 689:3123): up to `max` quotes, at
    *  least `min` to compare. `{insurer}` fills the remove button's label. */
-  compareSheet: { title: string; ctaLabel: string; removeLabel: string; min: number; max: number; minTip: string };
+  compareSheet: {
+    title: string;
+    ctaLabel: string;
+    removeLabel: string;
+    min: number;
+    max: number;
+    minTip: string;
+    /** Phones: the Gold Quote's slot name (a third of the row can't hold the full title). */
+    goldShortName: string;
+  };
   compareView: CompareViewContent;
   getQuoteLabel: string;
   sumInsuredLabel: string;

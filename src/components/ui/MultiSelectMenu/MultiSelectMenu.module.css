@@ -24,14 +24,23 @@
   cursor: pointer;
 }
 
+/* Keyboard focus shows (the reset above hides the browser's ring). A host
+   that rings its whole field hides this one. */
+.trigger:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-6);
+}
+
 .text {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* _ActionListItemGroup: white, 1px neutral ring, r12, low-raised shadow;
-   12/8 inside. */
+/* _ActionListItemGroup: the same floating card as SelectMenu's list and
+   the company suggestions (white, hairline subtle ring, raised shadow);
+   12/8 inside, r12. */
 .panel {
   position: absolute;
   top: calc(100% + var(--spacing-4));
@@ -42,9 +51,9 @@
   flex-direction: column;
   padding: var(--spacing-12) var(--spacing-8);
   background: var(--color-card);
-  border: 1px solid var(--color-border-neutral);
+  border: var(--border-hairline) solid var(--color-border-subtle);
   border-radius: var(--radius-12);
-  box-shadow: 0 2px 16px rgba(169, 172, 177, 0.24);
+  box-shadow: var(--shadow-raised);
 }
 
 /* Rows 8 apart. */
@@ -152,7 +161,7 @@
 
 .reset:disabled,
 .apply:disabled {
-  border-color: rgba(169, 172, 177, 0.6);
+  border-color: var(--color-rule);
   background: var(--color-fill-disabled);
   color: var(--color-label-tertiary);
   cursor: not-allowed;

@@ -55,9 +55,14 @@ function SortIcon() {
   );
 }
 
-/** The field's chevron at its 14px value size, as on every select. */
+/** The field's chevron at its 14px value size, as on every select; it
+ *  flips while the list is open (the field's data-open). */
 function FieldChevron() {
-  return <Chevron size={14} color="var(--color-label-tertiary)" />;
+  return (
+    <span className={styles.chevron}>
+      <Chevron size={14} color="var(--color-label-tertiary)" />
+    </span>
+  );
 }
 
 /** One Filtering / Sorting field: a label over the DSL SelectMenu, drawn as
@@ -77,12 +82,13 @@ function Dropdown<T extends string>({
   onChange: (id: T) => void;
   icon: ReactNode;
 }) {
+  const [open, setOpen] = useState(false);
   const current = options.find((o) => o.id === value) ?? options[0];
   const trigger = label.replace("{option}", current?.label ?? "");
   return (
     <div className={styles.field}>
       <span className={styles.fieldLabel}>{fieldLabel}</span>
-      <div className={styles.dropdown}>
+      <div className={styles.dropdown} data-open={open || undefined}>
         <SelectMenu
           value={current?.label ?? ""}
           options={options.map((o) => o.label)}
@@ -91,6 +97,7 @@ function Dropdown<T extends string>({
             if (next) onChange(next.id);
           }}
           ariaLabel={trigger}
+          onOpenChange={setOpen}
           triggerLabel={trigger}
           triggerClassName={styles.trigger}
           adornment={
@@ -109,12 +116,13 @@ function Dropdown<T extends string>({
 /** The insurer filter: the DSL multiselect in the same underlined field. */
 function FilterDropdown(props: FeedControlsProps) {
   const { filter } = props;
+  const [open, setOpen] = useState(false);
   const value =
     filter.length === 0 ? props.filterAllLabel : filter.length === 1 ? filter[0] : props.filterCountLabel.replace("{count}", String(filter.length));
   return (
     <div className={styles.field}>
       <span className={styles.fieldLabel}>{props.filterFieldLabel}</span>
-      <div className={styles.dropdown}>
+      <div className={styles.dropdown} data-open={open || undefined}>
         <MultiSelectMenu
           value={filter}
           options={props.filterOptions}
@@ -122,6 +130,7 @@ function FilterDropdown(props: FeedControlsProps) {
           triggerLabel={props.filterLabel.replace("{option}", value)}
           resetLabel={props.filterResetLabel}
           applyLabel={props.filterApplyLabel}
+          onOpenChange={setOpen}
           triggerClassName={styles.trigger}
           adornment={
             <span className={styles.suffix}>

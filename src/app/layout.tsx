@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   Anek_Latin,
   Anek_Devanagari,
@@ -65,6 +65,14 @@ const fontVariables = [
 export const metadata: Metadata = {
   title: "Directors & Officers Insurance | BimaKavach",
   description: "Protects executives when business decisions lead to lawsuits",
+};
+
+// viewport-fit=cover: the page runs under the iPhone home bar, so the pinned
+// footers and bottom sheets can pad for it with env(safe-area-inset-bottom).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({

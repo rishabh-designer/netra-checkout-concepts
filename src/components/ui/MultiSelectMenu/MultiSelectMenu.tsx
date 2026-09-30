@@ -14,6 +14,8 @@ export interface MultiSelectMenuProps {
   resetLabel: string;
   applyLabel: string;
   ariaLabel?: string;
+  /** Reports open/close so the host field can theme itself (chevron flip). */
+  onOpenChange?: (open: boolean) => void;
   /** Rendered inside the trigger after its text (chevron, glyphs). */
   adornment?: ReactNode;
   triggerClassName?: string;
@@ -29,10 +31,14 @@ const same = (a: string[], b: string[]) => a.length === b.length && a.every((x) 
  * Keyboard: ↑/↓ move, Space ticks, Enter applies, Esc/Tab close.
  * Usage: <MultiSelectMenu value={v} options={opts} onChange={setV} triggerLabel="…" resetLabel="Reset All" applyLabel="Apply Changes" />
  */
-export function MultiSelectMenu({ value, options, onChange, triggerLabel, resetLabel, applyLabel, ariaLabel, adornment, triggerClassName }: MultiSelectMenuProps) {
+export function MultiSelectMenu({ value, options, onChange, triggerLabel, resetLabel, applyLabel, ariaLabel, onOpenChange, adornment, triggerClassName }: MultiSelectMenuProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
-  const [open, setOpenState] = useState(false);
+  const [open, setOpenRaw] = useState(false);
+  const setOpenState = (next: boolean) => {
+    setOpenRaw(next);
+    onOpenChange?.(next);
+  };
   const [draft, setDraft] = useState<string[]>(value);
   const [active, setActive] = useState(-1);
 
@@ -53,6 +59,7 @@ export function MultiSelectMenu({ value, options, onChange, triggerLabel, resetL
     };
     document.addEventListener("pointerdown", onDown);
     return () => document.removeEventListener("pointerdown", onDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const toggle = (opt: string) => setDraft((d) => (d.includes(opt) ? d.filter((x) => x !== opt) : [...d, opt]));

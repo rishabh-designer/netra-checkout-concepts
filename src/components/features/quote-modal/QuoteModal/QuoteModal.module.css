@@ -8,7 +8,7 @@
   /* The modal sits 32px from the viewport's top and bottom (Figma 503:11040). */
   padding: var(--spacing-32) var(--spacing-16);
   /* A9ACB1 @ 80% + blur (design node 249:3516). */
-  background: rgba(169, 172, 177, 0.8);
+  background: var(--color-scrim);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
@@ -22,6 +22,11 @@
   background: var(--color-page);
 }
 
+/* The panel takes focus on open (lib/dialog); no ring round the whole form. */
+.modal:focus {
+  outline: none;
+}
+
 .modal {
   display: flex;
   /* Full viewport height less the overlay's 32px top/bottom; width hugs the two
@@ -31,7 +36,7 @@
   width: max-content;
   max-width: 100%;
   border-radius: var(--radius-24);
-  box-shadow: 0 24px 80px rgba(28, 28, 28, 0.24);
+  box-shadow: var(--shadow-overlay);
   overflow: hidden;
 }
 
@@ -228,13 +233,9 @@
   cursor: pointer;
 }
 
+/* The shared tick (ui/Checkbox), level with the first line. */
 .consentBox {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
   margin-top: var(--spacing-4);
-  accent-color: var(--color-brand-primary);
-  cursor: pointer;
 }
 
 /* ---- Intelligence Engine / visualization panel ----
@@ -273,59 +274,12 @@
   overflow: hidden auto;
 }
 
-/* ---- panel-footer stepper (Figma 306:5036) ---- */
+/* ---- panel-footer stepper (Figma 306:5036): StepPills, 12 apart ---- */
 .stepRow {
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
   list-style: none;
-}
-
-.stepPill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--spacing-6) var(--spacing-8);
-  border: var(--border-hairline) solid transparent;
-  border-radius: 1000px;
-  corner-shape: round;
-  white-space: nowrap;
-}
-
-.stepLabel {
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1;
-}
-
-/* current = purple/brand-subtle, 14px dark label */
-.stepCurrent {
-  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-primary-subtle));
-  border-color: var(--color-brand-primary-border);
-}
-.stepCurrent .stepLabel {
-  font-size: var(--font-size-100);
-  color: var(--color-label-basic);
-}
-
-/* done = green-subtle, 14px dark label (a used step turns from purple to green) */
-.stepDone {
-  background: linear-gradient(to bottom, var(--color-card), var(--color-success-subtle));
-  border-color: var(--color-success-border);
-}
-.stepDone .stepLabel {
-  font-size: var(--font-size-100);
-  color: var(--color-label-basic);
-}
-
-/* todo = sunken grey, 12px faded label */
-.stepTodo {
-  background: linear-gradient(to bottom, var(--color-card-sunken), var(--color-card-recessed));
-  border-color: var(--color-divider);
-}
-.stepTodo .stepLabel {
-  font-size: var(--font-size-75);
-  color: color-mix(in srgb, var(--color-label-tertiary) 48%, transparent);
 }
 
 .result {
@@ -841,7 +795,8 @@
   .modal {
     gap: var(--spacing-12);
     height: 100%;
-    padding: var(--spacing-12);
+    /* The CTA clears the iPhone home bar (viewport-fit=cover). */
+    padding: var(--spacing-12) var(--spacing-12) calc(var(--spacing-12) + env(safe-area-inset-bottom));
     border: var(--border-hairline) solid var(--color-border-subtle);
     border-bottom: 0;
     border-radius: var(--radius-24) var(--radius-24) 0 0;
@@ -977,6 +932,11 @@
   }
   .modal[data-engine="closing"] .taskBody {
     animation: body-out 0.3s var(--ease-standard) forwards;
+  }
+  /* The steps still to come leave first: the card folds over the foot
+     they sit at, so they'd otherwise run into the task row. */
+  .modal[data-engine="closing"] .taskPending {
+    animation: body-out 0.2s var(--ease-standard) forwards;
   }
   /* The task row shrinks with the card but never below its folded height,
      so its pill lands intact rather than squashing and popping back. */

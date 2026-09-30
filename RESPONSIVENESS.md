@@ -45,6 +45,12 @@ Reuse those three and don't add new ones. Fold the stragglers in when you next t
 
 **Motion curves** come from `lib/motion.ts` (`EASE_OUT`, `EASE_STD`, `EASE_SMOOTH`, `EASE_HOLD`) in Motion code and `--ease-out`, `--ease-standard`, `--ease-smooth`, `--ease-hold` in CSS. Never type a cubic-bezier inline.
 
+**Overlays** get their behaviour from `lib/dialog.ts`: `useDialog({ open, onClose, panelRef, initialFocusRef })` moves focus in (the × or, with no ref, the panel at `tabIndex={-1}`), keeps Tab inside, closes on Esc (the top dialog only), locks the page's scroll and returns focus to the opener. SideDrawer, QuoteModal and CompareView use it. A new overlay uses SideDrawer or this hook, never its own keydown listener.
+
+**The home bar**: the viewport is `viewport-fit=cover` (app/layout), so anything pinned to the screen's foot pads for it: `calc(<padding> + env(safe-area-inset-bottom))` on bottom sheets (SideDrawer, the quote form, View All Features) and `max(<padding>, env(safe-area-inset-bottom))` on pinned footers (checkout, the request footer).
+
+**Not every popup becomes a sheet.** The quote form, Edit Details, Sort & Filter, View All Features and Ask BimaNetra rise from the bottom on phones. Checkout Edit, Know More, the Gold gate and Risk Held stay as they are. Don't add `sheetOnMobile` without being asked.
+
 ---
 
 ## 3. Space

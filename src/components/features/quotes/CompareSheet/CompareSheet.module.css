@@ -6,7 +6,7 @@
   right: 0;
   bottom: 0;
   z-index: 30;
-  padding: 28px;
+  padding: var(--spacing-28);
   border-top: 1px solid var(--color-border-neutral);
   background: var(--color-card);
   box-shadow: 0 -8px 56px rgba(169, 172, 177, 0.32);
@@ -87,6 +87,10 @@
   color: var(--color-label-primary);
 }
 
+.shortName {
+  display: none;
+}
+
 /* Boxed × (chevron.controls): 18px on the slot's right edge; Figma r6,
    one step rounder. */
 .remove {
@@ -160,6 +164,20 @@
   }
   .logo {
     max-width: 100%;
+  }
+  /* The Gold Quote's full title can't fit a third of the row: its short
+     name instead, wrapping onto a second line if it must. */
+  .picked:has(.shortName) .name {
+    display: none;
+  }
+  .shortName {
+    display: block;
+    font-size: var(--font-size-75);
+    font-weight: 600;
+    letter-spacing: var(--track-600);
+    line-height: 1.1;
+    text-align: center;
+    color: var(--color-label-primary);
   }
   .remove {
     top: 0;

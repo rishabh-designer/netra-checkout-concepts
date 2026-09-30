@@ -38,7 +38,7 @@
 .dropdown {
   position: relative;
   display: flex;
-  border-bottom: var(--border-hairline) solid rgba(169, 172, 177, 0.6);
+  border-bottom: var(--border-hairline) solid var(--color-rule);
   background: var(--color-card);
   transition: background 0.15s ease;
 }
@@ -69,6 +69,28 @@
   gap: var(--spacing-8);
 }
 
+/* The chevron flips while the list is open, as on every select. */
+.chevron {
+  display: inline-flex;
+  transition: transform var(--duration-flip) var(--ease-out);
+}
+
+.dropdown[data-open] .chevron {
+  transform: rotate(180deg);
+}
+
+/* Keyboard focus: the field's focus look, as on the form's inputs (purple
+   underline, lavender fill); a ring would be clipped by the edge-to-edge
+   sheet. The trigger inside keeps no outline. */
+.dropdown:has(:focus-visible) {
+  border-bottom-color: var(--color-brand-primary);
+  background: var(--color-input-fill);
+}
+
+.dropdown .trigger:focus-visible {
+  outline: none;
+}
+
 .divider {
   width: 0.5px;
   height: 16px;
@@ -81,7 +103,7 @@
   align-items: center;
   height: 32px;
   padding: var(--spacing-8) var(--spacing-12);
-  border: var(--border-hairline) solid rgba(169, 172, 177, 0.6);
+  border: var(--border-hairline) solid var(--color-rule);
   border-radius: var(--radius-8);
   background: var(--color-card);
 }
@@ -198,7 +220,7 @@
 
 .sheetReset:disabled,
 .sheetApply:disabled {
-  border-color: rgba(169, 172, 177, 0.6);
+  border-color: var(--color-rule);
   background: var(--color-fill-disabled);
   color: var(--color-label-tertiary);
   cursor: not-allowed;

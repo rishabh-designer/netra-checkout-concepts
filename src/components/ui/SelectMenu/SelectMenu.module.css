@@ -29,6 +29,14 @@
   cursor: default;
 }
 
+/* Keyboard focus shows (the reset above hides the browser's ring). A host
+   that rings its whole field hides this one. */
+.trigger:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-6);
+}
+
 .text {
   min-width: 0;
   overflow: hidden;

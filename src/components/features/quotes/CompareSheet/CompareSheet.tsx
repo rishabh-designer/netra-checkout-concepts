@@ -55,7 +55,11 @@ export function CompareSheet({ content, picked, onRemove, onCompare }: CompareSh
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={q.logoSrc} alt={q.insurer} className={styles.logo} />
                         ) : (
-                          <span className={styles.name}>{q.insurer}</span>
+                          <>
+                            <span className={styles.name}>{q.insurer}</span>
+                            {/* Phones: a shorter name, on up to two lines. */}
+                            {q.gold && <span className={styles.shortName}>{content.goldShortName}</span>}
+                          </>
                         )}
                       </span>
                       <button

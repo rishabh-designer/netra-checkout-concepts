@@ -7,8 +7,10 @@ import { CloseButton } from "@/components/ui/IconButton";
 import styles from "./SideDrawer.module.css";
 import { EASE_OUT, EASE_STD } from "@/lib/motion";
 import { useAtMost } from "@/lib/media";
+import { useDialog } from "@/lib/dialog";
 
-/** Same scrim as the Edit Details drawer (A9ACB1 @ 80% + 6px blur, 249:3516). */
+/** Same scrim as the Edit Details drawer (A9ACB1 @ 80% + 6px blur, 249:3516);
+ *  --color-scrim in CSS. Literal here so Motion can tween it. */
 export const SCRIM = {
   hidden: { backgroundColor: "rgba(169, 172, 177, 0)", backdropFilter: "blur(0px)" },
   shown: { backgroundColor: "rgba(169, 172, 177, 0.8)", backdropFilter: "blur(6px)" },
@@ -46,7 +48,8 @@ export interface SideDrawerProps {
  * 624-wide white panel with a 32px gutter, r32 and the deep drawer shadow,
  * Instrument Serif title + boxed ×, a flexible body and an optional pinned
  * footer. Slides in from the right; Esc, × or a scrim click closes it; focus
- * lands on × when it opens. Shared by View All Features and the checkout edit
+ * lands on × when it opens, stays inside, and returns to the opener on close
+ * (lib/dialog). Shared by View All Features and the checkout edit
  * drawers. placement="bottom" rises as a full-width sheet from the foot of
  * the screen (mobile). placement="center" floats it as a content-height popup that
  * scales in (Know More).
@@ -61,22 +64,14 @@ export function SideDrawer({ open, onClose, title, titleIcon, closeLabel, childr
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
   useEffect(() => setMounted(true), []);
 
-  useEffect(() => {
-    if (!open) return;
-    const id = window.setTimeout(() => closeRef.current?.focus(), 60);
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.clearTimeout(id);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose]);
+  // Focus on × (a bare popup: the panel), kept inside; Esc closes; the page
+  // behind holds still; focus goes back to the opener on close.
+  useDialog({ open, onClose, panelRef, initialFocusRef: bare ? undefined : closeRef });
 
   if (!mounted) return null;
 
@@ -95,6 +90,8 @@ export function SideDrawer({ open, onClose, title, titleIcon, closeLabel, childr
         >
           <motion.div
             className={className ? `${styles.drawer} ${className}` : styles.drawer}
+            ref={panelRef}
+            tabIndex={-1}
             data-bare={bare || undefined}
             role="dialog"
             aria-modal="true"

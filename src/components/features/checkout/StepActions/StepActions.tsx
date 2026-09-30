@@ -2,6 +2,7 @@ import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { cn } from "@/lib/utils";
 import styles from "./StepActions.module.css";
 import { Button } from "@/components/ui/Button";
+import { Checkbox } from "@/components/ui/Checkbox";
 
 export interface StepCtaProps {
   /** `blockedTip`: the tooltip while the CTA is greyed out. */
@@ -44,7 +45,7 @@ export function StepCta({ cta, className }: StepCtaProps) {
 export function StepConsent({ consent, variant, className }: { consent: StepConsentData; variant?: "footer"; className?: string }) {
   return (
     <label className={cn(styles.consent, className)} data-tone={consent.tone} data-variant={variant}>
-      <input type="checkbox" className={styles.check} checked={consent.checked} onChange={consent.onToggle} />
+      <Checkbox size={variant === "footer" ? 12 : 16} className={styles.check} checked={consent.checked} onChange={consent.onToggle} />
       <span>{consent.text}</span>
     </label>
   );

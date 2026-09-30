@@ -12,7 +12,7 @@
   border: var(--border-hairline) solid var(--color-card);
   border-radius: var(--radius-16);
   background: var(--color-card);
-  box-shadow: 0 0 32px rgba(169, 172, 177, 0.6);
+  box-shadow: var(--shadow-popup);
   overflow: hidden;
 }
 

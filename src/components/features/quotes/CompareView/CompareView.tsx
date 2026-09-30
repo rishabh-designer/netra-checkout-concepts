@@ -13,6 +13,7 @@ import styles from "./CompareView.module.css";
 import { Chevron } from "@/components/icons/Chevron";
 import { ArrowRight } from "@/components/icons/ArrowRight";
 import { EASE_OUT } from "@/lib/motion";
+import { useDialog } from "@/lib/dialog";
 
 export interface CompareViewProps {
   open: boolean;
@@ -81,19 +82,16 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
     };
   }, [open]);
 
-  // Each opening starts at the top of the first tab, focus on Back; Esc closes.
+  // Each opening starts at the top of the first tab.
   useEffect(() => {
     if (!open) return;
     setTab(content.tabs[0].key); // eslint-disable-line react-hooks/set-state-in-effect -- each opening starts on the first tab
     scrollRef.current?.scrollTo({ top: 0 });
-    const id = window.setTimeout(() => backRef.current?.focus(), 60);
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.clearTimeout(id);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, content.tabs, onClose]);
+  }, [open, content.tabs]);
+
+  // Focus on Back and kept inside; Esc closes; the page behind holds still;
+  // focus returns to Compare on close.
+  useDialog({ open, onClose, panelRef: scrollRef, initialFocusRef: backRef });
 
   const valueOf = (q: QuoteCardData, row: CompareRow): string => {
     switch (row.source) {

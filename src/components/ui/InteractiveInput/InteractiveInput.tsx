@@ -263,6 +263,15 @@ export function InteractiveInput({
             disabled={loading}
             ariaLabel={ariaLabel ?? label}
             onOpenChange={setMenuOpen}
+            // The chevron sits inside the trigger, so tapping it opens the list.
+            adornment={
+              loading ? undefined : (
+                <span className={styles.chevron}>
+                  <ChevronDown />
+                </span>
+              )
+            }
+            triggerClassName={styles.selectTrigger}
           />
         ) : isTextarea ? (
           withGhost(<textarea
@@ -320,11 +329,6 @@ export function InteractiveInput({
         )}
 
         <div className={styles.suffix}>
-          {isSelect && !loading && (
-            <span className={styles.chevron}>
-              <ChevronDown />
-            </span>
-          )}
           {isSearch && !loading && <SearchIcon />}
           {clearable && !loading && !isSelect && !isSearch && value && (
             <button
@@ -342,20 +346,24 @@ export function InteractiveInput({
             </button>
           )}
           {infoTooltip ? (
-            <span className={styles.infoWrap}>
+            // The app's one tooltip (TooltipLayer) shows the tip to the left;
+            // the hidden copy reads it to screen readers.
+            <>
               <button
                 type="button"
                 className={styles.infoBtn}
                 aria-label="More information"
                 aria-describedby={tipId}
+                data-tooltip={infoTooltip}
+                data-tooltip-side="left"
                 onClick={onInfoClick}
               >
                 <Info />
               </button>
-              <span role="tooltip" id={tipId} className={styles.tooltip}>
+              <span id={tipId} hidden>
                 {infoTooltip}
               </span>
-            </span>
+            </>
           ) : (
             <Info />
           )}

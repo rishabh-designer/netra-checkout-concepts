@@ -1,0 +1,38 @@
+/* 16 box, r4, faint ring; checked: brand fill with a white tick. */
+.box {
+  flex-shrink: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  background: var(--color-card) center / 10px no-repeat;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.box:checked {
+  border-color: var(--color-brand-primary);
+  background-color: var(--color-brand-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='m2 5.2 2 2 4-4.4' fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.box:disabled {
+  background-color: var(--color-fill-disabled);
+  cursor: default;
+}
+
+.box:focus-visible {
+  outline: 2px solid var(--color-brand-primary-border);
+  outline-offset: 2px;
+}
+
+/* 12: the checkout footer's (734:36135), a 0.75 stroke and an 8 tick. */
+.box[data-size="12"] {
+  width: 12px;
+  height: 12px;
+  border-width: 0.75px;
+  background-size: 8px;
+}
