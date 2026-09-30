@@ -73,6 +73,18 @@ export function FilledCheck({ color }: { color: string }) {
   );
 }
 
+/** The outline twin of FilledCheck: a stroked ring and tick in one colour
+ *  (a task whose result is in, e.g. the research card's step). `tick={false}`
+ *  draws the ring alone: a task waiting on the user. */
+export function StrokeCheck({ color, tick = true }: { color: string; tick?: boolean }) {
+  return (
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden>
+      <circle cx="8" cy="8" r="7.25" stroke={color} strokeWidth="1.5" />
+      {tick && <path d="m4.8 8.2 2 2 4-4.4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />}
+    </svg>
+  );
+}
+
 /** Orange roundel with a "!" — a fuzzy / web-guessed value. */
 export function Alert() {
   return (

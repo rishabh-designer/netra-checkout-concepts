@@ -527,7 +527,7 @@
   padding: var(--spacing-24) 0;
 }
 
-/* "Getting Started" + live meter */
+/* The step heading ("Getting Started") with its live timer */
 .meterRow {
   display: flex;
   align-items: center;
@@ -542,56 +542,6 @@
   line-height: 1;
   color: var(--color-label-secondary);
   white-space: nowrap;
-}
-
-.meterRight {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-8);
-}
-
-.meterPct {
-  font-size: var(--font-size-100);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1;
-  color: var(--color-brand-secondary);
-}
-
-.meterTrack {
-  width: 84px;
-  height: 6px;
-  border-radius: 1000px;
-  corner-shape: round;
-  background: var(--color-card-recessed);
-  overflow: hidden;
-}
-
-/* barber-pole (Loaders 44): the orange fill is a moving striped pole. Width
-   tracks the live percentage (set inline). */
-.meterFill {
-  --ink: var(--color-brand-secondary);
-  height: 100%;
-  border-radius: 1000px;
-  corner-shape: round;
-  background: repeating-linear-gradient(
-    45deg,
-    var(--ink) 0 8px,
-    color-mix(in srgb, var(--ink) 25%, transparent) 8px 16px
-  );
-  animation: barber 0.8s linear infinite;
-}
-
-@keyframes barber {
-  to {
-    background-position: 22.63px 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .meterFill {
-    animation: none;
-  }
 }
 
 /* task runner */
@@ -679,6 +629,8 @@
   font-size: var(--font-size-100);
   font-weight: 500;
   letter-spacing: var(--track-500);
+  /* At rest (the result is in): the shimmer's own ink, held still. */
+  color: var(--color-label-basic);
 }
 
 /* collapsed accordion: the row shrinks back to its head */

@@ -455,7 +455,6 @@ export const mockQuotesPageContent: QuotesPageContent = {
     },
     revealQuoteLabel: "Reveal Quote",
     revealLockedHint: "Unlocks once we've verified your business",
-    revealReadyHint: "Your Personalised Gold Quote is ready",
     /* Mock prices are for ₹10 Cr at ₹5–50 Cr turnover (Pepe Jeans): bigger
        businesses and more cover cost more. */
     pricing: {

@@ -302,8 +302,6 @@ export interface QuotesFeedContent {
   revealQuoteLabel: string;
   /** Under the locked Reveal button, before verification completes. */
   revealLockedHint: string;
-  /** Under the Reveal button once it unlocks. */
-  revealReadyHint: string;
   /** The Gold Quote a fuzzy match (Case B) reveals once verified. */
   /** Prices scale with Sum Insured and turnover (see QuotePricing). */
   pricing: QuotePricing;

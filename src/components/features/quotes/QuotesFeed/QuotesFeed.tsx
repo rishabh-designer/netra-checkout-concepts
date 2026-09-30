@@ -357,7 +357,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                 <RevealCard
                   unlocked={unlocked}
                   revealed={revealed}
-                  labels={{ reveal: content.revealQuoteLabel, lockedHint: content.revealLockedHint, readyHint: content.revealReadyHint }}
+                  labels={{ reveal: content.revealQuoteLabel, lockedHint: content.revealLockedHint }}
                   onRevealed={() => onRevealed?.()}
                   // The price strikes down once the card sits still, so the
                   // morph never restarts when the reveal layer hands over.

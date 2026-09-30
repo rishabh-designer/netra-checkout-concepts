@@ -1,42 +1,37 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { AnimatePresence, motion, stagger, useAnimate, useReducedMotion } from "motion/react";
+import { motion, stagger, useAnimate, useReducedMotion } from "motion/react";
 import { Sparks } from "@/components/ui/Sparks";
 import { DitherBurst } from "@/components/ui/DitherBurst";
 import styles from "./RevealCard.module.css";
 import { EASE_OUT as OUT_EXPO } from "@/lib/motion";
 
 export interface RevealCardProps {
-  /** Verification finished: the Reveal button is live. */
+  /** Verification finished: the reveal plays straight from the locked card. */
   unlocked: boolean;
   /** Already revealed (e.g. after an Edit Details reload): show the Gold card. */
   revealed: boolean;
-  labels: { reveal: string; lockedHint: string; readyHint: string };
+  labels: { reveal: string; lockedHint: string };
   /** Fired mid-reveal, as the Gold card lands, so the feed can ripple its ratings. */
   onRevealed: () => void;
   /** Fired once the sequence has finished and the card sits in place (start
    *  anything that must not restart, like the price morph, here). */
   onSettled?: () => void;
-  /** Play the reveal on its own after this many ms, no press needed (Case A,
-   *  which arrives verified). */
-  autoRevealDelay?: number;
   /** The Gold QuoteCard. */
   children: ReactNode;
 }
 
 type Phase = "idle" | "revealing" | "done";
 
-const BLUR = (px: number) => `blur(${px}px)`;
 /* Every Gold-card part that cascades in, matched in document (reading) order. */
 const CASCADE = "[data-reveal='pill'], [data-reveal='rule'], [data-reveal='item'], [data-reveal='coverage'], [data-reveal='rating'], [data-reveal='chip'], [data-reveal='bar']";
 
 /**
- * RevealCard — the fuzzy match's locked slot and its unveiling.
- * Locked: a greyed Reveal button with a lock and a hint. Unlocked (after
- * verification): the lock spins into a sparkle, the button springs orange, a
- * soft glow breathes behind it and hairline rings ripple out. Reveal: one
- * choreographed sequence (about 2.7s):
+ * RevealCard — the Gold Quote's locked slot and its unveiling.
+ * Locked: a greyed Reveal button with a lock and a hint. The moment
+ * verification lands (`unlocked`), the locked card plays the reveal on its
+ * own, with no "ready" state in between. One choreographed sequence (about 2.7s):
  *   press → the label letters scatter → the button collapses to a core and
  *   detonates into a gold light bloom (a dithered shockwave and glitter
  *   ride it, like the PLP icon) with an ikkat spark burst → the slot
@@ -44,10 +39,10 @@ const CASCADE = "[data-reveal='pill'], [data-reveal='rule'], [data-reveal='item'
  *   its parts cascade in (pill, the ikkat rule drawing out from the centre,
  *   title lines, coverage box, chips, the Excellent badge on an overshoot,
  *   the price bar) → one sheen sweeps across → the border beam fades up.
- * Reduced motion: a plain cross-fade. `autoRevealDelay` plays it unprompted.
+ * Reduced motion: a plain cross-fade.
  * Usage: <RevealCard unlocked={u} revealed={r} labels={…} onRevealed={fn}><QuoteCard … /></RevealCard>
  */
-export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, autoRevealDelay, children }: RevealCardProps) {
+export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, children }: RevealCardProps) {
   const reduced = useReducedMotion();
   const [scope, animate] = useAnimate<HTMLDivElement>();
   const goldRef = useRef<HTMLDivElement>(null);
@@ -55,21 +50,11 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
   // The ghost's height when pressed: 200 in the list, the row height in the
   // compact grid. The slot opens from it, so the grid never jumps.
   const [fromH, setFromH] = useState(200);
-  const wasUnlocked = useRef(unlocked);
-
   // Demo reset (Case B): the feed took the Gold Quote back, so return to the
-  // locked slot. An auto reveal (Case A) is never taken back.
+  // locked slot.
   useEffect(() => {
-    if (autoRevealDelay === undefined && !revealed && phase === "done") setPhase("idle");
-  }, [revealed, phase, autoRevealDelay]);
-
-  // Unlock beat: the button springs up when verification completes.
-  useEffect(() => {
-    if (unlocked && !wasUnlocked.current && !reduced && phase === "idle") {
-      animate("[data-rv='btn']", { scale: [0.9, 1.06, 1] }, { type: "tween", duration: 0.55, ease: [0.34, 1.56, 0.64, 1], times: [0, 0.6, 1] });
-    }
-    wasUnlocked.current = unlocked;
-  }, [unlocked, reduced, phase, animate]);
+    if (!revealed && phase === "done") setPhase("idle");
+  }, [revealed, phase]);
 
   // The reveal sequence runs once the Gold layer is in the DOM.
   useEffect(() => {
@@ -97,7 +82,6 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
         ["[data-rv='btn']", { scale: 0.94 }, { type: "tween", duration: 0.12, ease: "easeOut", at: 0 }],
         ["[data-rv='char']", { y: -16, opacity: 0 }, { type: "tween", duration: 0.28, ease: OUT_EXPO, delay: stagger(0.018, { from: "center" }), at: 0 }],
         ["[data-rv='icon']", { scale: 0, rotate: 90, opacity: 0 }, { type: "tween", duration: 0.2, at: 0 }],
-        ["[data-rv='rings']", { opacity: 0 }, { duration: 0.15, at: 0 }],
         // Collapse into a glowing core just as the bloom ignites.
         ["[data-rv='btn']", { scale: 0.16 }, { type: "tween", duration: 0.2, ease: [0.7, 0, 0.84, 0], at: 0.12 }],
         ["[data-rv='btn']", { scale: 0, opacity: 0 }, { type: "tween", duration: 0.14, at: 0.32 }],
@@ -138,7 +122,7 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
   }
 
   const start = () => {
-    if (!unlocked || phase !== "idle") return;
+    if (!unlocked || phase !== "idle" || revealed) return;
     settledRef.current = false;
     if (reduced) {
       onRevealed();
@@ -149,14 +133,11 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
     setPhase("revealing");
   };
 
-  // Unprompted reveal (Case A): the slot shows its ready state for a beat,
-  // then plays the same sequence as a press.
+  // Verified: the locked card goes straight into the reveal.
   useEffect(() => {
-    if (autoRevealDelay === undefined || !unlocked || phase !== "idle") return;
-    const id = window.setTimeout(start, autoRevealDelay);
-    return () => window.clearTimeout(id);
+    if (unlocked && phase === "idle" && !revealed) start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoRevealDelay, unlocked, phase]);
+  }, [unlocked, phase, revealed]);
 
   if (phase === "done") {
     return (
@@ -177,52 +158,21 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
         </div>
       )}
 
-      <article className={styles.ghost} data-rv="ghost" data-unlocked={unlocked || undefined} aria-live="polite">
+      <article className={styles.ghost} data-rv="ghost" aria-live="polite">
         <div className={styles.center}>
           <span className={styles.btnWrap}>
-            {unlocked && (
-              <span className={styles.rings} data-rv="rings" aria-hidden>
-                <span className={styles.glow} />
-                <span className={styles.ring} />
-                <span className={styles.ring} />
-                <span className={styles.ring} />
-              </span>
-            )}
             <button
               type="button"
               className={styles.reveal}
               data-rv="btn"
-              aria-disabled={!unlocked}
-              onClick={start}
+              aria-disabled
               aria-label={labels.reveal}
             >
               <span className={styles.icon} data-rv="icon" aria-hidden>
-                <AnimatePresence mode="wait" initial={false}>
-                  {unlocked ? (
-                    <motion.img
-                      key="sparkle"
-                      src="/media/chat-with-us.svg"
-                      alt=""
-                      className={styles.iconImg}
-                      initial={{ rotate: -120, scale: 0, opacity: 0 }}
-                      animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 16 }}
-                    />
-                  ) : (
-                    <motion.svg
-                      key="lock"
-                      viewBox="0 0 12 12"
-                      width="12"
-                      height="12"
-                      fill="none"
-                      exit={{ rotate: 120, scale: 0, opacity: 0 }}
-                      transition={{ duration: 0.25 }}
-                    >
-                      <rect x="2.25" y="5.25" width="7.5" height="5.25" rx="1.2" stroke="currentColor" strokeWidth="1.1" />
-                      <path d="M4 5.25V3.9a2 2 0 0 1 4 0v1.35" stroke="currentColor" strokeWidth="1.1" />
-                    </motion.svg>
-                  )}
-                </AnimatePresence>
+                <svg viewBox="0 0 12 12" width="12" height="12" fill="none">
+                  <rect x="2.25" y="5.25" width="7.5" height="5.25" rx="1.2" stroke="currentColor" strokeWidth="1.1" />
+                  <path d="M4 5.25V3.9a2 2 0 0 1 4 0v1.35" stroke="currentColor" strokeWidth="1.1" />
+                </svg>
               </span>
               <span className={styles.label} aria-hidden>
                 {Array.from(labels.reveal).map((c, i) => (
@@ -234,19 +184,7 @@ export function RevealCard({ unlocked, revealed, labels, onRevealed, onSettled, 
             </button>
           </span>
           <span className={styles.hintWrap} data-rv="hint">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={unlocked ? "ready" : "locked"}
-                className={styles.hint}
-                data-ready={unlocked || undefined}
-                initial={{ opacity: 0, y: 6, filter: BLUR(4) }}
-                animate={{ opacity: 1, y: 0, filter: BLUR(0) }}
-                exit={{ opacity: 0, y: -6, filter: BLUR(4) }}
-                transition={{ duration: 0.35, ease: OUT_EXPO }}
-              >
-                {unlocked ? labels.readyHint : labels.lockedHint}
-              </motion.span>
-            </AnimatePresence>
+            <span className={styles.hint}>{labels.lockedHint}</span>
           </span>
         </div>
       </article>

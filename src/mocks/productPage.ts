@@ -363,7 +363,6 @@ export const mockProductPageContent: ProductPageContent = {
     },
     // Live meter denominator: Company 1 + Profile 3 + Business 3 + Insurance 3.
     // CIN is non-mandatory (excluded).
-    totalFlowQuestions: 10,
     validationMessages: {
       phone: "Enter a 10-digit mobile number",
       email: "Enter a valid email address",
@@ -376,9 +375,9 @@ export const mockProductPageContent: ProductPageContent = {
       headingLabels: ["Getting Started", "Assessing Business", "Assessing Risk"],
       progressLabel: "Researching",
       tasks: [
-        { activeLabel: "Assessing Profile", readyLabel: "Ready to Confirm Profile", doneLabel: "Profile Confirmed", hasSearch: false },
-        { activeLabel: "Assessing Business", doneLabel: "Business Secured", hasSearch: true },
-        { activeLabel: "Assessing Risk", doneLabel: "Risk Insured", hasSearch: true },
+        { activeLabel: "Assessing Profile", readyLabel: "Ready to Confirm Profile", waitingLabel: "Waiting for Profile Details", doneLabel: "Profile Confirmed", hasSearch: false },
+        { activeLabel: "Assessing Business", waitingLabel: "Business Assessed. Waiting for Confirmation", doneLabel: "Business Secured", hasSearch: true },
+        { activeLabel: "Assessing Risk", waitingLabel: "Risk Assessed. Waiting for Confirmation", doneLabel: "Risk Insured", hasSearch: true },
       ],
     },
     emptyNameError: "Enter your company's legal name to get your quote",

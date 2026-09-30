@@ -32,7 +32,7 @@
 }
 
 /* While locked, the stroke breathes very faintly. */
-.ghost:not([data-unlocked]) {
+.ghost {
   animation: ghost-breathe 6s ease-in-out infinite;
 }
 
@@ -63,7 +63,8 @@
   display: inline-flex;
 }
 
-/* Reveal button: orange when unlocked, greyed when locked (r12 → 16). */
+/* Reveal button, locked: greyed with a lock (r12 → 16). Verification
+   plays the reveal straight from here. */
 .reveal {
   position: relative;
   z-index: 1;
@@ -80,91 +81,12 @@
   letter-spacing: var(--track-600);
   line-height: 1;
   cursor: not-allowed;
-  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.2s ease;
-}
-
-.ghost[data-unlocked] .reveal {
-  border-color: var(--color-brand-secondary);
-  background: var(--color-brand-secondary);
-  color: var(--color-label-inverse);
-  cursor: pointer;
-}
-
-.ghost[data-unlocked] .reveal:hover {
-  box-shadow: var(--shadow-button-secondary-hover);
-}
-
-/* Unlocked attention: a soft orange glow breathes behind the button while
-   three hairline rings ripple outward (transform + opacity only, so nothing
-   clips and it stays composited). */
-.rings {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.glow {
-  position: absolute;
-  inset: -6px -10px;
-  border-radius: var(--radius-24);
-  background: var(--color-brand-secondary);
-  filter: blur(18px);
-  opacity: 0.35;
-  animation: reveal-breathe 2.4s ease-in-out infinite;
-}
-
-.ring {
-  position: absolute;
-  inset: 0;
-  border: 1.5px solid var(--color-brand-secondary);
-  border-radius: var(--radius-16);
-  opacity: 0;
-  animation: reveal-ripple 2.4s var(--ease-out) infinite;
-}
-
-.ring:nth-child(3) {
-  animation-delay: 0.8s;
-}
-
-.ring:nth-child(4) {
-  animation-delay: 1.6s;
-}
-
-@keyframes reveal-breathe {
-  50% {
-    opacity: 0.6;
-    transform: scale(1.06);
-  }
-}
-
-@keyframes reveal-ripple {
-  0% {
-    opacity: 0.55;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.45, 1.9);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .glow,
-  .ring {
-    animation: none;
-  }
 }
 
 .icon {
   display: inline-flex;
   width: 12px;
   height: 12px;
-}
-
-.iconImg {
-  width: 12px;
-  height: 12px;
-  object-fit: contain;
 }
 
 .label {
@@ -186,10 +108,6 @@
   letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-label-tertiary);
-}
-
-.hint[data-ready] {
-  color: var(--color-label-basic);
 }
 
 /* ── Reveal effects ─────────────────────────────────────── */

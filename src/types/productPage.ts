@@ -222,6 +222,11 @@ export interface EngineTask {
   /** Optional swap once the step's inputs are complete (Profile only:
    *  "Ready to Confirm Profile"). */
   readyLabel?: string;
+  /** Once the task stops working and it's the user's move: Profile after a
+   *  short while still incomplete ("Waiting for Profile Details"); Business
+   *  and Risk once their research is in ("Business Assessed. Waiting for
+   *  Confirmation"). */
+  waitingLabel?: string;
   /** Collapsed label once the task is done ("Profile Confirmed"). */
   doneLabel: string;
   /** true = the active task expands the Netra search viz (Business/Insurance);
@@ -265,7 +270,6 @@ export interface QuoteModalContent {
   engine: IntelligenceEngine;
   /** Denominator for the live progress meter — total mandatory questions across
    *  the whole flow (incl. the future Report step). Tune to re-anchor the %. */
-  totalFlowQuestions: number;
   /** CTA on every step but the last (which shows `ctaLabel`). */
   continueLabel: string;
   /** Edit Details (form-only): the title and the save CTA. */

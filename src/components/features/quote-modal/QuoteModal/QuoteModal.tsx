@@ -15,7 +15,7 @@ import { AgentProgress } from "@/components/ui/AgentProgress";
 import { completionsFor } from "@/lib/completions";
 import { CloseButton, IconButton } from "@/components/ui/IconButton";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
-import { FilledCheck, ChevronDown, SearchIcon } from "@/components/ui/InteractiveInput/icons";
+import { FilledCheck, StrokeCheck, ChevronDown, SearchIcon } from "@/components/ui/InteractiveInput/icons";
 import type {
   EngineTask,
   IntelligenceEngine as IntelligenceEngineContent,
@@ -314,29 +314,6 @@ export function QuoteModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, consent, values, formFields, needsConsent]);
 
-  /** The distinct mandatory field keys across the whole flow — the meter's
-   *  numerator pool. Depends only on the resolved case, not on typed values, so
-   *  it isn't rebuilt on every keystroke. */
-  const mandatoryKeys = useMemo(() => {
-    const keys = new Set<string>();
-    content.steps.forEach((st) =>
-      st.cases[caseId].fields.forEach((f) => {
-        if (f.mandatory) keys.add(f.key);
-      }),
-    );
-    return [...keys];
-  }, [content.steps, caseId]);
-
-  /** Live progress meter: share of those questions answered so far. Unvisited
-   *  steps' keys aren't seeded yet, so the % climbs as the flow advances. */
-  const percent = useMemo(() => {
-    // This step's researched answers only count once they've resolved, so the
-    // meter climbs in steps as the evidence lands rather than jumping on entry.
-    const pending = new Set(researchKeys.filter((k) => !tl.resolved.has(k)));
-    const answered = mandatoryKeys.filter((k) => !pending.has(k) && (values[k] ?? "").trim() !== "").length;
-    return Math.min(100, Math.round((answered / content.totalFlowQuestions) * 100));
-  }, [mandatoryKeys, content.totalFlowQuestions, values, researchKeys, tl.resolved]);
-
   // The closing readout: sources that returned something, fields filled.
   const verdict = step.collectMode
     ? null
@@ -576,7 +553,6 @@ export function QuoteModal({
                       engine={content.engine}
                       stepIndex={stepIndex}
                       companyName={companyName}
-                      percent={percent}
                       profileComplete={profileComplete}
                       formDone={canSubmit}
                       research={research}
@@ -952,7 +928,6 @@ function IntelligenceEngine({
   engine,
   stepIndex,
   companyName,
-  percent,
   profileComplete,
   formDone,
   research,
@@ -965,7 +940,6 @@ function IntelligenceEngine({
   engine: IntelligenceEngineContent;
   stepIndex: number;
   companyName: string;
-  percent: number;
   profileComplete: boolean;
   /** The step's CTA is enabled: only then does the timer show. */
   formDone: boolean;
@@ -1065,23 +1039,6 @@ function IntelligenceEngine({
             hideTime={!formDone}
             labelClassName={styles.meterHeading}
           />
-          <div className={styles.meterRight}>
-            <motion.span
-              key={percent}
-              className={styles.meterPct}
-              initial={reduced ? false : { opacity: 0.4 }}
-              animate={{ opacity: 1 }}
-            >
-              {percent}%
-            </motion.span>
-            <div className={styles.meterTrack}>
-              <motion.div
-                className={styles.meterFill}
-                animate={{ width: `${percent}%` }}
-                transition={{ duration: reduced ? 0 : 0.6, ease: EASE_STD }}
-              />
-            </div>
-          </div>
         </motion.div>
 
         <motion.ol variants={item} className={styles.taskList}>
@@ -1114,6 +1071,8 @@ const ENGINE_MS = 600;
 const INTRO_HOLD_MS = 900;
 /** A beat after a step changes (the form visibly moves) before the card opens. */
 const AUTO_OPEN_MS = 450;
+/** Profile's task works this long before it says it's waiting on the user. */
+const WAITING_MS = 4000;
 /** The card lingers on the verdict before closing onto the filled form. */
 const RESULT_HOLD_MS = 900;
 
@@ -1151,6 +1110,15 @@ function TaskRow({
   // (`sheet`: the engine card's open / closing state and its toggle). Hooks
   // stay above the done/pending early returns.
   const [localExpanded, setLocalExpanded] = useState(true);
+  // Profile: after a while with the fields still incomplete, the task stops
+  // working and says it's waiting on the user (it's their move, not ours).
+  const [waiting, setWaiting] = useState(false);
+  const canWait = state === "active" && !task.hasSearch && !!task.waitingLabel && !profileComplete;
+  useEffect(() => {
+    if (!canWait) return;
+    const id = window.setTimeout(() => setWaiting(true), WAITING_MS);
+    return () => window.clearTimeout(id);
+  }, [canWait]);
   const expanded = sheet ? sheet.expanded : localExpanded;
   const closing = sheet?.closing ?? false;
   const toggle = () => (sheet ? sheet.toggle() : setLocalExpanded((v) => !v));
@@ -1208,8 +1176,16 @@ function TaskRow({
           aria-expanded={expanded}
           data-closing={closing || undefined}
         >
-          <RingSweep />
-          <AITextLoading text={label} className={styles.taskActiveLabel} />
+          {/* Once the result is in (exact, fuzzy or nothing found), our side
+              is done: the spinner turns into an outline tick and the shimmer
+              stops, so it doesn't read as still waiting while the user
+              reviews the form. */}
+          {research.done ? <StrokeCheck color="var(--color-brand-primary)" /> : <RingSweep />}
+          {research.done ? (
+            <span className={styles.taskActiveLabel}>{task.waitingLabel ?? label}</span>
+          ) : (
+            <AITextLoading text={label} className={styles.taskActiveLabel} />
+          )}
           <motion.span
             className={styles.taskChevron}
             // Turns as the card starts to fold, not after it has landed.
@@ -1221,10 +1197,21 @@ function TaskRow({
         </button>
       ) : (
         <div className={styles.taskHead}>
-          {/* Active Profile task: a purple sweeping ring while the user is still
-              filling it in, resolving to the purple filled check once complete. */}
-          {profileComplete ? <FilledCheck color="var(--color-brand-primary)" /> : <RingSweep />}
-          <AITextLoading text={label} className={styles.taskActiveLabel} />
+          {/* Active Profile task: a purple sweeping ring at first; after a
+              while still incomplete, a still ring and "Waiting for Profile
+              Details"; the purple filled check once complete. */}
+          {profileComplete ? (
+            <FilledCheck color="var(--color-brand-primary)" />
+          ) : waiting ? (
+            <StrokeCheck color="var(--color-brand-primary)" tick={false} />
+          ) : (
+            <RingSweep />
+          )}
+          {waiting && !profileComplete ? (
+            <span className={styles.taskActiveLabel}>{task.waitingLabel}</span>
+          ) : (
+            <AITextLoading text={label} className={styles.taskActiveLabel} />
+          )}
         </div>
       )}
       {task.hasSearch && (
