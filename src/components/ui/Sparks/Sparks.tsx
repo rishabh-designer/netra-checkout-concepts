@@ -50,12 +50,15 @@ function rgb(tone: string): [number, number, number] {
 export function Sparks({ count = 14, distance = [100, 200], delay = 0, tones = TONES, dither = true, className }: SparksProps) {
   const reduced = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Keyed on the numbers, not the array: callers pass a fresh [min, max] each
+  // render, and a new array would replay the burst on every parent re-render.
+  const [near, far] = distance;
   const sparks = useMemo(
     () =>
       Array.from({ length: count }, (_, i) => {
         const angle = ((i * GOLDEN_ANGLE) % 360) * (Math.PI / 180);
         const t = (Math.sin(i * 12.9898) * 43758.5453) % 1; // stable pseudo-random 0..1
-        const d = distance[0] + Math.abs(t) * (distance[1] - distance[0]);
+        const d = near + Math.abs(t) * (far - near);
         return {
           x: Math.cos(angle) * d,
           y: Math.sin(angle) * d * 0.72,
@@ -65,10 +68,10 @@ export function Sparks({ count = 14, distance = [100, 200], delay = 0, tones = T
           delay: delay + i * 0.012,
         };
       }),
-    [count, distance, delay, tones],
+    [count, near, far, delay, tones],
   );
   // Canvas half-extent (CSS px): the furthest a spark can reach, plus its size.
-  const reach = Math.ceil(distance[1] + 12);
+  const reach = Math.ceil(far + 12);
 
   useEffect(() => {
     if (!dither || reduced) return;

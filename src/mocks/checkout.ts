@@ -40,7 +40,7 @@ function kycFields(
   pan: { value?: string; seedFrom?: string; status: CheckoutField["status"] },
 ): CheckoutField[] {
   return [
-    { key: "gstin", label: "Company GST Number", mandatory: true, control: "text", value: gst.value, status: gst.status, placeholder: "Enter GST Number", maxLength: 15, validate: "gstin", upper: true, readFrom: "gstinFile", lockedPlaceholder: "Read from your GST certificate" },
+    { key: "gstin", label: "Company GST Number", mandatory: true, control: "text", value: gst.value, status: gst.status, placeholder: "Enter GST Number", maxLength: 15, validate: "gstin", upper: true },
     { key: "pan", label: "Company PAN", reviewLabel: "Company PAN", mandatory: true, control: "text", value: pan.value, seedFrom: pan.seedFrom, status: pan.status, placeholder: "Enter PAN Number", maxLength: 10, validate: "pan", upper: true },
   ];
 }
@@ -79,7 +79,7 @@ export const mockCheckoutContent: CheckoutContent = {
   footer: { totalLabel: "Total Cost:", showSummaryLabel: "Show Purchase Summary", hideSummaryLabel: "Hide Purchase Summary" },
   saveLabel: "Save & Continue",
   ctaBlocked: { fields: "Fill in the required fields first", consent: "Tick the box to confirm first" },
-  stepperLabels: { billing: "Billing", company: "Company", kyc: "KYC", review: "Review" },
+  stepperLabels: { billing: "Billing", verification: "Verification", review: "Review" },
   stepperUpcomingTip: "Finish the earlier steps first",
   stepperAriaLabel: "Checkout progress",
   otherPersonLabel: "Buy in Another Person's Name",
@@ -98,6 +98,14 @@ export const mockCheckoutContent: CheckoutContent = {
         { key: "phone", label: "Your Phone Number", mandatory: true, control: "text", seedFrom: "phone", status: "verified", prefix: "+91", placeholder: "0000 000 000", inputMode: "tel", validate: "phone" },
         { key: "email", label: "Your Email Address", mandatory: true, control: "text", seedFrom: "email", status: "verified", placeholder: "Enter Email Address", inputMode: "email", validate: "email" },
       ],
+    },
+    // KYC Details, then Company Registration Details, on one step. Uploading
+    // either document reads it and fills in the rest.
+    verification: {
+      title: "Verification",
+      banner: "As per IRDAI guidelines, KYC is mandatory to issue your policy. Upload your GST certificate or PAN card and BimaNetra will fill in your details.",
+      sectionTitle: "KYC Details",
+      otherPerson: "hidden",
     },
     company: {
       title: "Company",
@@ -135,25 +143,39 @@ export const mockCheckoutContent: CheckoutContent = {
       fetched: {
         A: { gstinFile: "PepeJeans-GST-Certificate.pdf", panFile: "PepeJeans-PAN-Card.pdf" },
       },
-      gstStateCodes: {
-        Karnataka: "29",
-        "Tamil Nadu": "33",
-        Haryana: "06",
-        Telangana: "36",
-        "Madhya Pradesh": "23",
-        Rajasthan: "08",
-        "West Bengal": "19",
-        Maharashtra: "27",
-        Delhi: "07",
-        "Uttar Pradesh": "09",
+      // What reading either document returns, per case.
+      ocr: {
+        A: {
+          gstin: "29AAJCP5565B1Z5",
+          pan: "AAJCP5565B",
+          pincode: "560095",
+          place: "Bengaluru, Karnataka",
+          address: "2nd Floor, Pepe Jeans House, 18 Hosur Road, Koramangala, Bengaluru, Karnataka 560095",
+        },
+        B: {
+          gstin: "19AATFS4271L1ZQ",
+          pan: "AATFS4271L",
+          pincode: "700029",
+          place: "Kolkata, West Bengal",
+          address: "1st Floor, 4B Panditia Road, Ballygunge, Kolkata, West Bengal 700029",
+        },
+        C: {
+          gstin: "27AAABC1234A1Z5",
+          pan: "AAABC1234A",
+          pincode: "400013",
+          place: "Mumbai, Maharashtra",
+          address: "Unit 4, Kamala Mills Compound, Lower Parel, Mumbai, Maharashtra 400013",
+        },
       },
+      ocrNotes: { gstinFile: "Read from your GST certificate", panFile: "Read from your PAN card" },
+      readingLabel: "Reading your document…",
     },
     review: {
       title: "Review",
       banner: "Please check your details once more before purchase.",
       sectionTitle: "Details Shown on Policy",
       otherPerson: "hidden",
-      sectionTitles: { billing: "Billing", company: "Company", kyc: "KYC" },
+      sectionTitles: { billing: "Billing", verification: "Verification" },
       editLabel: "Edit Details",
       lockedEditTip: "Billing details are locked once saved",
       uploadedLabel: "Uploaded",

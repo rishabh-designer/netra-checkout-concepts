@@ -31,6 +31,9 @@ export interface PurchaseSummaryProps {
    *  title and pill on one line (no company), smaller type, the icon tucked
    *  under the insurer box beside the product name. */
   compact?: boolean;
+  /** Checkout (web): the step's consent and CTA, closing the card (Figma
+   *  613:68858 / 613:69256). */
+  footer?: ReactNode;
 }
 
 /* The ikkat rule under the title, in the chosen quote's colour (as on its card). */
@@ -50,7 +53,7 @@ const RULE_COLOR = {
  * quote's coverages and ends on the paid amount (`coverages`, `paid`).
  * Usage: <PurchaseSummary content={summary} quote={q} />
  */
-export function PurchaseSummary({ content, quote, coverages, paid, company, beam = true, compact = false }: PurchaseSummaryProps) {
+export function PurchaseSummary({ content, quote, coverages, paid, company, beam = true, compact = false, footer }: PurchaseSummaryProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<BadgeCheckIconHandle>(null);
   // An offer prices the original, then takes the saving off it.
@@ -223,6 +226,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
             </div>
           )}
         </div>
+        {footer && <div className={styles.footer}>{footer}</div>}
       </section>
         {beam && (
           <span className={styles.beamRing} aria-hidden>

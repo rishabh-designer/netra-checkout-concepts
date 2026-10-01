@@ -1,2 +1,2 @@
-export { StepActions, StepCta, StepConsent } from "./StepActions";
-export type { StepActionsProps, StepCtaProps, StepConsentData } from "./StepActions";
+export { StepCta, StepConsent } from "./StepActions";
+export type { StepCtaProps, StepConsentData } from "./StepActions";

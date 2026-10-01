@@ -34,7 +34,7 @@ const EASE = HANDOFF.ease as unknown as [number, number, number, number];
  * fills purple to its `barPercent`; upcoming bars are empty. Done pills link
  * back to their step. On Save & Continue the step just finished pops green,
  * then the next pill blooms and its bar fills.
- * Usage: <CheckoutStepper steps={…} current="company" labels={…} from="billing" barPercent={50} hrefFor={(s) => …} />
+ * Usage: <CheckoutStepper steps={…} current="verification" labels={…} from="billing" barPercent={50} hrefFor={(s) => …} />
  */
 export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null, barPercent, hrefFor, upcomingTip }: CheckoutStepperProps) {
   const reduced = useReducedMotion();

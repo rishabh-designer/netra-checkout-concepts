@@ -351,9 +351,9 @@ export function QuoteModal({
 
   // NetraBot reacts to the form. Two bots share one mood: the one at the top
   // of the research panel (every step) and, on phones, the one in the folded
-  // strip. Typing → it leans in (listening); a phone number left short →
-  // a puzzled tilt; the step complete → "aha", then happy; Continue → it
-  // celebrates before the next step comes in.
+  // strip. Typing → it leans in (listening), then nods once the edit settles;
+  // a phone number left short → a puzzled tilt; the step complete → happy.
+  // Sparks are kept for progress: only Continue celebrates.
   const introBotRef = useRef<NetraBotHandle>(null);
   const stripBotRef = useRef<NetraBotHandle>(null);
   const botReact = (animation: string) => {
@@ -362,10 +362,16 @@ export function QuoteModal({
   };
   const [typing, setTyping] = useState(false);
   const typingTimer = useRef<number | undefined>(undefined);
-  const noteTyping = () => {
+  // The latest edit, checked once it settles: a valid value → a nod.
+  const settledOk = useRef<() => boolean>(() => true);
+  const noteTyping = (ok: () => boolean) => {
     setTyping(true);
+    settledOk.current = ok;
     window.clearTimeout(typingTimer.current);
-    typingTimer.current = window.setTimeout(() => setTyping(false), TYPING_MS);
+    typingTimer.current = window.setTimeout(() => {
+      setTyping(false);
+      if (settledOk.current()) botReact("nodYes");
+    }, TYPING_MS);
   };
   useEffect(() => () => window.clearTimeout(typingTimer.current), []);
   // A field open (focused or its list showing): it thinks along.
@@ -379,11 +385,6 @@ export function QuoteModal({
         : stepIndex > 0 && !tl.done
           ? "searching"
           : "idle";
-  const wasComplete = useRef(canSubmit);
-  useEffect(() => {
-    if (canSubmit && !wasComplete.current) botReact("aha");
-    wasComplete.current = canSubmit;
-  }, [canSubmit]);
   // Continue: the bot celebrates first; the step changes once it has.
   const [advancing, setAdvancing] = useState(false);
 
@@ -448,6 +449,15 @@ export function QuoteModal({
           <motion.div
             ref={panelRef}
             tabIndex={-1}
+            // Enter anywhere in the form moves on once the step is complete.
+            // Fields, buttons, dropdowns and links handle their own Enter.
+            onKeyDown={(e) => {
+              if (e.key !== "Enter" || e.defaultPrevented || e.nativeEvent.isComposing) return;
+              const t = e.target as HTMLElement;
+              if (t.closest("input, textarea, button, a, [role='combobox'], [role='listbox']")) return;
+              e.preventDefault();
+              handleSubmit();
+            }}
             className={cn(styles.modal, formOnly && styles.modalFormOnly)}
             data-engine={engineSheet ? engineState : undefined}
             role="dialog"
@@ -555,14 +565,16 @@ export function QuoteModal({
                         error={errorFor(field)}
                         nameHelp={field.key === "name" ? nameHelp : undefined}
                         affirmed={affirmed.has(field.key)}
+                        // Enter submits the step, as Confirm and Continue does.
+                        onEnter={handleSubmit}
                         onLeave={() => {
                           // A phone number left short: a puzzled tilt.
                           if (field.validate === "phone" && (values[field.key] ?? "").trim() && errorFor(field)) botReact("confusedTilt");
                         }}
                         onChange={(v) => {
                           // Any edit, typed or picked (even the option already
-                          // there): NetraBot leans in.
-                          noteTyping();
+                          // there): NetraBot leans in, then nods it through.
+                          noteTyping(() => !field.validate || passesRule(field.validate, v));
                           setValues((s) => ({ ...s, [field.key]: v }));
                           if (field.control === "select") setAffirmed((s) => new Set(s).add(field.key));
                         }}
@@ -677,6 +689,7 @@ function Field({
   nameHelp,
   onChange,
   onLeave,
+  onEnter,
 }: {
   field: QuoteModalField;
   caseId: QuoteCaseId;
@@ -696,6 +709,8 @@ function Field({
   onChange: (value: string) => void;
   /** The field lost focus (NetraBot checks the phone number). */
   onLeave?: () => void;
+  /** Enter pressed in the field: submit the step. */
+  onEnter?: () => void;
 }) {
   // Errors wait for blur (a half-typed value reads neutral, not wrong); once
   // shown they clear live as the user fixes it. A prefilled value counts as touched.
@@ -770,6 +785,7 @@ function Field({
         setTouched(true);
         onLeave?.();
       }}
+      onSubmit={onEnter}
       infoTooltip={field.infoTooltip ?? sharedTip}
       showHelp
       completions={completionsFor(field.key, {})}

@@ -1,7 +1,7 @@
 import type { CheckoutField, CheckoutReviewContent, CheckoutUpload } from "@/types/checkout";
 import styles from "./ReviewStep.module.css";
 
-export type ReviewSection = "billing" | "company" | "kyc";
+export type ReviewSection = "billing" | "verification";
 
 interface Row {
   key: string;
@@ -13,24 +13,25 @@ interface Row {
 export interface ReviewStepProps {
   content: CheckoutReviewContent;
   billing: CheckoutField[];
-  company: CheckoutField[];
-  kyc: CheckoutField[];
+  /** KYC numbers, then the company details. */
+  verification: CheckoutField[];
   uploads: CheckoutUpload[];
   valueOf: (field: CheckoutField) => string;
   fileOf: (key: string) => string;
-  onEdit: (section: "company" | "kyc") => void;
+  onEdit: (section: "verification") => void;
 }
 
 const EMPTY = "-";
 
 /**
- * ReviewStep — the three read-back sections of Review (Figma 484:28949):
+ * ReviewStep — the read-back sections of Review (Figma 484:28949), Billing
+ * and Verification:
  * each a lilac header strip (Instrument Serif title + "Edit Details") over a
  * label/value grid. Billing is locked (a disabled edit button, values greyed);
- * Company and KYC open their edit drawer.
- * Usage: <ReviewStep content={review} billing={…} company={…} kyc={…} uploads={…} valueOf={…} fileOf={…} onEdit={…} />
+ * Verification opens its edit drawer.
+ * Usage: <ReviewStep content={review} billing={…} verification={…} uploads={…} valueOf={…} fileOf={…} onEdit={…} />
  */
-export function ReviewStep({ content, billing, company, kyc, uploads, valueOf, fileOf, onEdit }: ReviewStepProps) {
+export function ReviewStep({ content, billing, verification, uploads, valueOf, fileOf, onEdit }: ReviewStepProps) {
   // Read-only summary: no mandatory marks (nothing here is being filled in).
   const fieldRow = (f: CheckoutField): Row => {
     const v = valueOf(f);
@@ -44,12 +45,14 @@ export function ReviewStep({ content, billing, company, kyc, uploads, valueOf, f
 
   const sections: { id: ReviewSection; rows: Row[]; locked: boolean }[] = [
     { id: "billing", rows: billing.map((f) => fieldRow(f)), locked: true },
-    { id: "company", rows: company.map((f) => fieldRow(f)), locked: false },
+    // Verification, in the step's order: the KYC numbers and their uploads
+    // (index-aligned, one number per document), then the company details.
     {
-      id: "kyc",
+      id: "verification",
       rows: [
-        ...kyc.map((f) => fieldRow(f)),
+        ...verification.slice(0, uploads.length).map((f) => fieldRow(f)),
         ...uploads.map((u) => ({ key: u.key, label: u.reviewLabel, value: fileOf(u.key) ? content.uploadedLabel : EMPTY })),
+        ...verification.slice(uploads.length).map((f) => fieldRow(f)),
       ],
       locked: false,
     },
@@ -68,7 +71,7 @@ export function ReviewStep({ content, billing, company, kyc, uploads, valueOf, f
               className={styles.edit}
               disabled={s.locked}
               data-tooltip={s.locked ? content.lockedEditTip : undefined}
-              onClick={s.locked ? undefined : () => onEdit(s.id as "company" | "kyc")}
+              onClick={s.locked ? undefined : () => onEdit("verification")}
             >
               {content.editLabel}
             </button>

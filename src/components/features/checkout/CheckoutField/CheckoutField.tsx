@@ -18,6 +18,8 @@ export interface CheckoutFieldProps {
   reserveHelp?: boolean;
   /** Phrases for the inline ghost completion. */
   completions?: string[];
+  /** A neutral help line when there's no error (e.g. where the value was read from). */
+  note?: string;
 }
 
 /**
@@ -27,7 +29,7 @@ export interface CheckoutFieldProps {
  * reads neutral, not wrong); once shown they clear live as the user fixes it.
  * Usage: <CheckoutField field={f} value={v} status={s} error={e} onChange={set} />
  */
-export function CheckoutField({ field, value, status, error, onChange, variant = "underline", reserveHelp = false, completions }: CheckoutFieldProps) {
+export function CheckoutField({ field, value, status, error, onChange, variant = "underline", reserveHelp = false, completions, note }: CheckoutFieldProps) {
   // A prefilled value counts as touched, so a bad seed still shows its error.
   const [touched, setTouched] = useState(value !== "");
   const tip = useFieldTip(field.key);
@@ -56,7 +58,7 @@ export function CheckoutField({ field, value, status, error, onChange, variant =
       clearable={!field.locked}
       locked={field.locked}
       status={field.locked ? "empty" : shown ? "error" : error ? "empty" : status}
-      helpText={shown ?? (words || undefined)}
+      helpText={shown ?? (words || note || undefined)}
       helpTone={shown ? "error" : "neutral"}
       showHelp={reserveHelp || !!shown || !!field.amountWords}
       onFocus={() => !error && setTouched(false)}

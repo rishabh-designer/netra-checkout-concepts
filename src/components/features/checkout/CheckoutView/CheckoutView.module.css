@@ -96,6 +96,17 @@
   margin-top: calc(-1 * var(--spacing-24));
 }
 
+/* Web: the head (back chip, title, stepper) stays put at the top of the
+   form column; the form scrolls beneath its hairline. */
+@media (min-width: 1101px) {
+  .head {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--color-card);
+  }
+}
+
 .titleRow {
   display: flex;
   align-items: center;

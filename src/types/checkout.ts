@@ -1,7 +1,15 @@
 import type { QuoteCaseId } from "@/lib/quote-flow";
 import type { AmountWords } from "@/lib/utils";
 
-export type CheckoutStepId = "billing" | "company" | "kyc" | "review";
+export type CheckoutStepId = "billing" | "verification" | "review";
+
+/** The form sections: Billing, and the two that make up Verification (KYC
+ *  first, then Company). */
+export type CheckoutSection = "billing" | "company" | "kyc";
+
+/** What a form helper takes: a section, or the Verification step (KYC +
+ *  Company together). */
+export type CheckoutFormPart = CheckoutSection | "verification";
 
 /** How a field's status reads before the user touches it. */
 export type CheckoutFieldStatus = "verified" | "success" | "fuzzy" | "userFilled" | "empty";
@@ -34,11 +42,6 @@ export interface CheckoutField {
   keepForOtherPerson?: boolean;
   /** Shown but not editable (greyed): the company name on Billing. */
   locked?: boolean;
-  /** Read off this upload (by key): locked until it's uploaded, then filled
-   *  in from the document and editable (the GSTIN from the certificate). */
-  readFrom?: string;
-  /** The placeholder while it waits for that upload. */
-  lockedPlaceholder?: string;
   /** A rupee amount: digits only, Indian grouping as they type, and the
    *  amount in words under the field ("Rupees 800 Crore"). */
   amountWords?: AmountWords;
@@ -83,7 +86,7 @@ export interface CheckoutStepChrome {
 }
 
 export interface CheckoutReviewContent extends CheckoutStepChrome {
-  sectionTitles: Record<"billing" | "company" | "kyc", string>;
+  sectionTitles: Record<"billing" | "verification", string>;
   editLabel: string;
   /** Tooltip on Billing's disabled Edit Details. */
   lockedEditTip: string;
@@ -136,7 +139,7 @@ export interface CheckoutContent {
   /** Mobile: the pinned footer (Figma 734:35259 / 734:34798): the final
    *  price's label beside the CTA, and the toggle that opens the summary. */
   footer: { totalLabel: string; showSummaryLabel: string; hideSummaryLabel: string };
-  /** Step CTA (Billing, Company, KYC). */
+  /** Step CTA (Billing, Verification). */
   saveLabel: string;
   /** Tooltips on the greyed step CTA: why it can't be pressed yet. */
   ctaBlocked: { fields: string; consent: string };
@@ -147,15 +150,24 @@ export interface CheckoutContent {
   otherPersonLabel: string;
   steps: {
     billing: CheckoutStepChrome & { fields: CheckoutField[] };
+    /** KYC + Company on one step: its title, banner and first section title. */
+    verification: CheckoutStepChrome;
+    /** Company Registration Details (Verification's second section). */
     company: CheckoutStepChrome & { cases: Record<QuoteCaseId, CheckoutField[]> };
     kyc: CheckoutStepChrome & {
       uploads: CheckoutUpload[];
       cases: Record<QuoteCaseId, CheckoutField[]>;
       /** Documents already fetched from the MCA, by upload key (Case A). */
       fetched?: Partial<Record<QuoteCaseId, Record<string, string>>>;
-      /** GST state codes by state, to "read" a GSTIN off an uploaded
-       *  certificate: code + PAN + "1Z5". */
-      gstStateCodes: Record<string, string>;
+      /** What "OCR" reads off either document (the GST certificate or the
+       *  PAN card), by field key, per case: it fills the KYC numbers and the
+       *  company details. */
+      ocr: Record<QuoteCaseId, Record<string, string>>;
+      /** The help line under a field the OCR filled, by upload key ("Read
+       *  from your GST certificate"). */
+      ocrNotes: Record<string, string>;
+      /** Placeholder while a document is being read. */
+      readingLabel: string;
     };
     review: CheckoutReviewContent;
   };

@@ -560,3 +560,13 @@
     letter-spacing: -0.01em;
   }
 }
+
+/* Checkout (web): the step's consent and CTA close the card, 16 apart
+   (Figma 613:69256). */
+.footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}

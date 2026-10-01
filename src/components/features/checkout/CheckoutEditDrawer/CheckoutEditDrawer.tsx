@@ -10,10 +10,14 @@ import styles from "./CheckoutEditDrawer.module.css";
 import { Button } from "@/components/ui/Button";
 
 export interface CheckoutEditDrawerProps {
-  /** Which section is being edited, or null when closed. */
-  section: "company" | "kyc" | null;
+  /** Open (Verification) or closed. */
+  section: "verification" | null;
   title: string;
+  /** KYC numbers (index-aligned with `uploads`). */
   fields: CheckoutField[];
+  /** Company details, under `companyTitle`. */
+  companyFields: CheckoutField[];
+  companyTitle: string;
   uploads: CheckoutUpload[];
   uploadCopy: CheckoutUploadCopy;
   co: CheckoutState;
@@ -22,14 +26,15 @@ export interface CheckoutEditDrawerProps {
 }
 
 /**
- * CheckoutEditDrawer — edits Company or KYC from Review in the shared
+ * CheckoutEditDrawer — edits Verification (KYC, then Company) from Review in the shared
  * SideDrawer (r32, same shell as View All Features). The step's own fields
  * open prefilled with what the user entered; changes live in a draft until
  * "Save Changes" (enabled once everything mandatory is valid) writes them back.
- * Usage: <CheckoutEditDrawer section="kyc" title="KYC" fields={…} uploads={…} co={co} … />
+ * Usage: <CheckoutEditDrawer section="verification" title="Verification" fields={kyc} companyFields={company} companyTitle="…" uploads={…} co={co} … />
  */
-export function CheckoutEditDrawer({ section, title, fields, uploads, uploadCopy, co, labels, onClose }: CheckoutEditDrawerProps) {
+export function CheckoutEditDrawer({ section, title, fields: kycFields, companyFields, companyTitle, uploads, uploadCopy, co, labels, onClose }: CheckoutEditDrawerProps) {
   const [draft, setDraft] = useState<Record<string, string>>({});
+  const fields = [...kycFields, ...companyFields];
 
   // A fresh draft from the live values each time a section opens.
   useEffect(() => {
@@ -67,8 +72,10 @@ export function CheckoutEditDrawer({ section, title, fields, uploads, uploadCopy
       <div className={styles.body}>
         {section && (
           <StepForm
-            step={section}
-            fields={fields}
+            step="verification"
+            fields={kycFields}
+            companyFields={companyFields}
+            companyTitle={companyTitle}
             uploads={uploads}
             uploadCopy={uploadCopy}
             stacked

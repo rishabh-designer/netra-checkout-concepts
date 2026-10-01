@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { completionsFor } from "@/lib/completions";
 import { useRouter } from "next/navigation";
 import type { CheckoutContent, CheckoutStepId } from "@/types/checkout";
@@ -16,7 +16,7 @@ import { CheckoutStepper } from "../CheckoutStepper";
 import { FormCard } from "../FormCard";
 import { StepForm } from "../StepForm";
 import { ReviewStep } from "../ReviewStep";
-import { StepActions } from "../StepActions";
+import { StepConsent, StepCta } from "../StepActions";
 import { CheckoutEditDrawer } from "../CheckoutEditDrawer";
 import { PurchaseSummary } from "../PurchaseSummary";
 import { CheckoutFooter } from "../CheckoutFooter";
@@ -38,8 +38,8 @@ export interface CheckoutViewProps {
 }
 
 /**
- * CheckoutView — one checkout step (Figma 638:16876 Billing, 638:20126 /
- * 638:18865 Company exact / fuzzy, 638:22763 KYC, 638:21971 Review). The
+ * CheckoutView — one checkout step (Figma 638:16876 Billing; Verification:
+ * 638:22763 KYC over 638:20126 / 638:18865 Company; 638:21971 Review). The
  * Quotes page's megamenu bar (logo + Contact Support) spans the top. Below it,
  * the conventional checkout split: left (scrolls), the task — back chip, the
  * serif "Checkout" title with the stepper on the same row, the step's form, then an ikkat rule
@@ -50,8 +50,14 @@ export interface CheckoutViewProps {
  * Steps with guessed details (Case B) need the verification ticked before
  * Save & Continue; Review's final CTA ("Pay ₹X" / "Request Quote") needs its
  * disclaimer ticked; Pay opens the success page.
- * Usage: <CheckoutView step="kyc" steps={…} basePath="…" quotesHref="…" content={c} fallbackQuote={q} />
+ * Verification puts KYC and Company on one step: uploading the GST
+ * certificate or PAN card "reads" it (a beat of "Reading your document…"),
+ * then fills in the numbers and the company details, in green.
+ * Usage: <CheckoutView step="verification" steps={…} basePath="…" quotesHref="…" content={c} fallbackQuote={q} />
  */
+/** How long a document "reads" before its details fill in. */
+const READ_MS = 1200;
+
 export function CheckoutView(props: CheckoutViewProps) {
   // Wait for the saved flow (a reload restores it before the first paint), so
   // the fields seed from the customer's details, not the demo fallback.
@@ -65,7 +71,12 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
   const clock = useCheckoutClock();
   const notify = useDemoNotice();
   const [consent, setConsent] = useState(false);
-  const [editing, setEditing] = useState<"company" | "kyc" | null>(null);
+  const [editing, setEditing] = useState<"verification" | null>(null);
+  // A document being "read" (OCR): the fields it fills show a reading
+  // placeholder for a beat, then fill in green.
+  const [reading, setReading] = useState<string | null>(null);
+  const readTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(readTimer.current), []);
   // The step we arrived from, so the stepper animates the hand-off.
   const [from] = useState(() => readLastCheckout());
   const mobile = useCheckoutMobile();
@@ -75,7 +86,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
   useEffect(() => {
     writeLastCheckout({ step });
   }, [step]);
-  const { kyc } = content.steps;
+  const { kyc, company } = content.steps;
   const hrefFor = (s: CheckoutStepId) => `${basePath}/${s}`;
 
   const formStep = step === "review" ? null : step;
@@ -85,8 +96,8 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
   const progress =
     step === "review"
       ? {
-          done: (["billing", "company", "kyc"] as const).filter((s) => co.isComplete(s)).length + (consent ? 1 : 0),
-          total: 4,
+          done: (["billing", "verification"] as const).filter((s) => co.isComplete(s)).length + (consent ? 1 : 0),
+          total: 3,
         }
       : co.progressOf(step);
   const barPercent = Math.round(8 + (progress.total ? progress.done / progress.total : 1) * 87);
@@ -101,6 +112,8 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
             : content.steps.review.requestLabel,
           enabled: consent,
           blockedTip: content.ctaBlocked.consent,
+          // The journey's final CTA: BimaNetra's orange (secondary 500).
+          tone: "secondary" as const,
           // Pay ends the journey: the clock stops, the order is written and
           // the success page takes over.
           onClick: () => {
@@ -131,13 +144,28 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
   const nameField = co.fieldsFor("billing").find((f) => f.key === "companyName");
   const companyName = nameField ? co.valueOf(nameField) : "";
 
+  type Field = Parameters<typeof co.statusOf>[0];
+  const isReading = (f: Field) => !!reading && co.ocrKeys.includes(f.key);
   const model = {
-    value: co.valueOf,
-    status: (f: Parameters<typeof co.statusOf>[0]) => co.statusOf(f),
-    error: (f: Parameters<typeof co.errorOf>[0]) => co.errorOf(f),
+    value: (f: Field) => (isReading(f) ? "" : co.valueOf(f)),
+    status: (f: Field) => (isReading(f) ? "loading" : co.statusOf(f)),
+    error: (f: Field) => (isReading(f) ? null : co.errorOf(f)),
     file: co.get,
     fetched: co.isFetched,
-    onChange: (key: string, v: string) => co.set(co.patchFor(key, v, live)),
+    note: (f: Field) => {
+      const source = !isReading(f) && co.readFrom(f);
+      return source ? kyc.ocrNotes[source] : undefined;
+    },
+    show: (f: Field) => (isReading(f) ? { ...f, placeholder: kyc.readingLabel } : f),
+    onChange: (key: string, v: string) => {
+      co.set(co.patchFor(key, v, live));
+      // A new document (not the MCA's own copy): read it for a beat.
+      if (kyc.uploads.some((u) => u.key === key) && v && !co.isFetched(key, v)) {
+        setReading(key);
+        window.clearTimeout(readTimer.current);
+        readTimer.current = window.setTimeout(() => setReading(null), READ_MS);
+      }
+    },
     completions: (f: Parameters<typeof co.errorOf>[0]) =>
       completionsFor(f.key, { pincode: live("pincode"), place: live("place"), emailDomain: co.companyDomain }),
   };
@@ -192,20 +220,26 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
                 <ReviewStep
                   content={content.steps.review}
                   billing={co.fieldsFor("billing")}
-                  company={co.fieldsFor("company")}
-                  kyc={co.fieldsFor("kyc")}
+                  verification={co.fieldsFor("verification")}
                   uploads={kyc.uploads}
                   valueOf={co.valueOf}
                   fileOf={co.get}
                   onEdit={setEditing}
                 />
+              ) : step === "verification" ? (
+                <StepForm
+                  step="verification"
+                  fields={co.fieldsFor("kyc")}
+                  companyFields={co.fieldsFor("company")}
+                  companyTitle={company.sectionTitle}
+                  uploads={kyc.uploads}
+                  uploadCopy={content.upload}
+                  model={model}
+                />
               ) : (
-                <StepForm step={step} fields={co.fieldsFor(step)} uploads={kyc.uploads} uploadCopy={content.upload} model={model} />
+                <StepForm step="billing" fields={co.fieldsFor("billing")} uploadCopy={content.upload} model={model} />
               )}
             </FormCard>
-
-            {/* Mobile: the CTA and its consent live in the footer. */}
-            {!mobile && <StepActions cta={cta} consent={stepConsent} />}
 
             <Disclaimer title={content.disclaimer.title} toggleLabel={content.disclaimer.toggleLabel} paragraphs={[content.disclaimer.contextual.checkout, ...content.disclaimer.paragraphs]} />
           </main>
@@ -224,7 +258,19 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
               className={styles.preparing}
               labelClassName={styles.preparingLabel}
             />
-            <PurchaseSummary content={content.summary} quote={co.quote} company={companyName} />
+            <PurchaseSummary
+              content={content.summary}
+              quote={co.quote}
+              company={companyName}
+              // Web: the step's CTA (and Review's consent) close the summary,
+              // on the right. Mobile keeps them in the footer.
+              footer={
+                <>
+                  {stepConsent && <StepConsent consent={stepConsent} variant="summary" />}
+                  <StepCta cta={cta} block />
+                </>
+              }
+            />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={content.header.kolamSrc} alt="" aria-hidden className={styles.kolam} />
           </div>
@@ -248,8 +294,10 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
       <CheckoutEditDrawer
         section={editing}
         title={editing ? content.steps.review.sectionTitles[editing] : ""}
-        fields={editing ? co.fieldsFor(editing) : []}
-        uploads={editing === "kyc" ? kyc.uploads : []}
+        fields={co.fieldsFor("kyc")}
+        companyFields={co.fieldsFor("company")}
+        companyTitle={company.sectionTitle}
+        uploads={kyc.uploads}
         uploadCopy={content.upload}
         co={co}
         labels={{ save: content.drawer.saveLabel, close: content.drawer.closeLabel }}

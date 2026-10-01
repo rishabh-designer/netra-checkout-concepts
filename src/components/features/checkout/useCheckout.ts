@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { useQuoteFlow, type QuoteCaseId } from "@/lib/quote-flow";
 import { formatPhone } from "@/lib/utils";
 import { placeForPincode, statusFor, validateField } from "@/lib/checkout";
-import type { CheckoutContent, CheckoutField, CheckoutStepId } from "@/types/checkout";
+import type { CheckoutContent, CheckoutField, CheckoutFormPart } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
 import type { FieldStatus } from "@/components/ui/InteractiveInput";
 
@@ -14,8 +14,9 @@ export const OTHER_PERSON_KEY = "otherPerson";
 export interface CheckoutState {
   caseId: QuoteCaseId;
   quote: QuoteCardData;
-  /** The fields for a step (Billing, or the case's Company / KYC list). */
-  fieldsFor: (step: Exclude<CheckoutStepId, "review">) => CheckoutField[];
+  /** The fields for a section (Billing, or the case's Company / KYC list), or
+   *  the Verification step (KYC, then Company). */
+  fieldsFor: (step: CheckoutFormPart) => CheckoutField[];
   valueOf: (field: CheckoutField) => string;
   /** Status / validation for a field, optionally for a draft value (edit drawer). */
   statusOf: (field: CheckoutField, value?: string) => FieldStatus;
@@ -32,14 +33,22 @@ export interface CheckoutState {
   companyDomain: string;
   /** Mandatory fields filled + valid, and uploads done on KYC. A guessed
    *  (fuzzy) value needs no tick: Save & Continue is the confirmation. */
-  isComplete: (step: Exclude<CheckoutStepId, "review">) => boolean;
+  isComplete: (step: CheckoutFormPart) => boolean;
   /** How much of a step is done: its mandatory fields (filled and valid)
    *  and its uploads. */
-  progressOf: (step: Exclude<CheckoutStepId, "review">) => { done: number; total: number };
+  progressOf: (step: CheckoutFormPart) => { done: number; total: number };
   /** The upload (or a draft `value` for it) is still the document fetched
    *  from the MCA. */
   isFetched: (key: string, value?: string) => boolean;
+  /** The upload a field's value was read off (OCR), while it still holds
+   *  what was read; undefined once the customer changes it. */
+  readFrom: (field: CheckoutField, value?: string) => string | undefined;
+  /** The fields reading a document fills in. */
+  ocrKeys: string[];
 }
+
+/** Marks a field the OCR filled: `ocr:<field>` = the upload it came from. */
+const ocrKey = (field: string) => `ocr:${field}`;
 
 
 /**
@@ -60,8 +69,12 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
   const get = useCallback((key: string) => checkout[key] ?? fetched[key] ?? "", [checkout, fetched]);
 
   const fieldsFor = useCallback(
-    (step: Exclude<CheckoutStepId, "review">) =>
-      step === "billing" ? content.steps.billing.fields : content.steps[step].cases[caseId],
+    (step: CheckoutFormPart) =>
+      step === "billing"
+        ? content.steps.billing.fields
+        : step === "verification"
+          ? [...content.steps.kyc.cases[caseId], ...content.steps.company.cases[caseId]]
+          : content.steps[step].cases[caseId],
     [content, caseId],
   );
 
@@ -95,10 +108,26 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
     [valueOf, content.validationMessages, content.companyEmailMessage, otherPerson, companyDomain],
   );
 
+  // What the OCR reads off a document for this case, and which upload a
+  // field's current value came from (only while it still holds that value).
+  const ocr = content.steps.kyc.ocr[caseId];
+  const ocrKeys = useMemo(() => Object.keys(ocr), [ocr]);
+  const readFrom = useCallback(
+    (field: CheckoutField, value?: string) => {
+      const source = checkout[ocrKey(field.key)];
+      return source && (value ?? valueOf(field)) === ocr[field.key] ? source : undefined;
+    },
+    [checkout, ocr, valueOf],
+  );
+
   const statusOf = useCallback(
-    (field: CheckoutField, value?: string) =>
-      statusFor(field, value ?? valueOf(field), seedOf(field), otherPerson && isPersonal(field)),
-    [valueOf, seedOf, otherPerson, isPersonal],
+    (field: CheckoutField, value?: string) => {
+      const v = value ?? valueOf(field);
+      // Read off the customer's own document: confirmed (green).
+      if (v.trim() && readFrom(field, v)) return "success";
+      return statusFor(field, v, seedOf(field), otherPerson && isPersonal(field));
+    },
+    [valueOf, seedOf, otherPerson, isPersonal, readFrom],
   );
 
   const set = useCallback((patch: Record<string, string>) => setCheckout({ ...checkout, ...patch }), [checkout, setCheckout]);
@@ -125,17 +154,16 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
   const patchFor = useCallback(
     (key: string, value: string, current: (key: string) => string) => {
       const patch: Record<string, string> = { [key]: value };
-      // An upload a field reads from: a new document fills the field in
-      // (demo: the GSTIN from the state code + PAN); removing it clears it.
-      const reader = content.steps.kyc.cases[caseId].find((f) => f.readFrom === key);
-      if (reader) {
-        const read = (k: string) => {
-          const f = [...fieldsFor("company"), ...fieldsFor("kyc")].find((x) => x.key === k);
-          return current(k) || (f ? valueOf(f) : "");
-        };
-        const state = read("place").split(",")[1]?.trim() ?? "";
-        const pan = read("pan").trim().toUpperCase();
-        patch[reader.key] = value && pan ? `${content.steps.kyc.gstStateCodes[state] ?? "19"}${pan}1Z5` : "";
+      // A new document (GST certificate or PAN card, not the MCA's own copy)
+      // is read: it fills in everything it can, each field marked with the
+      // upload it came from. Removing a document leaves what was read.
+      if (content.steps.kyc.uploads.some((u) => u.key === key)) {
+        if (value && value !== fetched[key]) {
+          for (const [field, read] of Object.entries(ocr)) {
+            patch[field] = read;
+            patch[ocrKey(field)] = key;
+          }
+        }
         return patch;
       }
       if (key !== "pincode") return patch;
@@ -144,22 +172,22 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
       if (next && (!place || place === placeForPincode(current("pincode"), content.pincodePlaces))) patch.place = next;
       return patch;
     },
-    [content, caseId, fieldsFor, valueOf],
+    [content, fetched, ocr],
   );
 
   const isComplete = useCallback(
-    (step: Exclude<CheckoutStepId, "review">) => {
+    (step: CheckoutFormPart) => {
       const fieldsOk = fieldsFor(step).every((f) => !f.mandatory || (valueOf(f).trim() && !errorOf(f)));
-      const uploadsOk = step !== "kyc" || content.steps.kyc.uploads.every((u) => !!get(u.key));
+      const uploadsOk = (step !== "kyc" && step !== "verification") || content.steps.kyc.uploads.every((u) => !!get(u.key));
       return fieldsOk && uploadsOk;
     },
     [fieldsFor, valueOf, errorOf, content, get],
   );
 
   const progressOf = useCallback(
-    (step: Exclude<CheckoutStepId, "review">) => {
+    (step: CheckoutFormPart) => {
       const fields = fieldsFor(step).filter((f) => f.mandatory);
-      const uploads = step === "kyc" ? content.steps.kyc.uploads : [];
+      const uploads = step === "kyc" || step === "verification" ? content.steps.kyc.uploads : [];
       const done = fields.filter((f) => valueOf(f).trim() && !errorOf(f)).length + uploads.filter((u) => !!get(u.key)).length;
       return { done, total: fields.length + uploads.length };
     },
@@ -188,7 +216,9 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
       isComplete,
       progressOf,
       isFetched,
+      readFrom,
+      ocrKeys,
     }),
-    [caseId, selectedQuote, fallbackQuote, fieldsFor, valueOf, statusOf, errorOf, get, set, patchFor, otherPerson, setOtherPerson, companyDomain, isComplete, progressOf, isFetched],
+    [caseId, selectedQuote, fallbackQuote, fieldsFor, valueOf, statusOf, errorOf, get, set, patchFor, otherPerson, setOtherPerson, companyDomain, isComplete, progressOf, isFetched, readFrom, ocrKeys],
   );
 }
