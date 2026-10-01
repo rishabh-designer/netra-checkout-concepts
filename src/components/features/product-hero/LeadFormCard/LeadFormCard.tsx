@@ -1,7 +1,7 @@
 "use client";
 
 import { NetraBot, type NetraBotHandle } from "@/components/ui/NetraBot";
-import { useCallback, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { withCase } from "@/lib/case-route";
 import type { LeadFormContent, QuoteCaseMatch, QuoteModalContent } from "@/types/productPage";
@@ -124,6 +124,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
   // Hidden demo shortcut: the info icon cycles the demo names (A → B → C → A);
   // clearing the field starts the cycle over.
   const [demoIndex, setDemoIndex] = useState(-1);
+  const nameFieldRef = useRef<HTMLDivElement>(null);
   const cycleDemoName = () => {
     const names = content.demoNames;
     if (!names?.length) return;
@@ -132,6 +133,8 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
     setCompanyName(names[next]);
     setSuggestMode("search");
     setSuggestOpen(false);
+    // Back to the field, so Enter goes on to the quote (not the icon again).
+    nameFieldRef.current?.querySelector("input")?.focus();
   };
 
   const handleSubmit = () => {
@@ -145,6 +148,24 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
     setResolvedName(displayName);
     setModalOpen(true);
   };
+
+  // Enter with nothing focused (after a click on the page) opens the quote
+  // too, once a name is in; inside a field or control, that control decides.
+  const submitRef = useRef(handleSubmit);
+  useEffect(() => {
+    submitRef.current = handleSubmit;
+  });
+  useEffect(() => {
+    if (modalOpen || knowMoreOpen) return;
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== "Enter" || e.defaultPrevented || e.repeat || e.isComposing) return;
+      if (e.target !== document.body || !companyName.trim()) return;
+      e.preventDefault();
+      submitRef.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [modalOpen, knowMoreOpen, companyName]);
 
   // Terminal "Go to Quotes" — stash the completed flow (name, case, entered
   // values, Yes/No answer) in the shared store and navigate to the Quotes page.
@@ -177,7 +198,7 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
         </div>
       </div>
       <div className={styles.bottom}>
-        <div className={styles.nameField}>
+        <div className={styles.nameField} ref={nameFieldRef}>
         <InteractiveInput
           size="lg"
           placeholder={content.inputPlaceholder}

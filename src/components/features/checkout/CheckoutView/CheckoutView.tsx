@@ -24,6 +24,7 @@ import { Disclaimer } from "../Disclaimer";
 import { readLastCheckout, writeLastCheckout } from "../lastStep";
 import { writeOrder } from "../order";
 import { formatInr, splitPrice } from "@/lib/checkout";
+import { onEnterSubmit } from "@/lib/enter-submit";
 import { BackButton } from "@/components/ui/BackButton";
 import styles from "./CheckoutView.module.css";
 
@@ -184,7 +185,9 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
       />
       <div className={styles.body}>
         <div className={styles.formPanel}>
-          <main className={styles.content}>
+          {/* Enter in a form step saves and continues (not on Review: paying
+              stays a deliberate press). */}
+          <main className={styles.content} onKeyDown={step === "review" ? undefined : onEnterSubmit(cta.onClick, cta.enabled)}>
             <div className={styles.head}>
               {/* Back goes one step at a time: the previous step, or the
                   quotes from the first. */}

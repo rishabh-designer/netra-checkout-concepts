@@ -11,6 +11,7 @@ import { CheckoutField } from "../../checkout/CheckoutField";
 import { RequestChat } from "../RequestChat";
 import styles from "./GoldGate.module.css";
 import { Button } from "@/components/ui/Button";
+import { onEnterSubmit } from "@/lib/enter-submit";
 
 export interface GoldGateModalProps {
   open: boolean;
@@ -112,7 +113,7 @@ export function AdditionalDetailsDrawer({ open, content, onClose, onProceed, pri
       {content.chat ? (
         <RequestChat key={session} content={content.chat} intro={intro} onDone={setAnswers} />
       ) : (
-      <div className={styles.scroll}>
+      <div className={styles.scroll} onKeyDown={onEnterSubmit(() => onProceed(values), valid)}>
         <p className={styles.intro}>{intro}</p>
         <div className={styles.fields}>
           {content.fields.map((f) => (

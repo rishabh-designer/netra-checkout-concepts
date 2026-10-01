@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { completionsFor } from "@/lib/completions";
+import { onEnterSubmit } from "@/lib/enter-submit";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import type { CheckoutField, CheckoutUpload, CheckoutUploadCopy } from "@/types/checkout";
 import type { CheckoutState } from "../useCheckout";
@@ -69,7 +70,7 @@ export function CheckoutEditDrawer({ section, title, fields: kycFields, companyF
         </Button>
       }
     >
-      <div className={styles.body}>
+      <div className={styles.body} onKeyDown={onEnterSubmit(save, valid)}>
         {section && (
           <StepForm
             step="verification"
