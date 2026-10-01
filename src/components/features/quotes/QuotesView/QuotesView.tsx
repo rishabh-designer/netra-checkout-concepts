@@ -12,7 +12,7 @@ import { DetailsPanel } from "../DetailsPanel";
 import type { UpgradeStage } from "../UpgradeBanner";
 import { QuotesFeed } from "../QuotesFeed";
 import { QuotesSkeleton } from "../QuotesSkeleton";
-import { ChatBadge, QuotesChat } from "../QuotesChat";
+import { QuotesChat } from "../QuotesChat";
 import type { QuotesChatContext } from "@/lib/quotes-chat";
 import { priceFeed } from "@/lib/pricing";
 import styles from "./QuotesView.module.css";
@@ -240,7 +240,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
 
       {/* Phones: Ask BimaNetra rises as a drawer, like every other popup there. */}
       {stacked && (
-        <SideDrawer open={chatOpen} onClose={toggleChat} title={content.chat.title} titleIcon={<ChatBadge iconSrc={feed.needHelp.chatIconSrc} />} closeLabel={content.chat.closeLabel} placement="bottom" className={styles.chatDrawer}>
+        <SideDrawer open={chatOpen} onClose={toggleChat} title={content.chat.title} closeLabel={content.chat.closeLabel} placement="bottom" className={styles.chatDrawer}>
           <QuotesChat content={content.chat} context={chatContext} iconSrc={feed.needHelp.chatIconSrc} open={chatOpen} variant="drawer" />
         </SideDrawer>
       )}

@@ -70,12 +70,14 @@ const seed = (fields: Field[]) => Object.fromEntries(fields.map((f) => [f.key, f
  */
 export function AdditionalDetailsDrawer({ open, content, onClose, onProceed, priced = false }: AdditionalDetailsDrawerProps) {
   const [values, setValues] = useState<Record<string, string>>(() => seed(content.fields));
+  // Dropdowns picked from, even the guessed option: no longer a guess.
+  const [affirmed, setAffirmed] = useState<Set<string>>(() => new Set());
   const set = (key: string, v: string) => setValues((d) => ({ ...d, [key]: v }));
 
   const statusOf = (f: Field): FieldStatus => {
     const v = values[f.key] ?? "";
     if (!v.trim()) return "empty";
-    return v === (f.value ?? "") ? f.status : "userFilled";
+    return v === (f.value ?? "") && !affirmed.has(f.key) ? f.status : "userFilled";
   };
   const file = values[content.upload.key] ?? "";
   // The chat's answers, once every question is in.
@@ -120,7 +122,10 @@ export function AdditionalDetailsDrawer({ open, content, onClose, onProceed, pri
               value={values[f.key] ?? ""}
               status={statusOf(f)}
               error={null}
-              onChange={(v) => set(f.key, v)}
+              onChange={(v) => {
+                set(f.key, v);
+                if (f.control === "select") setAffirmed((s) => new Set(s).add(f.key));
+              }}
             />
           ))}
           <UploadField

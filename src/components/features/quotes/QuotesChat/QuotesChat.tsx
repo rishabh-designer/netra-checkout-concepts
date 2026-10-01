@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { QuotesChatContent } from "@/types/quotesPage";
 import { answerQuotesQuestion, type QuotesChatContext } from "@/lib/quotes-chat";
@@ -8,12 +8,13 @@ import { AITextLoading } from "@/components/ui/AITextLoading";
 import styles from "./QuotesChat.module.css";
 import { EASE_OUT as EASE } from "@/lib/motion";
 import { CloseButton } from "@/components/ui/IconButton";
+import { NetraBot } from "@/components/ui/NetraBot";
 
 export interface QuotesChatProps {
   content: QuotesChatContent;
   context: QuotesChatContext;
-  /** The sparkle mark (the Ask BimaNetra icon). */
-  iconSrc: string;
+  /** Unused since NetraBot replaced the sparkle; kept for callers. */
+  iconSrc?: string;
   /** The column is showing: the input takes focus. */
   open?: boolean;
   /** "drawer": inside the shared SideDrawer (phones), which draws the title,
@@ -33,16 +34,14 @@ interface Message {
 const THINK_MS = 700;
 
 /**
- * ChatBadge — Ask BimaNetra's mark: the sparkle in white on an orange tile,
- * sized to the title it sits beside (32 on web, 28 on phones).
- * Usage: <ChatBadge iconSrc={feed.needHelp.chatIconSrc} />
+ * ChatAvatar — the space beside BimaNetra's messages. Only the newest one
+ * (`live`) holds NetraBot, acting out the chat: listening while the
+ * customer types, thinking while a reply is composed, waiting otherwise. The
+ * older ones keep the space, so the bubbles stay in line.
+ * Usage: <ChatAvatar live state={draft ? "listening" : "waiting"} />
  */
-export function ChatBadge({ iconSrc }: { iconSrc: string }) {
-  return (
-    <span className={styles.badge} aria-hidden>
-      <span className={styles.sparkle} style={{ "--icon": `url(${iconSrc})` } as CSSProperties} />
-    </span>
-  );
+export function ChatAvatar({ live = false, state = "waiting" }: { live?: boolean; state?: string }) {
+  return <span className={styles.botAvatar}>{live && <NetraBot state={state} follow="page" size={24} />}</span>;
 }
 
 /**
@@ -54,7 +53,7 @@ export function ChatBadge({ iconSrc }: { iconSrc: string }) {
  * it never picks an insurer.
  * Usage: <QuotesChat content={content.chat} context={ctx} iconSrc={…} />
  */
-export function QuotesChat({ content, context, iconSrc, open = true, variant, onClose }: QuotesChatProps) {
+export function QuotesChat({ content, context, open = true, variant, onClose }: QuotesChatProps) {
   const reduced = useReducedMotion();
   const greeting = content.greeting
     .replace("{count}", String(context.quotes.length + (context.gold?.revealed ? 1 : 0)))
@@ -99,21 +98,19 @@ export function QuotesChat({ content, context, iconSrc, open = true, variant, on
   };
 
   const asked = messages.some((m) => m.from === "you");
-  // BimaNetra's latest reply, in full, waiting on the customer: its sparkle
-  // turns until they start typing, pick a suggestion or send.
+  // NetraBot sits beside BimaNetra's latest reply: it leans in while the
+  // customer types and waits on them otherwise (thinking has its own row).
   const last = messages[messages.length - 1];
-  const waitingOn = !thinking && !draft && last?.from === "bot" ? last.id : undefined;
-  const mark = { "--icon": `url(${iconSrc})` } as CSSProperties;
+  const liveId = !thinking && last?.from === "bot" ? last.id : undefined;
+  const botState = draft.trim() ? "listening" : "waiting";
 
   return (
     <section className={styles.chat} data-variant={variant} aria-label={content.title}>
       {/* The drawers' head (the phone drawer's, now on web too): the serif
           title and the ×. */}
       <header className={styles.head}>
-        <h2 className={styles.title}>
-          <ChatBadge iconSrc={iconSrc} />
-          {content.title}
-        </h2>
+        {/* No mark here: NetraBot already sits beside the latest reply. */}
+        <h2 className={styles.title}>{content.title}</h2>
         {onClose && <CloseButton label={content.closeLabel} onClick={onClose} />}
       </header>
 
@@ -127,13 +124,13 @@ export function QuotesChat({ content, context, iconSrc, open = true, variant, on
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: EASE }}
           >
-            {m.from === "bot" && <span className={styles.avatar} style={mark} data-waiting={m.id === waitingOn || undefined} aria-hidden />}
+            {m.from === "bot" && <ChatAvatar live={m.id === liveId} state={botState} />}
             <p className={styles.bubble}>{m.text}</p>
           </motion.div>
         ))}
         {thinking && (
           <div className={styles.message} data-from="bot">
-            <span className={styles.avatar} style={mark} aria-hidden />
+            <ChatAvatar live state="thinking" />
             <AITextLoading text={content.thinkingLabel} className={styles.thinking} />
           </div>
         )}

@@ -46,6 +46,18 @@
   min-height: 32px;
 }
 
+/* A mark over the title (aboveTitle): it and × share the top row, × in the
+   corner; the title 8 below. */
+.headStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.head[data-top] {
+  align-items: flex-start;
+}
+
 /* Instrument Serif italic 32 — the drawer's only display type. */
 .title {
   font-family: var(--font-display);

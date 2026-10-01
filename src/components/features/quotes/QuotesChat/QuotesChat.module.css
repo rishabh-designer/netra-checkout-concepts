@@ -48,66 +48,10 @@
   padding: var(--spacing-24) var(--spacing-24) 0;
 }
 
-/* The badge: an orange tile (r12) with the white sparkle, the title's
-   height (32; 28 on phones, as the drawer title). */
-.badge {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-12);
-  background: var(--color-brand-secondary);
-  color: var(--color-label-inverse);
-}
-
-.sparkle {
-  width: 16px;
-  height: 16px;
-}
-
-@keyframes sparkle-turn {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* The sparkle beside BimaNetra's latest reply turns, ever so slowly, while
-   it waits on the customer (it stops once they type, pick or send). */
-.avatar[data-waiting] {
-  animation: sparkle-turn 8s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .avatar[data-waiting] {
-    animation: none;
-  }
-}
-
-@media (max-width: 999px) {
-  .badge {
-    width: 28px;
-    height: 28px;
-  }
-  .sparkle {
-    width: 14px;
-    height: 14px;
-  }
-}
-
 .title {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-12);
-}
-
-.sparkle,
-.avatar {
-  display: inline-block;
-  flex-shrink: 0;
-  background: currentColor;
-  -webkit-mask: var(--icon) center / contain no-repeat;
-  mask: var(--icon) center / contain no-repeat;
 }
 
 
@@ -124,7 +68,6 @@
   color: var(--color-label-primary);
   white-space: nowrap;
 }
-
 
 /* The log: messages 12 apart, scrolling on its own. */
 .list {
@@ -149,12 +92,14 @@
   align-self: flex-end;
 }
 
-/* BimaNetra's mark beside its replies, in orange. */
-.avatar {
-  width: 14px;
-  height: 14px;
-  margin-bottom: var(--spacing-8);
-  color: var(--color-brand-secondary);
+/* Beside BimaNetra's messages: a 24 space, NetraBot in the newest one (the
+   older ones stay empty so the bubbles line up). */
+.botAvatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-bottom: var(--spacing-4);
 }
 
 .bubble {

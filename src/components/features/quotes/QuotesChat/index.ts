@@ -1,1 +1,1 @@
-export { QuotesChat, ChatBadge, type QuotesChatProps } from "./QuotesChat";
+export { QuotesChat, ChatAvatar, type QuotesChatProps } from "./QuotesChat";

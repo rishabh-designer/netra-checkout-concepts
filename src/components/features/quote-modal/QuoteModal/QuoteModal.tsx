@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { NetraBot, type NetraBotHandle } from "@/components/ui/NetraBot";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { useStream } from "@/lib/useStream";
 import { cn, formatPhone } from "@/lib/utils";
@@ -189,6 +190,10 @@ export function QuoteModal({
   );
 
   const [values, setValues] = useState<Record<string, string>>({});
+  // Dropdowns the customer opened and picked from, even the value already
+  // there: they've looked through the options and chosen, so a guess
+  // (fuzzy) stops being one.
+  const [affirmed, setAffirmed] = useState<Set<string>>(() => new Set());
   /** Steps whose probe has already resolved — revisiting skips the skeleton. */
   const probedRef = useRef<Set<number>>(new Set());
 
@@ -197,6 +202,7 @@ export function QuoteModal({
     if (!open) return;
     setStepIndex(0);
     setValues({});
+    setAffirmed(new Set());
     probedRef.current = new Set();
   }, [open]);
 
@@ -343,14 +349,60 @@ export function QuoteModal({
   const nameHelp = matchHelp?.text;
   const profileComplete = allMandatoryFilled(profileFields) && !profileFields.some((f) => errorFor(f));
 
+  // NetraBot reacts to the form. Two bots share one mood: the one at the top
+  // of the research panel (every step) and, on phones, the one in the folded
+  // strip. Typing → it leans in (listening); a phone number left short →
+  // a puzzled tilt; the step complete → "aha", then happy; Continue → it
+  // celebrates before the next step comes in.
+  const introBotRef = useRef<NetraBotHandle>(null);
+  const stripBotRef = useRef<NetraBotHandle>(null);
+  const botReact = (animation: string) => {
+    introBotRef.current?.react(animation);
+    stripBotRef.current?.react(animation);
+  };
+  const [typing, setTyping] = useState(false);
+  const typingTimer = useRef<number | undefined>(undefined);
+  const noteTyping = () => {
+    setTyping(true);
+    window.clearTimeout(typingTimer.current);
+    typingTimer.current = window.setTimeout(() => setTyping(false), TYPING_MS);
+  };
+  useEffect(() => () => window.clearTimeout(typingTimer.current), []);
+  // A field open (focused or its list showing): it thinks along.
+  const [fieldOpen, setFieldOpen] = useState(false);
+  const botState = typing
+    ? "listening"
+    : fieldOpen
+      ? "thinking"
+      : canSubmit
+        ? "happyIdle"
+        : stepIndex > 0 && !tl.done
+          ? "searching"
+          : "idle";
+  const wasComplete = useRef(canSubmit);
+  useEffect(() => {
+    if (canSubmit && !wasComplete.current) botReact("aha");
+    wasComplete.current = canSubmit;
+  }, [canSubmit]);
+  // Continue: the bot celebrates first; the step changes once it has.
+  const [advancing, setAdvancing] = useState(false);
+
   /** Advance to the next form step (the probe re-runs for it). On the last step
    *  the CTA is terminal — hand the collected values to `onComplete`, which
    *  carries them to the Quotes results page. */
   const handleSubmit = () => {
-    if (!canSubmit) return;
-    if (formOnly) onComplete?.(values);
-    else if (stepIndex < lastStep) setStepIndex((i) => i + 1);
-    else onComplete?.(values);
+    if (!canSubmit || advancing) return;
+    if (formOnly) return onComplete?.(values);
+    const advance = () => {
+      setAdvancing(false);
+      setFieldOpen(false);
+      if (stepIndex < lastStep) setStepIndex((i) => i + 1);
+      else onComplete?.(values);
+    };
+    if (reduced) return advance();
+    botReact("celebrate");
+    setAdvancing(true);
+    window.setTimeout(advance, CELEBRATE_MS);
   };
   const handleBack = () => {
     if (stepIndex > 0) setStepIndex((i) => i - 1);
@@ -472,7 +524,16 @@ export function QuoteModal({
                 </header>
 
                 <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={stepIndex} className={styles.fields} {...morphView(reduced)}>
+                <motion.div
+                  key={stepIndex}
+                  className={styles.fields}
+                  {...morphView(reduced)}
+                  // NetraBot thinks while a field here has focus.
+                  onFocus={() => setFieldOpen(true)}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFieldOpen(false);
+                  }}
+                >
                   {formFields.map((field) => (
                     <Fragment key={field.key}>
                       {/* Auto-personalize badge sits between the questions and the
@@ -493,7 +554,18 @@ export function QuoteModal({
                         value={values[field.key] ?? ""}
                         error={errorFor(field)}
                         nameHelp={field.key === "name" ? nameHelp : undefined}
-                        onChange={(v) => setValues((s) => ({ ...s, [field.key]: v }))}
+                        affirmed={affirmed.has(field.key)}
+                        onLeave={() => {
+                          // A phone number left short: a puzzled tilt.
+                          if (field.validate === "phone" && (values[field.key] ?? "").trim() && errorFor(field)) botReact("confusedTilt");
+                        }}
+                        onChange={(v) => {
+                          // Any edit, typed or picked (even the option already
+                          // there): NetraBot leans in.
+                          noteTyping();
+                          setValues((s) => ({ ...s, [field.key]: v }));
+                          if (field.control === "select") setAffirmed((s) => new Set(s).add(field.key));
+                        }}
                       />
                     </Fragment>
                   ))}
@@ -513,7 +585,7 @@ export function QuoteModal({
                   block
                   // The flow's last step (Get Instant Quotes): BimaNetra's orange.
                   tone={!formOnly && stepIndex === lastStep ? "secondary" : "primary"}
-                  disabled={!canSubmit}
+                  disabled={!canSubmit || advancing}
                   data-tooltip={
                     canSubmit
                       ? undefined
@@ -545,6 +617,9 @@ export function QuoteModal({
                       reduced={!!reduced}
                       sheet={engineSheet}
                       onReplyDone={onReplyDone}
+                      botState={botState}
+                      introBotRef={introBotRef}
+                      stripBotRef={stripBotRef}
                     />
                   </div>
                 </div>
@@ -565,6 +640,7 @@ function displayStatus(
   value: string,
   collectMode: boolean,
   confirmed: boolean,
+  affirmed: boolean,
 ): QuoteFieldStatus {
   // The company name was supplied by the user in the hero field — we're recalling
   // their own data, so it reads as "prefilled by user", not system-verified.
@@ -582,7 +658,8 @@ function displayStatus(
     // A field the source already confirmed (e.g. an MCA-verified PAN) reads green
     // from the start, even while sibling fields remain fuzzy guesses.
     if (field.status === "success") return "success";
-    if (value !== field.value) return "success";
+    // Picked from the dropdown (even the same option) → confirmed too.
+    if (affirmed || value !== field.value) return "success";
     return "fuzzy";
   }
   return value.trim() ? "success" : "empty";
@@ -593,17 +670,21 @@ function Field({
   caseId,
   collectMode,
   confirmed,
+  affirmed,
   fetched,
   value,
   error,
   nameHelp,
   onChange,
+  onLeave,
 }: {
   field: QuoteModalField;
   caseId: QuoteCaseId;
   collectMode: boolean;
   /** Edit Details: values the customer already confirmed (never fuzzy). */
   confirmed: boolean;
+  /** A dropdown the customer picked from (even the guessed option). */
+  affirmed: boolean;
   /** The engine's research has resolved this field (the evidence wave). */
   fetched: boolean;
   value: string;
@@ -613,6 +694,8 @@ function Field({
    *  the MCA, so a swapped-in legal name never reads as a glitch. */
   nameHelp?: string;
   onChange: (value: string) => void;
+  /** The field lost focus (NetraBot checks the phone number). */
+  onLeave?: () => void;
 }) {
   // Errors wait for blur (a half-typed value reads neutral, not wrong); once
   // shown they clear live as the user fixes it. A prefilled value counts as touched.
@@ -620,7 +703,7 @@ function Field({
   const sharedTip = useFieldTip(field.key);
   const isName = field.key === "name";
   const fetching = !isName && !fetched;
-  const status = displayStatus(field, caseId, value, collectMode, confirmed);
+  const status = displayStatus(field, caseId, value, collectMode, confirmed, affirmed);
   const uiStatus: FieldStatus = fetching ? "loading" : status;
   // The coverage field reads "Approximating…" while the probe runs (Figma).
   const fetchingLabel = field.key === "coverage" ? "Approximating…" : "Fetching…";
@@ -683,7 +766,10 @@ function Field({
       inputMode={field.inputMode}
       maxLength={field.maxLength}
       onFocus={() => !error && setTouched(false)}
-      onBlur={() => setTouched(true)}
+      onBlur={() => {
+        setTouched(true);
+        onLeave?.();
+      }}
       infoTooltip={field.infoTooltip ?? sharedTip}
       showHelp
       completions={completionsFor(field.key, {})}
@@ -923,6 +1009,9 @@ function IntelligenceEngine({
   reduced,
   sheet,
   onReplyDone,
+  botState,
+  introBotRef,
+  stripBotRef,
 }: {
   engine: IntelligenceEngineContent;
   stepIndex: number;
@@ -936,11 +1025,16 @@ function IntelligenceEngine({
   sheet?: EngineSheet;
   /** BimaNetra's intro message has finished typing. */
   onReplyDone?: () => void;
+  /** NetraBot's mood, from the form. */
+  botState: string;
+  /** The panel's bot (every step) and the phone strip's bot. */
+  introBotRef: Ref<NetraBotHandle>;
+  stripBotRef: Ref<NetraBotHandle>;
 }) {
   const message = engine.messageTemplate.replace("{company}", companyName || "your company");
-  const request = engine.requestLabel.replace("{company}", companyName || "your company");
-  // The engine's reply streams in like an agent response, the company name
-  // in brand purple (its own piece, so it's coloured as it types).
+  // NetraBot stands in for the request and BimaNetra's typed reply. The reply
+  // still "types" unseen, so its pace keeps the choreography: the runner
+  // arrives, and the phone card folds, once it's done.
   const [replyBefore, replyAfter = ""] = engine.messageTemplate.split("{company}");
   const reply = useStream([replyBefore, companyName || "your company", replyAfter]);
   useEffect(() => {
@@ -954,53 +1048,24 @@ function IntelligenceEngine({
       initial={reduced ? "visible" : "hidden"}
       animate="visible"
     >
-      {/* Request bubble + engine reply (Figma 503:14900) belong to Profile:
-          leaving it, they lift away (rise, blur, fade) while their space
-          folds shut, and the runner glides up into place. Not
-          initial={false}: that would freeze the bubble at rest while the
-          panel's stagger rises everything around it. */}
-      <AnimatePresence>
-        {stepIndex === 0 && (
-          <motion.div
-            key="intro"
-            variants={item}
-            className={styles.engineIntro}
-            exit={
-              reduced
-                ? { opacity: 0, height: 0, marginBottom: -24 }
-                : {
-                    opacity: 0,
-                    y: -28,
-                    scale: 0.97,
-                    filter: "blur(10px)",
-                    height: 0,
-                    marginBottom: -24,
-                    transition: {
-                      default: { duration: 0.45, ease: EASE_STD },
-                      height: { duration: 0.6, ease: [0.65, 0, 0.35, 1], delay: 0.12 },
-                      marginBottom: { duration: 0.6, ease: [0.65, 0, 0.35, 1], delay: 0.12 },
-                    },
-                  }
-            }
-          >
-            <div className={styles.requestBubble}>
-              <span>{request}</span>
-              <CheckboxTick />
-            </div>
-            <div className={styles.engineMessage} aria-busy={!reply.done} aria-label={message}>
-              <span className={styles.engineGhost} aria-hidden>{message}</span>
-              <span aria-hidden>
-                {reply.reveal(0)}
-                {reply.started(1) && <span className={styles.engineCompany}>{reply.reveal(1)}</span>}
-                {reply.reveal(2)}
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* NetraBot heads the panel on every step (in place of the request
+          bubble + reply, Figma 503:14900): thinking while the reply would
+          type, then following the form's mood and the pointer. The reply is
+          its accessible name. On phones the open card shows it and folds it
+          away; the strip's own bot takes over once folded. */}
+      <motion.div variants={item} className={styles.engineIntro}>
+        <NetraBot ref={introBotRef} state={reply.done ? botState : "thinking"} follow="page" size={64} label={message} />
+      </motion.div>
 
       {/* A chat feed fills top-down: the runner (meter, then tasks) only
-          arrives once the engine's reply has finished typing. */}
+          arrives once the engine's reply has finished typing. On phones,
+          the folded strip keeps NetraBot to its left (always in view). */}
+      <div className={styles.runnerRow}>
+      {sheet && (
+        <span className={styles.stripBot}>
+          <NetraBot ref={stripBotRef} state={botState} follow="page" size={48} />
+        </span>
+      )}
       <AnimatePresence initial={false}>
       {reply.done && (
       <motion.div
@@ -1042,6 +1107,7 @@ function IntelligenceEngine({
       </motion.div>
       )}
       </AnimatePresence>
+      </div>
     </motion.div>
   );
 }
@@ -1053,6 +1119,10 @@ const ENGINE_MS = 600;
 const INTRO_HOLD_MS = 900;
 /** A beat after a step changes (the form visibly moves) before the card opens. */
 const AUTO_OPEN_MS = 450;
+/** NetraBot leans in this long after the last keystroke. */
+const TYPING_MS = 1200;
+/** Continue waits this long for NetraBot's celebration before moving on. */
+const CELEBRATE_MS = 900;
 /** Profile's task works this long before it says it's waiting on the user. */
 const WAITING_MS = 4000;
 /** The card lingers on the verdict before closing onto the filled form. */
@@ -1232,23 +1302,6 @@ function TaskRow({
         </AnimatePresence>
       )}
     </motion.li>
-  );
-}
-
-/* Orange (Secondary) checked box with a white tick — the "Personalize My
-   Quote" box in the engine's request bubble (Figma 503:14905, 16px r4). */
-function CheckboxTick() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
-      <rect width="16" height="16" rx="4" fill="var(--color-brand-secondary)" />
-      <path
-        d="m4.4 8.2 2.2 2.2 5-5.2"
-        stroke="var(--color-label-inverse)"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 

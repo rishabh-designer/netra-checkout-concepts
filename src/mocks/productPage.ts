@@ -364,7 +364,6 @@ export const mockProductPageContent: ProductPageContent = {
     },
     // The persistent left-panel task-runner; one task per form step (index-aligned).
     engine: {
-      requestLabel: "Personalise a Directors & Officers Insurance quote for {company}",
       messageTemplate: "BimaNetra is running 3 tasks to personalise your quote for {company}",
       headingLabels: ["Getting Started", "Assessing Business", "Assessing Risk"],
       progressLabel: "Researching",
@@ -397,8 +396,8 @@ export const mockProductPageContent: ProductPageContent = {
           // A — probe confirmed the record: filled, green, PAN last.
           A: {
             fields: [
-              { key: "type", label: "Enter Company Type", mandatory: true, control: "text", value: "Private Limited Company", status: "success" },
-              { key: "business", label: "Type of Business", mandatory: true, control: "text", value: "Retail & Wholesale", status: "success" },
+              { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Private Limited Company", options: COMPANY_TYPE_OPTIONS, status: "success" },
+              { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "Retail & Wholesale", options: BUSINESS_OPTIONS, status: "success" },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "₹5 Cr to ₹50 Cr", options: TURNOVER_OPTIONS, status: "success" },
               { key: "cin", label: "Company PAN", control: "text", validate: "pan", upper: true, maxLength: 10, value: "AAJCP5565B", status: "success" },
             ],

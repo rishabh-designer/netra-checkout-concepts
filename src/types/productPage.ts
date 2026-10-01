@@ -232,13 +232,11 @@ export interface EngineTask {
   hasSearch: boolean;
 }
 
-/** The persistent left-panel "Intelligence Engine" — a request bubble, the
- *  engine's reply, a live progress meter and the 3-task runner. */
+/** The persistent left-panel "Intelligence Engine" — NetraBot on Profile,
+ *  then the 3-task runner. */
 export interface IntelligenceEngine {
-  /** The user's request, echoing the product-page opt-in; `{company}` is
-   *  replaced with the company name. */
-  requestLabel: string;
-  /** Engine reply; `{company}` is replaced with the typed company name. */
+  /** Engine reply (NetraBot's accessible name, and the beat before the
+   *  runner); `{company}` is replaced with the typed company name. */
   messageTemplate: string;
   /** Progress-meter heading per form step (index-aligned to `steps`):
    *  "Getting Started", "Assessing Business", "Assessing Risk". */

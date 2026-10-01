@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { RequestChatContent } from "@/types/quotesPage";
 import { AITextLoading } from "@/components/ui/AITextLoading";
 import chat from "../QuotesChat/QuotesChat.module.css";
+import { ChatAvatar } from "../QuotesChat";
 import styles from "./RequestChat.module.css";
 import { EASE_OUT as EASE } from "@/lib/motion";
 
@@ -103,12 +104,12 @@ export function RequestChat({ content, intro, onDone }: RequestChatProps) {
     if (draft.trim()) answer(draft.trim());
   };
 
-  const mark = { "--icon": `url(${content.iconSrc})` } as CSSProperties;
   const choosing = !thinking && current?.answer === "choice";
-  // As Ask BimaNetra: the latest reply's sparkle turns while it waits on the
-  // customer, until they type, pick or send.
+  // As Ask BimaNetra: NetraBot beside the latest question, listening while
+  // the customer types, waiting on them otherwise.
   const last = messages[messages.length - 1];
-  const waitingOn = !thinking && !draft && last?.from === "bot" ? last.id : undefined;
+  const liveId = !thinking && last?.from === "bot" ? last.id : undefined;
+  const botState = draft.trim() ? "listening" : "waiting";
 
   return (
     <div className={styles.chat}>
@@ -122,13 +123,13 @@ export function RequestChat({ content, intro, onDone }: RequestChatProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: EASE }}
           >
-            {m.from === "bot" && <span className={chat.avatar} style={mark} data-waiting={m.id === waitingOn || undefined} aria-hidden />}
+            {m.from === "bot" && <ChatAvatar live={m.id === liveId} state={botState} />}
             <p className={chat.bubble}>{m.text}</p>
           </motion.div>
         ))}
         {thinking && (
           <div className={chat.message} data-from="bot">
-            <span className={chat.avatar} style={mark} aria-hidden />
+            <ChatAvatar live state="thinking" />
             <AITextLoading text={content.thinkingLabel} className={chat.thinking} />
           </div>
         )}

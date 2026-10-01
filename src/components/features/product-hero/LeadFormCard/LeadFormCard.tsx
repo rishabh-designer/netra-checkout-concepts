@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useId, useState, type KeyboardEvent, type ReactNode } from "react";
+import { NetraBot, type NetraBotHandle } from "@/components/ui/NetraBot";
+import { useCallback, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { withCase } from "@/lib/case-route";
 import type { LeadFormContent, QuoteCaseMatch, QuoteModalContent } from "@/types/productPage";
@@ -53,6 +54,11 @@ function resolveCase(name: string, matches: QuoteCaseMatch[]): { caseId: QuoteCa
  * fires a toast instead of opening the modal.
  * Usage: <LeadFormCard content={leadForm} quoteModal={quoteModal} />
  */
+/** What NetraBot does over each What Is BimaNetra? point: searches (looking
+ *  up the company), reads (the risk), and nods yes (fills in the form). A
+ *  `state` loops while hovered; a `react` plays once. */
+const POINT_BOT: ({ state: string } | { react: string })[] = [{ state: "searching" }, { state: "reading" }, { react: "nodYes" }];
+
 export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlot, bottomSlot }: LeadFormCardProps) {
   const router = useRouter();
   const { setResult } = useQuoteFlow();
@@ -67,6 +73,13 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
   // Sent empty: the field shows the error in its help row until typed in.
   const [emptyError, setEmptyError] = useState(false);
   const [knowMoreOpen, setKnowMoreOpen] = useState(false);
+  // NetraBot on What Is BimaNetra?: acts out the point under the pointer
+  // (back to idle when it leaves), is happy while hovered, and dithers out
+  // while × is hovered.
+  const botRef = useRef<NetraBotHandle>(null);
+  const [botState, setBotState] = useState("idle");
+  // Hovering × dithers the bot out; leaving it brings it back.
+  const [botAway, setBotAway] = useState(false);
   // Type-ahead: opens as the customer types, so they pick their legal entity
   // before continuing. Enter picks the highlighted row (then submits).
   const suggestId = useId();
@@ -103,7 +116,11 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
       setSuggestOpen(false);
     }
   };
-  const closeKnowMore = useCallback(() => setKnowMoreOpen(false), []);
+  const closeKnowMore = useCallback(() => {
+    setKnowMoreOpen(false);
+    setBotState("idle");
+    setBotAway(false);
+  }, []);
   // Hidden demo shortcut: the info icon cycles the demo names (A → B → C → A);
   // clearing the field starts the cycle over.
   const [demoIndex, setDemoIndex] = useState(-1);
@@ -230,13 +247,32 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
         title={content.knowMore.title}
         closeLabel={content.knowMore.closeLabel}
         placement="center"
-        width={480}
+        // Wide enough for the three points side by side.
+        width={720}
+        // NetraBot itself, over the title: it rises in and watches the pointer.
+        aboveTitle={
+          // Hovering the bot itself makes it happy.
+          <span className={styles.knowMoreBot} onPointerEnter={() => setBotState("happyIdle")} onPointerLeave={() => setBotState("idle")}>
+            <NetraBot ref={botRef} state={botState} follow="page" size={56} visible={knowMoreOpen && !botAway} enter="blurRise" exit="ditherOut" />
+          </span>
+        }
+        onCloseHover={setBotAway}
       >
         <div className={styles.knowMore}>
           <p className={styles.knowMoreIntro}>{content.knowMore.intro}</p>
           <ul className={styles.knowMoreList}>
-            {content.knowMore.points.map((point) => (
-              <li key={point.title} className={styles.knowMorePoint}>
+            {content.knowMore.points.map((point, i) => (
+              <li
+                key={point.title}
+                className={styles.knowMorePoint}
+                onPointerEnter={() => {
+                  const act = POINT_BOT[i];
+                  if (!act) return;
+                  if ("react" in act) botRef.current?.react(act.react);
+                  else setBotState(act.state);
+                }}
+                onPointerLeave={() => setBotState("idle")}
+              >
                 <span className={styles.knowMoreTitle}>{point.title}</span>
                 <span className={styles.knowMoreBody}>{point.body}</span>
               </li>

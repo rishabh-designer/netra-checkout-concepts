@@ -23,6 +23,10 @@ export interface SideDrawerProps {
   title: string;
   /** A mark before the title (Ask BimaNetra's badge), inside the heading. */
   titleIcon?: ReactNode;
+  /** Over the title, sharing the top row with × (NetraBot on What Is BimaNetra?). */
+  aboveTitle?: ReactNode;
+  /** The pointer moved onto × (true) or off it (false). */
+  onCloseHover?: (on: boolean) => void;
   closeLabel: string;
   children: ReactNode;
   /** Pinned under the body (e.g. a price bar or Save button). */
@@ -55,7 +59,7 @@ export interface SideDrawerProps {
  * scales in (Know More).
  * Usage: <SideDrawer open={o} onClose={c} title="KYC" closeLabel="Close" footer={…}>…</SideDrawer>
  */
-export function SideDrawer({ open, onClose, title, titleIcon, closeLabel, children, footer, width = 624, placement: placementProp = "right", sheetOnMobile = false, headGap, bare = false, className }: SideDrawerProps) {
+export function SideDrawer({ open, onClose, title, titleIcon, aboveTitle, onCloseHover, closeLabel, children, footer, width = 624, placement: placementProp = "right", sheetOnMobile = false, headGap, bare = false, className }: SideDrawerProps) {
   // Phones (the sheet tier, ≤900): `sheetOnMobile` drawers rise as bottom sheets.
   const phone = useAtMost("sheet");
   const placement = sheetOnMobile && phone ? "bottom" : placementProp;
@@ -107,10 +111,22 @@ export function SideDrawer({ open, onClose, title, titleIcon, closeLabel, childr
             {bare ? children : (
             <>
             <div className={styles.body} style={headGap !== undefined ? { gap: headGap } : undefined}>
-              <div className={styles.head}>
-                <h2 id={titleId} className={styles.title} data-icon={titleIcon ? true : undefined}>{titleIcon}{title}</h2>
-                <CloseButton ref={closeRef} label={closeLabel} onClick={onClose} />
-              </div>
+              {aboveTitle ? (
+                // Something over the title: it shares the top row with ×
+                // (top-right corner), and the title sits 8 under both.
+                <div className={styles.headStack}>
+                  <div className={styles.head} data-top>
+                    {aboveTitle}
+                    <CloseButton ref={closeRef} label={closeLabel} onClick={onClose} onPointerEnter={() => onCloseHover?.(true)} onPointerLeave={() => onCloseHover?.(false)} />
+                  </div>
+                  <h2 id={titleId} className={styles.title} data-icon={titleIcon ? true : undefined}>{titleIcon}{title}</h2>
+                </div>
+              ) : (
+                <div className={styles.head}>
+                  <h2 id={titleId} className={styles.title} data-icon={titleIcon ? true : undefined}>{titleIcon}{title}</h2>
+                  <CloseButton ref={closeRef} label={closeLabel} onClick={onClose} onPointerEnter={() => onCloseHover?.(true)} onPointerLeave={() => onCloseHover?.(false)} />
+                </div>
+              )}
               <div className={styles.content}>{children}</div>
             </div>
             {footer}

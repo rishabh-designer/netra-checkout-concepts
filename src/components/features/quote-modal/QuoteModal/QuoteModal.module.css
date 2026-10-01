@@ -437,66 +437,25 @@
   gap: var(--spacing-24);
 }
 
-/* request bubble + engine reply — only on the Profile step, then they blur up. */
+/* NetraBot (in place of the request + reply), heading the panel on every
+   step. */
 .engineIntro {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--spacing-24);
   /* Lets its height fold shut cleanly as it leaves Profile. */
   transform-origin: top center;
 }
 
-.requestBubble {
-  align-self: flex-end;
-  display: inline-flex;
-  align-items: center;
-  /* Figma 503:14902: 42 tall, peach-bold fill, black 14px label + orange box */
-  gap: var(--spacing-8);
-  max-width: 85%;
-  min-height: 42px;
-  padding: var(--spacing-8) var(--spacing-12);
-  background: var(--color-brand-secondary-subtle-bold);
-  border-radius: var(--radius-12);
+/* Web: the runner sits straight in the engine column (the row wrapper is
+   transparent); the strip bot is phones-only (see the sheet rules). */
+.runnerRow {
+  display: contents;
 }
 
-.requestBubble span {
-  font-size: var(--font-size-100);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1.2;
-  color: var(--color-label-primary);
-  text-wrap: pretty;
-}
-
-.requestBubble svg {
-  flex-shrink: 0;
-}
-
-/* The reply streams over an invisible copy of itself, so the bubble is its
-   final size from the first character (no growth jitter). */
-.engineMessage {
-  display: grid;
-  padding: var(--spacing-12);
-  background: var(--color-card);
-  border-radius: var(--radius-12);
-  font-size: var(--font-size-100);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1.2;
-  color: var(--color-label-basic);
-}
-
-/* The company name in the reply. */
-.engineCompany {
-  color: var(--color-brand-primary);
-}
-
-.engineMessage > * {
-  grid-area: 1 / 1;
-}
-
-.engineGhost {
-  visibility: hidden;
+.stripBot {
+  display: none;
 }
 
 /* Body (Figma 503:14912): meter + tasks; the active task takes the leftover height */
@@ -864,6 +823,22 @@
   .modal[data-engine="closed"] .taskBody {
     display: none;
   }
+  /* The folded strip: NetraBot on the left, the step heading and task to
+     its right, so the bot stays in view as the form is filled. */
+  .modal[data-engine="closed"] .runnerRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-12);
+  }
+  .modal[data-engine="closed"] .runnerRow > .engineRunner {
+    flex: 1;
+    min-width: 0;
+  }
+  .modal[data-engine="closed"] .stripBot {
+    display: inline-flex;
+    flex-shrink: 0;
+    animation: strip-bot-in 0.3s var(--ease-out);
+  }
   .modal[data-engine="closing"] .taskBody {
     animation: body-out 0.3s var(--ease-standard) forwards;
   }
@@ -914,6 +889,13 @@
 @keyframes engine-shrink {
   to {
     height: var(--engine-from, 74px);
+  }
+}
+
+@keyframes strip-bot-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
   }
 }
 
