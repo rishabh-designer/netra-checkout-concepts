@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import type { CheckoutSummaryContent } from "@/types/checkout";
 import type { QuoteCardData } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
@@ -11,17 +12,21 @@ import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { formatInr, splitPrice } from "@/lib/checkout";
 import { splitName } from "@/lib/utils";
+import { EASE_OUT as EASE } from "@/lib/motion";
+import { IconButton } from "@/components/ui/IconButton";
+import { Chevron } from "@/components/icons/Chevron";
 import styles from "./PurchaseSummary.module.css";
 
 export interface PurchaseSummaryProps {
   content: CheckoutSummaryContent;
   quote: QuoteCardData;
   /** Success page: the quote's coverages as ticked chips under a count pill. */
-  coverages?: { label: string; items: string[] };
+  coverages?: { label: string; items: string[]; onToggleHover?: () => void; onToggle?: (open: boolean) => void };
   /** Success page: the paid amount, large in green serif, over `label`
    *  ("Paid Successfully On …"); replaces the Final Cost row. `amount`
-   *  overrides the figure (e.g. a count-up). */
-  paid?: { label: string; amount?: ReactNode };
+   *  overrides the figure (e.g. a count-up); `invoice` adds a small
+   *  Download Invoice button beside the Price Details title. */
+  paid?: { label: string; amount?: ReactNode; invoice?: { label: string; onClick: () => void; onHover?: () => void }; onToggleHover?: () => void; onToggle?: (open: boolean) => void };
   /** Who the policy is for, under the title (Figma 689:57121). */
   company?: string;
   /** The lavender border beam (checkout). Off once paid: the success page's
@@ -34,6 +39,9 @@ export interface PurchaseSummaryProps {
   /** Checkout (web): the step's consent and CTA, closing the card (Figma
    *  613:68858 / 613:69256). */
   footer?: ReactNode;
+  /** Success page: closes the card under the paid amount, after a green
+   *  ikkat rule (the Relationship Manager). */
+  after?: ReactNode;
 }
 
 /* The ikkat rule under the title, in the chosen quote's colour (as on its card). */
@@ -53,7 +61,7 @@ const RULE_COLOR = {
  * quote's coverages and ends on the paid amount (`coverages`, `paid`).
  * Usage: <PurchaseSummary content={summary} quote={q} />
  */
-export function PurchaseSummary({ content, quote, coverages, paid, company, beam = true, compact = false, footer }: PurchaseSummaryProps) {
+export function PurchaseSummary({ content, quote, coverages, paid, company, beam = true, compact = false, footer, after }: PurchaseSummaryProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
   const eyeRef = useRef<BadgeCheckIconHandle>(null);
   // An offer prices the original, then takes the saving off it.
@@ -68,6 +76,51 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={content.productIconSrc} alt="" className={styles.productIcon} />
     </span>
+  );
+
+  // Once paid, the breakdown folds away under Price Details (closed at first).
+  const [pricesOpen, setPricesOpen] = useState(false);
+  const [coveragesOpen, setCoveragesOpen] = useState(false);
+  // Folding either box tells the page which way it went (the bot reacts).
+  const togglePrices = () => {
+    setPricesOpen(!pricesOpen);
+    paid?.onToggle?.(!pricesOpen);
+  };
+  const toggleCoverages = () => {
+    setCoveragesOpen(!coveragesOpen);
+    coverages?.onToggle?.(!coveragesOpen);
+  };
+  const rows = (
+    <dl className={styles.rows}>
+      <div className={styles.row}>
+        <dt>{content.premiumLabel}</dt>
+        <dd>{formatInr(base.premium)}</dd>
+      </div>
+      <div className={styles.row}>
+        <dt>{content.gstLabel}</dt>
+        <dd>{formatInr(base.gst)}</dd>
+      </div>
+      <div className={styles.row} data-total={saving ? "plain" : "final"}>
+        <dt>{saving ? content.priceLabel : content.totalLabel}</dt>
+        <dd>{formatInr(base.total)}</dd>
+      </div>
+      {saving > 0 && (
+        <>
+          <div className={styles.row} data-offer>
+            <dt>{content.offerLabel}</dt>
+            <dd>
+              <span className={styles.offerPct}>{content.offerPercent.replace("{pct}", String(pct))}</span> {formatInr(saving)}
+            </dd>
+          </div>
+          {!paid && (
+            <div className={styles.row} data-final>
+              <dt>{content.totalLabel}</dt>
+              <dd>{formatInr(final)}</dd>
+            </div>
+          )}
+        </>
+      )}
+    </dl>
   );
 
   return (
@@ -173,59 +226,109 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
         </div>
 
         {coverages && (
-          <div className={styles.coverages}>
-            <span className={styles.coveragesPill}>{coverages.label}</span>
-            <hr className={styles.coveragesRule} />
-            <ul className={styles.coverageList}>
-              {coverages.items.map((c) => (
-                <li key={c} className={styles.coverage}>
-                  <SquareCheckbox tone="info" state="checked" size={10} />
-                  {c}
-                </li>
-              ))}
-            </ul>
+          <div className={styles.coverages} data-tone={quote.gold ? "gold" : undefined}>
+            {/* The pill, with a chevron on the right that folds the list away (closed by default). */}
+            <div className={styles.coveragesHead}>
+              <span className={styles.coveragesPill}>{coverages.label}</span>
+              <IconButton
+                size="sm"
+                className={styles.priceChevron}
+                label={coveragesOpen ? content.coveragesHideLabel : content.coveragesShowLabel}
+                open={coveragesOpen}
+                aria-expanded={coveragesOpen}
+                onClick={toggleCoverages}
+                onMouseEnter={coverages.onToggleHover}
+              >
+                <Chevron dir="down" size={12} />
+              </IconButton>
+            </div>
+            <AnimatePresence initial={false}>
+              {coveragesOpen && (
+                <motion.div
+                  key="coverages"
+                  className={styles.coveragesFold}
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: EASE }}
+                >
+                  <hr className={styles.coveragesRule} />
+                  <ul className={styles.coverageList}>
+                    {coverages.items.map((c) => (
+                      <li key={c} className={styles.coverage}>
+                        <SquareCheckbox tone={quote.gold ? "secondary" : "info"} state="checked" size={10} />
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 
         <div className={styles.prices}>
-          <p className={styles.priceTitle}>{content.priceTitle}</p>
-          <dl className={styles.rows}>
-            <div className={styles.row}>
-              <dt>{content.premiumLabel}</dt>
-              <dd>{formatInr(base.premium)}</dd>
+          {paid ? (
+            // Paid: the title toggles the breakdown, Download Invoice sits right beside
+            // it, and the chevron on the far right toggles too.
+            <div className={styles.priceHead}>
+              <button type="button" className={styles.priceToggle} aria-expanded={pricesOpen} onClick={togglePrices} onMouseEnter={paid.onToggleHover}>
+                <span className={styles.priceTitle}>{content.priceTitle}</span>
+              </button>
+              {paid.invoice && (
+                <button type="button" className={styles.invoice} onClick={paid.invoice.onClick} onMouseEnter={paid.invoice.onHover}>
+                  {paid.invoice.label}
+                </button>
+              )}
+              {/* Closed points down; open turns it over to point up (like the journey timeline). */}
+              <IconButton
+                size="sm"
+                className={styles.priceChevron}
+                label={pricesOpen ? content.priceHideLabel : content.priceShowLabel}
+                open={pricesOpen}
+                aria-expanded={pricesOpen}
+                onClick={togglePrices}
+                onMouseEnter={paid.onToggleHover}
+              >
+                <Chevron dir="down" size={12} />
+              </IconButton>
             </div>
-            <div className={styles.row}>
-              <dt>{content.gstLabel}</dt>
-              <dd>{formatInr(base.gst)}</dd>
-            </div>
-            <div className={styles.row} data-total={saving ? "plain" : "final"}>
-              <dt>{saving ? content.priceLabel : content.totalLabel}</dt>
-              <dd>{formatInr(base.total)}</dd>
-            </div>
-            {saving > 0 && (
-              <>
-                <div className={styles.row} data-offer>
-                  <dt>{content.offerLabel}</dt>
-                  <dd>
-                    <span className={styles.offerPct}>{content.offerPercent.replace("{pct}", String(pct))}</span> {formatInr(saving)}
-                  </dd>
-                </div>
-                {!paid && (
-                  <div className={styles.row} data-final>
-                    <dt>{content.totalLabel}</dt>
-                    <dd>{formatInr(final)}</dd>
-                  </div>
-                )}
-              </>
-            )}
-          </dl>
+          ) : (
+            <p className={styles.priceTitle}>{content.priceTitle}</p>
+          )}
+          {paid ? (
+            <AnimatePresence initial={false}>
+              {pricesOpen && (
+                <motion.div
+                  key="rows"
+                  className={styles.rowsFold}
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: EASE }}
+                >
+                  {rows}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          ) : (
+            rows
+          )}
           {paid && (
             <div className={styles.paid}>
-              <p className={styles.paidAmount}>{paid.amount ?? formatInr(final)}</p>
-              <p className={styles.paidLabel}>{paid.label}</p>
+              <div className={styles.paidTotal}>
+                <p className={styles.paidAmount}>{paid.amount ?? formatInr(final)}</p>
+                <p className={styles.paidLabel}>{paid.label}</p>
+              </div>
             </div>
           )}
         </div>
+        {after && (
+          <>
+            <IkkatDivider height={2} unit={19} color={RULE_COLOR.immediate} className={styles.rule} />
+            {after}
+          </>
+        )}
         {footer && <div className={styles.footer}>{footer}</div>}
       </section>
         {beam && (

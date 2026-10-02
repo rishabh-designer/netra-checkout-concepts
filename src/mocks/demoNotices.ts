@@ -31,6 +31,10 @@ export const mockDemoNotices: DemoNoticeContent = {
     title: "Skip is next",
     description: "This skips personalisation and shows standard quotes straight away. We haven't built it yet.",
   },
+  downloadInvoice: {
+    title: "Your invoice is next",
+    description: "This downloads your tax invoice as a PDF. We haven't built it yet.",
+  },
   riskReport: {
     title: "Your Risk Report is next",
     description: "This downloads the BimaNetra Risk Report on your business as a PDF. We haven't built it yet.",

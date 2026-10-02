@@ -107,6 +107,12 @@ export interface CheckoutSummaryContent {
   productLines: [string, string];
   productIconSrc: string;
   priceTitle: string;
+  /** Paid: the chevron's labels for showing and hiding the breakdown. */
+  priceShowLabel: string;
+  priceHideLabel: string;
+  /** Success page: the coverages box's chevron labels. */
+  coveragesShowLabel: string;
+  coveragesHideLabel: string;
   premiumLabel: string;
   gstLabel: string;
   totalLabel: string;
@@ -204,6 +210,8 @@ export interface SuccessSuggestion {
   body: string;
   iconSrc: string;
   immediate?: boolean;
+  /** The NetraBot reaction (an animation key) played when the card is hovered. */
+  botReaction?: string;
 }
 
 /** Checkout (Success), Figma 670:51168: the end of the journey after Pay. */
@@ -234,6 +242,8 @@ export interface CheckoutSuccessContent {
   viewPolicyPendingTip: string;
   /** Text link on the profiling row, in place of its status. */
   riskReportLabel: string;
+  /** The Purchase Summary's paid footer: a small button for the tax invoice. */
+  invoiceLabel: string;
   /** Bottom line beside the big Sign Mandate Letter button. */
   nextUp: string;
   /** Hides the bottom Next Up bar (kept for later). */

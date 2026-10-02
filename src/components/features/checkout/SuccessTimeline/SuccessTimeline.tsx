@@ -23,7 +23,7 @@ export interface SuccessTimelineItem {
   link?: { label: string; onClick?: () => void };
   /** Under the copy: the row's next action (disabled while pending). */
   /** `pendingTip`: the tooltip while the row is still pending. */
-  action?: { label: string; onClick?: () => void; pendingTip?: string };
+  action?: { label: string; onClick?: () => void; onHover?: () => void; pendingTip?: string };
 }
 
 export interface SuccessTimelineProps {
@@ -162,7 +162,7 @@ export function SuccessTimeline({ items, delay = 0, toggleLabels }: SuccessTimel
                       </button>
                     )}
                     {it.action && (
-                      <button type="button" className={styles.action} disabled={it.state === "pending"} data-tooltip={it.state === "pending" ? it.action.pendingTip : undefined} onClick={it.action.onClick}>
+                      <button type="button" className={styles.action} disabled={it.state === "pending"} data-tooltip={it.state === "pending" ? it.action.pendingTip : undefined} onClick={it.action.onClick} onMouseEnter={it.action.onHover}>
                         {it.action.label}
                         <ArrowRight size={14} />
                       </button>

@@ -14,6 +14,8 @@ export interface DitherWashProps {
   /** Colour tokens: the band's leading edge, and the trail it leaves. */
   edgeToken?: string;
   trailToken?: string;
+  /** Seconds between sweeps; set it to keep replaying (omit for one shot). */
+  loopGap?: number;
   /** Peak cell opacity (0–1); keep it low so it reads as light, not paint. */
   strength?: number;
   className?: string;
@@ -37,8 +39,9 @@ function token(name: string): [number, number, number] {
  * dithered trail that thins out and dissolves into the surface's own fill,
  * like a print developing. Fills its positioned parent (put content above it
  * with z-index); 2px cells, drawn pixelated. Mount to play; nothing under
- * reduced motion.
+ * reduced motion. `loopGap` keeps it replaying with that pause between.
  * Usage: <DitherWash delay={0.1} duration={1.6} />
+ *        <DitherWash loopGap={1.2} />
  */
 export function DitherWash({
   delay = 0,
@@ -46,6 +49,7 @@ export function DitherWash({
   edgeToken = "--color-gold",
   trailToken = "--color-brand-secondary-border",
   strength = 0.4,
+  loopGap,
   className,
 }: DitherWashProps) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -95,12 +99,16 @@ export function DitherWash({
         }
       }
       ctx.putImageData(out, 0, 0);
-      if (p < 1) frame = requestAnimationFrame(draw);
-      else ctx.clearRect(0, 0, W, H);
+      if (p < 1) return void (frame = requestAnimationFrame(draw));
+      ctx.clearRect(0, 0, W, H);
+      if (loopGap === undefined) return;
+      // Go again after the gap (t runs negative through it); the delay only leads the first sweep.
+      start = now + (loopGap - delay) * 1000;
+      frame = requestAnimationFrame(draw);
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
-  }, [delay, duration, edgeToken, trailToken, strength, reduced]);
+  }, [delay, duration, edgeToken, trailToken, strength, loopGap, reduced]);
 
   if (reduced) return null;
   return <canvas ref={ref} aria-hidden className={cn(styles.canvas, className)} />;

@@ -23,7 +23,7 @@ export interface QuotesHeaderProps {
   /** Outline instead of fill (Contact Support beside a primary action). */
   variant?: "fill" | "outline";
   /** A second, filled button before the CTA (Sign Mandate Letter). */
-  leadCta?: { label: string; onClick: () => void };
+  leadCta?: { label: string; onClick: () => void; onHover?: () => void };
 }
 
 /**
@@ -43,7 +43,7 @@ export function QuotesHeader({ content, logoHref = "/directors-and-officers-insu
       </a>
       <div className={styles.actions}>
       {leadCta && (
-        <button type="button" className={styles.cta} onClick={leadCta.onClick}>
+        <button type="button" className={styles.cta} onClick={leadCta.onClick} onMouseEnter={leadCta.onHover}>
           {leadCta.label}
         </button>
       )}

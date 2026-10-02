@@ -18,13 +18,12 @@
   gap: var(--spacing-32);
 }
 
-/* Journey (886, white, 24 inset) | the side column (449), spread apart. */
+/* Journey (fills the width, white, 24 inset) | the side column (400), 12 apart. */
 .fold {
   display: grid;
-  grid-template-columns: minmax(0, 886px) 449px;
-  justify-content: space-between;
+  grid-template-columns: minmax(0, 1fr) 400px;
   align-items: start;
-  gap: var(--spacing-32);
+  gap: var(--spacing-12);
 }
 
 /* Journey column (692:58157): greeting card, ikkat rule, timeline, 24 apart. */
@@ -131,7 +130,13 @@
   height: 80px;
 }
 
+/* The ikkat rule above Suggests: its diamonds 24 clear of what you see on
+   each side. Below: the column's 24 gap + the rule's 8 padding - 8. Above,
+   the timeline's last row also trails 16 of rail under its pill, so: 16 + 24
+   + 8 - 24. */
 .rule {
+  margin-top: calc(-1 * var(--spacing-24));
+  margin-bottom: calc(-1 * var(--spacing-8));
   padding: var(--spacing-8) var(--spacing-12);
 }
 
@@ -164,12 +169,6 @@
 .summary {
   display: flex;
   justify-content: center;
-}
-
-/* Full-bleed ikkat rule under the fold (692:58374): edge to edge, 8/12. */
-.pageRule {
-  margin-inline: calc(-1 * var(--spacing-32));
-  padding: var(--spacing-8) var(--spacing-12);
 }
 
 /*

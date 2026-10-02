@@ -16,11 +16,11 @@ const ACTIVE = 3;
 /**
  * SuccessSkeleton — the success page's loading state, block for block with
  * the real layout: on the left the greeting card (badge, greeting, four
- * stats), the ikkat rule and the five-step timeline as it opens (an
+ * stats) and the five-step timeline as it opens (an
  * accordion: the done and pending steps are just their pill, the active one,
- * Due Diligence, shows its title, lines and action beside the rail); on the
- * right the purchase summary over the
- * RM card; then the page rule and a row of three suggestion cards. Each block fades up and
+ * Due Diligence, shows its title, lines and action beside the rail), then a
+ * row of three suggestion cards; on the right the purchase summary over
+ * the RM card. Each block fades up and
  * shimmers on its own stagger, so the page reads as one wave.
  * Usage: <SuccessSkeleton label="Confirming your payment" />
  */
@@ -49,7 +49,6 @@ export function SuccessSkeleton({ label, nextUp = true }: SuccessSkeletonProps) 
               </div>
             </div>
           </div>
-          <Skeleton variant="rounded" width="100%" height={4} delay={next()} />
           <div>
             {[0, 1, 2, 3, 4].map((k) => (
               <div key={k} className={styles.step}>
@@ -74,6 +73,15 @@ export function SuccessSkeleton({ label, nextUp = true }: SuccessSkeletonProps) 
               <Skeleton variant="rounded" width={228} height={48} delay={next()} />
             </div>
           )}
+          <Skeleton variant="rounded" width="100%" height={4} delay={next()} />
+          <div className={styles.more}>
+            <Skeleton width={180} height={20} delay={next()} />
+            <div className={styles.grid}>
+              {[0, 1, 2].map((k) => (
+                <Skeleton key={k} variant="rounded" width="100%" height={170} delay={next()} className={styles.card} />
+              ))}
+            </div>
+          </div>
         </div>
         <div className={styles.side}>
           <div className={styles.summary}>
@@ -95,20 +103,10 @@ export function SuccessSkeleton({ label, nextUp = true }: SuccessSkeletonProps) 
             ))}
             <Skeleton width={140} height={40} delay={14 * T} className={styles.paid} />
             <Skeleton width={200} height={14} delay={15 * T} className={styles.paid} />
+            {/* The Relationship Manager closes the summary, under a rule. */}
+            <Skeleton width="100%" height={2} delay={16 * T} />
+            <Skeleton variant="rounded" width="100%" delay={17 * T} className={styles.rm} />
           </div>
-
-          <Skeleton variant="rounded" width="100%" delay={next()} className={styles.rm} />
-        </div>
-      </div>
-
-      <Skeleton variant="rounded" width="100%" height={4} delay={next()} />
-
-      <div className={styles.more}>
-        <Skeleton width={180} height={20} delay={next()} />
-        <div className={styles.grid}>
-          {[0, 1, 2].map((k) => (
-            <Skeleton key={k} variant="rounded" width="100%" height={170} delay={next()} className={styles.card} />
-          ))}
         </div>
       </div>
     </div>

@@ -1,13 +1,34 @@
-/* Relationship Manager (692:58458): peach wash, peach ring, r16, 20 padding. */
+/* Relationship Manager (692:58458): white, no ring; r12 and 8 padding. */
 .rm {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-12);
-  padding: var(--spacing-20);
-  border: 1px solid var(--color-brand-secondary-border);
-  border-radius: var(--radius-16);
-  background: linear-gradient(180deg, var(--color-card) 0%, var(--color-brand-secondary-subtle) 100%);
+  padding: var(--spacing-8);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+  /* Holds the hover's dither light (DitherWash) under the content. */
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Hovering wakes the copy: the name turns orange, the bio goes black. */
+.rm:hover .rmName,
+.rm:focus-within .rmName {
+  color: var(--color-brand-secondary);
+}
+
+.rm:hover .rmBody,
+.rm:focus-within .rmBody {
+  color: var(--color-label-primary);
+}
+
+.rmTop,
+.rmBody,
+.phone {
+  position: relative;
+  z-index: 1;
 }
 
 .rmTop {
@@ -21,15 +42,15 @@
 .rmText {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
+  gap: 0;
 }
 
 .eyebrow {
-  font-size: var(--font-size-100);
+  font-size: var(--font-size-75);
   font-weight: 500;
   letter-spacing: var(--track-500);
   line-height: 1.5;
-  color: var(--color-label-primary);
+  color: var(--color-label-warm);
 }
 
 .rmName {
@@ -42,24 +63,26 @@
   letter-spacing: 0;
   line-height: 1.2;
   color: var(--color-label-primary);
+  transition: color 0.2s ease;
 }
 
 .photo {
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
-  border: 2px solid var(--color-brand-secondary-border);
+  border: var(--border-hairline) solid var(--color-brand-secondary-border);
   border-radius: 50%;
   corner-shape: round;
   object-fit: cover;
 }
 
 .rmBody {
-  font-size: var(--font-size-200);
+  font-size: var(--font-size-100);
   font-weight: 500;
   letter-spacing: var(--track-500);
   line-height: 1.6;
-  color: var(--color-label-warm);
+  color: var(--color-label-secondary);
+  transition: color 0.2s ease;
 }
 
 /* Phone (button/primary.outline): 32 tall, r12 (Figma r10 + one step). */
@@ -68,7 +91,8 @@
   align-items: center;
   gap: var(--spacing-8);
   align-self: flex-end;
-  margin-top: var(--spacing-20);
+  /* 16 below the bio: the card's 12 gap plus 4. */
+  margin-top: var(--spacing-4);
   padding: var(--spacing-10) 14px;
   border: var(--border-hairline) solid var(--color-border-subtle);
   border-radius: var(--radius-12);
@@ -103,34 +127,44 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-16);
-  /* The page already insets 32 at the sides. */
-  padding: var(--spacing-32) 0;
+  /* Sits in the journey column, which already insets 24 at the sides. */
+  padding: 0;
+}
+
+/* Full width: the heading on the left, the bot on the right. */
+.suggestHead {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: 0 var(--spacing-12);
 }
 
 .suggestTitle {
-  padding: 0 var(--spacing-12);
-  font-size: var(--font-size-400);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
+  font-size: var(--font-size-200);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
   line-height: 1;
   color: var(--color-label-primary);
 }
 
-/* Three across in the 1512 frame (469 each); fewer as it narrows. */
+/* Three across in the journey column; once the page stacks, as many as fit. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--spacing-20);
   list-style: none;
 }
 
-/* Product card (quote-card/web-variants 673:54651): r16, 8 inset. */
+/* Product card (quote-card/web-variants 673:54651): 12 inset all round; card
+   24 and Get a Quote 12 (24 - 12), concentric. */
 .card {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-24) var(--spacing-8) var(--spacing-8);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-16);
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-24);
   background: var(--color-card);
   overflow: hidden;
   cursor: pointer;
@@ -153,24 +187,30 @@
   background: var(--color-brand-primary-subtle);
 }
 
+/* The words fill the card's full width and height, stacked from the top; the
+   mark is pinned bottom-right on the foot and takes no space. */
 .cardHead {
+  position: relative;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--spacing-8);
-  padding-left: var(--spacing-4);
+  flex: 1;
+  flex-direction: column;
+  padding: 0 var(--spacing-8);
 }
 
 .cardText {
+  position: relative;
+  z-index: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
+  justify-content: flex-start;
   gap: var(--spacing-4);
   min-width: 0;
-  padding-bottom: var(--spacing-12);
+  padding-bottom: var(--spacing-40);
 }
 
 .cardName {
-  font-size: var(--font-size-200);
+  font-size: var(--font-size-300);
   font-weight: 600;
   letter-spacing: var(--track-600);
   line-height: 1.2;
@@ -187,34 +227,35 @@
 
 /* Product mark: top half only (168 × 84), resting on the foot. */
 .mark {
-  align-self: flex-end;
-  width: 140px;
-  height: 70px;
+  position: absolute;
+  right: var(--spacing-8);
+  bottom: 0;
+  width: 96px;
+  height: 48px;
   flex-shrink: 0;
   object-fit: contain;
   object-position: bottom;
   transition: transform 0.3s var(--ease-out);
 }
 
-/* Foot: lilac wash, lilac ring, r8; tag left, Find a Quote right. */
+/* Foot: lilac wash, lilac ring; Get a Quote on the right. */
+/* Foot: just Get a Quote, full width, 8 in from the card's edge. */
 .cardFoot {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-8);
-  padding: var(--spacing-6) var(--spacing-8);
-  border: var(--border-hairline) solid var(--color-brand-primary-border);
-  border-radius: var(--radius-12);
-  background: linear-gradient(90deg, var(--color-brand-primary-subtle), var(--color-card));
+  flex-direction: column;
+  align-items: stretch;
 }
 
+/* Immediate Purchase: the last line of the card's words, under the description. */
 .tag {
+  align-self: flex-start;
+  margin-top: var(--spacing-4);
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
-  padding: var(--spacing-8);
+  padding: var(--spacing-4);
   border: var(--border-hairline) solid var(--color-success-border);
-  border-radius: var(--radius-12);
+  border-radius: var(--radius-8);
   background: var(--color-card);
   color: var(--color-success);
   font-size: var(--font-size-75);
@@ -232,9 +273,11 @@
 .find {
   display: inline-flex;
   align-items: center;
+  justify-content: space-between; /* label left, arrow right */
   gap: var(--spacing-12);
   padding: var(--spacing-12) var(--spacing-20);
   border: var(--border-hairline) solid var(--color-border-subtle);
+  /* Concentric with the card: 24 less its 12 inset. */
   border-radius: var(--radius-12);
   background: var(--color-card);
   color: var(--color-brand-primary);
@@ -256,10 +299,23 @@
 
 
 
-/* Mobile: the manager's note and the product names at 14. */
-@media (max-width: 999px) {
-  .rmBody,
+/* A narrow card (smaller laptops) keeps its words roomy: a smaller mark. */
+.card {
+  container-type: inline-size;
+}
+
+/* Narrow cards (three across in the journey column): names at 16, not 18. */
+@container (max-width: 320px) {
   .cardName {
-    font-size: var(--font-size-100);
+    font-size: var(--font-size-200);
   }
 }
+
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+

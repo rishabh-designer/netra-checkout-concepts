@@ -29,9 +29,10 @@
   );
 }
 
-/* Paid (success page): the foot fades to a faint green instead of lilac
-   (the success tint at 40% on white). */
+/* Paid (success page): tighter 20/16 padding, and the foot fades to a faint
+   green instead of lilac (the success tint at 40% on white). */
 .card[data-paid] {
+  padding: var(--spacing-20) var(--spacing-16);
   --summary-foot: color-mix(in srgb, var(--color-success-subtle) 40%, var(--color-card));
 }
 
@@ -133,8 +134,19 @@
 }
 
 /* Paid: the pills row above the title pushes the product name down. */
+/* Paid (success page): a quieter heading and product name. */
+.card[data-paid] .title {
+  font-size: var(--font-size-200);
+}
+
+.card[data-paid] .productName {
+  font-size: var(--font-size-300);
+}
+
+/* 4 higher and 4 further right than checkout, with the tighter padding. */
 .card[data-paid] .productIconCrop {
-  top: var(--summary-icon-top, 131px);
+  top: 127px;
+  right: var(--spacing-16);
 }
 
 .productIcon {
@@ -189,6 +201,39 @@
   flex-direction: column;
   gap: var(--spacing-8);
   padding: 0 var(--spacing-12);
+}
+
+/* Paid: Price Details (the toggle), Download Invoice beside it, chevron far right. */
+.priceHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.priceChevron {
+  margin-left: auto;
+}
+
+.priceToggle {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.priceToggle:focus-visible {
+  outline: 2px solid var(--color-brand-primary-border);
+  outline-offset: 4px;
+  border-radius: var(--radius-6);
+}
+
+/* The breakdown folds in and out. */
+.rowsFold {
+  overflow: hidden;
 }
 
 .priceTitle {
@@ -315,10 +360,41 @@
   line-height: 1;
 }
 
+/* Pill left, chevron right. */
+.coveragesHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  align-self: stretch;
+}
+
+/* Rule and chips fold under the pill; the top padding stands in for the box's 12 gap. */
+.coveragesFold {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  align-self: stretch;
+  margin-top: calc(-1 * var(--spacing-12));
+  padding-top: var(--spacing-12);
+  overflow: hidden;
+}
+
 .coveragesRule {
   align-self: stretch;
   border: 0;
   border-top: var(--border-hairline) solid var(--color-border-subtle);
+}
+
+/* A Gold Quote's coverages wear BimaNetra's secondary (orange) theme. */
+.coverages[data-tone="gold"] {
+  border-color: var(--color-brand-secondary-border);
+  background: linear-gradient(127deg, var(--color-brand-secondary-subtle) 0%, var(--color-card) 12%, var(--color-card) 88%, var(--color-brand-secondary-subtle) 100%);
+}
+
+.coverages[data-tone="gold"] .coveragesPill {
+  border-color: var(--color-brand-secondary-border);
+  background: var(--color-brand-secondary-subtle);
+  color: var(--color-brand-secondary);
 }
 
 .coverageList {
@@ -344,12 +420,50 @@
 
 /* Paid: the amount in green Instrument Serif italic, right-aligned, the
    paid date under it. */
+/* Paid footer: the amount over its paid date, on the right. */
 .paid {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--spacing-24);
+}
+
+.paidTotal {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: var(--spacing-8);
-  padding-top: var(--spacing-24);
+  min-width: 0;
+  margin-left: auto;
+  text-align: right;
+}
+
+/* Download Invoice: small and quiet, white with a subtle stroke, no icon;
+   its label set like the header's Speak to an Expert
+   (12 SemiBold), in black. */
+.invoice {
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-neutral);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+  color: var(--color-label-primary);
+  font-family: inherit;
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  line-height: 1.2;
+  flex-shrink: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.invoice:hover {
+  border-color: var(--color-label-tertiary);
+}
+
+.invoice:focus-visible {
+  outline: 2px solid var(--color-brand-primary-border);
+  outline-offset: 2px;
 }
 
 .paidAmount {
@@ -369,6 +483,7 @@
   font-weight: 500;
   letter-spacing: var(--track-500);
   color: var(--color-label-primary);
+  white-space: nowrap;
 }
 
 /*

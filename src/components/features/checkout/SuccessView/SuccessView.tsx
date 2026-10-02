@@ -21,6 +21,7 @@ import { Disclaimer } from "../Disclaimer";
 import { SuccessTimeline, type SuccessTimelineItem } from "../SuccessTimeline";
 import { SuccessSkeleton } from "../SuccessSkeleton";
 import { RmCard, Suggestions } from "../SuccessMore";
+import type { NetraBotHandle } from "@/components/ui/NetraBot";
 import { SuccessBadge } from "../SuccessBadge";
 import { RiskHeldModal } from "../RiskHeldModal";
 import { readOrder, type PaidOrder } from "../order";
@@ -67,10 +68,11 @@ function CountUp({ to, delay }: { to: number; delay: number }) {
  * SuccessView — Checkout (Success), Figma 670:51168: the end of the journey,
  * after Pay on Review. A skeleton of the page holds for a beat, then it draws
  * in: the greeting and policy stats, the green badge popping with a burst,
- * the ikkat rule, the journey timeline row by row (Profiling, Quotes and
+ * the journey timeline row by row (Profiling, Quotes and
  * Checkout done; Due Diligence open on Sign Mandate Letter; Policy Issuance
- * waiting), the paid Purchase Summary sliding in beside it with its amount
- * counting up, and finally the RM card and BimaNetra Suggests. The copy
+ * waiting), then the ikkat rule and BimaNetra Suggests in the same column; the
+ * paid Purchase Summary slides in beside it with its amount counting up,
+ * over the RM card. The copy
  * follows the paid quote (Gold, immediate, or confirmed by an expert) and
  * the flow's case.
  * Usage: <SuccessView content={checkout} quotesHref="…" fallbackQuote={q} />
@@ -131,6 +133,16 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
     setToast(false);
     requestAnimationFrame(() => setToast(true));
   };
+  // The Suggests bot also eggs on the page's actions: a nod for the mandate,
+  // a thank-you bow for the invoice, and a curious look at whatever a
+  // chevron is about to reveal.
+  const bot = useRef<NetraBotHandle>(null);
+  const cheerSign = () => bot.current?.react("nodYes");
+  const cheerInvoice = () => bot.current?.react("thankYouBow");
+  const peekCoverages = () => bot.current?.react("curiousTilt");
+  const peekPrices = () => bot.current?.react("curiousPeek");
+  // Opening a fold earns a soft smile; closing one, a glance as it's tucked away.
+  const folded = (open: boolean) => bot.current?.react(open ? "softSmile" : "tuckAway");
 
   const pick = quote.gold ? s.quoteGold : s.quoteOther;
   // Bought outright (not an expert-confirmed quote): the Immediate Purchase
@@ -168,7 +180,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
     { pill: s.stepLabels[0], state: "done", title: s.profiling.title, body: fill(s.profiling.body, { product }), status: { label: s.profiling.statusLabel!, time: s.profiling.time! }, link: { label: s.riskReportLabel, onClick: () => notify("riskReport") } },
     { pill: s.stepLabels[1], state: "done", title: pick.title, body: fill(pick.body, { product, count: countLabel, insurer: quote.insurer }), status: { label: pick.statusLabel!, time: pick.time! }, tag: goldTag },
     { pill: s.stepLabels[2], state: "done", title: diligence.title, body: fill(diligence.body, { time }), status: { label: diligence.statusLabel!, time }, tag: purchaseTag },
-    { pill: s.stepLabels[3], state: "active", title: s.mandate.title, body: fill(s.mandate.body, { mandate: s.mandate.link }, ["mandate"]), action: { label: s.signLabel, onClick: sign } },
+    { pill: s.stepLabels[3], state: "active", title: s.mandate.title, body: fill(s.mandate.body, { mandate: s.mandate.link }, ["mandate"]), action: { label: s.signLabel, onClick: sign, onHover: cheerSign } },
     { pill: s.stepLabels[4], state: "pending", title: s.issuance.title, body: s.issuance.body, action: { label: s.viewPolicyLabel, pendingTip: s.viewPolicyPendingTip } },
   ];
   const company = checkout.companyName || result?.companyName || content.fallbackCompanyName;
@@ -190,7 +202,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
         variant="outline"
         onCta={() => notify("contactSupport")}
         // Mobile: Sign Mandate Letter moves to a footer (735:36146).
-        leadCta={mobile ? undefined : { label: s.signLabel, onClick: sign }}
+        leadCta={mobile ? undefined : { label: s.signLabel, onClick: sign, onHover: cheerSign }}
         icon={<span className={styles.headset} style={{ "--icon": `url(${content.header.supportIconSrc})` } as CSSProperties} aria-hidden />}
       />
 
@@ -244,15 +256,6 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                     </span>
                   </motion.div>
 
-                  <motion.div
-                    className={styles.rule}
-                    initial={reduced ? false : { clipPath: "inset(0 100% 0 0)" }}
-                    animate={{ clipPath: "inset(0 0% 0 0)" }}
-                    transition={{ duration: 0.9, delay: 0.35, ease: EASE }}
-                  >
-                    <IkkatDivider height={4} unit={22} />
-                  </motion.div>
-
                   <SuccessTimeline items={rows} delay={0.5} toggleLabels={s.stepToggle} />
 
                   {!s.hideNextUp && (
@@ -263,9 +266,21 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                       </Button>
                     </motion.div>
                   )}
+
+                  {/* Under the journey, in the same column: the ikkat rule, then BimaNetra Suggests. */}
+                  <motion.div
+                    className={styles.rule}
+                    initial={reduced ? false : { clipPath: "inset(0 100% 0 0)" }}
+                    animate={{ clipPath: "inset(0 0% 0 0)" }}
+                    transition={{ duration: 0.9, delay: 1.1, ease: EASE }}
+                  >
+                    <IkkatDivider height={4} unit={22} />
+                  </motion.div>
+
+                  <Suggestions suggestions={s.suggestions} delay={1.2} botRef={bot} />
                 </main>
-                {/* Right column once paid (Figma 670:51168): the summary (no beam)
-                    over the Relationship Manager. */}
+                {/* Right column once paid (Figma 670:51168): the summary (no beam),
+                    closing on the Relationship Manager. */}
                 <aside className={styles.side}>
                   <motion.div
                     className={styles.summary}
@@ -278,24 +293,19 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                     quote={quote}
                     company={company}
                     beam={false}
-                    coverages={count ? { label: countLabel, items: quote.coverages ?? quote.policy?.top ?? [] } : undefined}
-                    paid={{ label: s.paidLabel.replace("{date}", long(paidAt)), amount: <CountUp to={final} delay={0.7} /> }}
+                    coverages={count ? { label: countLabel, items: quote.coverages ?? quote.policy?.top ?? [], onToggleHover: peekCoverages, onToggle: folded } : undefined}
+                    paid={{
+                      label: s.paidLabel.replace("{date}", long(paidAt)),
+                      amount: <CountUp to={final} delay={0.7} />,
+                      invoice: { label: s.invoiceLabel, onClick: () => notify("downloadInvoice"), onHover: cheerInvoice },
+                      onToggleHover: peekPrices,
+                      onToggle: folded,
+                    }}
+                    after={<RmCard rm={s.rm} delay={0.9} />}
                   />
                   </motion.div>
-                  <RmCard rm={s.rm} delay={0.9} />
                 </aside>
               </div>
-
-              <motion.div
-                className={styles.pageRule}
-                initial={reduced ? false : { clipPath: "inset(0 100% 0 0)" }}
-                animate={{ clipPath: "inset(0 0% 0 0)" }}
-                transition={{ duration: 1, delay: 1.2, ease: EASE }}
-              >
-                <IkkatDivider height={4} unit={25.5} />
-              </motion.div>
-
-              <Suggestions suggestions={s.suggestions} delay={1.35} />
 
               <motion.div {...rise(1.7)}>
                 <Disclaimer title={content.disclaimer.title} toggleLabel={content.disclaimer.toggleLabel} paragraphs={[content.disclaimer.contextual.success, ...content.disclaimer.paragraphs]} />

@@ -139,6 +139,23 @@ export const ANIMATIONS: Record<string, NetraAnimation> = {
     step("confused", 900, 300),
     step("neutral", 200, 400),
   ]),
+  curiousTilt: animation("Curious tilt", "Reactions", "reaction", "Tilts its head with interest: what's in here?", [
+    step("curious", 900, 300),
+    step("neutral", 200, 400),
+  ]),
+  curiousPeek: animation("Curious peek", "Reactions", "reaction", "Glances down, then leans in, keen to see more.", [
+    step("lookDown", 300, 220),
+    step("curious", 700, 260, "snappy", 0.3),
+    step("neutral", 200, 400),
+  ]),
+  softSmile: animation("Soft smile", "Reactions", "reaction", "A small, pleased smile: there it is.", [
+    step("content", 500, 240),
+    step("neutral", 200, 360),
+  ]),
+  tuckAway: animation("Tuck away", "Reactions", "reaction", "A quick glance down as something is put away.", [
+    step("lookDown", 300, 200),
+    step("neutral", 200, 300),
+  ]),
   hmm: animation("Hmm", "Reactions", "reaction", "One eye narrows: not convinced.", [
     step("sceptical", 1000, 300),
     step("neutral", 200, 400),

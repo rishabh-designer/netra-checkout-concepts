@@ -15,7 +15,7 @@ import { IKKAT_OUTLINE } from "./shared";
 export const mockNetraBotDefinition: BotDefinition = {
   schema: "bimanetra/netrabot",
   schemaVersion: 2,
-  presetRevision: 2,
+  presetRevision: 4,
   name: "NetraBot",
   body: { surface: "outline", outline: IKKAT_OUTLINE, width: 260, height: 177.6, depth: 72, bevel: 16, color: "#4100cf" },
   eyeColor: "#ffffff",
