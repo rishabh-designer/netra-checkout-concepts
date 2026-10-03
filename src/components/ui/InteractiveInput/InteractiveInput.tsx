@@ -355,6 +355,7 @@ export function InteractiveInput({
                 aria-label="More information"
                 aria-describedby={tipId}
                 data-tooltip={infoTooltip}
+                data-tooltip-wrap
                 data-tooltip-side="left"
                 onClick={onInfoClick}
               >

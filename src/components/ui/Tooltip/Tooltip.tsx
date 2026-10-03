@@ -8,6 +8,8 @@ type Side = "top" | "bottom" | "left" | "right";
 interface Tip {
   text: string;
   side: Side;
+  /** Long explanations may wrap to a few lines (data-tooltip-wrap). */
+  wrap: boolean;
   x: number;
   y: number;
 }
@@ -30,7 +32,8 @@ function place(el: Element, side: Side): [number, number] {
  * picks top (default), bottom, left or right, and a top tip near the screen
  * edge drops below instead. `data-tooltip-overflow` shows an ellipsized
  * element's full text, only while it's actually cut off. Nothing wraps the control, so layouts don't move.
- * Mounted once in the root layout.
+ * Tips sit on one line; `data-tooltip-wrap` lets a long explanation run to
+ * two or three. Mounted once in the root layout.
  * Usage: <button aria-label="Close" data-tooltip="Close">…</button>
  */
 export function TooltipLayer() {
@@ -74,7 +77,7 @@ export function TooltipLayer() {
         let side = (el.getAttribute("data-tooltip-side") as Side | null) ?? "top";
         if (side === "top" && el.getBoundingClientRect().top < 48) side = "bottom";
         const [x, y] = place(el, side);
-        setTip({ text, side, x, y });
+        setTip({ text, side, wrap: el.hasAttribute("data-tooltip-wrap"), x, y });
       }, DELAY);
     };
     const onOver = (e: PointerEvent) => e.pointerType !== "touch" && show(e.target);
@@ -96,7 +99,7 @@ export function TooltipLayer() {
 
   if (!tip) return null;
   return createPortal(
-    <span ref={tipRef} role="tooltip" className={styles.tip} data-side={tip.side} style={{ left: tip.x, top: tip.y }}>
+    <span ref={tipRef} role="tooltip" className={styles.tip} data-side={tip.side} data-wrap={tip.wrap || undefined} style={{ left: tip.x, top: tip.y }}>
       {tip.text}
     </span>,
     document.body,

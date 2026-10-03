@@ -1,11 +1,12 @@
 /* Peetal tooltip (Figma 3437:64324), as on the input's info icon: recessed
    card, hairline divider ring, 14 Medium, r12. Fixed to the viewport so it
-   floats over drawers and modals. */
+   floats over drawers and modals. One line: it only wraps if the text is
+   wider than the screen itself (16 clear each side). */
 .tip {
   position: fixed;
   z-index: 1000;
   width: max-content;
-  max-width: 220px;
+  max-width: calc(100vw - 2 * var(--spacing-16));
   padding: var(--spacing-4) var(--spacing-8);
   border: 1px solid var(--color-divider);
   border-radius: var(--radius-12);
@@ -18,6 +19,11 @@
   letter-spacing: var(--track-500);
   pointer-events: none;
   animation: tip-in 0.15s ease both;
+}
+
+/* Long explanations (data-tooltip-wrap): two or three lines instead. */
+.tip[data-wrap] {
+  max-width: min(320px, calc(100vw - 2 * var(--spacing-16)));
 }
 
 .tip[data-side="top"] {
