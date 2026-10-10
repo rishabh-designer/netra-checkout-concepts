@@ -14,7 +14,7 @@
   letter-spacing: 0;
   font-feature-settings: var(--font-display-features);
   font-style: italic;
-  font-size: var(--font-size-heading-sm);
+  font-size: var(--font-size-heading-md);
   line-height: 1;
   color: var(--color-brand-primary-muted);
 }
@@ -182,6 +182,7 @@ a.cta {
   letter-spacing: 0;
   font-feature-settings: var(--font-display-features);
   font-style: italic;
+  /* 28, as "Ready to Upgrade?". */
   font-size: var(--font-size-heading-md);
   white-space: nowrap;
 }
@@ -247,9 +248,90 @@ a.cta {
   }
 }
 
-/* Mobile (the stacked page): the upgraded heading at 24. */
-@media (max-width: 1100px) {
-  .upgradedTitle {
-    font-size: var(--font-size-heading-sm);
-  }
+
+/* In the Score tab: the banner fills the tab, 24 between its blocks. */
+.upgradedBanner[data-fill] {
+  flex: 1;
+  min-height: 0;
+  gap: var(--spacing-24);
+  /* No card of its own, as Chat and Profile: it sits on the panel. */
+  border-color: transparent;
+  background: none;
+  overflow-y: auto;
+}
+
+/* The upgraded heading's own 12 between title and body, inside the 24. */
+.upgradedBanner[data-fill] .upgradedBody {
+  margin-top: calc(var(--spacing-12) - var(--spacing-24));
+}
+
+.banner[data-fill] {
+  flex: 1;
+  min-height: 0;
+  padding: var(--spacing-8);
+  background: none;
+}
+
+.extra {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  cursor: default;
+}
+
+/* Hairline rule between the badge and the list (Figma Divider Line). */
+.extra > * + * {
+  padding-top: var(--spacing-24);
+  border-top: var(--border-hairline) solid var(--color-border-neutral);
+}
+
+/* No-records banner: its 8 gap plus this, 16 above the badge. */
+.banner .extra {
+  padding-block: var(--spacing-8);
+}
+
+/* The badge sits 16 from the body text above and the rule below (the
+   banner's and the extra's 24 gaps, pulled in by 8). */
+.upgradedBanner[data-fill] .extra {
+  margin-top: calc(var(--spacing-16) - var(--spacing-24));
+}
+
+.extra > :first-child {
+  margin-bottom: calc(var(--spacing-16) - var(--spacing-24));
+}
+
+.upgradedBanner[data-fill] .company {
+  margin-bottom: 0;
+}
+
+/* Title row: the heading, and Case B's Notify Me on its right. */
+.titleRow {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+
+/* Each word holds its letters together; the title wraps between words
+   when it shares the row with a button. */
+.word {
+  display: inline-flex;
+}
+
+.upgradedTitle {
+  column-gap: 0.25em;
+}
+
+.upgradedTitle[data-wrap] {
+  flex-wrap: wrap;
+  min-width: 0;
+  white-space: normal;
+}
+
+.titleCta {
+  flex-shrink: 0;
 }

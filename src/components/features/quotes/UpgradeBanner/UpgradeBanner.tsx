@@ -37,6 +37,9 @@ export interface UpgradeBannerProps {
    *  Details accordion opening): the upgraded banner replays from its
    *  diagonal dither reveal. */
   replayKey?: number;
+  /** Upgraded: more under the body (the Score tab's badge and list); the
+   *  banner then fills its host's height. */
+  children?: ReactNode;
 }
 
 
@@ -62,7 +65,7 @@ const body: Variants = {
  * rises letter by letter while a burst of ikkat sparks fires behind it.
  * Usage: <UpgradeBanner stage={stage} content={upgrade} upgraded={upgraded} progress={mv} onSimulate={fn} />
  */
-export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, onReset, company, notify, replayKey }: UpgradeBannerProps) {
+export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, onReset, company, notify, replayKey, children }: UpgradeBannerProps) {
   const reduced = useReducedMotion();
   // Already upgraded on arrival (a reload, an Edit Details save): the banner
   // rests, so its sparks and light stay still too, matching its title.
@@ -94,6 +97,7 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
         <motion.div
           key={`upgraded-${replayKey ?? 0}`}
           className={styles.upgradedBanner}
+          data-fill={children ? true : undefined}
           data-resettable={onReset ? true : undefined}
           role={onReset ? "button" : undefined}
           tabIndex={onReset ? 0 : undefined}
@@ -113,32 +117,46 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
               {company}
             </div>
           )}
-          <motion.p className={styles.upgradedTitle} variants={enter} initial="hidden" animate="shown" aria-label={upgraded.title}>
-            {Array.from(upgraded.title).map((c, i) => (
-              <span key={i} className={styles.charMask} aria-hidden>
-                <motion.span className={styles.char} variants={reduced ? undefined : char}>
-                  {c === " " ? " " : c}
-                </motion.span>
-              </span>
-            ))}
-          </motion.p>
+          {/* Title, with Notify Me (Case B) on its right to save a row. */}
+          <div className={styles.titleRow}>
+            <motion.p className={styles.upgradedTitle} data-wrap={notify ? true : undefined} variants={enter} initial="hidden" animate="shown" aria-label={upgraded.title}>
+              {/* Words stay whole, so a long title wraps between them. */}
+              {upgraded.title.split(" ").map((word, w) => (
+                <span key={w} className={styles.word}>
+                  {Array.from(word).map((c, i) => (
+                    <span key={i} className={styles.charMask} aria-hidden>
+                      <motion.span className={styles.char} variants={reduced ? undefined : char}>
+                        {c}
+                      </motion.span>
+                    </span>
+                  ))}
+                </span>
+              ))}
+            </motion.p>
+            {notify && (
+              // Its own click, not the hidden reset on the banner.
+              <motion.div className={styles.titleCta} variants={reduced ? undefined : body} initial="hidden" animate="shown">
+                <button
+                  type="button"
+                  className={`${styles.cta} ${styles.ctaNeutral}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    notify.onClick();
+                  }}
+                >
+                  {notify.label}
+                </button>
+              </motion.div>
+            )}
+          </div>
           <motion.p className={styles.upgradedBody} variants={reduced ? undefined : body} initial="hidden" animate="shown">
             {upgraded.body}
           </motion.p>
-          {notify && (
-            // Its own click, not the hidden reset on the banner.
-            <motion.div className={styles.footer} data-align="start" variants={reduced ? undefined : body} initial="hidden" animate="shown">
-              <button
-                type="button"
-                className={`${styles.cta} ${styles.ctaNeutral}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  notify.onClick();
-                }}
-              >
-                {notify.label}
-              </button>
-            </motion.div>
+          {children && (
+            // The badge and lists keep their own clicks off the hidden reset.
+            <div className={styles.extra} onClick={(e) => e.stopPropagation()}>
+              {children}
+            </div>
           )}
         </motion.div>
       ) : (
@@ -216,12 +234,36 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
  * shell and type as "Ready to Upgrade?".
  * Usage: <NoRecordsBanner content={noRecords} />
  */
-export function NoRecordsBanner({ content, company, onSchedule }: { content: NoRecordsBannerContent; company?: ReactNode; onSchedule?: () => void }) {
+export function NoRecordsBanner({
+  content,
+  company,
+  onSchedule,
+  onNotify,
+  children,
+}: {
+  content: NoRecordsBannerContent;
+  company?: ReactNode;
+  onSchedule?: () => void;
+  /** The Score tab: a Notify Me in place of the expert call. */
+  onNotify?: () => void;
+  /** The Score tab: the not-scored badge under the copy; fills the host. */
+  children?: ReactNode;
+}) {
   return (
-    <div className={styles.banner}>
+    <div className={styles.banner} data-fill={children ? true : undefined}>
       {company && <div className={styles.company}>{company}</div>}
-      <p className={styles.title}>{content.title}</p>
+      {/* The Score tab: Notify Me on the title's right, saving a row. */}
+      <div className={styles.titleRow}>
+        <p className={styles.title}>{content.title}</p>
+        {onNotify && (
+          <button type="button" className={`${styles.cta} ${styles.ctaNeutral} ${styles.titleCta}`} onClick={onNotify}>
+            {content.notifyLabel}
+          </button>
+        )}
+      </div>
       <p className={styles.body}>{content.body}</p>
+      {children && <div className={styles.extra}>{children}</div>}
+      {!onNotify && (
       <div className={styles.footer} data-align="start">
         {/* Phones call the experts; larger screens book a meeting instead. */}
         <a href={content.ctaHref} className={`${styles.cta} ${styles.phoneOnly}`}>
@@ -231,6 +273,7 @@ export function NoRecordsBanner({ content, company, onSchedule }: { content: NoR
           {content.webCtaLabel}
         </button>
       </div>
+      )}
     </div>
   );
 }

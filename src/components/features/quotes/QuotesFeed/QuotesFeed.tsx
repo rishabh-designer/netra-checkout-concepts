@@ -42,9 +42,9 @@ export interface QuotesFeedProps {
 
 /* The grid picks its column count from the feed's width: one up, until two
    cards fit side by side, then up to three (Figma 658:45979: 346-wide cards,
-   24 apart). QuotesSkeleton mirrors these breakpoints in CSS (664 / 1008px)
+   24 apart). QuotesSkeleton mirrors these breakpoints in CSS (632 / 960px)
    - keep them in step. */
-const MIN_COMPACT = 320;
+const MIN_COMPACT = 304;
 const GRID_GAP = 24;
 const MAX_COLS = 3;
 /* The gated Gold Quote (Case B) remembers its Additional Details for the run. */
@@ -112,6 +112,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     viewCoverages: content.viewCoveragesLabel,
     coverageCount: content.coverageCountLabel,
     personalizedCount: content.personalizedCountLabel,
+    riskFit: content.riskFitLabel,
     viewFeatures: content.viewFeaturesLabel,
     coveragesUnavailable: content.coveragesUnavailableLabel,
     ratings: content.ratingLabels,
@@ -130,7 +131,11 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   const [gateStep, setGateStep] = useState<"modal" | "drawer" | null>(null);
   const closeGate = useCallback(() => setGateStep(null), []);
   const gold = (caseId && content.goldQuoteByCase?.[caseId]) ?? content.goldQuote;
-  const base = (caseId && content.quotesByCase?.[caseId]) ?? content.quotes;
+  const all = (caseId && content.quotesByCase?.[caseId]) ?? content.quotes;
+  // The Gold Quote is an insurer's own quote nudged to fit the risk (A's is
+  // Generali's): that insurer's plain quote never shows, so the count reads
+  // one less until the reveal adds the Gold back (5 → 6).
+  const base = ghostFirst ? all.filter((q) => q.insurer !== gold.insurer) : all;
   const list = ghostFirst && revealed ? [gold, ...base] : base;
   // The revealed Gold Quote's price strikes down once the card lands.
   const [revealIntro, setRevealIntro] = useState<PriceIntro>(() => (revealed ? "done" : "idle"));

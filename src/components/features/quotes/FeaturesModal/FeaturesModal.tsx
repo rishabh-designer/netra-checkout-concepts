@@ -9,6 +9,7 @@ import { CloseButton, IconButton } from "@/components/ui/IconButton";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { coverageChipLabel, lockBeam, type QuoteCardLabels } from "../QuoteCard";
+import { Cross, Tick } from "../RiskScore";
 import cardStyles from "../QuoteCard/QuoteCard.module.css";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./FeaturesModal.module.css";
@@ -41,22 +42,11 @@ const POLICY_TABS = ["overview", "coverages", "exclusions"] as const;
 type PolicyTab = (typeof POLICY_TABS)[number];
 const isPolicyTab = (key: string): key is PolicyTab => (POLICY_TABS as readonly string[]).includes(key);
 
-/* Mobile (the stacked modal, ≤900px): the item markers drop to 14, with
-   their 14px headings (marker = label size). */
-
-/** Item marker per tab tone: blue tick (658:50478), red cross, purple dot. */
-function Marker({ tone, gold = false }: { tone: FeatureTab["tone"]; gold?: boolean }) {
-  const size = useAtMost("sheet") ? 14 : 16;
-  // The Gold Quote's ticks are BimaNetra's orange; every other quote's are blue.
-  if (tone === "covered") return <SquareCheckbox tone={gold ? "secondary" : "info"} state="checked" size={size} className={styles.marker} />;
-  if (tone === "excluded") {
-    return (
-      <svg viewBox="0 0 16 16" width={size} height={size} fill="none" aria-hidden className={styles.marker}>
-        <rect width="16" height="16" rx="4" fill="var(--color-error)" />
-        <path d="m5.3 5.3 5.4 5.4m0-5.4-5.4 5.4" stroke="var(--color-label-inverse)" strokeWidth="1.4" strokeLinecap="round" />
-      </svg>
-    );
-  }
+/** Item marker per tab tone, as the Score tab's lists: a green circle tick
+ *  (covered), a red circle cross (excluded), a purple dot (info). */
+function Marker({ tone }: { tone: FeatureTab["tone"] }) {
+  if (tone === "covered") return <Tick size={14} className={styles.marker} />;
+  if (tone === "excluded") return <Cross size={14} className={styles.marker} />;
   return <span className={styles.dot} aria-hidden />;
 }
 
@@ -90,6 +80,9 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
   const tab = content.tabs.find((t) => t.key === active) ?? content.tabs[0];
   // Overview, coverages and exclusions come from the quote's own policy; its
   // top coverages carry the Top Feature (or, on Gold, Personalized) pill.
+  // Once the risk is scored, the pills mark the business's key lines instead.
+  const fit = quote?.riskFit;
+  const keyMet = new Set(fit?.lines.filter((l) => l.met).map((l) => l.title) ?? []);
   const top = new Set(quote?.coverages ?? quote?.policy?.top ?? []);
   const own =
     quote?.policy && isPolicyTab(tab.key)
@@ -98,8 +91,21 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
         ? content.territoryItems[quote.territory]
         : null;
   const items: (FeatureItem & { top?: boolean })[] = (own ?? tab.items).map((it) =>
-    tab.key === "coverages" ? { ...it, top: top.has(it.title) } : it,
+    fit
+      ? tab.key === "coverages" || tab.key === "exclusions"
+        ? { ...it, top: keyMet.has(it.title) }
+        : it
+      : tab.key === "coverages"
+        ? { ...it, top: top.has(it.title) }
+        : it,
   );
+  const pill = fit
+    ? tab.key === "exclusions"
+      ? { label: content.keyExclusionLabel, tip: content.keyExclusionTip }
+      : { label: content.keyCoverageLabel, tip: content.keyCoverageTip }
+    : quote?.gold
+      ? { label: content.personalizedLabel, tip: content.personalizedTip }
+      : { label: content.topFeatureLabel, tip: content.topFeatureTip };
   const summary = quote?.coverages ?? quote?.policy?.top ?? [];
 
   // Arrow keys move between tabs (WAI-ARIA tabs pattern).
@@ -198,7 +204,19 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
 
               <div className={styles.coverages}>
                 <p className={styles.coveragesTitle}>{coverageChipLabel(quote, labels)}</p>
-                {!!summary.length && (
+                {fit ? (
+                  // Scored: every key line, met or not (greyed).
+                  <ul className={styles.coverageList} data-fit>
+                    {fit.lines.map((l) => (
+                      <li key={l.title} className={styles.coverage} data-met={l.met || undefined}>
+                        {/* Same marks as the Score tab's lists: green coverage,
+                            red exclusion; grey where this quote misses it. */}
+                        {l.kind === "coverage" ? <Tick muted={!l.met} /> : <Cross muted={!l.met} />}
+                        {l.title}
+                      </li>
+                    ))}
+                  </ul>
+                ) : !!summary.length && (
                   <ul className={styles.coverageList}>
                     {summary.map((c) => (
                       <li key={c} className={styles.coverage}>
@@ -265,11 +283,11 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                   {items.map((item) => (
                     <li key={item.title} className={styles.item}>
                       <p className={styles.itemTitle} data-tone={tab.tone}>
-                        <Marker tone={tab.tone} gold={tone === "gold"} />
+                        <Marker tone={tab.tone} />
                         {item.title}
                         {item.top && (
-                          <span className={styles.topPill} data-tooltip={quote.gold ? content.personalizedTip : content.topFeatureTip}>
-                            {quote.gold ? content.personalizedLabel : content.topFeatureLabel}
+                          <span className={styles.topPill} data-tooltip={pill.tip}>
+                            {pill.label}
                           </span>
                         )}
                       </p>

@@ -169,7 +169,6 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
                     {content.backLabel}
                   </BackButton>
                   <h2 className={styles.title}>{content.title}</h2>
-                  <p className={styles.subtitle}>{content.subtitle.replace("{count}", String(quotes.length))}</p>
                 </div>
                 {slots.map((q, i) =>
                   q ? (

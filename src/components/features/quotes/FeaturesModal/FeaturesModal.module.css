@@ -599,3 +599,31 @@
     min-height: 0;
   }
 }
+
+/* Scored: all eleven key lines, closer together; unmet ones muted. */
+.coverageList[data-fit] {
+  gap: var(--spacing-6);
+}
+
+.coverageList[data-fit] .coverage {
+  padding: var(--spacing-4) var(--spacing-6);
+  font-size: var(--font-size-75);
+}
+
+.coverageList[data-fit] .coverage:not([data-met]) {
+  color: var(--color-label-tertiary);
+}
+
+/* Room for the eleven: a tighter summary and a smaller D&O mark. */
+.summary:has([data-fit]) .summaryTop {
+  gap: var(--spacing-16);
+}
+
+.coverages:has([data-fit]) {
+  gap: var(--spacing-12);
+}
+
+.summary:has([data-fit]) .productIcon {
+  width: 48px;
+  height: 48px;
+}

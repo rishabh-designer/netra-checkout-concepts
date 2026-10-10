@@ -7,12 +7,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-24);
-  width: 100%;
+  /* 16 of visible side padding: 24 of room for the cards' glow, pulled
+     out by 8 into the column's gutters. */
+  width: calc(100% - 2 * var(--spacing-16));
   height: 100%;
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: none;
-  margin-inline: calc(-1 * var(--spacing-24));
+  margin-inline: calc(var(--spacing-16) - var(--spacing-24));
   padding: var(--spacing-16) var(--spacing-24) 96px;
   box-sizing: content-box;
 }
@@ -173,6 +175,7 @@
   .feed {
     height: auto;
     overflow: visible;
+    width: 100%;
     margin-inline: 0;
     padding-inline: 0;
     box-sizing: border-box;

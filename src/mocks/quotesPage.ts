@@ -2,6 +2,7 @@ import type { CompareViewContent, FeaturesDrawerContent, GoldGateContent, Quotes
 import { TAG_TIPS } from "./tagTips";
 import { mockCheckoutContent } from "./checkout";
 import { GOLD_A_POLICY, GOLD_B_POLICY, INSURER_POLICIES } from "./policies";
+import { RISK_FIT_BY_CASE } from "./riskFit";
 
 const ICICI = "/Insurance.Comp/ICICI.webp";
 const GENERALI = "/Insurance.Comp/Generali.webp";
@@ -135,7 +136,6 @@ const INDIA_TERRITORY = [
  *  row. Facts only, the same rows for every quote, no ranking. */
 const COMPARE_VIEW: CompareViewContent = {
   title: "Compare Quotes",
-  subtitle: "{count} quotes, side by side",
   backLabel: "Back to Quotes",
   addLabel: "Add Quote",
   removeLabel: "Remove {insurer} from compare",
@@ -229,6 +229,10 @@ const FEATURES_DRAWER: FeaturesDrawerContent = {
   personalizedLabel: "Personalised",
   topFeatureTip: "One of this policy's headline coverages",
   personalizedTip: "Added by BimaNetra for your business",
+  keyCoverageLabel: "Key Coverage",
+  keyExclusionLabel: "Key Exclusion",
+  keyCoverageTip: "One of the coverages your risk score says your business needs",
+  keyExclusionTip: "Carved out only as narrowly as your business needs",
   defaultTab: "coverages",
   tabs: [
     {
@@ -364,7 +368,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     ],
     upgrade: {
       title: "Ready to Upgrade?",
-      body: "We're verifying your business now and are preparing a special quote for you. We'll inform you when it's ready.",
+      body: "We're verifying {company} now and are preparing a special quote for you. We'll inform you when it's ready.",
       percent: 29,
       timeLeft: "Arriving Soon",
       ctaLabel: "Notify Me",
@@ -377,20 +381,38 @@ export const mockQuotesPageContent: QuotesPageContent = {
     },
     noRecords: {
       title: "Want a Sharper Price?",
-      body: "We couldn't find public records to verify your business, so these are standard quotes. Our experts can help you find the right cover.",
+      body: "We couldn't find public records to verify {company}, so these are standard quotes. Our experts can help you find the right cover.",
       ctaLabel: "Speak to an Expert",
       ctaHref: "tel:+919007296854",
       webCtaLabel: "Schedule a Call",
+      notifyLabel: "Notify Me",
     },
     upgraded: {
       title: "You’re Upgraded!",
-      body: "We’ve verified your business and priced a Gold Quote just for you.",
+      body: "We’ve verified {company} and priced a Gold Quote just for you.",
       titleByCase: { B: "We’re Upgrading You!" },
       notifyByCase: { B: "Notify Me" },
       bodyByCase: {
-        B: "We’ve verified parts of your business and drafted a Gold Quote. It gets its price and insurer once our report is ready.",
+        B: "We’ve verified parts of {company} and drafted a Gold Quote. It gets its price and insurer once our report is ready.",
       },
       resetLabel: "Reset the upgrade demo",
+    },
+    // Fills {company} in the banners' copy when we don't know the name (off-flow).
+    companyFallback: "your business",
+    legalNameLabel: "Legal Company Name",
+    legalNameVerified: "Confirmed with the MCA's company records",
+    tabs: { score: "Score", chat: "Chat", profile: "Profile" },
+    score: {
+      label: "Business Health",
+      info: "How healthy your business looks to insurers, out of 100, from what we verified. Higher is better.",
+      mutedInfo: "We couldn't check your business's health without public records about it.",
+      listTitle: "{count} Key Coverages & Exclusions",
+      byCase: { A: "82.4", B: "80*", C: "N/A" },
+      // B's score is provisional (only parts verified): its asterisk explained.
+      infoByCase: {
+        B: "*Provisional. How healthy your business looks to insurers, out of 100, from what we've verified so far. It's final once our report is ready.",
+      },
+      listLength: 6,
     },
   },
   feed: {
@@ -479,6 +501,8 @@ export const mockQuotesPageContent: QuotesPageContent = {
     viewCoveragesLabel: "View Coverages",
     coverageCountLabel: "{count} Top Coverages",
     personalizedCountLabel: "{count} Personalised Coverages",
+    riskFitLabel: "{met}/{total} Match",
+    riskFitByCase: RISK_FIT_BY_CASE,
     coveragesUnavailableLabel: "Unavailable",
     ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },
     poweredByLabel: "Secured with BimaNetra",

@@ -1,44 +1,109 @@
-/* Figma 658:45797 (322 wide there; 280 here): full column height,
-   translucent lavender → white wash, r16. */
+/* Figma 770:26992 (mega-header): full column height, white card, lavender
+   hairline, r16; the tab strip over the chosen tab, 12 between. */
 .panel {
   position: relative;
-  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  width: 320px;
   max-width: 100%;
   height: 100%;
+  min-height: 0;
   flex-shrink: 0;
   padding: var(--spacing-8);
   border: var(--border-hairline) solid var(--color-brand-primary-border);
   border-radius: var(--radius-16);
-  background: linear-gradient(to bottom, rgba(244, 241, 255, 0.5), rgba(255, 255, 255, 0.5) 50%);
+  background: var(--color-card);
   overflow: hidden;
-  transition: width 0.38s var(--ease-standard);
 }
 
-.panel[data-collapsed] {
-  width: 70px;
+/* Tab strip (776:32098): three equal tabs, 12 apart, flush with the
+   panel's own padding; phones add the accordion's chevron at the end. */
+.tabBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  flex-shrink: 0;
 }
 
-/* Expanded layer — fixed width so it is clipped (not reflowed) as the panel
-   narrows; it also defines the panel's height, so the rail can pin to bottom. */
-.expanded {
+.tabs {
+  flex: 1;
+  display: flex;
+  gap: var(--spacing-12);
+}
+
+.tab {
+  position: relative;
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: var(--spacing-4) 6px;
+  border: 0;
+  background: none;
+  font-size: var(--font-size-200);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1;
+  color: var(--color-brand-primary-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.tab:hover,
+.tab[aria-selected="true"] {
+  color: var(--color-brand-primary);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+/* The selected tab's tint and 2px underline; slides between tabs. */
+.ink {
+  position: absolute;
+  inset: 0;
+  border-bottom: 2px solid var(--color-brand-primary);
+  background: var(--color-brand-primary-tint);
+}
+
+.tabLabel {
+  position: relative;
+}
+
+.collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4);
+  border: 0;
+  background: transparent;
+  color: var(--color-label-secondary);
+  cursor: pointer;
+}
+
+/* A tab's content fills the rest of the column. */
+.pane {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: var(--spacing-24);
-  width: 263px;
-  height: 100%;
-  transition: opacity 0.22s ease;
 }
 
-.panel[data-collapsed] .expanded {
-  opacity: 0;
-  pointer-events: none;
+.pane[hidden] {
+  display: none;
 }
 
+/* Profile (776:32424): Your Details on a white card, r12. */
 .details {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
+  padding: var(--spacing-8);
+  border-radius: var(--radius-12);
+  overflow-y: auto;
 }
 
 .head {
@@ -57,17 +122,11 @@
   color: var(--color-brand-primary);
 }
 
-.headActions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-8);
-}
-
 .edit {
   padding: var(--spacing-8) var(--spacing-10);
   line-height: 1;
   border: var(--border-hairline) solid var(--color-brand-primary-subtle-bold);
-  border-radius: var(--radius-8);
+  border-radius: var(--radius-12); /* one step rounder than Figma's r8 */
   background: var(--color-brand-primary-subtle);
   color: var(--color-brand-primary);
   font-size: var(--font-size-75);
@@ -79,104 +138,6 @@
 
 .edit:hover {
   background: var(--color-brand-primary-faint);
-}
-
-.collapse {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-4);
-  border: 0;
-  background: transparent;
-  color: var(--color-label-secondary);
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
-
-.collapse:hover {
-  color: var(--color-brand-primary);
-}
-
-/* Collapsed rail — absolutely stacked over the (faded) expanded layer. */
-.rail {
-  position: absolute;
-  inset: var(--spacing-8);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--spacing-12);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease 0.08s;
-}
-
-.panel[data-collapsed] .rail {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.railTop {
-  display: flex;
-  justify-content: center;
-  padding-bottom: var(--spacing-8);
-  border-bottom: var(--border-hairline) solid var(--color-brand-primary-subtle-bold);
-}
-
-.railToggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-4);
-  border: 0;
-  background: transparent;
-  color: var(--color-label-secondary);
-  cursor: pointer;
-  transform: scaleX(-1); /* [< |] -> [| >] (expand) */
-  transition: color 0.15s ease;
-}
-
-.railToggle:hover {
-  color: var(--color-brand-primary);
-}
-
-.railMeter {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-8);
-  padding: var(--spacing-8);
-  border-radius: var(--radius-12);
-  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-primary-subtle));
-}
-
-.railPercent {
-  font-size: var(--font-size-300);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1;
-  color: var(--color-brand-primary);
-}
-
-.railTrack {
-  height: 3px;
-  border-radius: 1000px;
-  corner-shape: round;
-  background: var(--color-brand-primary-subtle-bold);
-  overflow: hidden;
-}
-
-.railFill {
-  height: 100%;
-  border-radius: 1000px;
-  corner-shape: round;
-  background: var(--color-brand-primary);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .panel,
-  .expanded,
-  .rail {
-    transition: none;
-  }
 }
 
 .rows {
@@ -208,50 +169,36 @@
   color: var(--color-label-primary);
 }
 
+/* Below the 2-column width: the panel runs full width at its content's
+   height and folds shut to its tab strip (an accordion). */
 @media (max-width: 1100px) {
-  /* Mobile: no padding of its own, 16 corners. */
   .panel {
     width: 100%;
     height: auto;
-    padding: 0;
-    border-radius: var(--radius-16);
   }
-  .expanded {
-    width: 100%;
-  }
-  /* Accordion: collapsing keeps the panel full width with just its header;
-     the details list folds shut and the banner below hides. No side rail. */
   .panel[data-collapsed] {
-    width: 100%;
-  }
-  .panel[data-collapsed] .expanded {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .rail {
-    display: none;
-  }
-  .rows {
-    max-height: 640px;
-    overflow: hidden;
-    transition: max-height 0.35s var(--ease-standard), opacity 0.25s ease;
-  }
-  .panel[data-collapsed] .rows {
-    max-height: 0;
-    opacity: 0;
-  }
-  /* Folded, the banner under the list (company, upgraded / no-records
-     note) goes too: only the header row remains. */
-  .panel[data-collapsed] .expanded > :not(.details) {
-    display: none;
-  }
-  /* …and the header's underline, with nothing under it to divide. */
-  .panel[data-collapsed] .head {
-    border-bottom-color: transparent;
-  }
-  /* Nothing under the header once folded, so no gap to it either. */
-  .panel[data-collapsed] .expanded,
-  .panel[data-collapsed] .details {
     gap: 0;
   }
+  /* The chat's log needs a height to scroll in. */
+  .pane[data-chat] {
+    height: 60vh;
+    height: 60dvh;
+    flex: none;
+  }
+}
+
+/* Legal Company Name: the name, then a green tick (confirmed company). */
+.company {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  line-height: 1.2;
+}
+
+.verified {
+  display: inline-flex;
+  flex-shrink: 0;
+  /* The 12 tick centred on the 14/1.2 line. */
+  padding-top: 2.5px;
+  cursor: help;
 }

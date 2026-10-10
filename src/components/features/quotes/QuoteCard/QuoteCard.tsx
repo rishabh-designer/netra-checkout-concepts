@@ -62,6 +62,8 @@ export interface QuoteCardLabels {
   coverageCount: string;
   /** The Gold Quote's chip: "{count} Personalized Coverages". */
   personalizedCount: string;
+  /** Once the risk is scored: "{met}/{total} Match". */
+  riskFit?: string;
   /** Top Coverages view only: the View All Features pill, the offline
    *  "Unavailable" block and the rating chips. */
   viewFeatures?: string;
@@ -99,6 +101,9 @@ export interface QuoteCardProps {
 
 /** The coverages chip copy for a quote (count first, or the bare label). */
 export function coverageChipLabel(quote: QuoteCardData, labels: QuoteCardLabels) {
+  if (quote.riskFit && labels.riskFit) {
+    return labels.riskFit.replace("{met}", String(quote.riskFit.met)).replace("{total}", String(quote.riskFit.total));
+  }
   const count = quote.coverages?.length ?? 0;
   if (!count) return labels.topCoverages;
   return (quote.gold ? labels.personalizedCount : labels.coverageCount).replace("{count}", String(count));
@@ -353,7 +358,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
 
               <div className={styles.foot} data-reveal="coverage">
                 <button type="button" className={styles.chip} onClick={onViewFeatures} aria-haspopup="dialog">
-                  {!quote.coverages?.length && labels.viewCoverages ? labels.viewCoverages : coverageChipLabel(quote, labels)}
+                  {!quote.coverages?.length && !quote.riskFit && labels.viewCoverages ? labels.viewCoverages : coverageChipLabel(quote, labels)}
                   <ChipChevron />
                 </button>
                 {compare}

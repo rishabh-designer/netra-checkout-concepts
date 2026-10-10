@@ -1,0 +1,159 @@
+/* Risk score badge (Figma 776:32113): a 210 square of three glowing hex
+   rings and the diamond mark, the score's pill centred over them. */
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+  align-self: center;
+}
+
+.art {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  /* Scaled as one piece so the outer ring (with its glow) is 160 tall:
+     160 / 225.25 of Figma's 210 frame. Rings, diamond and pill keep
+     their proportions. */
+  zoom: 0.7103;
+}
+
+.ring,
+.diamond {
+  position: absolute;
+}
+
+/* The ring SVGs carry their glow outside their box (sized inline). */
+.ring img {
+  position: absolute;
+  display: block;
+  max-width: none;
+}
+
+.diamond {
+  left: 50%;
+  top: 50%;
+  width: 129px;
+  height: 135px;
+  translate: -50% -50%;
+}
+
+.diamond img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The score: white serif on the orange pill, a soft glow round it. */
+.pill {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  padding: var(--spacing-4) 44px;
+  border: 1px solid var(--color-brand-secondary);
+  border-radius: var(--radius-16);
+  background: linear-gradient(to bottom, var(--color-brand-secondary) 50%, var(--color-brand-secondary-deep));
+  backdrop-filter: blur(6.6px);
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-style: italic;
+  font-size: 52px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-label-inverse);
+}
+
+.caption {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1;
+  color: var(--color-label-secondary);
+}
+
+.info {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-info);
+  cursor: help;
+}
+
+/* Not scored (Case C): the art fades to grey, the pill goes neutral. */
+.badge[data-muted] .ring,
+.badge[data-muted] .diamond {
+  filter: grayscale(1);
+}
+
+.badge[data-muted] .art > .ring,
+.badge[data-muted] .art > .diamond {
+  opacity: 0.45 !important;
+}
+
+.badge[data-muted] .pill {
+  border-color: var(--color-border-neutral);
+  background: linear-gradient(to bottom, var(--color-label-tertiary) 50%, var(--color-label-secondary));
+}
+
+/* Key Coverages / Key Exclusions (Figma 776:32143). */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  /* Inline only: the host's divider owns the space above. */
+  padding-inline: var(--spacing-8);
+}
+
+.listTitle {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: 0;
+  line-height: 1.2;
+  color: var(--color-brand-primary);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.4;
+  color: var(--color-label-primary);
+}
+
+/* The 10 mark centred on the first 14/1.4 line. */
+.mark {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding-top: 4.8px;
+}
+
+/* A provisional score's asterisk: small, raised to the numerals' top. */
+.note {
+  display: inline-block;
+  margin-left: 0.04em;
+  font-size: 0.4em;
+  vertical-align: top;
+  transform: translateY(0.15em);
+}

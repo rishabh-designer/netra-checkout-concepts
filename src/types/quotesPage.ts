@@ -64,6 +64,32 @@ export interface DetailsPanelContent {
    *  its field label (screen readers) and the info icon's tooltip. */
   companyLabel: string;
   companyInfo: string;
+  /** Profile's first row: the company's legal name, and the tooltip on its
+   *  green tick (confirmed against public records). */
+  legalNameLabel: string;
+  /** Stands in for {company} in the banners' copy when the name is unknown. */
+  companyFallback: string;
+  legalNameVerified: string;
+  /** The panel's tab strip (Figma 770:26992): Score | Chat | Profile. */
+  tabs: { score: string; chat: string; profile: string };
+  /** The Score tab: the risk score badge and the Gold Quote's key lines. */
+  score: RiskScoreContent;
+}
+
+export interface RiskScoreContent {
+  label: string;
+  /** The info icon's tooltip, scored and not (Case C). */
+  info: string;
+  mutedInfo: string;
+  /** One list: the key coverages, then the key exclusions. `{count}` is
+   *  how many lines it holds. */
+  listTitle: string;
+  /** Each case's score as shown; "N/A" where it couldn't be scored. */
+  byCase: Record<QuoteCaseId, string>;
+  /** A case's own tooltip where its score needs a note (B's asterisk). */
+  infoByCase?: Partial<Record<QuoteCaseId, string>>;
+  /** How many lines each list shows. */
+  listLength: number;
 }
 
 export interface NoRecordsBannerContent {
@@ -74,6 +100,8 @@ export interface NoRecordsBannerContent {
   ctaHref: string;
   /** On larger screens, a meeting booking in place of the call. */
   webCtaLabel: string;
+  /** In the Score tab: we'll be in touch once the risk can be scored. */
+  notifyLabel: string;
 }
 
 /** "Need Help?" banner in the feed header — IRDAI experts + phone. */
@@ -120,7 +148,21 @@ export interface QuoteCardData {
   /** This quote's own policy wording for the details modal (Overview,
    *  Coverages/Extensions, Exclusions); the other tabs stay standard. */
   policy?: QuotePolicy;
+  /** How many of the business's key coverages and exclusions (the Score
+   *  tab's lines) this quote meets; replaces the coverages chip's copy. */
+  riskFit?: RiskFit;
 }
+
+/** How a quote meets a scored business's key lines (the Score tab's). */
+export interface RiskFit {
+  met: number;
+  total: number;
+  lines: { title: string; kind: "coverage" | "exclusion"; met: boolean }[];
+}
+
+/** Per insurer, the key lines its quote meets in its own wording; joins its
+ *  policy for that case. `replaces` drops the broader standard line. */
+export type RiskFitByInsurer = Record<string, { coverages: FeatureItem[]; exclusions: (FeatureItem & { replaces?: string })[] }>;
 
 export type QuoteTerritory = "worldwide" | "india";
 
@@ -159,8 +201,6 @@ export interface CompareSection {
 /** The compare view (Compare Now): picked quotes side by side. */
 export interface CompareViewContent {
   title: string;
-  /** Under the title; `{count}` is the number of quotes. */
-  subtitle: string;
   backLabel: string;
   /** An open column: back to the quotes to pick another. */
   addLabel: string;
@@ -217,6 +257,12 @@ export interface FeaturesDrawerContent {
   /** Pill tooltips: what Top Feature / Personalized mean. */
   topFeatureTip: string;
   personalizedTip: string;
+  /** Once the risk is scored: pills on the business's key lines (Coverages
+   *  and Exclusions tabs), with tooltips. */
+  keyCoverageLabel: string;
+  keyExclusionLabel: string;
+  keyCoverageTip: string;
+  keyExclusionTip: string;
   /** Tab key opened first — the card's "Top Coverages" leads into coverages. */
   defaultTab: string;
   tabs: FeatureTab[];
@@ -321,6 +367,11 @@ export interface QuotesFeedContent {
   coverageCountLabel: string;
   /** The Gold Quote's chip ("4 Personalized Coverages"). */
   personalizedCountLabel: string;
+  /** The chip once the risk is scored: "{met}/{total} Match". */
+  riskFitLabel: string;
+  /** Per case, the key lines each insurer's quote meets (the Gold Quote
+   *  meets them all). Case C isn't scored, so it has none. */
+  riskFitByCase?: Partial<Record<QuoteCaseId, RiskFitByInsurer>>;
   /** Compact grid: the coverage box of an offline quote (no coverages). */
   coveragesUnavailableLabel: string;
   /** Rating chip copy (shown beside "Top Coverages" when a Gold Quote leads). */

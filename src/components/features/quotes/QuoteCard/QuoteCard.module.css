@@ -6,6 +6,8 @@
  */
 .card {
   --bar-fill: var(--color-brand-primary-subtle);
+  /* Its own width decides whether the logo fits beside two top tabs. */
+  container: quote-card / inline-size;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -544,4 +546,13 @@
   border: 0.75px solid var(--color-input-stroke);
   background: var(--color-card-sunken);
   opacity: 0.5;
+}
+
+/* Two top tabs plus a logo need ~440 across (up to a 120 logo beside two
+   tabs, ~280). Narrower, every card's logo drops just under the tab row,
+   never behind it, so logos, names and bars stay level across a row. */
+@container quote-card (max-width: 440px) {
+  .head {
+    padding-top: 20px;
+  }
 }

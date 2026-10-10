@@ -2,7 +2,7 @@
    without a layout jump. */
 .body {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 320px minmax(0, 1fr);
   column-gap: 41px;
   width: 100%;
   height: 100%;
@@ -137,21 +137,21 @@
   gap: var(--spacing-32);
 }
 
-/* The grid — QuotesFeed's columnsFor in CSS: 320 min cards, 24 gap, so two
-   fit from 664px of feed and three from 1008px. */
+/* The grid — QuotesFeed's columnsFor in CSS: 304 min cards, 24 gap, so two
+   fit from 632px of feed and three from 960px. */
 .stack {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-24);
 }
 
-@container quotes-feed (min-width: 664px) {
+@container quotes-feed (min-width: 632px) {
   .stack {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@container quotes-feed (min-width: 1008px) {
+@container quotes-feed (min-width: 960px) {
   .stack {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }

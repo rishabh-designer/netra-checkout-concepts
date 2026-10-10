@@ -24,21 +24,16 @@
 }
 
 /* Skeleton ↔ content swap layer: carries the 2-column grid
-   (sidebar 280 | feed, 41 apart; Figma 658:45796). */
+   (panel 320 | feed, 41 apart; Figma 769:24625). */
 .swap {
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 320px minmax(0, 1fr);
   column-gap: 41px;
   width: 100%;
   height: 100%;
   min-height: 0;
-  transition: grid-template-columns 0.38s var(--ease-standard);
-}
-
-.swap[data-collapsed] {
-  grid-template-columns: 70px minmax(0, 1fr);
 }
 
 /* Narrower desktops: tighten the 40px gutters so the feed keeps its width. */
@@ -61,30 +56,6 @@
   min-height: 0;
 }
 
-/* Ask BimaNetra's column: grows in from the right (a CSS width transition),
-   the panel inside held at its full width so it doesn't squash on the way. */
-.chatSlot {
-  --chat-width: 424px;
-  flex-shrink: 0;
-  width: 0;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: width 0.38s var(--ease-standard), opacity 0.3s ease;
-}
-
-.chatSlot[data-open] {
-  width: var(--chat-width);
-  opacity: 1;
-}
-
-.chatInner {
-  width: calc(var(--chat-width) - var(--spacing-24));
-  height: 100%;
-  margin-left: var(--spacing-24);
-}
-
 /* Below the 2-column width: natural page scroll, columns stacked. */
 @media (max-width: 1100px) {
   .page {
@@ -94,38 +65,15 @@
   .fill {
     height: auto;
   }
-  .swap,
-  .swap[data-collapsed] {
+  .swap {
     grid-template-columns: minmax(0, 1fr);
     row-gap: var(--spacing-24);
     height: auto;
   }
 }
 
-/* Phones: the Ask BimaNetra drawer, a tall sheet (40 of scrim above, as
-   the quote form's) whose log fills it and composer sits at its foot.
-   Quadrupled: outranks the bottom sheet's own content-height cap. */
-.chatDrawer.chatDrawer.chatDrawer.chatDrawer {
-  height: calc(100dvh - var(--spacing-40));
-  max-height: calc(100dvh - var(--spacing-40));
-  /* White to the middle, then BimaNetra's warmth rising to the foot. */
-  background: linear-gradient(to top, var(--color-brand-secondary-subtle), var(--color-card) 50%);
-}
-
 @media (max-width: 600px) {
   .body {
     padding: var(--spacing-16);
   }
-}
-
-/* Header CTA's sparkle: the Chat with Us icon as a mask, so it takes the
-   button's white label colour on the primary fill; sized to the 12px label. */
-.sparkle {
-  display: inline-block;
-  flex-shrink: 0;
-  width: 12px;
-  height: 12px;
-  background: currentColor;
-  -webkit-mask: var(--icon) center / contain no-repeat;
-  mask: var(--icon) center / contain no-repeat;
 }
