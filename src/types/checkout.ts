@@ -220,8 +220,10 @@ export interface CheckoutSuccessContent {
   headline: string;
   greeting: string;
   /** Under the greeting card's rule, once the mandate is e-Signed:
-   *  `{riskHeld}` and `{dashboard}` are links; `lead` opens it, in bold. */
-  upNext: { label: string; lead: string; body: string; riskHeld: string; dashboard: string };
+   *  `{riskHeld}` and `{dashboard}` are links; `lead` opens it, in bold;
+   *  `{issueDate}` is `issueWorkingDays` working days after payment (DD/MM/YYYY),
+   *  also filled in the Policy Issuance row. */
+  upNext: { label: string; lead: string; body: string; riskHeld: string; dashboard: string; issueWorkingDays: number };
   orderPrefix: string;
   badgeAlt: string;
   stats: { startLabel: string; endLabel: string; premiumLabel: string; periodLabel: string; periodValue: string };

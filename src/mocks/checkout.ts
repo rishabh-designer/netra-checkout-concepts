@@ -261,9 +261,11 @@ export const mockCheckoutContent: CheckoutContent = {
     upNext: {
       label: "Up Next:",
       lead: "You're covered from today.",
-      body: "Your policy will be issued in 7 working days. We'll email it to you, and you'll find it on your {dashboard}. Until then, your {riskHeld} is your proof of cover. Thank you for securing your business with BimaKavach!",
+      body: "Your policy will be issued in 7 working days, by around {issueDate}. We'll email it to you, and you'll find it on your {dashboard}. Until then, your {riskHeld} is your proof of cover. Thank you for securing your business with BimaKavach!",
       riskHeld: "Risk Held Letter",
       dashboard: "Dashboard",
+      // Working days (Mon to Fri) from the payment date, which is day 0.
+      issueWorkingDays: 7,
     },
     orderPrefix: "DNO",
     badgeAlt: "Payment successful",
@@ -322,7 +324,7 @@ export const mockCheckoutContent: CheckoutContent = {
     },
     issuance: {
       title: "Next Up: Policy Issuance",
-      body: "We'll email your policy to you as soon as it's issued, and you'll find it on your Dashboard.",
+      body: "Expected by {issueDate}. We'll email your policy to you as soon as it's issued, and you'll find it on your Dashboard.",
     },
     signLabel: "Sign Mandate Letter",
     riskHeldLabel: "Download Risk Held Letter",

@@ -28,7 +28,7 @@
 | **Can they tell when the policy arrives?** | ⚠️ Partly | "7 working days" appears once, as a duration, inside the greeting card. The Policy Issuance row itself has no time and no date, and nothing says how it arrives (email, WhatsApp, the vault) (S3). Four names are used for where it will live (S4). |
 | **Do they understand the Risk Held Letter stands in for the policy until it arrives?** | ✅ Now, yes (was ❌) | Fixed: Up Next and the modal both open with "You're covered from today" and call the letter the proof of cover until the policy arrives. *Before:* The page offers the letter only as a download. The modal explains it in dictionary language with three names for one document, and the one line that matters ("temporary, binding insurance coverage is active") sits mid-sentence (S1). The plainest statement, "Your cover is held from the date of payment", lives in the Disclaimer, which is folded shut (S2). A second, similarly named document (Risk Report) sits one row up (S5). |
 
-**What's shipped:** Up Next and the Risk Held modal now both open with *"You're covered from today."* and call the letter the proof of cover until the policy arrives; Up Next and Policy Issuance say the policy will be emailed and will be on the Dashboard. **Still open:** a date instead of "7 working days" (S3) and the unspoken checks for B and C (S7).
+**What's shipped:** Up Next and the Risk Held modal now both open with *"You're covered from today."* and call the letter the proof of cover until the policy arrives; Up Next and Policy Issuance say the policy will be emailed and will be on the Dashboard. Up Next and Policy Issuance also give an expected date (S3). **Still open:** the unspoken checks for B and C (S7).
 
 ---
 
@@ -44,7 +44,7 @@
 | 6 | **Quotes confirmed by an expert also get a Risk Held Letter** and the 7-day promise, while their row says an expert still has to confirm with the insurer | Success | All (non-immediate quotes) | 3 |
 | 7 | ~~No path when the buyer isn't the Aadhaar signatory~~ **Withdrawn:** Billing's "Buy in Another Person's Name" covers this before Verification (K2) | Checkout | All | - |
 | 8 | **Cards carry five signals each** in three visual styles, with no clear order | Quotes | All | 3 |
-| 9 | **The issue date is a duration, not a date**, and only in the greeting card | Success | All | 2 |
+| 9 | ✅ **Fixed:** the policy now has an expected date (7 working days after payment, DD/MM/YYYY) in Up Next and Policy Issuance (S3) | Success | All | ~~2~~ |
 | 10 | **Four names for where the policy lives:** Dashboard, Document Vault, Policies folder, BimaKendra | Success | All | 2 |
 | 11 | **"Profile" means two different things:** contact details in onboarding, company details on the quotes page | Onboarding, Quotes | All | 2 |
 | 12 | ~~The welcome popup returns on every load~~ **Withdrawn:** on every load only for the prototype's sake | Quotes | A, B | - |
@@ -249,7 +249,7 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 |---|---|---|---|---|
 | S1 | ✅ **Fixed.** The modal now opens with **"You're covered from today."** and reads: *"Your insurer is issuing your policy. Until it arrives, this letter is your proof of cover. Share it with anyone who asks, such as your board, a lender or an investor."* (Was a third-person definition with three names for one document.) | Content, Heuristic (H2) | All | ~~3~~ |
 | S2 | ✅ **Fixed.** Up Next now opens with **"You're covered from today."** and says the Risk Held Letter is the proof of cover until the policy arrives. The Disclaimer line stays as the legal version. | Heuristic (H1), IA | All | ~~3~~ |
-| S3 | **When, as a date.** "7 working days" is still a duration, not a date. ✅ *How* is fixed: Up Next and the Policy Issuance row now say the policy will be emailed and will be on the user's Dashboard. Remaining suggestion: "Expected by 21 Oct 2026". | Heuristic (H1), Usability | All | 2 |
+| S3 | ✅ **Fixed.** Up Next: "issued in 7 working days, by around 21/10/2026"; Policy Issuance: "Expected by 21/10/2026. We'll email your policy…". The date is 7 working days (Mon to Fri) after payment, payment day being day 0. | Heuristic (H1), Usability | All | ~~2~~ |
 | S4 | **Four names for one place:** "your Dashboard" (Up Next, header), "the Policies folder of your Document Vault" (Policy Issuance), "BimaKendra's Document Vault" (download toast), "BimaKendra Tasks" (the old mandate copy). Pick one destination name and use it everywhere. | IA, Content | All | 2 |
 | S5 | **Two documents, near-identical names:** "Download Risk Report" (Profiling row, the BimaNetra assessment), "Risk Held Letter" (proof of cover), and the preview's back page reads "Risk Assessment Report"; the modal body says "Risk Held Report". Rename the first "BimaNetra Report" (as the Gold row's status already says) and keep "Risk Held Letter" as the only "Risk Held". | Content, IA | All | 2 |
 | S6 | ✅ **Fixed.** The modal's first button now reads "View" (was "Download Now", which didn't download; it opens the user's documents). | Heuristic (H2), Usability | All | ~~2~~ |
@@ -265,16 +265,16 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 
 ### Live copy (after the fixes)
 **Up Next**
-> **You're covered from today.** Your policy will be issued in 7 working days. We'll email it to you, and you'll find it on your Dashboard. Until then, your Risk Held Letter is your proof of cover. Thank you for securing your business with BimaKavach!
+> **You're covered from today.** Your policy will be issued in 7 working days, by around 21/10/2026. We'll email it to you, and you'll find it on your Dashboard. Until then, your Risk Held Letter is your proof of cover. Thank you for securing your business with BimaKavach!
 
 **Risk Held modal**
 > **You're covered from today.** Your insurer is issuing your policy. Until it arrives, this letter is your proof of cover. Share it with anyone who asks, such as your board, a lender or an investor.
 > Buttons: View · Send to WhatsApp
 
 **Policy Issuance row**
-> We'll email your policy to you as soon as it's issued, and you'll find it on your Dashboard.
+> Expected by 21/10/2026. We'll email your policy to you as soon as it's issued, and you'll find it on your Dashboard.
 
-**Next step (S3):** swap "in 7 working days" for a date, e.g. "expected by 21 Oct 2026".
+*Dates shown for a payment on 12/10/2026.*
 
 ---
 

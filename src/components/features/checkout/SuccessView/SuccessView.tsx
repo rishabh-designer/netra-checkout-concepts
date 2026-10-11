@@ -50,6 +50,17 @@ function fill(template: string, vars: Record<string, string>, links: string[] = 
 
 const short = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 const long = (d: Date) => d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+/** DD/MM/YYYY. */
+const ddmmyyyy = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+/** `days` working days (Mon to Fri) after `from`, which is day 0. */
+function addWorkingDays(from: Date, days: number): Date {
+  const d = new Date(from);
+  for (let left = days; left > 0; ) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0 && d.getDay() !== 6) left--;
+  }
+  return d;
+}
 const duration = (s: number) => (s < 60 ? `${s.toFixed(1)}s` : `${Math.floor(s / 60)}m ${Math.round(s % 60)}s`);
 
 /** The paid amount, counting up from zero once the summary has landed. */
@@ -125,6 +136,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   const ends = new Date(paidAt);
   ends.setFullYear(ends.getFullYear() + 1);
   ends.setDate(ends.getDate() - 1);
+  const issueDate = ddmmyyyy(addWorkingDays(paidAt, s.upNext.issueWorkingDays));
   const final = splitPrice(quote.price ?? "", content.summary.gstRate).total;
   const count = (quote.coverages ?? quote.policy?.top ?? []).length;
   // A scored quote counts its key coverages and exclusions (as on the quote
@@ -201,7 +213,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
     ...(signed
       ? []
       : [{ pill: s.stepLabels[3], state: "active" as const, title: s.mandate.title, body: fill(s.mandate.body, { mandate: s.mandate.link }, ["mandate"]), action: { label: s.signLabel, onClick: sign, onHover: cheerSign } }]),
-    { pill: s.stepLabels[4], state: "pending", title: s.issuance.title, body: s.issuance.body, action: { label: s.viewPolicyLabel, pendingTip: s.viewPolicyPendingTip }, startOpen: true },
+    { pill: s.stepLabels[4], state: "pending", title: s.issuance.title, body: s.issuance.body.replace("{issueDate}", issueDate), action: { label: s.viewPolicyLabel, pendingTip: s.viewPolicyPendingTip }, startOpen: true },
   ];
   // The page's lead action (header, mobile footer): with nothing left to
   // sign (A), it's the BimaKendra dashboard.
@@ -289,7 +301,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                             <p className={styles.upNextLabel}>{s.upNext.label}</p>
                             <p className={styles.upNextBody}>
                               <strong className={styles.upNextLead}>{s.upNext.lead}</strong>{" "}
-                              {s.upNext.body.split(/(\{riskHeld\}|\{dashboard\})/).map((part, i) =>
+                              {s.upNext.body.replace("{issueDate}", issueDate).split(/(\{riskHeld\}|\{dashboard\})/).map((part, i) =>
                                 part === "{riskHeld}" ? (
                                   <button key={i} type="button" className={styles.upNextLink} onClick={() => setRiskHeld(true)}>
                                     {s.upNext.riskHeld}
