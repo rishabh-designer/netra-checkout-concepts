@@ -76,7 +76,14 @@
   object-fit: contain;
 }
 
-/* Gold Quote without an insurer yet: its name stands in for the logo. */
+/* Gold Quote without an insurer yet: NetraBot in the logo's place. */
+.bot {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+}
+
+/* An insurer with no logo: its name stands in. */
 .name {
   font-size: var(--font-size-75);
   font-weight: 600;
@@ -85,10 +92,6 @@
   text-align: center;
   white-space: nowrap;
   color: var(--color-label-primary);
-}
-
-.shortName {
-  display: none;
 }
 
 /* Boxed × (chevron.controls): 18px on the slot's right edge; Figma r6,
@@ -164,20 +167,6 @@
   }
   .logo {
     max-width: 100%;
-  }
-  /* The Gold Quote's full title can't fit a third of the row: its short
-     name instead, wrapping onto a second line if it must. */
-  .picked:has(.shortName) .name {
-    display: none;
-  }
-  .shortName {
-    display: block;
-    font-size: var(--font-size-75);
-    font-weight: 600;
-    letter-spacing: var(--track-600);
-    line-height: 1.1;
-    text-align: center;
-    color: var(--color-label-primary);
   }
   .remove {
     top: 0;

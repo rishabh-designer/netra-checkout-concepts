@@ -10,6 +10,8 @@ import { BadgeCheckIcon } from "@/components/icons/BadgeCheckIcon";
 import { splitName } from "@/lib/utils";
 import { PriceMorph, type PriceIntro } from "../PriceMorph";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
+import { BookOpenIcon } from "@/components/icons/BookOpenIcon";
+import { NetraBot } from "@/components/ui/NetraBot";
 import styles from "./QuoteCard.module.css";
 import fx from "./QuoteCardFeatures.module.css";
 import { Chevron } from "@/components/icons/Chevron";
@@ -20,6 +22,11 @@ function FeaturesChevron() {
     <Chevron dir="right" size={12} color="var(--color-success)" />
   );
 }
+
+/** The name on two lines; a two-word name ("Gold Quote") stays on one,
+ *  over a blank line that keeps the card's height. */
+const nameLines = (name: string): [string, string] =>
+  name.trim().split(/\s+/).length <= 2 ? [name, "\u00a0"] : splitName(name);
 
 /** Rating chip tone (Figma 584:45338 / 45382 / 45476 / 45508). */
 const RATING_TONE = {
@@ -64,6 +71,8 @@ export interface QuoteCardLabels {
   personalizedCount: string;
   /** Once the risk is scored: "{met}/{total} Match". */
   riskFit?: string;
+  /** Under the logo: "Claim Settlement Ratio: {value}". */
+  csr?: string;
   /** Top Coverages view only: the View All Features pill, the offline
    *  "Unavailable" block and the rating chips. */
   viewFeatures?: string;
@@ -183,7 +192,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
       {quote.price && quote.originalPrice ? (
         <PriceMorph from={quote.originalPrice} to={quote.price} intro={priceIntro} />
       ) : (
-        (quote.price ?? labels.getQuote)
+        (quote.price ?? quote.ctaLabel ?? labels.getQuote)
       )}
       <MoveRightIcon ref={arrowRef} size={14} loop className={styles.arrow} />
     </button>
@@ -251,7 +260,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
             <img src={quote.logoSrc} alt="" aria-hidden className={fx.logo} data-reveal="item" />
           )}
           <h3 className={fx.name} title={quote.insurer}>
-            {splitName(quote.insurer).map((line, i) => (
+            {nameLines(quote.insurer).map((line, i) => (
               <span key={i} className={fx.nameLine} data-reveal="item" data-tooltip-overflow>{line}</span>
             ))}
           </h3>
@@ -308,7 +317,8 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
       data-tone={tone}
       {...hover}
     >
-      {/* D&O mark, bottom half cropped away (Figma 658:49015). */}
+      {/* D&O mark, bottom half cropped away, placed absolutely behind the
+          name (Figma 827:20909). */}
       <span className={styles.markClip} aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/media/checkout/product-icon.png" alt="" className={styles.mark} />
@@ -322,40 +332,44 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
           />
         )}
       </span>
-      {tag}
+      {/* The tags sit in the flow, right-aligned; the row holds their height
+          even on a card without tags, so every card's logo row lines up. */}
+      <div className={styles.tabRow}>{tag}</div>
 
       <div className={styles.inner}>
         <div className={styles.head}>
-          {/* No insurer yet (Case B's Gold): an empty slot holds the logo's
-              32px, so the name lines up with the cards beside it. */}
-          {quote.logoSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={quote.logoSrc} alt="" aria-hidden className={styles.logo} data-reveal="item" />
-          ) : (
-            <span className={styles.logoSlot} aria-hidden />
-          )}
+          {/* Logo left, claim settlement ratio right, on one 32px row. No
+              insurer yet (Case B's Gold): NetraBot holds the logo's place. */}
+          <div className={styles.brand}>
+            {quote.logoSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={quote.logoSrc} alt="" aria-hidden className={styles.logo} data-reveal="item" />
+            ) : quote.gold ? (
+              <span className={styles.botSlot} aria-hidden data-reveal="item">
+                <NetraBot state="idle" follow="page" size={28} />
+              </span>
+            ) : (
+              <span className={styles.logoSlot} aria-hidden />
+            )}
+            {/* The insurer's claim settlement ratio, a fact about the company. */}
+            {quote.csr && labels.csr && (
+              <span className={styles.csr} data-reveal="item">
+                <BookOpenIcon size={12} />
+                {labels.csr.replace("{value}", quote.csr)}
+              </span>
+            )}
+          </div>
           <h3 className={styles.name} title={quote.insurer}>
-            {splitName(quote.insurer).map((line, i) => (
+            {nameLines(quote.insurer).map((line, i) => (
               <span key={i} className={styles.nameLine} data-reveal="item">{line}</span>
             ))}
           </h3>
         </div>
 
+        {/* Match & compare, then the ikkat rule, then Sum Insured & price. */}
         <div className={styles.body}>
-          <div className={styles.bar} data-reveal="bar">
-            <div className={styles.sum}>
-              <span className={styles.sumLabel}>{labels.sumInsured}</span>
-              <span className={styles.sumValue}>{quote.sumInsured}</span>
-            </div>
-            {priceButton}
-          </div>
-
           {!mini && (
             <>
-              <div className={styles.rule} data-reveal="rule">
-                <IkkatDivider height={2} unit={19} color={RULE_COLOR[tone]} />
-              </div>
-
               <div className={styles.foot} data-reveal="coverage">
                 <button type="button" className={styles.chip} onClick={onViewFeatures} aria-haspopup="dialog">
                   {!quote.coverages?.length && !quote.riskFit && labels.viewCoverages ? labels.viewCoverages : coverageChipLabel(quote, labels)}
@@ -363,8 +377,20 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
                 </button>
                 {compare}
               </div>
+
+              <div className={styles.rule} data-reveal="rule">
+                <IkkatDivider height={2} unit={19} color={RULE_COLOR[tone]} />
+              </div>
             </>
           )}
+
+          <div className={styles.bar} data-reveal="bar">
+            <div className={styles.sum}>
+              <span className={styles.sumLabel}>{labels.sumInsured}</span>
+              <span className={styles.sumValue}>{quote.sumInsured}</span>
+            </div>
+            {priceButton}
+          </div>
         </div>
       </div>
     </article>

@@ -31,7 +31,7 @@ export interface UpgradeBannerProps {
   onReset?: () => void;
   /** The company the quotes are for, at the banner's head. */
   company?: ReactNode;
-  /** Upgraded: a Notify Me under the body (Case B), and its click. */
+  /** Upgraded: a button beside the title (A: View Report, B: Notify Me), and its click. */
   notify?: { label: string; onClick: () => void };
   /** Changes each time the host shows the banner afresh (the mobile Your
    *  Details accordion opening): the upgraded banner replays from its
@@ -117,7 +117,7 @@ export function UpgradeBanner({ stage, content, upgraded, progress, onSimulate, 
               {company}
             </div>
           )}
-          {/* Title, with Notify Me (Case B) on its right to save a row. */}
+          {/* Title, with its button (View Report, Notify Me) on the right to save a row. */}
           <div className={styles.titleRow}>
             <motion.p className={styles.upgradedTitle} data-wrap={notify ? true : undefined} variants={enter} initial="hidden" animate="shown" aria-label={upgraded.title}>
               {/* Words stay whole, so a long title wraps between them. */}
@@ -238,32 +238,33 @@ export function NoRecordsBanner({
   content,
   company,
   onSchedule,
-  onNotify,
+  onTitleCta,
   children,
 }: {
   content: NoRecordsBannerContent;
   company?: ReactNode;
   onSchedule?: () => void;
-  /** The Score tab: a Notify Me in place of the expert call. */
-  onNotify?: () => void;
+  /** The Score tab: Schedule A Call beside the title, in place of the
+   *  footer's expert call. */
+  onTitleCta?: () => void;
   /** The Score tab: the not-scored badge under the copy; fills the host. */
   children?: ReactNode;
 }) {
   return (
-    <div className={styles.banner} data-fill={children ? true : undefined}>
+    <div className={styles.banner} data-fill={children || onTitleCta ? true : undefined}>
       {company && <div className={styles.company}>{company}</div>}
-      {/* The Score tab: Notify Me on the title's right, saving a row. */}
+      {/* The Score tab: Schedule A Call on the title's right, saving a row. */}
       <div className={styles.titleRow}>
         <p className={styles.title}>{content.title}</p>
-        {onNotify && (
-          <button type="button" className={`${styles.cta} ${styles.ctaNeutral} ${styles.titleCta}`} onClick={onNotify}>
-            {content.notifyLabel}
+        {onTitleCta && (
+          <button type="button" className={`${styles.cta} ${styles.ctaNeutral} ${styles.titleCta}`} onClick={onTitleCta}>
+            {content.titleCtaLabel}
           </button>
         )}
       </div>
       <p className={styles.body}>{content.body}</p>
       {children && <div className={styles.extra}>{children}</div>}
-      {!onNotify && (
+      {!onTitleCta && (
       <div className={styles.footer} data-align="start">
         {/* Phones call the experts; larger screens book a meeting instead. */}
         <a href={content.ctaHref} className={`${styles.cta} ${styles.phoneOnly}`}>

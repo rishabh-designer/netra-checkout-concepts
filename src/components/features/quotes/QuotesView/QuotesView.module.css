@@ -72,7 +72,8 @@
   }
 }
 
-@media (max-width: 600px) {
+/* Below 1000: 16 all round, as every page. */
+@media (max-width: 999px) {
   .body {
     padding: var(--spacing-16);
   }

@@ -204,7 +204,7 @@ export function CompareView({ open, content, quotes, columns, labels, onClose, o
                         className={q.price || q.gold ? styles.buttonFilled : styles.buttonOutline}
                         onClick={onSelect(q)}
                       >
-                        {q.price ?? labels.getQuote}
+                        {q.price ?? q.ctaLabel ?? labels.getQuote}
                         <ArrowRight size={14} />
                       </button>
                     </article>

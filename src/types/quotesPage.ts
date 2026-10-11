@@ -1,3 +1,4 @@
+import type { DemoNoticeKey } from "./demoNotice";
 import type { BreadcrumbItem } from "./productPage";
 import type { QuoteCaseId } from "@/lib/quote-flow";
 import type { CheckoutField, CheckoutUpload, CheckoutUploadCopy } from "./checkout";
@@ -45,8 +46,9 @@ export interface UpgradedBannerContent {
   /** A case's own title / body where they differ (B: only partly verified). */
   titleByCase?: Partial<Record<QuoteCaseId, string>>;
   bodyByCase?: Partial<Record<QuoteCaseId, string>>;
-  /** A case's Notify Me under the body (B: we'll call once the report can price it). */
-  notifyByCase?: Partial<Record<QuoteCaseId, string>>;
+  /** A case's button beside the title, and the alert its click shows
+   *  (A: View Report; B: Notify Me, once the report can price it). */
+  titleCtaByCase?: Partial<Record<QuoteCaseId, { label: string; notice: DemoNoticeKey }>>;
   /** Hidden demo shortcut: clicking the banner resets verification to the start. */
   resetLabel: string;
 }
@@ -78,6 +80,8 @@ export interface DetailsPanelContent {
 
 export interface RiskScoreContent {
   label: string;
+  /** After the score, small: "/100". */
+  outOf: string;
   /** The info icon's tooltip, scored and not (Case C). */
   info: string;
   mutedInfo: string;
@@ -100,8 +104,8 @@ export interface NoRecordsBannerContent {
   ctaHref: string;
   /** On larger screens, a meeting booking in place of the call. */
   webCtaLabel: string;
-  /** In the Score tab: we'll be in touch once the risk can be scored. */
-  notifyLabel: string;
+  /** The Score tab: the button beside the title (Schedule A Call). */
+  titleCtaLabel: string;
 }
 
 /** "Need Help?" banner in the feed header — IRDAI experts + phone. */
@@ -121,11 +125,17 @@ export interface NeedHelpContent {
 export interface QuoteCardData {
   insurer: string;
   logoSrc: string;
+  /** The insurer's claim settlement ratio ("98.6%"): a fact about the
+   *  company, the same in every case. None while the insurer is unknown. */
+  csr?: string;
   sumInsured: string;
   /** Immediate-purchase quotes surface first, carry a price, and are comparable. */
   immediate?: boolean;
   /** Shown as a filled price pill instead of "Get Quote" (immediate purchase). */
   price?: string;
+  /** An unpriced quote's own button label, in place of Request Quote
+   *  (Case B's Gold Quote: "Unlock Quote"). */
+  ctaLabel?: string;
   /** The price before the offer, shown struck through beside `price`. */
   originalPrice?: string;
   /** 0–100; renders a "X% Match" progress bar when set. */
@@ -272,7 +282,7 @@ export interface FeaturesDrawerContent {
 export type QuoteFilter = string;
 /** Feed order: the insurer default, premium either way, or most coverages first. */
 /** By price, the quote as shown (GST included). */
-export type QuoteSort = "priceLow" | "priceHigh";
+export type QuoteSort = "priceLow" | "priceHigh" | "csrHigh";
 
 /** How a quote's price follows the business: each mock price is for
  *  `referenceCrore` of cover at the reference turnover (factor 1). */
@@ -334,8 +344,6 @@ export interface QuotesFeedContent {
     min: number;
     max: number;
     minTip: string;
-    /** Phones: the Gold Quote's slot name (a third of the row can't hold the full title). */
-    goldShortName: string;
   };
   compareView: CompareViewContent;
   getQuoteLabel: string;
@@ -369,6 +377,8 @@ export interface QuotesFeedContent {
   personalizedCountLabel: string;
   /** The chip once the risk is scored: "{met}/{total} Match". */
   riskFitLabel: string;
+  /** Under each insurer's logo: "Claim Settlement Ratio: {value}". */
+  csrLabel: string;
   /** Per case, the key lines each insurer's quote meets (the Gold Quote
    *  meets them all). Case C isn't scored, so it has none. */
   riskFitByCase?: Partial<Record<QuoteCaseId, RiskFitByInsurer>>;

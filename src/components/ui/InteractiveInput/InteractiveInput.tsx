@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { SelectMenu } from "@/components/ui/SelectMenu";
+import { SelectMenu, type SelectOptionGroup } from "@/components/ui/SelectMenu";
 import { ghostFor } from "@/lib/completions";
 import styles from "./InteractiveInput.module.css";
 import {
@@ -35,6 +35,9 @@ export interface InteractiveInputProps {
   /** "textarea" = multi-line (e.g. an address); icons pin to the top. */
   control?: "text" | "select" | "search" | "textarea";
   options?: string[];
+  /** A select's options under group headers (Sum Insured: Immediate
+   *  Purchase, Other Options). */
+  optionGroups?: SelectOptionGroup[];
   value: string;
   onChange?: (value: string) => void;
   onClear?: () => void;
@@ -105,6 +108,7 @@ export function InteractiveInput({
   showHelp = false,
   control = "text",
   options,
+  optionGroups,
   value,
   onChange,
   onClear,
@@ -258,6 +262,7 @@ export function InteractiveInput({
             id={inputId}
             value={value}
             options={options ?? []}
+            groups={optionGroups}
             placeholder={placeholder}
             onChange={onChange}
             disabled={loading}

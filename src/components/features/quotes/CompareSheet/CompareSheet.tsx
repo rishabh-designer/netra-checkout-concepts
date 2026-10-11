@@ -1,10 +1,11 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { QuoteCardData, QuotesFeedContent } from "@/types/quotesPage";
 import styles from "./CompareSheet.module.css";
 import { Button } from "@/components/ui/Button";
+import { NetraBot } from "@/components/ui/NetraBot";
 import { EASE_OUT } from "@/lib/motion";
 
 export interface CompareSheetProps {
@@ -28,11 +29,28 @@ export function CompareSheet({ content, picked, onRemove, onCompare }: CompareSh
   const reduced = useReducedMotion();
   const ready = picked.length >= content.min;
   const slots = Array.from({ length: content.max }, (_, i) => picked[i]);
+  const open = picked.length > 0;
+
+  // While docked, the bar's height is shared as --compare-sheet-h so the
+  // phones' floating Details dock can sit above it.
+  const sheetRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = sheetRef.current;
+    const root = document.documentElement;
+    if (!open || !el) return;
+    const ro = new ResizeObserver(() => root.style.setProperty("--compare-sheet-h", `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--compare-sheet-h");
+    };
+  }, [open]);
 
   return (
     <AnimatePresence>
-      {picked.length > 0 && (
+      {open && (
         <motion.section
+          ref={sheetRef}
           key="compare-sheet"
           className={styles.sheet}
           aria-label={content.title}
@@ -54,12 +72,14 @@ export function CompareSheet({ content, picked, onRemove, onCompare }: CompareSh
                         {q.logoSrc ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={q.logoSrc} alt={q.insurer} className={styles.logo} />
+                        ) : q.gold ? (
+                          // No insurer yet (Case B's Gold): NetraBot stands in
+                          // for the logo, at the logos' 24px.
+                          <span className={styles.bot} role="img" aria-label={q.insurer} title={q.insurer}>
+                            <NetraBot state="idle" follow="page" size={24} />
+                          </span>
                         ) : (
-                          <>
-                            <span className={styles.name}>{q.insurer}</span>
-                            {/* Phones: a shorter name, on up to two lines. */}
-                            {q.gold && <span className={styles.shortName}>{content.goldShortName}</span>}
-                          </>
+                          <span className={styles.name}>{q.insurer}</span>
                         )}
                       </span>
                       <button

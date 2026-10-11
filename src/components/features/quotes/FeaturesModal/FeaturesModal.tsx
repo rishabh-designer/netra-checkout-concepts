@@ -309,7 +309,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                 onMouseEnter={() => arrowRef.current?.startAnimation()}
                 onMouseLeave={() => arrowRef.current?.stopAnimation()}
               >
-                {quote.price ?? labels.getQuote}
+                {quote.price ?? quote.ctaLabel ?? labels.getQuote}
                 <MoveRightIcon ref={arrowRef} size={16} loop className={styles.arrow} />
               </Button>
             </div>

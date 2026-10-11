@@ -61,9 +61,12 @@ const columnsFor = (width: number) =>
 
 
 const priceOf = (q: QuoteCardData) => (q.price ? Number(q.price.replace(/\D/g, "")) : Infinity);
+/** "96%" → 96; none (or "N/A") sorts last. */
+const csrOf = (q: QuoteCardData) => parseFloat(q.csr ?? "") || -1;
 
 /** Filter + sort the non-gold quotes (the Gold Quote stays pinned on top).
- *  Price-on-request quotes always sink below priced ones in a premium sort. */
+ *  Price-on-request quotes always sink below priced ones in a premium sort;
+ *  the claim settlement ratio sort runs highest first across all of them. */
 function arrange(list: QuoteCardData[], filter: QuoteFilter[], sort: QuoteSort, immediateOnly: boolean) {
   const kept = list.filter(
     (q) =>
@@ -71,6 +74,7 @@ function arrange(list: QuoteCardData[], filter: QuoteFilter[], sort: QuoteSort, 
       (filter.length === 0 || filter.includes(q.insurer)),
   );
   const bySort = (a: QuoteCardData, b: QuoteCardData) => {
+    if (sort === "csrHigh") return csrOf(b) - csrOf(a);
     const pa = priceOf(a);
     const pb = priceOf(b);
     if (pa === Infinity || pb === Infinity) return pa === pb ? 0 : pa === Infinity ? 1 : -1;
@@ -113,6 +117,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     coverageCount: content.coverageCountLabel,
     personalizedCount: content.personalizedCountLabel,
     riskFit: content.riskFitLabel,
+    csr: content.csrLabel,
     viewFeatures: content.viewFeaturesLabel,
     coveragesUnavailable: content.coveragesUnavailableLabel,
     ratings: content.ratingLabels,

@@ -89,11 +89,14 @@
 }
 
 /* Mobile: collapse the primary nav — logo + Login only (Figma 288:22902). */
-@media (max-width: 640px) {
+/* Below 1000: 16 either side, as every page. */
+@media (max-width: 999px) {
   .bar {
     padding: var(--spacing-12) var(--spacing-16);
   }
+}
 
+@media (max-width: 640px) {
   .nav {
     display: none;
   }

@@ -94,3 +94,50 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Trigger with an adornment: the value and its mark, kept together. */
+.lead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  min-width: 0;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+/* Group header: a quiet 12px caption over its options; Immediate Purchase
+   in success green with the quote cards' bag. */
+.groupLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-8) var(--spacing-12) var(--spacing-4);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1;
+  color: var(--color-label-tertiary);
+}
+
+.groupLabel[data-tone="immediate"] {
+  color: var(--color-success);
+}
+
+/* A hairline between groups. */
+.option + .groupLabel {
+  margin-top: var(--spacing-4);
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+  padding-top: var(--spacing-12);
+}
+
+/* The icon's own wrapper: centre the glyph, no inline baseline gap. */
+.mark > *,
+.groupLabel > div {
+  display: flex;
+  align-items: center;
+}

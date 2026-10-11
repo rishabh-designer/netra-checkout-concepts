@@ -11,9 +11,20 @@ const ROYAL = "/Insurance.Comp/Royal.webp";
 const BAJAJ = "/Insurance.Comp/Bajaj.webp";
 const SBI = "/Insurance.Comp/SBI.webp";
 
+/* Claim settlement ratio per insurer (mock): a fact about the company, so
+   the same in every case. Whole numbers, no ties. */
+const CSR: Record<string, string> = {
+  "Generali Central Insurance": "99%",
+  "HDFC ERGO General Insurance": "98%",
+  "Royal Sundaram General Insurance": "96%",
+  "ICICI Lombard General Insurance": "95%",
+  "Bajaj General Insurance": "94%",
+  "SBI General Insurance": "93%",
+};
+
 /* The Gold Quote (A and B): unveiled from the Reveal slot that leads the stack. */
 const GOLD_QUOTE: QuoteCardData = {
-  insurer: "Your Personalised Insurance Quote",
+  insurer: "Your Personalised Gold Quote",
   logoSrc: GENERALI,
   sumInsured: "₹5 Cr",
   gold: true,
@@ -24,10 +35,11 @@ const GOLD_QUOTE: QuoteCardData = {
 /* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹8,500. Its
    insurer and price are known, so it's named for Generali and on sale now
    (Immediate Purchase). */
-const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, insurer: "Generali Central Insurance", immediate: true, price: "₹8,500", originalPrice: "₹10,000", coverages: GOLD_A_POLICY.top, policy: GOLD_A_POLICY };
+const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, insurer: "Generali Central Insurance", csr: CSR["Generali Central Insurance"], immediate: true, price: "₹8,500", originalPrice: "₹10,000", coverages: GOLD_A_POLICY.top, policy: GOLD_A_POLICY };
 /* Case B's records are fuzzy, so its Gold Quote can't be mapped to an insurer
-   or a price yet: no logo, and the button reads Get Quote. */
-const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "", coverages: GOLD_B_POLICY.top, policy: GOLD_B_POLICY };
+   or a price yet: NetraBot in place of a logo, an N/A claim settlement
+   ratio (so the card matches its neighbours), and Unlock Quote. */
+const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "", csr: "N/A", ctaLabel: "Unlock Quote", coverages: GOLD_B_POLICY.top, policy: GOLD_B_POLICY };
 
 /* The questions BimaNetra asks in chat (the Gold Quote's Additional
    Details and every Request a Quote), one at a time. */
@@ -109,7 +121,8 @@ const MATCHED_ROWS: QuoteCardData[] = [
    on the card (offline ones keep a plain "Top Coverages" chip). */
 const MATCHED_QUOTES: QuoteCardData[] = MATCHED_ROWS.map((q) => {
   const policy = INSURER_POLICIES[q.insurer];
-  return policy ? { ...q, policy, ...(q.price ? { coverages: policy.top } : {}) } : q;
+  const withCsr = { ...q, csr: CSR[q.insurer] };
+  return policy ? { ...withCsr, policy, ...(q.price ? { coverages: policy.top } : {}) } : withCsr;
 });
 
 /* Case C (no data, also the fallback for any unmatched name): the same six
@@ -344,7 +357,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
       whatIsDo:
         "Directors & Officers insurance pays legal costs, settlements and damages when your directors or officers are sued over decisions they made running the company.",
       claimsBasis: "All of these are claims made: they pay for claims first made against you while the policy is active.",
-      help: "You can call our IRDAI-certified experts on {phone}, or keep asking me here.",
+      help: "You can call our IRDAI-certified Bima Experts on {phone}, or keep asking me here.",
       thanks: "Happy to help. Ask me anything else about these quotes.",
       greet: "Hi! Ask me about prices, coverages, or how two insurers differ.",
       fallback:
@@ -368,7 +381,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     ],
     upgrade: {
       title: "Ready to Upgrade?",
-      body: "We're verifying {company} now and are preparing a special quote for you. We'll inform you when it's ready.",
+      body: "We're verifying {company} now and are preparing a Gold Quote for you. We'll let you know when it's ready.",
       percent: 29,
       timeLeft: "Arriving Soon",
       ctaLabel: "Notify Me",
@@ -385,13 +398,16 @@ export const mockQuotesPageContent: QuotesPageContent = {
       ctaLabel: "Speak to an Expert",
       ctaHref: "tel:+919007296854",
       webCtaLabel: "Schedule a Call",
-      notifyLabel: "Notify Me",
+      titleCtaLabel: "Schedule A Call",
     },
     upgraded: {
       title: "You’re Upgraded!",
       body: "We’ve verified {company} and priced a Gold Quote just for you.",
       titleByCase: { B: "We’re Upgrading You!" },
-      notifyByCase: { B: "Notify Me" },
+      titleCtaByCase: {
+        A: { label: "View Report", notice: "viewReport" },
+        B: { label: "Notify Me", notice: "notifyReport" },
+      },
       bodyByCase: {
         B: "We’ve verified parts of {company} and drafted a Gold Quote. It gets its price and insurer once our report is ready.",
       },
@@ -404,6 +420,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     tabs: { score: "Score", chat: "Chat", profile: "Profile" },
     score: {
       label: "Business Health",
+      outOf: "/100",
       info: "How healthy your business looks to insurers, out of 100, from what we verified. Higher is better.",
       mutedInfo: "We couldn't check your business's health without public records about it.",
       listTitle: "{count} Key Coverages & Exclusions",
@@ -427,7 +444,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     ],
     needHelp: {
       title: "Need Help?",
-      subtitle: "Contact our IRDAI-certified Bima experts",
+      subtitle: "Contact our IRDAI-certified Bima Experts",
       phone: "+91-90072-96854",
       avatarsSrc: "/media/experts/avatars.webp",
       avatarsAlt: "BimaKavach insurance experts",
@@ -448,6 +465,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     sortOptions: [
       { id: "priceLow", label: "Price: Low to High" },
       { id: "priceHigh", label: "Price: High to Low" },
+      { id: "csrHigh", label: "Claim Settlement: High to Low" },
     ],
     noResults: {
       title: "No Quotes Match These Filters",
@@ -460,7 +478,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     viewFeaturesLabel: "View All Features",
     featuresDrawer: FEATURES_DRAWER,
     compareLabel: "Add to Compare",
-    compareSheet: { title: "Compare Quotes", ctaLabel: "Compare Now", removeLabel: "Remove {insurer} from compare", min: 2, max: 3, minTip: "Pick at least 2 quotes to compare", goldShortName: "Personalised Quote" },
+    compareSheet: { title: "Compare Quotes", ctaLabel: "Compare Now", removeLabel: "Remove {insurer} from compare", min: 2, max: 3, minTip: "Pick at least 2 quotes to compare" },
     compareView: COMPARE_VIEW,
     comparisonUnavailableLabel: "Unavailable",
     getQuoteLabel: "Request Quote",
@@ -502,6 +520,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     coverageCountLabel: "{count} Top Coverages",
     personalizedCountLabel: "{count} Personalised Coverages",
     riskFitLabel: "{met}/{total} Match",
+    csrLabel: "Claim Settlement Ratio: {value}",
     riskFitByCase: RISK_FIT_BY_CASE,
     coveragesUnavailableLabel: "Unavailable",
     ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },

@@ -167,13 +167,14 @@
   }
 }
 
-/* D&O mark: 130px, bottom half clipped, tucked behind the name (658:49015). */
+/* D&O mark: 130px, bottom half clipped, tucked behind the name and just
+   under the match box's top edge (827:20909: 80 down, 10 in). */
 .markClip {
   position: absolute;
-  top: 46.5px;
-  right: 7.5px;
+  top: 80px;
+  right: var(--spacing-10);
   width: 130px;
-  height: 65px;
+  height: 67px;
   overflow: hidden;
   pointer-events: none;
 }
@@ -219,6 +220,23 @@
   to {
     opacity: 0;
   }
+}
+
+/* Compact card: the tags in the flow, right-aligned, flush with the top
+   edge; the row keeps a tag's height (6 + 12 + 8, plus hairlines) when a
+   card has none. */
+.tabRow {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  min-height: calc(var(--spacing-6) + 12px + var(--spacing-8) + 2 * var(--border-hairline));
+  margin-top: calc(-1 * var(--border-hairline));
+  padding-right: var(--spacing-2);
+}
+
+.tabRow .tabs {
+  position: static;
 }
 
 /* Tags hang off the top edge, right-aligned, 8 apart. */
@@ -296,6 +314,46 @@
   height: 32px;
 }
 
+/* NetraBot in the logo's place (Case B's Gold): 28, centred in the
+   logos' 32 row. */
+.botSlot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+/* Logo left, claim settlement ratio right, one 32px row (827:20915). */
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  align-self: stretch;
+  height: 32px;
+}
+
+.csr {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.2;
+  color: var(--color-label-secondary);
+  white-space: nowrap;
+}
+
+.csr > div {
+  display: flex;
+}
+
 .name {
   display: flex;
   flex-direction: column;
@@ -310,7 +368,10 @@
   display: block;
 }
 
+/* Above the mark, which tucks under the match box's top edge. */
 .body {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
@@ -415,8 +476,9 @@
   flex-shrink: 0;
 }
 
+/* 4 in, then 8 more for the marks themselves (827:20957). */
 .rule {
-  padding: 0 var(--spacing-4);
+  padding: 0 var(--spacing-12);
 }
 
 /* Footer box: coverages chip left, Add To Compare right (658:47661). */
@@ -546,13 +608,4 @@
   border: 0.75px solid var(--color-input-stroke);
   background: var(--color-card-sunken);
   opacity: 0.5;
-}
-
-/* Two top tabs plus a logo need ~440 across (up to a 120 logo beside two
-   tabs, ~280). Narrower, every card's logo drops just under the tab row,
-   never behind it, so logos, names and bars stay level across a row. */
-@container quote-card (max-width: 440px) {
-  .head {
-    padding-top: 20px;
-  }
 }

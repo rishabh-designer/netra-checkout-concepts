@@ -14,6 +14,8 @@ import { useAtMost } from "@/lib/media";
 
 type Tab = "score" | "chat" | "profile";
 const TABS: Tab[] = ["score", "chat", "profile"];
+/** Case C (not scored): Chat leads and Score goes last. */
+const TABS_UNSCORED: Tab[] = ["chat", "profile", "score"];
 
 export interface DetailsPanelProps {
   content: DetailsPanelContent;
@@ -54,17 +56,21 @@ export interface DetailsPanelProps {
  * DetailsPanel — the left column (Figma 770:26992), full column height: a tab
  * strip (Score | Chat | Profile) over the chosen tab. Score is the upgrade
  * banner growing into the risk score badge and the Gold Quote's key coverages
- * and exclusions (Case C: not scored, a grey N/A and Notify Me); Chat is Ask
+ * and exclusions (Case C: not scored, no badge, and Schedule A Call); Chat is Ask
  * BimaNetra; Profile is Your Details with Edit Details. Phones fold it shut
  * to the tab strip (an accordion).
  * Usage: <DetailsPanel content={detailsPanel} values={values} onEdit={fn} chat={<QuotesChat … />} />
  */
 export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false, verifyFrom, companyName, caseId, scoreLists, chat }: DetailsPanelProps) {
   const accordion = useAtMost("stack");
+  // Phones: a floating dock 12 off the foot that opens upward.
+  const dock = useAtMost("mobile");
   const notify = useDemoNotice();
   const baseId = useId();
-  const [tab, setTab] = useState<Tab>("score");
-  const [chatSeen, setChatSeen] = useState(false);
+  // Case C has no score to show, so it opens on Chat.
+  const tabs = noRecords || caseId === "C" ? TABS_UNSCORED : TABS;
+  const [tab, setTab] = useState<Tab>(tabs[0]);
+  const [chatSeen, setChatSeen] = useState(tab === "chat");
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const folded = accordion && collapsed;
   // Mobile: each time the accordion opens, the upgraded banner replays from
@@ -121,12 +127,12 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
     if (folded) onToggleCollapse?.();
   };
   const onTabKey = (e: KeyboardEvent) => {
-    const i = TABS.indexOf(tab);
+    const i = tabs.indexOf(tab);
     const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
     if (!step) return;
     e.preventDefault();
-    const n = (i + step + TABS.length) % TABS.length;
-    choose(TABS[n]);
+    const n = (i + step + tabs.length) % tabs.length;
+    choose(tabs[n]);
     tabRefs.current[n]?.focus();
   };
 
@@ -140,6 +146,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
     <RiskScoreBadge
       score={score}
       label={content.score.label}
+      outOf={scored ? content.score.outOf : undefined}
       info={scored ? content.score.infoByCase?.[caseId] ?? content.score.info : content.score.mutedInfo}
       muted={!scored}
       still={arrivedUpgraded && !openCount}
@@ -169,7 +176,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
     <aside className={styles.panel} data-collapsed={folded || undefined}>
       <div className={styles.tabBar}>
         <div className={styles.tabs} role="tablist" aria-label={content.title} onKeyDown={onTabKey}>
-          {TABS.map((key, i) => (
+          {tabs.map((key, i) => (
             <button
               key={key}
               ref={(el) => {
@@ -199,7 +206,8 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
             aria-label={collapsed ? "Expand details" : "Collapse details"}
             aria-expanded={!collapsed}
           >
-            <Chevron style={{ transform: collapsed ? undefined : "rotate(180deg)", transition: "transform 0.3s ease" }} />
+            {/* Points the way it opens: down for the accordion, up for the dock. */}
+            <Chevron style={{ transform: (dock ? collapsed : !collapsed) ? "rotate(180deg)" : undefined, transition: "transform 0.3s ease" }} />
           </button>
         )}
       </div>
@@ -207,9 +215,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
       {/* Score (Figma 776:32097): the banner, grown into the score. */}
       <div className={styles.pane} {...pane("score")}>
         {noRecords ? (
-          <NoRecordsBanner content={{ ...content.noRecords, body: named(content.noRecords.body) }} onNotify={() => notify("notifyReport")}>
-            {badge}
-          </NoRecordsBanner>
+          <NoRecordsBanner content={{ ...content.noRecords, body: named(content.noRecords.body) }} onTitleCta={() => notify("scheduleCall")} />
         ) : (
           <UpgradeBanner
             stage={stage}
@@ -220,8 +226,8 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
               body: named((caseId && content.upgraded.bodyByCase?.[caseId]) || content.upgraded.body),
             }}
             notify={
-              caseId && content.upgraded.notifyByCase?.[caseId]
-                ? { label: content.upgraded.notifyByCase[caseId]!, onClick: () => notify("notifyReport") }
+              caseId && content.upgraded.titleCtaByCase?.[caseId]
+                ? { label: content.upgraded.titleCtaByCase[caseId]!.label, onClick: () => notify(content.upgraded.titleCtaByCase![caseId]!.notice) }
                 : undefined
             }
             progress={progress}

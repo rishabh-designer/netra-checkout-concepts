@@ -335,8 +335,14 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
                 <p className={styles.rateTitle}>{content.rate.title}</p>
                 <p className={styles.rateSub}>{content.rate.subtitle}</p>
               </div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={content.rate.badgeSrc} alt="" aria-hidden width={56} height={56} className={styles.rateBadge} />
+              {/* The scalloped seal turns slowly; a still copy clipped to
+                  the centre keeps the shield upright over it. */}
+              <span className={styles.rateBadge} aria-hidden>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={content.rate.badgeSrc} alt="" width={56} height={56} className={styles.rateSeal} />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={content.rate.badgeSrc} alt="" width={56} height={56} className={styles.rateShield} />
+              </span>
             </div>
             {sent ? (
               <p className={styles.rateThanks}>{content.rate.thanks}</p>

@@ -34,17 +34,19 @@
   color: var(--color-label-basic);
 }
 
-/* Positioned so the option list anchors under the field. */
+/* Positioned so the option list anchors under the field. The feed is
+   always filtered and sorted, so both fields read as filled (the DSL
+   success field: lavender fill, brand underline and ink), never empty. */
 .dropdown {
   position: relative;
   display: flex;
-  border-bottom: var(--border-hairline) solid var(--color-rule);
-  background: var(--color-card);
+  border-bottom: var(--border-hairline) solid var(--color-brand-primary);
+  background: var(--color-input-fill);
   transition: background 0.15s ease;
 }
 
 .dropdown:hover {
-  background: var(--color-card-sunken);
+  background: var(--color-brand-primary-subtle);
 }
 
 /* The SelectMenu trigger fills the field: value left, chevron + glyph right.
@@ -60,7 +62,7 @@
   font-weight: 500;
   letter-spacing: var(--track-500);
   line-height: 1;
-  color: var(--color-label-placeholder);
+  color: var(--color-brand-primary);
 }
 
 .suffix {

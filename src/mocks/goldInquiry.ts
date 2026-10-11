@@ -18,7 +18,7 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
   steps: [
     "Your quote will be locked for 45 days",
     "We will finalise your quote with the insurance company",
-    "Our IRDAI-certified expert will call you to complete your purchase",
+    "Our IRDAI-certified Bima Expert will call you to complete your purchase",
   ],
   tickSrc: "/media/gold-inquiry/ticker.svg",
   questions: { text: "Have questions? Reach out to us on {email}", email: "quotes@bimakavach.com" },
@@ -37,7 +37,7 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
   otherQuotes: { title: "{total} Alternative Quotes for This Policy", prevLabel: "Previous quotes", nextLabel: "More quotes" },
   needHelp: {
     title: "Need Help?",
-    subtitle: "For any assistance, contact our IRDAI-certified experts",
+    subtitle: "For any assistance, contact our IRDAI-certified Bima Experts",
     avatarsSrc: "/media/experts/avatars.webp",
     avatarsAlt: "BimaKavach insurance experts",
     contacts: [
@@ -51,12 +51,12 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
     title: "Quote Requested! Sit Back While We Call You.",
     steps: [
       "We will ask {insurer} for your price",
-      "Our IRDAI-certified expert will call you with the quote",
+      "Our IRDAI-certified Bima Expert will call you with the quote",
       "Once it is in, your quote will be locked for 45 days",
     ],
     pricedSteps: [
       "{insurer} has priced your cover at {price}",
-      "Our IRDAI-certified expert will call you to finish the insurer's checks",
+      "Our IRDAI-certified Bima Expert will call you to finish the insurer's checks",
       "Once they're done, your quote will be locked for 45 days",
     ],
     priceLabel: "Quoted Price",

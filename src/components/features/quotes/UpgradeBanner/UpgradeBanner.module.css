@@ -311,7 +311,8 @@ a.cta {
   position: relative;
   z-index: 1;
   display: flex;
-  align-items: center;
+  /* The button sits on the title's last line, not its middle. */
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--spacing-12);
 }

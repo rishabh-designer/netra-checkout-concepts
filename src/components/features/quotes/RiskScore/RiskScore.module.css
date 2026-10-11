@@ -150,6 +150,16 @@
 }
 
 /* A provisional score's asterisk: small, raised to the numerals' top. */
+/* "/100" after the score, at the score's own size. */
+.outOf {
+  margin-left: 0.02em;
+}
+
+/* With the scale the pill holds more, so its sides come in. */
+.pill:has(.outOf) {
+  padding-inline: var(--spacing-16);
+}
+
 .note {
   display: inline-block;
   margin-left: 0.04em;

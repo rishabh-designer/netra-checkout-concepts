@@ -85,14 +85,19 @@ export function QuotesSkeleton({ cardCount, collapsed = false, rowCount = 7 }: Q
             const base = d(7) + i * 80;
             return (
               <div key={i} className={styles.card}>
+                {/* As QuoteCard: logo | claim settlement ratio, the name,
+                    then match & compare, the rule, Sum Insured & price. */}
                 <div className={styles.cardHead}>
-                  <Skeleton variant="rounded" width={56} height={32} delay={base} />
+                  <div className={styles.cardBrand}>
+                    <Skeleton variant="rounded" width={56} height={32} delay={base} />
+                    <Skeleton variant="rounded" width={150} height={22} delay={base + 10} />
+                  </div>
                   <Skeleton width="58%" height={18} delay={base + 20} />
                   <Skeleton width="42%" height={18} delay={base + 40} />
                 </div>
-                <Skeleton variant="rounded" height={64} delay={base + 60} className={styles.full} />
+                <Skeleton variant="rounded" height={38} delay={base + 60} className={styles.full} />
                 <Skeleton height={2} delay={base + 80} className={styles.full} />
-                <Skeleton variant="rounded" height={40} delay={base + 100} className={styles.full} />
+                <Skeleton variant="rounded" height={51} delay={base + 100} className={styles.full} />
               </div>
             );
           })}

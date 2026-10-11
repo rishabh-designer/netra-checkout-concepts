@@ -83,9 +83,9 @@
   box-shadow: none;
 }
 
-/* Mobile: 12 either side. */
+/* Below 1000: 16 either side, as every page. */
 @media (max-width: 999px) {
   .bar {
-    padding-inline: var(--spacing-12);
+    padding-inline: var(--spacing-16);
   }
 }

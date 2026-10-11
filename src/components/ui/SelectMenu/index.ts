@@ -1,2 +1,2 @@
 export { SelectMenu } from "./SelectMenu";
-export type { SelectMenuProps } from "./SelectMenu";
+export type { SelectMenuProps, SelectOptionGroup } from "./SelectMenu";

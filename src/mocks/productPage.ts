@@ -28,6 +28,13 @@ const COVERAGE_OPTIONS = [
   "₹25 Lakh", "₹50 Lakh", "₹1 Cr", "₹2 Cr", "₹3 Cr", "₹4 Cr", "₹5 Cr", "₹7.5 Cr", "₹8 Cr", "₹9 Cr",
   "₹10 Cr", "₹12 Cr", "₹15 Cr", "₹16 Cr", "₹18 Cr", "₹20 Cr", "₹21 Cr", "₹24 Cr", "₹25 Cr",
 ];
+// Up to ₹10 Cr sits within the insurers' delegated underwriting authority
+// (DUA), so it's bought on the spot; above it goes to the insurer first.
+const IMMEDIATE_UP_TO = COVERAGE_OPTIONS.indexOf("₹10 Cr") + 1;
+const COVERAGE_GROUPS = [
+  { label: "Immediate Purchase", options: COVERAGE_OPTIONS.slice(0, IMMEDIATE_UP_TO), tone: "immediate" as const },
+  { label: "Other Options", options: COVERAGE_OPTIONS.slice(IMMEDIATE_UP_TO) },
+];
 
 // Sum Insured (was "Required Coverage") — label + info tooltip, shared by all cases.
 const SUM_INSURED_LABEL = "Sum Insured";
@@ -444,7 +451,7 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "existingPolicy", label: "Does your business have an existing Directors & Officers policy?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
               { key: "claims5y", label: "Any claims or incidents in the last 5 years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
-              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "₹10 Cr", options: COVERAGE_OPTIONS, status: "success", helpText: "Typical for businesses your size", helpTone: "success" },
+              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "₹10 Cr", options: COVERAGE_OPTIONS, optionGroups: COVERAGE_GROUPS, status: "success", helpText: "Typical for businesses your size", helpTone: "success" },
             ],
             search: RISK_NEWS_A,
           },
@@ -460,7 +467,7 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "existingPolicy", label: "Does your business have an existing Directors & Officers policy?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "fuzzy" },
               { key: "claims5y", label: "Any claims or incidents in the last 5 years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "fuzzy" },
-              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "₹10 Cr", options: COVERAGE_OPTIONS, status: "success", helpText: "Typical cover for a business like yours", helpTone: "basic" },
+              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "₹10 Cr", options: COVERAGE_OPTIONS, optionGroups: COVERAGE_GROUPS, status: "success", helpText: "Typical cover for a business like yours", helpTone: "basic" },
             ],
             search: RISK_NEWS_B,
           },
@@ -471,7 +478,7 @@ export const mockProductPageContent: ProductPageContent = {
             fields: [
               { key: "existingPolicy", label: "Does your business have an existing Directors & Officers policy?", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
               { key: "claims5y", label: "Any claims or incidents in the last 5 years?", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
-              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "", placeholder: "Select Your Sum Insured", options: COVERAGE_OPTIONS, status: "empty" },
+              { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "", placeholder: "Select Your Sum Insured", options: COVERAGE_OPTIONS, optionGroups: COVERAGE_GROUPS, status: "empty" },
             ],
             search: RISK_NEWS_C,
           },

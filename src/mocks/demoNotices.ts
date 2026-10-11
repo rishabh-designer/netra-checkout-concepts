@@ -35,6 +35,10 @@ export const mockDemoNotices: DemoNoticeContent = {
     title: "Your invoice is next",
     description: "This downloads your tax invoice as a PDF. We haven't built it yet.",
   },
+  viewReport: {
+    title: "View Report is next",
+    description: "This opens your BimaNetra Risk Report in a new tab. We haven't built it yet.",
+  },
   riskReport: {
     title: "Your Risk Report is next",
     description: "This downloads the BimaNetra Risk Report on your business as a PDF. We haven't built it yet.",

@@ -16,6 +16,8 @@ export interface RiskScoreBadgeProps {
   /** The score as shown ("82.4", or "N/A" when it couldn't be scored). */
   score: string;
   label: string;
+  /** The scale after the score, small ("/100"). */
+  outOf?: string;
   /** The info icon's tooltip. */
   info: string;
   /** Not scored (Case C): greyed rings and a grey pill. */
@@ -30,9 +32,9 @@ export interface RiskScoreBadgeProps {
  * score in the serif, its label ("Business Health") and an info tooltip under it. The rings
  * fade in from the outside in and the pill lands last. `muted` greys it all
  * for a business we couldn't score.
- * Usage: <RiskScoreBadge score="82.4" label="Business Health" info="…" />
+ * Usage: <RiskScoreBadge score="82.4" outOf="/100" label="Business Health" info="…" />
  */
-export function RiskScoreBadge({ score, label, info, muted = false, still = false }: RiskScoreBadgeProps) {
+export function RiskScoreBadge({ score, label, outOf, info, muted = false, still = false }: RiskScoreBadgeProps) {
   const reduced = useReducedMotion();
   const quiet = reduced || still;
   return (
@@ -75,6 +77,8 @@ export function RiskScoreBadge({ score, label, info, muted = false, still = fals
           ) : (
             score
           )}
+          {/* The scale, small on the baseline: "82.4/100". */}
+          {outOf && <span className={styles.outOf}>{outOf}</span>}
         </motion.span>
       </div>
       <p className={styles.caption}>

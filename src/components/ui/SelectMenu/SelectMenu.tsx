@@ -1,9 +1,19 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { FilledCheck } from "@/components/ui/InteractiveInput/icons";
+import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./SelectMenu.module.css";
+
+/** A titled run of options. `tone: "immediate"` marks options bought on the
+ *  spot (the quote cards' Immediate Purchase bag on the header and the
+ *  chosen value). */
+export interface SelectOptionGroup {
+  label: string;
+  options: string[];
+  tone?: "immediate";
+}
 
 export interface SelectMenuProps {
   id?: string;
@@ -22,6 +32,8 @@ export interface SelectMenuProps {
   triggerClassName?: string;
   /** Extra class on the floating option list (width, max height). */
   listClassName?: string;
+  /** Splits the list under group headers; takes the place of `options`. */
+  groups?: SelectOptionGroup[];
 }
 
 /**
@@ -36,7 +48,7 @@ export interface SelectMenuProps {
 export function SelectMenu({
   id,
   value,
-  options,
+  options: flatOptions,
   placeholder = "Select…",
   onChange,
   disabled = false,
@@ -46,7 +58,12 @@ export function SelectMenu({
   adornment,
   triggerClassName,
   listClassName,
+  groups,
 }: SelectMenuProps) {
+  const options = groups ? groups.flatMap((g) => g.options) : flatOptions;
+  // The chosen value carries its group's mark (Immediate Purchase).
+  const immediate = !!value && !!groups?.some((g) => g.tone === "immediate" && g.options.includes(value));
+  const bag = (size: number) => <ShoppingBagIcon size={size} color="var(--color-success)" isAnimated={false} aria-hidden />;
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -114,7 +131,14 @@ export function SelectMenu({
         onClick={() => setOpen(!open)}
         onKeyDown={onKeyDown}
       >
-        {adornment ? <span className={styles.text} data-tooltip-overflow>{triggerLabel ?? (value || placeholder)}</span> : (triggerLabel ?? (value || placeholder))}
+        {adornment ? (
+          <span className={styles.lead}>
+            <span className={styles.text} data-tooltip-overflow>{triggerLabel ?? (value || placeholder)}</span>
+            {immediate && <span className={styles.mark}>{bag(14)}</span>}
+          </span>
+        ) : (
+          triggerLabel ?? (value || placeholder)
+        )}
         {adornment}
       </button>
 
@@ -122,9 +146,16 @@ export function SelectMenu({
         <ul ref={listRef} id={listId} role="listbox" className={cn(styles.list, listClassName)}>
           {options.map((opt, i) => {
             const selected = opt === value;
+            const group = groups?.find((g) => g.options[0] === opt);
             return (
+              <Fragment key={opt}>
+              {group && (
+                <li role="presentation" className={styles.groupLabel} data-tone={group.tone}>
+                  {group.tone === "immediate" && bag(12)}
+                  {group.label}
+                </li>
+              )}
               <li
-                key={opt}
                 id={`${listId}-${i}`}
                 role="option"
                 aria-selected={selected}
@@ -137,6 +168,7 @@ export function SelectMenu({
                 <span className={styles.label} data-tooltip-overflow>{opt}</span>
                 <FilledCheck color={selected ? "var(--color-success)" : "var(--color-input-stroke)"} />
               </li>
+              </Fragment>
             );
           })}
         </ul>

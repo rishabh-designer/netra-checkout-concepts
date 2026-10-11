@@ -22,8 +22,8 @@ const list = (items: string[], and: string) =>
 
 const amount = (price?: string) => Number((price ?? "").replace(/[^\d]/g, "")) || 0;
 
-/* Words that name no insurer on their own ("Your Personalised Insurance Quote"). */
-const STOP = new Set(["general", "insurance", "company", "your", "personalised", "quote"]);
+/* Words that name no insurer on their own ("Your Personalised Gold Quote"). */
+const STOP = new Set(["general", "insurance", "company", "your", "personalised", "quote", "gold"]);
 
 /* The words someone might use for an insurer: its first word ("hdfc",
    "generali"), plus any "ergo" / "lombard"-style second word. */

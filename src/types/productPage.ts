@@ -134,6 +134,9 @@ export interface QuoteModalField {
   prefix?: string;
   /** Options for a `select` control — lets Case C be filled in. */
   options?: string[];
+  /** The options under group headers (Sum Insured: what's bought on the
+   *  spot, within the insurers' delegated authority, then the rest). */
+  optionGroups?: { label: string; options: string[]; tone?: "immediate" }[];
   status: QuoteFieldStatus;
   /** Contextual help/disclaimer shown in the reserved help row (see helpTone). */
   helpText?: string;
