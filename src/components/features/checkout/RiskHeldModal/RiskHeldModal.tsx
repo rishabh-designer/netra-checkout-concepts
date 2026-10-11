@@ -35,7 +35,9 @@ export function RiskHeldModal({ open, content, onDownload, onWhatsApp, onClose, 
         </div>
         <div className={styles.copy}>
           <h2 className={styles.title}>{content.title}</h2>
-          <p className={styles.body}>{content.body}</p>
+          <p className={styles.body}>
+            <strong className={styles.lead}>{content.lead}</strong> {content.body}
+          </p>
         </div>
         <div className={styles.actions}>
           <Button tone="outline" onClick={onDownload} className={styles.button}>

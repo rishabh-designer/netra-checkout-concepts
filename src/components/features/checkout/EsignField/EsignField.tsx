@@ -6,6 +6,7 @@ import { SideDrawer } from "@/components/ui/SideDrawer";
 import { InteractiveInput } from "@/components/ui/InteractiveInput";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Button } from "@/components/ui/Button";
+import { useDemoNotice } from "@/lib/demo-notice";
 import type { CheckoutEsignContent, CheckoutUploadCopy } from "@/types/checkout";
 import styles from "./EsignField.module.css";
 
@@ -29,6 +30,12 @@ const digits = (v: string) => v.replace(/\D/g, "");
  */
 export function EsignField({ content, uploadCopy, signed, onSignedChange }: EsignFieldProps) {
   const m = content.modal;
+  const notify = useDemoNotice();
+  const view = (beside?: boolean) => (
+    <button type="button" className={styles.view} data-beside={beside || undefined} onClick={() => notify("mandateLetter")}>
+      {content.viewLabel}
+    </button>
+  );
   const [open, setOpen] = useState(false);
   const [stage, setStage] = useState<"id" | "otp">("id");
   const [consent, setConsent] = useState(false);
@@ -70,6 +77,7 @@ export function EsignField({ content, uploadCopy, signed, onSignedChange }: Esig
         fileName={signed ? content.signedName : ""}
         onChange={(v) => !v && onSignedChange(false)}
         onPick={start}
+        labelAction={view(true)}
         copy={{ ...uploadCopy, successTitle: content.successTitle, successBody: content.successBody, cancelLabel: content.redoLabel }}
       />
       <SideDrawer
@@ -95,7 +103,9 @@ export function EsignField({ content, uploadCopy, signed, onSignedChange }: Esig
         }
       >
         <div className={styles.body}>
-          <p className={styles.intro}>{m.intro}</p>
+          <p className={styles.intro}>
+            {m.intro} {view()}
+          </p>
           {stage === "id" ? (
             <>
               <label className={styles.consent}>

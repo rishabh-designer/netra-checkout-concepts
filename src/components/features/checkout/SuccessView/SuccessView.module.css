@@ -163,11 +163,16 @@
 }
 
 .upNextBody {
-  font-size: var(--font-size-200);
+  font-size: var(--font-size-100);
   font-weight: 500;
   letter-spacing: var(--track-500);
   line-height: 1.5;
   color: var(--color-label-primary);
+}
+
+.upNextLead {
+  font-weight: 600;
+  letter-spacing: var(--track-600);
 }
 
 .upNextLink {

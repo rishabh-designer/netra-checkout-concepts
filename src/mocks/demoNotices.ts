@@ -39,6 +39,10 @@ export const mockDemoNotices: DemoNoticeContent = {
     title: "Visit Dashboard is next",
     description: "This opens your BimaKendra dashboard, with your policy, tasks and documents. We haven't built it yet.",
   },
+  mandateLetter: {
+    title: "View Mandate Letter is next",
+    description: "This opens the Mandate Letter you're signing in a new tab. We haven't built it yet.",
+  },
   viewReport: {
     title: "View Report is next",
     description: "This opens your BimaNetra Risk Report in a new tab. We haven't built it yet.",

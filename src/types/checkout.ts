@@ -220,8 +220,8 @@ export interface CheckoutSuccessContent {
   headline: string;
   greeting: string;
   /** Under the greeting card's rule, once the mandate is e-Signed:
-   *  `{riskHeld}` and `{dashboard}` are links. */
-  upNext: { label: string; body: string; riskHeld: string; dashboard: string };
+   *  `{riskHeld}` and `{dashboard}` are links; `lead` opens it, in bold. */
+  upNext: { label: string; lead: string; body: string; riskHeld: string; dashboard: string };
   orderPrefix: string;
   badgeAlt: string;
   stats: { startLabel: string; endLabel: string; premiumLabel: string; periodLabel: string; periodValue: string };
@@ -273,6 +273,8 @@ export interface CheckoutSuccessContent {
    *  confirms with a toast (`{email}` / `{phone}`) and closes it. */
   riskHeld: {
     title: string;
+    /** The opening line, in the primary label colour (same weight): cover has started. */
+    lead: string;
     body: string;
     /** The × in the top-right corner. */
     closeLabel: string;
@@ -302,6 +304,8 @@ export interface CheckoutEsignContent {
   successTitle: string;
   successBody: string;
   redoLabel: string;
+  /** Opens the Mandate Letter being signed, beside the field and in the popup. */
+  viewLabel: string;
   /** Review: the row's label and its value once signed ("E-Aadhaar" · "Signed"). */
   reviewLabel: string;
   reviewSigned: string;

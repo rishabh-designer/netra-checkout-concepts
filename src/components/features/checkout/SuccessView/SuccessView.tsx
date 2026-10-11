@@ -288,6 +288,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                           <div className={styles.upNextText}>
                             <p className={styles.upNextLabel}>{s.upNext.label}</p>
                             <p className={styles.upNextBody}>
+                              <strong className={styles.upNextLead}>{s.upNext.lead}</strong>{" "}
                               {s.upNext.body.split(/(\{riskHeld\}|\{dashboard\})/).map((part, i) =>
                                 part === "{riskHeld}" ? (
                                   <button key={i} type="button" className={styles.upNextLink} onClick={() => setRiskHeld(true)}>

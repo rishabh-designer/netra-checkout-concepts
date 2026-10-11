@@ -26,9 +26,9 @@
 |---|---|---|
 | **Can the user tell what happens next?** | ⚠️ Partly | "Up Next" says the policy will be issued and the Policy Issuance row is open, so the next event is visible. But nothing says whether the user has to do anything (they don't), and for B and C the Checkout row says "we'll double-check the rest" without saying what that check is, whether anyone will call, or whether the price can change (S7). |
 | **Can they tell when the policy arrives?** | ⚠️ Partly | "7 working days" appears once, as a duration, inside the greeting card. The Policy Issuance row itself has no time and no date, and nothing says how it arrives (email, WhatsApp, the vault) (S3). Four names are used for where it will live (S4). |
-| **Do they understand the Risk Held Letter stands in for the policy until it arrives?** | ❌ Not reliably | The page offers the letter only as a download. The modal explains it in dictionary language with three names for one document, and the one line that matters ("temporary, binding insurance coverage is active") sits mid-sentence (S1). The plainest statement, "Your cover is held from the date of payment", lives in the Disclaimer, which is folded shut (S2). A second, similarly named document (Risk Report) sits one row up (S5). |
+| **Do they understand the Risk Held Letter stands in for the policy until it arrives?** | ✅ Now, yes (was ❌) | Fixed: Up Next and the modal both open with "You're covered from today" and call the letter the proof of cover until the policy arrives. *Before:* The page offers the letter only as a download. The modal explains it in dictionary language with three names for one document, and the one line that matters ("temporary, binding insurance coverage is active") sits mid-sentence (S1). The plainest statement, "Your cover is held from the date of payment", lives in the Disclaimer, which is folded shut (S2). A second, similarly named document (Risk Report) sits one row up (S5). |
 
-**The fix in one line:** lead the Up Next block with *"You're covered from today. Until your policy arrives (by {date}), your Risk Held Letter is your proof of cover."* and rewrite the modal around the same sentence. Suggested copy is in S1–S3.
+**What's shipped:** Up Next and the Risk Held modal now both open with *"You're covered from today."* and call the letter the proof of cover until the policy arrives; Up Next and Policy Issuance say the policy will be emailed and will be on the Dashboard. **Still open:** a date instead of "7 working days" (S3) and the unspoken checks for B and C (S7).
 
 ---
 
@@ -36,13 +36,13 @@
 
 | # | Issue | Stage | Cases | Sev |
 |---|---|---|---|---|
-| 1 | **The Risk Held Letter isn't framed as proof of cover**; the modal reads as a glossary entry | Success | All | 3 |
-| 2 | **"You're covered from today" is only in the folded Disclaimer** | Success | All | 3 |
-| 3 | **Users e-sign a Mandate Letter they never see**, and the modal calls it a "proposal" | Checkout | All | 3 |
-| 4 | **Claims and existing-policy declarations are pre-answered "No"** by BimaNetra, which risks non-disclosure being blamed on the customer | Onboarding | A, B | 3 |
-| 5 | **Task labels claim cover before purchase:** "Business Secured", "Risk Insured" | Onboarding | All | 3 |
+| 1 | ✅ **Fixed:** the Risk Held Letter is now framed as proof of cover (S1) | Success | All | ~~3~~ |
+| 2 | ✅ **Fixed:** "You're covered from today" now leads Up Next and the Risk Held modal (S2) | Success | All | ~~3~~ |
+| 3 | ✅ **Fixed:** users can now read the Mandate Letter before signing, and it has one name (K1) | Checkout | All | ~~3~~ |
+| 4 | ~~Declarations pre-answered "No"~~ **Withdrawn:** the answers come from public sources, and Confirm and Continue is the customer's confirmation (O1) | Onboarding | A, B | - |
+| 5 | ~~"Business Secured", "Risk Insured" claim cover too early~~ **Withdrawn:** by design, these say BimaNetra is securing the business and insuring the risk in real time from public sources, as an expert would on a call (O2) | Onboarding | All | - |
 | 6 | **Quotes confirmed by an expert also get a Risk Held Letter** and the 7-day promise, while their row says an expert still has to confirm with the insurer | Success | All (non-immediate quotes) | 3 |
-| 7 | **No path when the buyer isn't the Aadhaar signatory** (e.g. a finance head buying for the directors) | Checkout | All | 3 |
+| 7 | ~~No path when the buyer isn't the Aadhaar signatory~~ **Withdrawn:** Billing's "Buy in Another Person's Name" covers this before Verification (K2) | Checkout | All | - |
 | 8 | **Cards carry five signals each** in three visual styles, with no clear order | Quotes | All | 3 |
 | 9 | **The issue date is a duration, not a date**, and only in the greeting card | Success | All | 2 |
 | 10 | **Four names for where the policy lives:** Dashboard, Document Vault, Policies folder, BimaKendra | Success | All | 2 |
@@ -88,8 +88,8 @@ Success
 ### Findings
 | # | Finding | Lens | Cases | Sev |
 |---|---|---|---|---|
-| O1 | **Declarations pre-answered.** "Any claims or incidents in the last 5 years?" and "existing D&O policy?" arrive answered "No" (green in A, orange in B). These are the customer's own declarations; a wrong "No" is a non-disclosure that can void a claim, and here it was BimaNetra's guess. Leave them unanswered, and show what was found as a hint: "We found no claims on record. Please confirm." | Heuristic (H5), Content | A, B | 3 |
-| O2 | **Done labels claim cover.** "Business Secured" and "Risk Insured" appear before the user has seen a quote, let alone paid. Suggested: "Business Confirmed", "Risk Assessed". | Content, Heuristic (H2) | All | 3 |
+| O1 | ~~Declarations pre-answered.~~ **Withdrawn.** The Yes/No answers are filled from public sources, and Confirm and Continue is the customer's confirmation of them. | Heuristic (H5), Content | A, B | - |
+| O2 | ~~Done labels claim cover.~~ **Withdrawn.** "Business Secured" and "Risk Insured" are intentional: BimaNetra secures the business and insures the risk in real time from public sources, the same work an expert does on a call. | Content, Heuristic (H2) | All | - |
 | O3 | **Contact details come first.** Step 1 asks for name, phone and email before the user sees any research or price. The engine works in the background, but the user feels a lead form. Consider moving Profile last ("Where should we send your quotes?"), or showing the research panel's first finding while they type. | Usability | All | 2 |
 | O4 | **"Profile" collides.** Here it means *your contact details*; on the quotes page the Profile tab means *the company's details*. Suggested: "You" / "Contact" here, keep "Profile" on the quotes page (or "Business Details" there). | IA | All | 2 |
 | O5 | **A confirm box that doesn't exist.** Case B's footer: "Review each field, then tick the box to confirm before continuing." Confirm and Continue is the confirmation; there's no tick box. Suggested: "Review each field, then Confirm and Continue." | Content, Heuristic (H4) | B | 2 |
@@ -220,8 +220,8 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 ### Findings
 | # | Finding | Lens | Cases | Sev |
 |---|---|---|---|---|
-| K1 | **Signing a document you can't read.** The zone says "Sign Mandate Letter with E-Aadhaar", but there's no preview or link to the letter, and the NSDL modal says "Sign your **proposal** with your Aadhaar". Users are legally signing something unseen, under two names. Add "View Mandate Letter" beside the zone (and in the modal), and use one name. | Heuristic (H1, H4), Usability | All | 3 |
-| K2 | **No path for a buyer who isn't the signatory.** The e-sign needs the authorised signatory's Aadhaar and OTP. A finance head or an assistant (Billing even offers "Buy in Another Person's Name") hits a hard stop with no "Send to a director to sign" option. | Usability | All | 3 |
+| K1 | ✅ **Fixed.** "View Mandate Letter" now sits at the end of the e-sign field's label row and after the NSDL popup's intro, so users can read what they sign. The popup says "Sign your Mandate Letter with your Aadhaar" (was "proposal"). In the prototype the link shows a "next" notice. | Heuristic (H1, H4), Usability | All | ~~3~~ |
+| K2 | ~~No path for a buyer who isn't the signatory.~~ **Withdrawn:** Billing offers "Buy in Another Person's Name" before the user reaches Verification, so the signatory can be set up front. | Usability | All | - |
 | K3 | **"Upload Signature via E-Aadhaar"**: nothing is uploaded; it's a sign-with-OTP flow, and the zone below already says "Sign…". Suggested label: "E-Sign with Aadhaar". | Content | All | 2 |
 | K4 | **Two KYC sections on one step:** "KYC Details" (uploads and numbers) at the top and "KYC Verification" (e-sign) at the bottom, with Company Registration Details between them. The hardest task comes last and its title repeats the first. Suggested: rename it "Mandate Letter" or "E-Sign", or move it under KYC Details. | IA | All | 2 |
 | K5 | **The payment consent lowers trust at the worst moment:** "I understand the broker is not responsible for policy creation errors, as this depends on the insurance company." If legal requires it, soften: "The insurer issues the policy from the details above, so please check them carefully." | Content | All | 2 |
@@ -247,12 +247,12 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 ### Findings
 | # | Finding | Lens | Cases | Sev |
 |---|---|---|---|---|
-| S1 | **The Risk Held Letter isn't framed as proof of cover.** The modal body: *"A Risk Held Report (often referred to alongside a Held Cover Letter or Risk Held Letter) is an operational document issued by an insurer or authorised broker confirming that temporary, binding insurance coverage is active while the final policy is being fully processed and underwritten."* It defines a category in the third person, uses three names, and buries the point. Suggested: **"You're covered from today."** / *"Your policy is being issued by Generali Central Insurance. Until it arrives, this letter is your proof of cover. Share it with anyone who asks, such as your board, a lender or an investor."* | Content, Heuristic (H2) | All | 3 |
-| S2 | **The key message is in the fine print.** "Your cover is held from the date of payment" is the Disclaimer's first line, and the Disclaimer is folded shut. Move it into Up Next and the Checkout row. | Heuristic (H1), IA | All | 3 |
-| S3 | **When, as a date, and how.** "Your policy will be issued in 7 working days" appears once, in the greeting card. The Policy Issuance row says only "as soon as it's issued". Suggested for the row: *"Expected by 21 Oct 2026. We'll email and WhatsApp it to you, and it'll be in your Document Vault."* | Heuristic (H1), Usability | All | 2 |
+| S1 | ✅ **Fixed.** The modal now opens with **"You're covered from today."** and reads: *"Your insurer is issuing your policy. Until it arrives, this letter is your proof of cover. Share it with anyone who asks, such as your board, a lender or an investor."* (Was a third-person definition with three names for one document.) | Content, Heuristic (H2) | All | ~~3~~ |
+| S2 | ✅ **Fixed.** Up Next now opens with **"You're covered from today."** and says the Risk Held Letter is the proof of cover until the policy arrives. The Disclaimer line stays as the legal version. | Heuristic (H1), IA | All | ~~3~~ |
+| S3 | **When, as a date.** "7 working days" is still a duration, not a date. ✅ *How* is fixed: Up Next and the Policy Issuance row now say the policy will be emailed and will be on the user's Dashboard. Remaining suggestion: "Expected by 21 Oct 2026". | Heuristic (H1), Usability | All | 2 |
 | S4 | **Four names for one place:** "your Dashboard" (Up Next, header), "the Policies folder of your Document Vault" (Policy Issuance), "BimaKendra's Document Vault" (download toast), "BimaKendra Tasks" (the old mandate copy). Pick one destination name and use it everywhere. | IA, Content | All | 2 |
 | S5 | **Two documents, near-identical names:** "Download Risk Report" (Profiling row, the BimaNetra assessment), "Risk Held Letter" (proof of cover), and the preview's back page reads "Risk Assessment Report"; the modal body says "Risk Held Report". Rename the first "BimaNetra Report" (as the Gold row's status already says) and keep "Risk Held Letter" as the only "Risk Held". | Content, IA | All | 2 |
-| S6 | **"Download Now" doesn't download.** It closes the modal and toasts "Opening your Document Vault". Either download the PDF, or label it "Open in Document Vault". | Heuristic (H2), Usability | All | 2 |
+| S6 | ✅ **Fixed.** The modal's first button now reads "View" (was "Download Now", which didn't download; it opens the user's documents). | Heuristic (H2), Usability | All | ~~2~~ |
 | S7 | **Unspoken checks for B and C.** Their Checkout row (marked done) says "we'll double-check the rest" (B) or "We'll check them before your policy is issued" (C), but no step shows that check, and nothing says what happens if it fails (a call? a price change? cover?). Either add it to the Policy Issuance row ("We're checking your details with the insurer; we'll call only if something needs you") or drop the line. | Heuristic (H1), Usability | B, C | 2 |
 | S8 | **Expert-confirmed quotes get the same promise.** A priced quote without Immediate Purchase (e.g. Royal Sundaram) can be paid; its Checkout row reads "Next Up: Expert Review… An expert confirms your details with the insurer before the policy is issued", yet the page still offers a Risk Held Letter and "issued in 7 working days". If cover isn't bound until the insurer accepts, the letter overstates it. Give this path its own Up Next ("Your expert confirms with the insurer within a working day; your cover starts once they accept") or confirm cover is held. | Content, Heuristic (H2) | All (non-immediate) | 3 |
 | S9 | **"Booking" is travel language.** "Your Policy Booking is Confirmed!" sits next to "You have successfully paid for your… policy" and "Your policy will be issued". Suggested headline: **"You're Covered!"** or "Payment Received, Cover Started". | Content | All | 2 |
@@ -263,9 +263,18 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 | S14 | **Two help routes in view:** "Speak to an Expert" (header) and the RM card's phone. They are the same job; point the header to the RM. | IA | All | 1 |
 | S15 | **"Policy Premium" is the GST-inclusive total** (see K8). | Content | All | 1 |
 
-### Suggested Up Next block (replaces the current paragraph)
-> **You're covered from today.**
-> Generali Central Insurance is issuing your policy, expected by **21 Oct 2026**. Until it arrives, your **Risk Held Letter** is your proof of cover. We'll email and WhatsApp the policy to you, and you'll find both in your **Dashboard**.
+### Live copy (after the fixes)
+**Up Next**
+> **You're covered from today.** Your policy will be issued in 7 working days. We'll email it to you, and you'll find it on your Dashboard. Until then, your Risk Held Letter is your proof of cover. Thank you for securing your business with BimaKavach!
+
+**Risk Held modal**
+> **You're covered from today.** Your insurer is issuing your policy. Until it arrives, this letter is your proof of cover. Share it with anyone who asks, such as your board, a lender or an investor.
+> Buttons: View · Send to WhatsApp
+
+**Policy Issuance row**
+> We'll email your policy to you as soon as it's issued, and you'll find it on your Dashboard.
+
+**Next step (S3):** swap "in 7 working days" for a date, e.g. "expected by 21 Oct 2026".
 
 ---
 
@@ -280,7 +289,7 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 | Where documents live | Dashboard · Document Vault · Policies folder · BimaKendra | One name |
 | The BimaNetra assessment | Risk Report · BimaNetra Report · Risk Assessment Report · View Report | BimaNetra Report |
 | Proof of cover | Risk Held Letter · Risk Held Report · Held Cover Letter | Risk Held Letter |
-| The signed document | Mandate Letter · proposal | Mandate Letter |
+| The signed document | ✅ Mandate Letter | Keep |
 | Signing | E-Aadhaar · NSDL E-Sign · NSDL e-Gov · Upload Signature | Aadhaar E-Sign (via NSDL) |
 | Premium | Premium (pre-GST) · Policy Premium (incl. GST) · Total Cost | Premium / Total Cost |
 | Booking a call | Schedule A Call · Schedule a Call | One casing |
@@ -289,10 +298,10 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 ### Cover-promise ladder (how strongly each stage claims cover)
 | Stage | Copy | Claim | OK? |
 |---|---|---|---|
-| Onboarding | "Business Secured", "Risk Insured" | Already covered | ❌ Too early (O2) |
+| Onboarding | "Business Secured", "Risk Insured" | Real-time securing from public sources | ✅ By design |
 | Quotes | "Immediate Purchase: buy your policy right now, completely online" | Buyable now | ✅ |
 | Checkout | "The price shown is final… the insurer may revise it" | Conditional price | ⚠️ Say it on Review (K6) |
-| Success | "Policy Booking is Confirmed" · Risk Held Letter · "cover is held from the date of payment" (folded) | Covered now | ⚠️ True, but unsaid where it counts (S1, S2); overstated for expert quotes (S8) |
+| Success | "You're covered from today" (Up Next, Risk Held modal) · Risk Held Letter as proof of cover | Covered now | ✅ Said where it counts; still overstated for expert quotes (S8) |
 
 ### House-rule checks
 | Rule | Result |
@@ -306,15 +315,15 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 ---
 
 ## 6. Proposed real-user test plan
-- **Who:** 5–6 SME founders or finance heads per case (15–18 total), mixed mobile and desktop. Include at least 3 finance heads who are not directors (K2).
+- **Who:** 5–6 SME founders or finance heads per case (15–18 total), mixed mobile and desktop.
 - **Tasks:**
   1. From the product page, get a quote for your company.
-  2. Tell us what BimaNetra found and whether it's right (O1, O6).
+  2. Tell us what BimaNetra found and whether it's right (O6).
   3. Pick and buy a quote; change your Sum Insured once on the way.
   4. Sign the mandate. *Ask: what did you just sign?* (K1)
   5. On Success, without clicking: *"Are you covered right now? When does your policy arrive? What would you show your bank tomorrow?"* (S1–S3)
 - **Measure:** task success, time to first quote, time to pay, comprehension of the key-lines chip, correct answers to the three Success questions, SUS.
-- **Hypotheses:** (1) fewer than half can say they're covered today from the Success screen as it is; (2) most can't name what they signed; (3) users read "Risk Insured" in onboarding as cover already bought.
+- **Hypotheses:** (1) fewer than half can say they're covered today from the Success screen as it is; (2) most open View Mandate Letter before signing.
 
 ---
 

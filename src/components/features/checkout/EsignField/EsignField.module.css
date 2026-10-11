@@ -13,6 +13,26 @@
   color: var(--color-label-secondary);
 }
 
+.view {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+/* Beside the field's label: the label's size, inset like it; in the popup,
+   the intro's own size. */
+.view[data-beside] {
+  padding-inline: var(--spacing-8);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+}
+
 .consent {
   display: flex;
   align-items: flex-start;

@@ -59,6 +59,11 @@
   color: var(--color-label-secondary);
 }
 
+.lead {
+  font-weight: 500;
+  color: var(--color-label-primary);
+}
+
 /* Figma's 14px buttons, 12/20 (Figma r12, one step rounder). */
 .button.button {
   padding: var(--spacing-12) var(--spacing-20);

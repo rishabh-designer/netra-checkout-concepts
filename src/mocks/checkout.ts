@@ -116,11 +116,12 @@ export const mockCheckoutContent: CheckoutContent = {
         successTitle: "Signed successfully",
         successBody: "Signed with {file} through NSDL E-Sign.",
         redoLabel: "Sign Again",
+        viewLabel: "View Mandate Letter",
         reviewLabel: "E-Aadhaar",
         reviewSigned: "Signed",
         modal: {
           title: "NSDL E-Sign",
-          intro: "Sign your proposal with your Aadhaar. NSDL confirms it's you with an OTP; we never see or store your Aadhaar number.",
+          intro: "Sign your Mandate Letter with your Aadhaar. NSDL confirms it's you with an OTP; we never see or store your Aadhaar number.",
           consent:
             "I allow NSDL e-Gov to use my Aadhaar or Virtual ID to confirm my identity and sign this document, and for no other purpose.",
           idLabel: "Aadhaar or Virtual ID",
@@ -259,9 +260,10 @@ export const mockCheckoutContent: CheckoutContent = {
     greeting: "Hello, {name}. You have successfully paid for your Directors & Officers Insurance policy for {company} {order}.",
     upNext: {
       label: "Up Next:",
-      body: "Your policy will be issued in 7 working days. Please download your {riskHeld}, or {dashboard}. Thank you for securing your business with BimaKavach!",
+      lead: "You're covered from today.",
+      body: "Your policy will be issued in 7 working days. We'll email it to you, and you'll find it on your {dashboard}. Until then, your {riskHeld} is your proof of cover. Thank you for securing your business with BimaKavach!",
       riskHeld: "Risk Held Letter",
-      dashboard: "view it from your Dashboard",
+      dashboard: "Dashboard",
     },
     orderPrefix: "DNO",
     badgeAlt: "Payment successful",
@@ -320,7 +322,7 @@ export const mockCheckoutContent: CheckoutContent = {
     },
     issuance: {
       title: "Next Up: Policy Issuance",
-      body: "Your policy copy will be in the Policies folder of your Document Vault as soon as it's issued.",
+      body: "We'll email your policy to you as soon as it's issued, and you'll find it on your Dashboard.",
     },
     signLabel: "Sign Mandate Letter",
     riskHeldLabel: "Download Risk Held Letter",
@@ -363,7 +365,8 @@ export const mockCheckoutContent: CheckoutContent = {
     loadingLabel: "Confirming your payment",
     riskHeld: {
       title: "Download your Risk Held Letter",
-      body: "A Risk Held Report (often referred to alongside a Held Cover Letter or Risk Held Letter) is an operational document issued by an insurer or authorised broker confirming that temporary, binding insurance coverage is active while the final policy is being fully processed and underwritten.",
+      lead: "You're covered from today.",
+      body: "Your insurer is issuing your policy. Until it arrives, this letter is your proof of cover. Share it with anyone who asks, such as your board, a lender or an investor.",
       closeLabel: "Close",
       preview: {
         title: "Risk Held Letter",
@@ -372,7 +375,7 @@ export const mockCheckoutContent: CheckoutContent = {
         backTitle: "Risk Assessment Report",
       },
       imageAlt: "A preview of your Risk Held Letter",
-      downloadLabel: "Download Now",
+      downloadLabel: "View",
       whatsappLabel: "Send to WhatsApp",
       downloadToast: { title: "Opening your Document Vault", description: "We'll take you to BimaKendra's Document Vault, where your Risk Held Letter is kept safe." },
       whatsappToast: { title: "Sent to WhatsApp", description: "Your Risk Held Letter is on its way to +91 {phone}." },
