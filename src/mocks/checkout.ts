@@ -93,7 +93,7 @@ export const mockCheckoutContent: CheckoutContent = {
       // Figma 638:16876: the company (locked, it's what's being insured), then
       // the buyer's name, phone and email, labelled, 2 × 2.
       fields: [
-        { key: "companyName", label: "Enter Company Name", reviewLabel: "Company Name", control: "text", seedFrom: "companyName", status: "verified", placeholder: "Company Name", keepForOtherPerson: true, locked: true },
+        { key: "companyName", label: "Company Name", reviewLabel: "Company Name", control: "text", seedFrom: "companyName", status: "verified", placeholder: "Company Name", keepForOtherPerson: true, locked: true },
         { key: "fullName", label: "Your Full Name", mandatory: true, control: "text", seedFrom: "fullName", status: "verified", placeholder: "Enter Full Name" },
         { key: "phone", label: "Your Phone Number", mandatory: true, control: "text", seedFrom: "phone", status: "verified", prefix: "+91", placeholder: "0000 000 000", inputMode: "tel", validate: "phone" },
         { key: "email", label: "Your Email Address", mandatory: true, control: "text", seedFrom: "email", status: "verified", placeholder: "Enter Email Address", inputMode: "email", validate: "email" },
@@ -211,7 +211,7 @@ export const mockCheckoutContent: CheckoutContent = {
       lockedEditTip: "Billing details are locked once saved",
       uploadedLabel: "Uploaded",
       consentText:
-        "I confirm all details provided are correct. I understand the broker is not responsible for policy creation errors, as this depends on the insurance company.",
+        "I confirm all details provided are correct. The insurer issues the policy from these details, so please check them carefully.",
       // `{price}` is the chosen quote's total (GST included).
       payLabel: "Pay {price}",
       payNowLabel: "Pay Now",
@@ -393,6 +393,7 @@ export const mockCheckoutContent: CheckoutContent = {
     paragraphs: [
       "BimaKavach Insurance Broking Pvt. Ltd. | CIN- U66010MP2022PTC059393 | Registered Office - 506, 5th floor, Om Gurudev Plaza, Savitri Empire Scheme No 54, Vijay Nagar, Bhamori, Indore, Madhya Pradesh - 452010 Phone No.- 9036554785 | Email- support@bimakavach.com",
       "BimaKavach is registered as a Direct Broker | Registration No. 901, Registration Code No. IRDAI / DB 985/ 2022, Valid till 25/06/2027, Licence category - Direct Broker (General)",
+      "The broker is not responsible for policy creation errors, as these depend on the insurance company.",
       "Visitors are being informed that BimaKavach Insurance Broking Pvt. Ltd. holds the right to share the information submitted by you on the website with Insurers. Product information is genuine and exclusively based on information obtained from insurers.",
     ],
   },

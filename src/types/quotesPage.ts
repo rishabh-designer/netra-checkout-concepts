@@ -107,7 +107,7 @@ export interface NoRecordsBannerContent {
   ctaHref: string;
   /** On larger screens, a meeting booking in place of the call. */
   webCtaLabel: string;
-  /** The Score tab: the button beside the title (Schedule A Call). */
+  /** The Score tab: the button beside the title (Schedule a Call). */
   titleCtaLabel: string;
 }
 
@@ -420,7 +420,7 @@ export interface GoldGateContent {
      *  a Quote); its answers replace the fields and the upload. */
     chat?: RequestChatContent;
   };
-  /** Where "Schedule A Call" and "Unlock Quote" go: the Gold Inquiry page
+  /** Where "Schedule a Call" and "Unlock Quote" go: the Gold Inquiry page
    *  (an expert calls to finish the quote). */
   inquiryHref: string;
 }

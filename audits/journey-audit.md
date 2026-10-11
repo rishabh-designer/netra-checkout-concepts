@@ -12,11 +12,11 @@
 |---|---|---|---|---|---|---|
 | **A** | Pepe Jeans Innerfashion Pvt Ltd | Verified | Fields filled and green; Risk auto-personalised | Welcome popup → Score tab · 82.4/100 · Gold: Generali with an offer | Documents fetched from MCA; E-Sign | Risk Held Letter, Visit Dashboard |
 | **B** | Sabyasachi Calcutta LLP | Partly verified | PAN green, type/business orange guesses, turnover blank | Welcome popup → Score tab · 80*/100 · Gold: "Your Personalised Gold Quote", Unlock Quote | Address a guess to check; E-Sign | Same as A |
-| **C** | Studio Two Rupees LLP | None found | Everything by hand | Chat tab · no score · Schedule A Call | Everything by hand; E-Sign | Same as A |
+| **C** | Studio Two Rupees LLP | None found | Everything by hand | Chat tab · no score · Schedule a Call | Everything by hand; E-Sign | Same as A |
 
 **Severity:** 4 = blocks or misleads · 3 = major friction or a misleading claim · 2 = noticeable, worth fixing · 1 = polish.
 
-**Out of scope on purpose:** Case B's Gold Quote showing no price or insurer before the popup; orange marking BimaNetra features; the quote count changing as the Gold card arrives; screen-reader support; the "Filtering:" prefix in the filter field; the hidden demo shortcuts (title clicks, the info-icon cycle).
+**Out of scope on purpose:** re-pricing via Edit Details only (A and B's Sum Insured is recommended); the price-and-arrow buy button; the welcome popup showing on every load (prototype-only, for demos); Case B's Gold Quote showing no price or insurer before the popup; orange marking BimaNetra features; the quote count changing as the Gold card arrives; screen-reader support; the "Filtering:" prefix in the filter field; the hidden demo shortcuts (title clicks, the info-icon cycle).
 
 ---
 
@@ -47,10 +47,10 @@
 | 9 | **The issue date is a duration, not a date**, and only in the greeting card | Success | All | 2 |
 | 10 | **Four names for where the policy lives:** Dashboard, Document Vault, Policies folder, BimaKendra | Success | All | 2 |
 | 11 | **"Profile" means two different things:** contact details in onboarding, company details on the quotes page | Onboarding, Quotes | All | 2 |
-| 12 | **The welcome popup now returns on every load**, including coming back from Edit Details or Checkout | Quotes | A, B | 2 |
+| 12 | ~~The welcome popup returns on every load~~ **Withdrawn:** on every load only for the prototype's sake | Quotes | A, B | - |
 | 13 | **Case B's research panel says "tick the box to confirm"** but there is no box | Onboarding | B | 2 |
 | 14 | **"Upload Signature via E-Aadhaar"**: nothing is uploaded; it's a sign-with-OTP flow | Checkout | All | 2 |
-| 15 | **The payment consent says the broker "is not responsible for policy creation errors"**, at the moment of paying | Checkout | All | 2 |
+| 15 | ✅ **Fixed:** the payment consent no longer distances the broker; the legal line moved to the Disclaimer (K5) | Checkout | All | ~~2~~ |
 
 ---
 
@@ -94,7 +94,7 @@ Success
 | O4 | **"Profile" collides.** Here it means *your contact details*; on the quotes page the Profile tab means *the company's details*. Suggested: "You" / "Contact" here, keep "Profile" on the quotes page (or "Business Details" there). | IA | All | 2 |
 | O5 | **A confirm box that doesn't exist.** Case B's footer: "Review each field, then tick the box to confirm before continuing." Confirm and Continue is the confirmation; there's no tick box. Suggested: "Review each field, then Confirm and Continue." | Content, Heuristic (H4) | B | 2 |
 | O6 | **Unverified bad press about your own company.** Case B's Risk panel shows "linked to a GST notice (entity not corroborated)" to the business owner. Even labelled unconfirmed, it's alarming and may be about someone else. Show the count and the caveat ("3 low-confidence mentions, possibly another business") and keep headlines for verified matches. | Usability, Content | B | 2 |
-| O7 | **Form prompts as labels:** "Enter Company Name", "Enter Company Type" stay as labels once filled (and travel to the quotes Profile tab and the Billing step). Suggested: "Company Name", "Company Type". | Content | All | 1 |
+| O7 | ✅ **Fixed.** "Enter Company Name" and "Enter Company Type" are now "Company Name" and "Company Type" (onboarding, quotes Profile tab, Billing). | Content | All | ~~1~~ |
 | O8 | **Three CTA promises:** "Get My Quote in 2 Minutes" → "Get Instant Quotes" → toast "Preparing your quotes". "Instant" and "2 minutes" pull in different directions. Pick one: "Get My Quotes". | Content | All | 1 |
 | O9 | **Turnover blank in B** while type and business are guessed. Fine as a choice, but it's the one field without a hint; a range from MCA filings, if available, would keep B consistent. | Usability | B | 1 |
 | O10 | **"Company PAN" uses the data key `cin`.** Invisible to users, but the same mismatch appears in the quotes Profile tab. | Content | All | 1 |
@@ -116,26 +116,26 @@ Success
 | # | Issue | Cases | Audit | Sev |
 |---|---|---|---|---|
 | 1 | **Cards carry five signals each** (territory tag, Immediate Purchase/Secured tag, CSR pill, key-lines chip, price) in three visual styles | All | Visual, Usability | 3 |
-| 2 | **The welcome popup returns on every load**, so returning from Edit Details, Checkout or a refresh repeats the same explainer and delays the Gold reveal | A, B | Usability | 2 |
+| 2 | ~~The welcome popup returns on every load~~ **Withdrawn:** prototype-only behaviour, so the explainer can be demoed each time | A, B | Usability | - |
 | 3 | **Three ways to get help** compete: the Chat tab, the Need Help card and Mail Quotes (the loudest header button, and not a help action) | All | IA | 2 |
-| 4 | **Changing Sum Insured takes three steps** (Profile → Edit Details → Risk step) | All | Usability, IA | 2 |
+| 4 | ~~Changing Sum Insured takes three steps~~ **Withdrawn:** by design; for A and B the Sum Insured is BimaNetra's recommendation, and the business doesn't want it changed casually | All | Usability, IA | - |
 | 5 | **"80*"**: the asterisk is explained only by a tooltip, which doesn't exist on touch | B | Heuristic, Copy | 2 |
-| 6 | **Profile reads like a form:** "Enter Company Type" as a read-only label | All | Copy | 2 |
+| 6 | ✅ **Fixed:** Profile's "Enter Company Type" is now "Company Type" | All | Copy | ~~2~~ |
 | 7 | **The sort field changes width** between price and claim-settlement sorts, shifting the filter beside it | All | Visual | 2 |
 | 8 | **"Show All"** under a list of coverages can read as "show all coverages" | A, B | Copy, Usability | 2 |
-| 9 | **The buy button never says "Buy"**: it's the price and an arrow | All | Usability, Copy | 2 |
+| 9 | ~~The buy button never says "Buy"~~ **Withdrawn:** the price-and-arrow button is intentional | All | Usability, Copy | - |
 | 10 | **Small grey text** (12px tertiary) likely below AA contrast | All | Visual | 2 |
 
 ### 2.1 Heuristic evaluation
 - **H1 Visibility of status** ✅ The popup tells A and B what happened, what it means and what it changed. ✅ Filter and Sort show the feed's state. ⚠️ "80*/100" is provisional only in a tooltip. *B · 2*
 - **H2 Real-world match** ✅ "82.4/100" shows its scale; the chip says what it counts. ⚠️ "Claim Settlement" (sort) vs "Claim Settlement Ratio" (cards). *All · 1*
-- **H3 Control and freedom** ✅ The popup closes with ×, Show All, Esc or outside click; compare items remove one by one. ⚠️ The popup can't be turned off for the visit; it comes back on every load (Q2). *A, B · 2* ⚠️ Edit Details is inside Profile. *All · 2*
-- **H4 Consistency** ✅ One name for the Gold Quote and the experts. ✅ A and B share one tab order; C's differs by design. ⚠️ "Schedule A Call" (Case C button) vs "Schedule a Call" (its alert, the Gold gate, the Gold inquiry page). *1* ⚠️ Curly and straight apostrophes mixed. *1* ⚠️ NetraBot keeps its colour in the Chat tab when unselected. *1*
+- **H3 Control and freedom** ✅ The popup closes with ×, Show All, Esc or outside click; compare items remove one by one.
+- **H4 Consistency** ✅ One name for the Gold Quote and the experts. ✅ A and B share one tab order; C's differs by design. ✅ "Schedule a Call" now has one casing everywhere. ⚠️ Curly and straight apostrophes mixed. *1* ⚠️ NetraBot keeps its colour in the Chat tab when unselected. *1*
 - **H5 Error prevention** ✅ Compare caps at 3; offline quotes show "Unavailable"; Request Quote only means asking an offline insurer.
 - **H6 Recognition over recall** ✅ The chip names what it counts. ✅ The key lines are on the Score tab A and B land on.
 - **H7 Flexibility** ✅ Chat starter questions go straight to the key lines; Claim Settlement sorts both ways. ⚠️ With Score first, Chat's starter questions are one tap further for A and B. *1*
 - **H8 Minimalist design** ⚠️ Five badge-like signals per card (V1). *3*
-- **H9 Error recovery** ✅ Case C explains why there's no score and offers Schedule A Call; Chat explains there are no key lines yet.
+- **H9 Error recovery** ✅ Case C explains why there's no score and offers Schedule a Call; Chat explains there are no key lines yet.
 - **H10 Help** ✅ The popup explains the score and key lines. ⚠️ Tooltips are the only explanation for the CSR, the offer price and the asterisk, and don't exist on touch. *All · 2*
 
 ### 2.2 Usability walkthrough
@@ -143,19 +143,19 @@ Success
 |---|---|---|
 | 1 · What happened, and which quote first? | ✅ A: popup → Show All → Gold card with 11 key lines and the offer. ✅ B: popup → Gold card leads with Unlock Quote. ✅ C: Chat opens with general questions. | B's asterisk. *2* |
 | 2 · What do the key lines mean for this quote? | ✅ Chip count; popup ticks and crosses; Chat answers by name. | Nothing says the lines are *the business's own*. "11 Key Coverages & Exclusions" can read as the policy's highlights. *A, B · 2* |
-| 3 · Buy now | ✅ One click on a priced card; Immediate Purchase toggle filters fast. | The button never says "Buy". *2* |
-| 4 · Change Sum Insured | ⚠️ Profile → Edit Details → Risk step, and coming back replays the welcome popup. | *2* |
+| 3 · Buy now | ✅ One click on a priced card; Immediate Purchase toggle filters fast. | None (the price-and-arrow button is intentional). |
+| 4 · Change Sum Insured | ✅ Withdrawn: kept behind Profile → Edit Details on purpose; A and B's Sum Insured is the recommended one. | - |
 | 5 · Compare two quotes | ✅ Add → tray → Compare Now; NetraBot stands in for B's Gold logo. | Offline insurers can't be compared; users learn by trying. *1* |
 | 6 · What does 80* mean? | ⚠️ Hover the info icon. No answer on touch. | *B · 2* |
-| 7 · Get help | ✅ C: "Our experts can help…" + Schedule A Call. | C on phones: a `tel:` call beats a booking. *1*. All: Chat, Need Help and Mail Quotes split the job. *2* |
-| 8 · Come back to the page | ⚠️ A, B: the popup and the skeleton-to-reveal sequence replay on every return. | *2* |
+| 7 · Get help | ✅ C: "Our experts can help…" + Schedule a Call. | C on phones: a `tel:` call beats a booking. *1*. All: Chat, Need Help and Mail Quotes split the job. *2* |
+| 8 · Come back to the page | ✅ Withdrawn: the popup replays on every return only for the prototype. | - |
 
 ### 2.3 Information architecture
 ```
 Header ─ Logo · Mail Quotes
 Welcome popup (A, B, every load) ─ upgrade copy + Business Health | key lines · info line · Show All
 Left panel ─ segmented tabs (A, B: Score · Chat · Profile; C: Chat · Profile · Score)
-├─ Score    → banner (title + View Report / Notify Me / Schedule A Call) · Business Health x/100 · key lines
+├─ Score    → banner (title + View Report / Notify Me / Schedule a Call) · Business Health x/100 · key lines
 ├─ Chat     → Ask BimaNetra (A/B: Gold Quote + key-line questions; C: general)
 └─ Profile  → Legal Company Name ✓ · 7 rows · Edit Details
    (phones: a floating dock; the open tab shows ×)
@@ -167,7 +167,7 @@ Feed ─ breadcrumb · "N Directors & Officers Insurance Quotes" · Need Help
 | # | Finding | Cases | Sev |
 |---|---|---|---|
 | IA1 | **Help is split three ways:** Chat, Need Help, Mail Quotes (a send-to-self action styled as the main header CTA). Group help; make Mail Quotes secondary. | All | 2 |
-| IA2 | **Edit Details is buried** in Profile, the main way to re-price. A Sum Insured control in the feed header would cover the commonest edit. | All | 2 |
+| IA2 | ~~Edit Details is buried~~ **Withdrawn:** re-pricing is kept out of the way on purpose (A and B's Sum Insured is the recommended one). | All | - |
 | IA3 | **Filter controls:** the filter field carries its own icon plus a chevron, and Immediate Purchase is a separate switch. | All | 1 |
 | IA4 | **Popup tabs overlap:** Overview lists coverages; Coverages/Extensions lists them again. | All | 1 |
 | IA5 | **Three labels for one place:** breadcrumb "Live Quotes", heading "Directors & Officers Insurance Quotes", tab title "Directors & Officers Insurance". | All | 1 |
@@ -185,19 +185,19 @@ Feed ─ breadcrumb · "N Directors & Officers Insurance Quotes" · Need Help
 | V6 | **NetraBot stays full colour** in an unselected Chat tab. | All | 1 |
 | V7 | **Small grey text** (12px tertiary) likely below AA contrast. | All | 2 |
 | V8 | **Filled filter fields** are as loud as inputs, near the purple price buttons. | All | 1 |
-| V9 | **The mobile Gold reveal** (dither burst) now replays after every popup dismissal. | A | 1 |
+| V9 | **The mobile Gold reveal** (dither burst) covers the first card while it plays. | A | 1 |
 
 ### 2.5 Content & copy
 | # | Copy now | Issue | Suggested | Cases | Sev |
 |---|---|---|---|---|---|
 | C1 | Popup button "Show All" | Can read as "show all coverages" | "See My Quotes" | A, B | 2 |
 | C2 | Chip "7 Key Coverages & Exclusions" | Doesn't say they're the business's own | "7 of Your Key Lines", or "Yours" in the popup header | A, B | 2 |
-| C3 | Profile "Enter Company Type" | Form prompt as a label | "Company Type" | All | 2 |
+| C3 | ✅ Fixed: Profile "Enter Company Type" | Now "Company Type" | - | All | ~~2~~ |
 | C4 | "80*/100" | Tooltip only | Caption: "Provisional until your report is ready" | B | 2 |
-| C5 | "₹7,800 →" | Never says what it does | "Buy · ₹7,800" | All | 1 |
+| C5 | ~~"₹7,800 →" never says what it does~~ **Withdrawn:** intentional. | | | All | - |
 | C6 | "Claim Settlement" vs "Claim Settlement Ratio" | Two names | Accept, or "Settlement Ratio" in the sort | All | 1 |
 | C7 | "Arriving Soon", "Arriving Soon", "Almost There" | Two identical steps | "A few minutes left" → "About a minute" → "Almost there" | B | 1 |
-| C8 | "Schedule A Call" vs "Schedule a Call" | Casing | Pick one | C | 1 |
+| C8 | ✅ Fixed: "Schedule A Call" vs "Schedule a Call" | Now "Schedule a Call" everywhere | - | C | ~~1~~ |
 | C9 | "We’ve" / "We're" | Mixed apostrophes | Curly everywhere | All | 1 |
 | C10 | "Want a Sharper Price?" | Implies blunt prices | Optional: "Want a Price That Fits Better?" | C | 1 |
 | C11 | "Down from ₹7,800 with BimaNetra" | Tooltip only | Visible on the card | A | 1 |
@@ -224,11 +224,11 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 | K2 | ~~No path for a buyer who isn't the signatory.~~ **Withdrawn:** Billing offers "Buy in Another Person's Name" before the user reaches Verification, so the signatory can be set up front. | Usability | All | - |
 | K3 | **"Upload Signature via E-Aadhaar"**: nothing is uploaded; it's a sign-with-OTP flow, and the zone below already says "Sign…". Suggested label: "E-Sign with Aadhaar". | Content | All | 2 |
 | K4 | **Two KYC sections on one step:** "KYC Details" (uploads and numbers) at the top and "KYC Verification" (e-sign) at the bottom, with Company Registration Details between them. The hardest task comes last and its title repeats the first. Suggested: rename it "Mandate Letter" or "E-Sign", or move it under KYC Details. | IA | All | 2 |
-| K5 | **The payment consent lowers trust at the worst moment:** "I understand the broker is not responsible for policy creation errors, as this depends on the insurance company." If legal requires it, soften: "The insurer issues the policy from the details above, so please check them carefully." | Content | All | 2 |
+| K5 | ✅ **Fixed.** The payment consent now reads "I confirm all details provided are correct. The insurer issues the policy from these details, so please check them carefully." The original legal line ("The broker is not responsible for policy creation errors…") moved to the Disclaimer. | Content | All | ~~2~~ |
 | K6 | **"Final" and "may revise it" in one line:** the checkout disclaimer reads "The price shown is final for the details you've entered. If any of them turn out to be wrong, the insurer may revise it." Fine legally, but it's the only place the condition appears, and B/C later read "we'll double-check" (S7). Say it once, plainly, on Review: "Your price is fixed unless a detail turns out to be wrong." | Content, Heuristic (H1) | All | 2 |
 | K7 | **Verification is the longest step by far:** 2 uploads, 2 numbers, 3 address fields and the e-sign with two OTP stages, behind one Save & Continue. For C (all by hand) it's the heaviest screen in the journey. Consider making the e-sign its own step, or showing per-section ticks. | Usability | C (mostly) | 2 |
 | K8 | **"Premium" means two things:** in the Purchase Summary it's the pre-GST figure; on Success "Policy Premium" is the total including GST. | Content | All | 1 |
-| K9 | **Form prompts as labels:** Billing's locked field is "Enter Company Name"; upload labels are long ("Upload a PDF or an Image of Your Company GST Certificate"). Suggested: "Company Name"; "GST Certificate (PDF or image)". | Content | All | 1 |
+| K9 | **Long upload labels:** "Upload a PDF or an Image of Your Company GST Certificate". Suggested: "GST Certificate (PDF or image)". ✅ Billing's "Enter Company Name" is now "Company Name". | Content | All | 1 |
 | K10 | **Ampersands in body copy:** "shown on your policy & used for communication". Use "and". | Content | All | 1 |
 | K11 | **E-sign naming:** E-Aadhaar, NSDL E-Sign, NSDL e-Gov, Aadhaar eSign. Pick "Aadhaar E-Sign" for the feature and "NSDL" for the provider. | Content | All | 1 |
 
@@ -292,8 +292,8 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 | The signed document | ✅ Mandate Letter | Keep |
 | Signing | E-Aadhaar · NSDL E-Sign · NSDL e-Gov · Upload Signature | Aadhaar E-Sign (via NSDL) |
 | Premium | Premium (pre-GST) · Policy Premium (incl. GST) · Total Cost | Premium / Total Cost |
-| Booking a call | Schedule A Call · Schedule a Call | One casing |
-| Field labels | "Enter Company Name", "Enter Company Type" as labels | Drop "Enter" |
+| Booking a call | ✅ Schedule a Call | Keep |
+| Field labels | ✅ Company Name, Company Type | Keep |
 
 ### Cover-promise ladder (how strongly each stage claims cover)
 | Stage | Copy | Claim | OK? |
@@ -310,7 +310,7 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 | No em dashes in UI copy | ✅ |
 | No "best" / "recommended" (IRDAI) | ✅ (S13 is borderline, optional) |
 | Title Case on headings and CTAs | ✅ Mostly; see C8 |
-| Plain, conversational tone | ✅ Mostly; the Risk Held modal (S1) and the payment consent (K5) are the exceptions |
+| Plain, conversational tone | ✅ Mostly; the Risk Held modal (S1) and the payment consent (K5, now fixed) were the exceptions |
 
 ---
 
@@ -319,7 +319,7 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 - **Tasks:**
   1. From the product page, get a quote for your company.
   2. Tell us what BimaNetra found and whether it's right (O6).
-  3. Pick and buy a quote; change your Sum Insured once on the way.
+  3. Pick and buy a quote.
   4. Sign the mandate. *Ask: what did you just sign?* (K1)
   5. On Success, without clicking: *"Are you covered right now? When does your policy arrive? What would you show your bank tomorrow?"* (S1–S3)
 - **Measure:** task success, time to first quote, time to pay, comprehension of the key-lines chip, correct answers to the three Success questions, SUS.

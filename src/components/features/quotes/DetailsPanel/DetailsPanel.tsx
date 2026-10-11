@@ -67,7 +67,7 @@ export interface DetailsPanelProps {
  * DetailsPanel — the left column (Figma 770:26992), full column height: a tab
  * strip (A, B: Score | Chat | Profile; C: Chat | Profile | Score) over the chosen tab. Score is the upgrade
  * banner growing into the risk score badge and the Gold Quote's key coverages
- * and exclusions (Case C: not scored, no badge, and Schedule A Call); Chat is Ask
+ * and exclusions (Case C: not scored, no badge, and Schedule a Call); Chat is Ask
  * BimaNetra; Profile is Your Details with Edit Details. Phones fold it shut
  * to the tab strip (an accordion).
  * Usage: <DetailsPanel content={detailsPanel} values={values} onEdit={fn} chat={<QuotesChat … />} />

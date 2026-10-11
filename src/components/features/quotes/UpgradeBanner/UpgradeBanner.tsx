@@ -244,7 +244,7 @@ export function NoRecordsBanner({
   content: NoRecordsBannerContent;
   company?: ReactNode;
   onSchedule?: () => void;
-  /** The Score tab: Schedule A Call beside the title, in place of the
+  /** The Score tab: Schedule a Call beside the title, in place of the
    *  footer's expert call. */
   onTitleCta?: () => void;
   /** The Score tab: the not-scored badge under the copy; fills the host. */
@@ -253,7 +253,7 @@ export function NoRecordsBanner({
   return (
     <div className={styles.banner} data-fill={children || onTitleCta ? true : undefined}>
       {company && <div className={styles.company}>{company}</div>}
-      {/* The Score tab: Schedule A Call on the title's right, saving a row. */}
+      {/* The Score tab: Schedule a Call on the title's right, saving a row. */}
       <div className={styles.titleRow}>
         <p className={styles.title}>{content.title}</p>
         {onTitleCta && (

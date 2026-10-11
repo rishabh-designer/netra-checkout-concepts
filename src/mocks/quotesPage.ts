@@ -394,7 +394,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     companyLabel: "Quotes for",
     companyInfo: "These quotes are for this company, as registered with the MCA. For a different company, start a new quote.",
     rows: [
-      { label: "Enter Company Type", value: "Private Limited Company", key: "type" },
+      { label: "Company Type", value: "Private Limited Company", key: "type" },
       { label: "Type of Business", value: "IT & Digital Businesses", key: "business" },
       { label: "Company's Annual Turnover", value: "₹50 Cr to ₹250 Cr", key: "turnover" },
       { label: "Company PAN", value: "-", key: "cin" },
@@ -421,7 +421,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
       ctaLabel: "Speak to an Expert",
       ctaHref: "tel:+919007296854",
       webCtaLabel: "Schedule a Call",
-      titleCtaLabel: "Schedule A Call",
+      titleCtaLabel: "Schedule a Call",
     },
     upgraded: {
       title: "You’re Upgraded!",

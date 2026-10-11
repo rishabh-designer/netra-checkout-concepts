@@ -198,7 +198,7 @@ const RISK_NEWS_C: QuoteSearchPanel = {
 const PROFILE_CASE: QuoteCase = {
   search: SEARCH_MATCHED,
   fields: [
-    { key: "name", label: "Enter Company Name", mandatory: true, control: "text", value: "", status: "verified" },
+    { key: "name", label: "Company Name", mandatory: true, control: "text", value: "", status: "verified" },
     { key: "fullName", label: "Your Full Name", mandatory: true, control: "text", value: "", placeholder: "Enter Full Name", status: "empty" },
     { key: "phone", label: "Your Phone Number", mandatory: true, control: "text", value: "", prefix: "+91", placeholder: "0000 000 000", status: "empty", inputMode: "tel", validate: "phone" },
     { key: "email", label: "Your Email Address", mandatory: true, control: "text", value: "", placeholder: "Enter Email Address", status: "empty", inputMode: "email", validate: "email" },
@@ -403,7 +403,7 @@ export const mockProductPageContent: ProductPageContent = {
           // A — probe confirmed the record: filled, green, PAN last.
           A: {
             fields: [
-              { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Private Limited Company", options: COMPANY_TYPE_OPTIONS, status: "success" },
+              { key: "type", label: "Company Type", mandatory: true, control: "select", value: "Private Limited Company", options: COMPANY_TYPE_OPTIONS, status: "success" },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "Retail & Wholesale", options: BUSINESS_OPTIONS, status: "success" },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "₹5 Cr to ₹50 Cr", options: TURNOVER_OPTIONS, status: "success" },
               { key: "cin", label: "Company PAN", control: "text", validate: "pan", upper: true, maxLength: 10, value: "AAJCP5565B", status: "success" },
@@ -414,7 +414,7 @@ export const mockProductPageContent: ProductPageContent = {
           // type/business yellow, turnover blank.
           B: {
             fields: [
-              { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "Limited Liability Partnership", options: COMPANY_TYPE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
+              { key: "type", label: "Company Type", mandatory: true, control: "select", value: "Limited Liability Partnership", options: COMPANY_TYPE_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "Unclassified / Miscellaneous", options: BUSINESS_OPTIONS, status: "fuzzy", helpText: FETCH_DISCLAIMER },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "", placeholder: "Select Annual Turnover", options: TURNOVER_OPTIONS, status: "empty" },
               { key: "cin", label: "Company PAN", control: "text", validate: "pan", upper: true, maxLength: 10, value: "AATFS4271L", placeholder: "Enter PAN", status: "success" },
@@ -426,7 +426,7 @@ export const mockProductPageContent: ProductPageContent = {
           C: {
             demoFill: { type: "Limited Liability Partnership", business: "IT & Digital Businesses", turnover: "Up to ₹1 Cr", cin: "AAABC1234A" },
             fields: [
-              { key: "type", label: "Enter Company Type", mandatory: true, control: "select", value: "", placeholder: "Select Company Type", options: COMPANY_TYPE_OPTIONS, status: "empty" },
+              { key: "type", label: "Company Type", mandatory: true, control: "select", value: "", placeholder: "Select Company Type", options: COMPANY_TYPE_OPTIONS, status: "empty" },
               { key: "business", label: "Type of Business", mandatory: true, control: "select", value: "", placeholder: "Select Type of Business", options: BUSINESS_OPTIONS, status: "empty" },
               { key: "turnover", label: "Company's Annual Turnover", mandatory: true, control: "select", value: "", placeholder: "Select Annual Turnover", options: TURNOVER_OPTIONS, status: "empty" },
               { key: "cin", label: "Company PAN", control: "text", validate: "pan", upper: true, maxLength: 10, value: "", placeholder: "Enter PAN", status: "empty" },
