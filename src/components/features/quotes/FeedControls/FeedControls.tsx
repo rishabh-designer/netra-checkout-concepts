@@ -146,9 +146,9 @@ function FilterDropdown(props: FeedControlsProps) {
 }
 
 /**
- * FeedControls — the row above the quote grid (Figma 658:45930): a labelled
- * Filtering and Sorting field on the left (260 wide, underlined; value,
- * chevron, divider, glyph) and the "Immediate Purchase Only" switch in a
+ * FeedControls — the row above the quote grid (Figma 658:45930): a
+ * Filtering and a Sorting field on the left (280 wide, underlined, no label
+ * above; value, chevron, divider, glyph) and the "Immediate Purchase Only" switch in a
  * bordered box on the right. Controlled: the feed owns the filter, sort and
  * switch state.
  * Usage: <FeedControls filterLabel filterOptions filter onFilterChange sortLabel … />

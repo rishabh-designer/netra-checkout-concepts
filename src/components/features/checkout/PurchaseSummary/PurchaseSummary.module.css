@@ -71,14 +71,6 @@
   background: var(--color-card);
 }
 
-/* Excellent Quote: top right of the insurer box (670:53310). */
-.excellent {
-  position: absolute;
-  top: var(--spacing-8);
-  right: var(--spacing-8);
-  display: inline-flex;
-}
-
 .pills {
   display: flex;
   justify-content: flex-end;
@@ -188,6 +180,28 @@
   letter-spacing: var(--track-600);
   line-height: 1.2;
   color: var(--color-label-primary);
+}
+
+/* Paid (670:53306): name first, filling the row; a 36 rule; the logo last,
+   the box hugging the 36 logo (8 all round). */
+.insurer[data-paid] {
+  min-height: 0;
+}
+
+.insurer[data-paid] .insurerName {
+  order: -1;
+  flex: 1;
+  min-width: 0;
+}
+
+.insurer[data-paid] .vr {
+  align-self: center;
+  height: 36px;
+  margin: 0;
+}
+
+.insurer[data-paid] .logo {
+  order: 1;
 }
 
 .info {

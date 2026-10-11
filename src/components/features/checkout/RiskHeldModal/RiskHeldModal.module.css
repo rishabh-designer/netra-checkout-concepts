@@ -6,6 +6,7 @@
 }
 
 .modal {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
@@ -16,15 +17,19 @@
   overflow: hidden;
 }
 
-/* Letter preview (683:56606): 20 above, 16 inset, bleeding off the foot. */
+/* Letter preview (683:56606): 20 above, 16 inset, 300 tall, bleeding off the foot. */
 .preview {
-  height: 320px;
-  margin: 0 19px;
+  height: 300px;
   padding: var(--spacing-20) var(--spacing-16) 0;
-  border: var(--border-hairline) solid var(--color-border-subtle);
-  border-top: 0;
-  border-radius: 0 0 11px 11px;
   overflow: hidden;
+}
+
+/* × in the top-right corner (838:24542). */
+.close.close {
+  position: absolute;
+  top: 19.5px;
+  right: 18.75px;
+  z-index: 1;
 }
 
 .copy {
@@ -43,7 +48,7 @@
   /* Instrument Serif keeps its own spacing, not Anek's. */
   letter-spacing: 0;
   line-height: 1;
-  color: var(--color-brand-primary);
+  color: var(--color-label-primary);
 }
 
 .body {
@@ -51,7 +56,14 @@
   font-weight: 500;
   letter-spacing: var(--track-500);
   line-height: 1.3;
-  color: var(--color-label-primary);
+  color: var(--color-label-secondary);
+}
+
+/* Figma's 14px buttons, 12/20 (Figma r12, one step rounder). */
+.button.button {
+  padding: var(--spacing-12) var(--spacing-20);
+  border-radius: var(--radius-16);
+  font-size: var(--font-size-100);
 }
 
 /* Action bar: sunken grey, 12/16, buttons right, 16 apart. */

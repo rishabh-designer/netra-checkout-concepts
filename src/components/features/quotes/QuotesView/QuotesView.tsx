@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { QuotesPageContent } from "@/types/quotesPage";
 import { withRiskFit } from "@/lib/risk-fit";
@@ -10,6 +10,8 @@ import { useDemoNotice } from "@/lib/demo-notice";
 import { QuoteModal } from "@/components/features/quote-modal/QuoteModal";
 import { QuotesHeader } from "../QuotesHeader";
 import { DetailsPanel } from "../DetailsPanel";
+import { ScoreIntro } from "../ScoreIntro";
+import { RiskScoreBadge } from "../RiskScore";
 import type { UpgradeStage } from "../UpgradeBanner";
 import { QuotesFeed } from "../QuotesFeed";
 import { QuotesSkeleton } from "../QuotesSkeleton";
@@ -88,6 +90,14 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const [upgradeStage, setUpgradeStage] = useState<UpgradeStage>(() => (lured ? "verifying" : "pending"));
   const [revealed, setRevealed] = useState(false);
   const notify = useDemoNotice();
+  // A verified business (A, B) is greeted, right after the skeleton, by a
+  // popup explaining the score and the key lines the quotes are matched
+  // against: on every visit (each load or return to the page), not again
+  // after an Edit Details reload within it.
+  const [introOpen, setIntroOpen] = useState(false);
+  // The Gold Quote's reveal waits for the popup to be dismissed.
+  const [introDone, setIntroDone] = useState(false);
+  const introShown = useRef(false);
 
   useEffect(() => {
     setLoading(true);
@@ -117,6 +127,11 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
       sumInsured: values?.["coverage"] || rows.find((r) => r.label === feed.sumInsuredLabel)?.value || "",
       details: rows,
       phone: feed.needHelp.phone,
+      // The key lines, as the Score tab lists them (the Gold Quote's).
+      keyLines: gold?.policy && {
+        coverages: gold.policy.coverages.slice(0, content.detailsPanel.score.listLength).map((c) => c.title),
+        exclusions: gold.policy.exclusions.slice(0, content.detailsPanel.score.listLength).map((c) => c.title),
+      },
     };
   }, [content, feed, values, caseId, lured, feedQuotes, revealed, result?.companyName]);
 
@@ -126,6 +141,25 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
     coverages: goldPolicy.coverages.map((c) => c.title),
     exclusions: goldPolicy.exclusions.map((c) => c.title),
   };
+
+  // The intro popup's copy: the banner's own title and body for this case,
+  // and the key lines as the Score tab lists them.
+  const panel = content.detailsPanel;
+  const listLength = panel.score.listLength;
+  const introCoverages = scoreLists?.coverages.slice(0, listLength) ?? [];
+  const introExclusions = scoreLists?.exclusions.slice(0, listLength) ?? [];
+  const introCompany = result?.companyName || panel.companyFallback;
+  // Only A and B, with key lines to show, get the popup (and wait on it).
+  const introEligible = (caseId === "A" || caseId === "B") && !!scoreLists;
+  useEffect(() => {
+    if (loading || !introEligible || introShown.current) return;
+    // As the page fades in from the skeleton.
+    const id = window.setTimeout(() => {
+      introShown.current = true;
+      setIntroOpen(true);
+    }, 350);
+    return () => window.clearTimeout(id);
+  }, [loading, introEligible]);
 
   return (
     <div className={styles.page}>
@@ -188,7 +222,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 }
               />
               <QuotesFeed
-                unlocked={upgradeStage === "upgraded"}
+                unlocked={upgradeStage === "upgraded" && (!introEligible || introDone)}
                 revealed={revealed}
                 onRevealed={() => setRevealed(true)}
                 content={feed}
@@ -199,6 +233,33 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
           )}
         </AnimatePresence>
       </main>
+
+      {/* The verified business's welcome: score, key lines, Show All. */}
+      {introEligible && scoreLists && (caseId === "A" || caseId === "B") && (
+        <ScoreIntro
+          open={introOpen}
+          onClose={() => {
+            setIntroOpen(false);
+            setIntroDone(true);
+          }}
+          title={panel.upgraded.titleByCase?.[caseId] || panel.upgraded.title}
+          body={(panel.upgraded.bodyByCase?.[caseId] || panel.upgraded.body).replace("{company}", introCompany)}
+          badge={
+            <RiskScoreBadge
+              score={panel.score.byCase[caseId]}
+              outOf={panel.score.outOf}
+              label={panel.score.label}
+              info={panel.score.infoByCase?.[caseId] ?? panel.score.info}
+            />
+          }
+          listTitle={panel.score.listTitle.replace("{count}", String(introCoverages.length + introExclusions.length))}
+          coverages={introCoverages}
+          exclusions={introExclusions}
+          hint={panel.scoreIntro.hint}
+          ctaLabel={panel.scoreIntro.ctaLabel}
+          closeLabel={panel.scoreIntro.closeLabel}
+        />
+      )}
 
       {/* Edit Details — the quote form only (no AI-search column), prefilled. */}
       <QuoteModal

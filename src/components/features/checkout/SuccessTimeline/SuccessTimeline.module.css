@@ -201,18 +201,19 @@
   cursor: pointer;
 }
 
-/* Row action (button/primary.outline): 12/20, r12 (Figma r10 + one step). */
+/* Row action, the small button (692:58090 / 692:58117): 10/14, 12px label
+   and arrow 8 apart, hairline, r12 (Figma r10 + one step). */
 .action {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-12);
+  gap: var(--spacing-8);
   flex-shrink: 0;
-  padding: var(--spacing-12) var(--spacing-20);
-  border: 1px solid var(--color-brand-primary);
+  padding: var(--spacing-10) 14px;
+  border: var(--border-hairline) solid var(--color-brand-primary);
   border-radius: var(--radius-12);
   background: var(--color-card);
   color: var(--color-brand-primary);
-  font-size: var(--font-size-100);
+  font-size: var(--font-size-75);
   font-weight: 600;
   letter-spacing: var(--track-600);
   line-height: 1;

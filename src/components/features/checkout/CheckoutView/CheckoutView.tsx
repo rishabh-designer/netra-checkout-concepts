@@ -9,7 +9,8 @@ import { AgentProgress } from "@/components/ui/AgentProgress";
 import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
 import { useQuoteFlow } from "@/lib/quote-flow";
 import { useDemoNotice } from "@/lib/demo-notice";
-import { useCheckout } from "../useCheckout";
+import { EsignField } from "../EsignField";
+import { ESIGN_KEY, useCheckout } from "../useCheckout";
 import { useCheckoutClock } from "../useCheckoutClock";
 import { useCheckoutMobile } from "../useCheckoutMobile";
 import { CheckoutStepper } from "../CheckoutStepper";
@@ -88,6 +89,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
     writeLastCheckout({ step });
   }, [step]);
   const { kyc, company } = content.steps;
+  const esign = content.steps.verification.esign;
   const hrefFor = (s: CheckoutStepId) => `${basePath}/${s}`;
 
   const formStep = step === "review" ? null : step;
@@ -228,6 +230,11 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
                   valueOf={co.valueOf}
                   fileOf={co.get}
                   onEdit={setEditing}
+                  extraRows={
+                    esign && esign.cases.includes(co.caseId)
+                      ? [{ key: ESIGN_KEY, label: esign.reviewLabel, value: co.get(ESIGN_KEY) ? esign.reviewSigned : "" }]
+                      : undefined
+                  }
                 />
               ) : step === "verification" ? (
                 <StepForm
@@ -238,6 +245,21 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
                   uploads={kyc.uploads}
                   uploadCopy={content.upload}
                   model={model}
+                  extra={
+                    esign && esign.cases.includes(co.caseId)
+                      ? {
+                          title: esign.sectionTitle,
+                          content: (
+                            <EsignField
+                              content={esign}
+                              uploadCopy={content.upload}
+                              signed={!!co.get(ESIGN_KEY)}
+                              onSignedChange={(on) => co.set({ [ESIGN_KEY]: on ? "1" : "" })}
+                            />
+                          ),
+                        }
+                      : undefined
+                  }
                 />
               ) : (
                 <StepForm step="billing" fields={co.fieldsFor("billing")} uploadCopy={content.upload} model={model} />

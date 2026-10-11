@@ -481,9 +481,11 @@
   padding: 0 var(--spacing-12);
 }
 
-/* Footer box: coverages chip left, Add To Compare right (658:47661). */
+/* Footer box: coverages chip left, Add To Compare right (658:47661).
+   On the smallest phones, Add To Compare drops under the chip. */
 .foot {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-8);

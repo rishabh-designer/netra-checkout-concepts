@@ -1,0 +1,219 @@
+/* Figma 830:21946: two panes side by side, r12, a soft lilac lift. */
+.panel {
+  border-radius: var(--radius-12);
+  box-shadow: var(--shadow-modal-lilac);
+  overflow: hidden;
+}
+
+.modal {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Left: warm dashed panel, white into the brand's peach, 24 in. */
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-24);
+  width: 388px;
+  flex-shrink: 0;
+  padding: var(--spacing-24);
+  border: 1px dashed var(--color-brand-secondary-border);
+  border-radius: var(--radius-12) 0 0 var(--radius-12);
+  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-secondary-subtle) 82.567%);
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-style: italic;
+  font-size: var(--font-size-heading-lg);
+  line-height: 1.2;
+  color: var(--color-label-warm);
+}
+
+.body {
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.2;
+  color: var(--color-label-warm);
+}
+
+.badge {
+  display: flex;
+  justify-content: center;
+}
+
+/* Right: white, 16 / 12 in; the list on top, Show All at the foot. */
+.lines {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-24);
+  padding: var(--spacing-16) var(--spacing-12);
+  background: var(--color-card);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: 0 var(--spacing-8);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+
+.listTitle {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--font-size-heading-sm);
+  line-height: 1.2;
+  color: var(--color-brand-primary);
+}
+
+/* Info line: pale blue at the far corners, info hairline, r8. */
+.hint {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  align-self: flex-start;
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-info-border);
+  border-radius: var(--radius-8);
+  background: linear-gradient(
+    145deg,
+    var(--color-info-subtle) 0%,
+    var(--color-card) 6.5%,
+    var(--color-card) 93.2%,
+    var(--color-info-subtle) 100%
+  );
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.2;
+  color: var(--color-label-muted-primary);
+}
+
+.hint svg {
+  flex-shrink: 0;
+  color: var(--color-info);
+}
+
+.rule {
+  margin: 0;
+  border: 0;
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+}
+
+/* Coverages left, exclusions right, 24 apart. */
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-24);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.4;
+  color: var(--color-label-primary);
+}
+
+.mark {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding-top: 4.8px;
+}
+
+.foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-12);
+}
+
+.foot .rule,
+.foot .hint {
+  align-self: stretch;
+}
+
+/* Show All: the small primary button (Figma r10, one step rounder). */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-10) 14px;
+  border: var(--border-hairline) solid var(--color-brand-primary);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-primary);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  line-height: 1;
+  color: var(--color-label-inverse);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.cta:hover {
+  box-shadow: var(--shadow-button-primary-hover);
+}
+
+/* Phones: the panes stack, score over the list, and the popup scrolls. */
+@media (max-width: 760px) {
+  .modal {
+    flex-direction: column;
+    max-height: calc(100dvh - 2 * var(--spacing-16));
+    overflow-y: auto;
+  }
+  .score {
+    width: auto;
+    border-radius: var(--radius-12) var(--radius-12) 0 0;
+  }
+  /* Room for the × beside the title. */
+  .title {
+    padding-right: var(--spacing-32);
+  }
+  /* The × keeps to the popup's top-right corner, over the score panel. */
+  .close.close {
+    position: absolute;
+    top: var(--spacing-16);
+    right: var(--spacing-16);
+    z-index: 1;
+  }
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--spacing-12);
+  }
+}

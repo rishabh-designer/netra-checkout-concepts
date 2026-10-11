@@ -69,7 +69,7 @@ export interface QuoteCardLabels {
   coverageCount: string;
   /** The Gold Quote's chip: "{count} Personalized Coverages". */
   personalizedCount: string;
-  /** Once the risk is scored: "{met}/{total} Match". */
+  /** Once the risk is scored: "{met} Key Coverages & Exclusions". */
   riskFit?: string;
   /** Under the logo: "Claim Settlement Ratio: {value}". */
   csr?: string;

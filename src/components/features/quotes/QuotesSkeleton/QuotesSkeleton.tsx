@@ -36,7 +36,7 @@ export function QuotesSkeleton({ cardCount, collapsed = false, rowCount = 7 }: Q
           mobile just its header bar, the accordion shut. */}
       <aside className={styles.rail}>
         <div className={styles.railTop}>
-          {/* The tab strip: Score | Chat | Profile. */}
+          {/* The tab strip: Chat | Profile | Score. */}
           <div className={styles.railHead}>
             <Skeleton variant="rounded" width="30%" height={32} delay={d(0)} />
             <Skeleton variant="rounded" width="30%" height={32} delay={d(1)} />

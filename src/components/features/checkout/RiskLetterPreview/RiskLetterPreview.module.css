@@ -168,13 +168,6 @@
   background: var(--color-info-fill);
 }
 
-.summaryLabel {
-  font-size: 8.75px;
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1.5;
-  color: var(--color-brand-primary-muted);
-}
 
 .summary {
   display: flex;

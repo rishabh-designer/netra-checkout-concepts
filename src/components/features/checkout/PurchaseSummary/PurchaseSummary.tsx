@@ -9,7 +9,7 @@ import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
 import { BadgeCheckIcon, type BadgeCheckIconHandle } from "@/components/icons/BadgeCheckIcon";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
-import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
+import { Cross, Tick } from "@/components/features/quotes/RiskScore";
 import { formatInr, splitPrice } from "@/lib/checkout";
 import { splitName } from "@/lib/utils";
 import { EASE_OUT as EASE } from "@/lib/motion";
@@ -20,8 +20,15 @@ import styles from "./PurchaseSummary.module.css";
 export interface PurchaseSummaryProps {
   content: CheckoutSummaryContent;
   quote: QuoteCardData;
-  /** Success page: the quote's coverages as ticked chips under a count pill. */
-  coverages?: { label: string; items: string[]; onToggleHover?: () => void; onToggle?: (open: boolean) => void };
+  /** Success page: the quote's coverages as ticked chips under a count pill.
+   *  A scored quote lists its key lines instead: each a coverage (tick) or
+   *  exclusion (cross), greyed where the quote doesn't meet it. */
+  coverages?: {
+    label: string;
+    items: (string | { label: string; kind: "coverage" | "exclusion"; met: boolean })[];
+    onToggleHover?: () => void;
+    onToggle?: (open: boolean) => void;
+  };
   /** Success page: the paid amount, large in green serif, over `label`
    *  ("Paid Successfully On …"); replaces the Final Cost row. `amount`
    *  overrides the figure (e.g. a count-up); `invoice` adds a small
@@ -198,7 +205,8 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
           {compact && productIcon}
         </div>
 
-        <div className={styles.insurer}>
+        {/* Paid (670:53306): the name left, then the rule and the logo right. */}
+        <div className={styles.insurer} data-paid={paid ? true : undefined}>
           {/* Quotes without an insurer logo show just the name. */}
           {quote.logoSrc && (
             <>
@@ -211,12 +219,8 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
             <span>{line1}</span>
             <span>{line2}</span>
           </p>
-          {/* A paid Gold Quote wears Excellent Quote in place of the info mark. */}
-          {paid && quote.gold ? (
-            <span className={styles.excellent}>
-              <IndicatorBadge label={content.excellentLabel} tone="success" size="sm" />
-            </span>
-          ) : (
+          {/* A paid quote drops the info mark. */}
+          {paid ? null : (
           <svg viewBox="0 0 16 16" width="16" height="16" fill="none" role="img" aria-label={content.insurerInfoLabel} className={styles.info} data-tooltip={content.tips.insurer.replace("{insurer}", quote.insurer)}>
             <circle cx="8" cy="8" r="6.5" stroke="var(--color-info-fill)" strokeWidth="1" />
             <circle cx="8" cy="5.2" r="0.8" fill="var(--color-info-fill)" />
@@ -254,12 +258,19 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
                 >
                   <hr className={styles.coveragesRule} />
                   <ul className={styles.coverageList}>
-                    {coverages.items.map((c) => (
-                      <li key={c} className={styles.coverage}>
-                        <SquareCheckbox tone={quote.gold ? "secondary" : "info"} state="checked" size={10} />
-                        {c}
-                      </li>
-                    ))}
+                    {coverages.items.map((c) =>
+                      typeof c === "string" ? (
+                        <li key={c} className={styles.coverage}>
+                          <SquareCheckbox tone={quote.gold ? "secondary" : "info"} state="checked" size={10} />
+                          {c}
+                        </li>
+                      ) : (
+                        <li key={`${c.kind}-${c.label}`} className={styles.coverage}>
+                          {c.kind === "coverage" ? <Tick size={10} muted={!c.met} /> : <Cross size={10} muted={!c.met} />}
+                          {c.label}
+                        </li>
+                      ),
+                    )}
                   </ul>
                 </motion.div>
               )}

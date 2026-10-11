@@ -99,7 +99,8 @@ export function RiskLetterPreview({ content, company, label }: RiskLetterPreview
         <Rows />
         <div className={styles.section}>
           <div className={styles.sectionHead}>
-            <span className={styles.summaryLabel}>{content.summaryLabel}</span>
+            {/* A placeholder bar, as in the section above (no "Executive Summary" text). */}
+            <span className={styles.barLilac} style={{ width: 140 }} />
           </div>
           <div className={styles.summary}>
             {SUMMARY.map((w, i) => (

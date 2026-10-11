@@ -11,11 +11,22 @@ import styles from "./DetailsPanel.module.css";
 import { Chevron } from "@/components/icons/Chevron";
 import { EASE_OUT } from "@/lib/motion";
 import { useAtMost } from "@/lib/media";
+import { NetraBot } from "@/components/ui/NetraBot";
+import { FileTextIcon } from "@/components/icons/FileTextIcon";
+import { UserIcon } from "@/components/icons/UserIcon";
 
 type Tab = "score" | "chat" | "profile";
+/** Scored (A, B): Score leads. */
 const TABS: Tab[] = ["score", "chat", "profile"];
 /** Case C (not scored): Chat leads and Score goes last. */
 const TABS_UNSCORED: Tab[] = ["chat", "profile", "score"];
+/** Each tab's mark beside its label (Figma 829:21917), in a 16 slot: the
+ *  line icons at the label's 14 so they weigh the same as NetraBot's 16. */
+const TAB_ICON: Record<Tab, ReactNode> = {
+  score: <FileTextIcon size={14} />,
+  chat: <NetraBot state="idle" size={16} />,
+  profile: <UserIcon size={14} />,
+};
 
 export interface DetailsPanelProps {
   content: DetailsPanelContent;
@@ -54,7 +65,7 @@ export interface DetailsPanelProps {
 
 /**
  * DetailsPanel — the left column (Figma 770:26992), full column height: a tab
- * strip (Score | Chat | Profile) over the chosen tab. Score is the upgrade
+ * strip (A, B: Score | Chat | Profile; C: Chat | Profile | Score) over the chosen tab. Score is the upgrade
  * banner growing into the risk score badge and the Gold Quote's key coverages
  * and exclusions (Case C: not scored, no badge, and Schedule A Call); Chat is Ask
  * BimaNetra; Profile is Your Details with Edit Details. Phones fold it shut
@@ -67,7 +78,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
   const dock = useAtMost("mobile");
   const notify = useDemoNotice();
   const baseId = useId();
-  // Case C has no score to show, so it opens on Chat.
+  // A and B open on Score; Case C has no score to show, so it opens on Chat.
   const tabs = noRecords || caseId === "C" ? TABS_UNSCORED : TABS;
   const [tab, setTab] = useState<Tab>(tabs[0]);
   const [chatSeen, setChatSeen] = useState(tab === "chat");
@@ -121,6 +132,11 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
   }, [stage]);
 
   const choose = (next: Tab) => {
+    // Phones' dock: tapping the open tab again (it shows an ×) closes it.
+    if (dock && !folded && next === tab) {
+      onToggleCollapse?.();
+      return;
+    }
     setTab(next);
     if (next === "chat") setChatSeen(true);
     // Phones: a tab tap opens the folded accordion.
@@ -194,11 +210,22 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
               {tab === key && !folded && (
                 <motion.span layoutId={`${baseId}-ink`} className={styles.ink} transition={{ duration: reduced ? 0 : 0.3, ease: EASE_OUT }} />
               )}
-              <span className={styles.tabLabel}>{content.tabs[key]}</span>
+              <span className={styles.tabLabel}>
+                <span className={styles.tabIcon} aria-hidden>{TAB_ICON[key]}</span>
+                {content.tabs[key]}
+                {/* Phones' dock, open: an × on the chosen tab, which closes it. */}
+                {dock && !folded && tab === key && (
+                  <svg className={styles.tabClose} viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>
+                    <path d="m3 3 6 6M9 3 3 9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                  </svg>
+                )}
+              </span>
             </button>
           ))}
         </div>
-        {accordion && (
+        {/* The accordion's chevron; the phones' dock opens and closes from
+            its tabs instead. */}
+        {accordion && !dock && (
           <button
             type="button"
             className={styles.collapse}
@@ -206,8 +233,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
             aria-label={collapsed ? "Expand details" : "Collapse details"}
             aria-expanded={!collapsed}
           >
-            {/* Points the way it opens: down for the accordion, up for the dock. */}
-            <Chevron style={{ transform: (dock ? collapsed : !collapsed) ? "rotate(180deg)" : undefined, transition: "transform 0.3s ease" }} />
+            <Chevron style={{ transform: collapsed ? undefined : "rotate(180deg)", transition: "transform 0.3s ease" }} />
           </button>
         )}
       </div>

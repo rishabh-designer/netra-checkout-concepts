@@ -334,6 +334,13 @@ export const mockQuotesPageContent: QuotesPageContent = {
       "Compare Generali and HDFC ERGO",
       "What does HDFC ERGO not cover?",
     ],
+    suggestionsScored: [
+      "What is the Gold Quote?",
+      "What are my key coverages?",
+      "What are my key exclusions?",
+      "Does HDFC ERGO have all my key exclusions?",
+      "Which of my key coverages does Royal Sundaram have?",
+    ],
     replies: {
       count: "You have {count} quotes: {list}.",
       cheapest: "The lowest price is {price} from {insurer}, for {sum} of cover.",
@@ -350,6 +357,21 @@ export const mockQuotesPageContent: QuotesPageContent = {
       compare: "{a} is {priceA} and {b} is {priceB}. {a} leads with {topA}; {b} leads with {topB}. Tick Add To Compare on both to see them side by side.",
       goldLocked: "Your Gold Quote is ready. Select Reveal Quote to see it.",
       goldRevealed: "Your Gold Quote is from {insurer} at {price}, with {list}, built by BimaNetra from your verified details.",
+      goldWhat:
+        "Your Gold Quote is the one BimaNetra builds from your verified details, so it meets all {total} of your key coverages and exclusions. {status}",
+      goldWhatPriced: "It's from {insurer} at {price}, and you can buy it right now.",
+      goldWhatPending: "It gets its insurer and price once our report on your business is ready.",
+      keyCoverages: "Your {count} key coverages are {list}. Each quote shows how many of your key lines it meets.",
+      keyExclusions:
+        "Your {count} key exclusions are {list}. A quote matches one when it carves it out no wider than your business needs.",
+      keyCoveragesAll: "Yes, {insurer} has all {count} of your key coverages.",
+      keyCoveragesSome: "{insurer} has {met} of your {count} key coverages: {matched}. It doesn't have {missing}.",
+      keyCoveragesNone: "{insurer} doesn't have any of your {count} key coverages.",
+      keyExclusionsAll: "Yes, {insurer} matches all {count} of your key exclusions.",
+      keyExclusionsSome: "{insurer} matches {met} of your {count} key exclusions: {matched}. It doesn't match {missing}.",
+      keyExclusionsNone: "{insurer} doesn't match any of your {count} key exclusions.",
+      keyNone:
+        "We couldn't verify your business, so there are no key coverages or exclusions to match quotes against yet. Our experts can help you find the right cover.",
       sumInsured: "Every quote here is for {sum} of cover. You can change it with Edit Details.",
       details: "These quotes are for {company}: {list}. Use Edit Details to change any of these.",
       noRecommend:
@@ -363,6 +385,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
       fallback:
         "I'm not sure about that one yet. I can tell you about prices, what each insurer covers or doesn't, which you can buy now, and how two quotes compare.",
       and: " and ",
+      or: " or ",
     },
   },
   detailsPanel: {
@@ -418,6 +441,11 @@ export const mockQuotesPageContent: QuotesPageContent = {
     legalNameLabel: "Legal Company Name",
     legalNameVerified: "Confirmed with the MCA's company records",
     tabs: { score: "Score", chat: "Chat", profile: "Profile" },
+    scoreIntro: {
+      hint: "Look through the features on each quote to see how they match against your business",
+      ctaLabel: "Show All",
+      closeLabel: "Close",
+    },
     score: {
       label: "Business Health",
       outOf: "/100",
@@ -461,10 +489,11 @@ export const mockQuotesPageContent: QuotesPageContent = {
     sortFilterTitle: "Sort & Filter",
     sortFilterCloseLabel: "Close",
     sortFieldLabel: "Sort Quotes",
-    sortLabel: "{option}",
+    sortLabel: "Sorting by {option}",
     sortOptions: [
       { id: "priceLow", label: "Price: Low to High" },
       { id: "priceHigh", label: "Price: High to Low" },
+      { id: "csrLow", label: "Claim Settlement: Low to High" },
       { id: "csrHigh", label: "Claim Settlement: High to Low" },
     ],
     noResults: {
@@ -519,7 +548,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     viewCoveragesLabel: "View Coverages",
     coverageCountLabel: "{count} Top Coverages",
     personalizedCountLabel: "{count} Personalised Coverages",
-    riskFitLabel: "{met}/{total} Match",
+    riskFitLabel: "{met} Key Coverages & Exclusions",
     csrLabel: "Claim Settlement Ratio: {value}",
     riskFitByCase: RISK_FIT_BY_CASE,
     coveragesUnavailableLabel: "Unavailable",

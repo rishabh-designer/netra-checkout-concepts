@@ -42,9 +42,9 @@ export interface QuotesFeedProps {
 
 /* The grid picks its column count from the feed's width: one up, until two
    cards fit side by side, then up to three (Figma 658:45979: 346-wide cards,
-   24 apart). QuotesSkeleton mirrors these breakpoints in CSS (632 / 960px)
+   24 apart). QuotesSkeleton mirrors these breakpoints in CSS (648 / 984px)
    - keep them in step. */
-const MIN_COMPACT = 304;
+const MIN_COMPACT = 312;
 const GRID_GAP = 24;
 const MAX_COLS = 3;
 /* The gated Gold Quote (Case B) remembers its Additional Details for the run. */
@@ -61,12 +61,12 @@ const columnsFor = (width: number) =>
 
 
 const priceOf = (q: QuoteCardData) => (q.price ? Number(q.price.replace(/\D/g, "")) : Infinity);
-/** "96%" → 96; none (or "N/A") sorts last. */
-const csrOf = (q: QuoteCardData) => parseFloat(q.csr ?? "") || -1;
+/** "96%" → 96; none (or "N/A") is NaN and always sorts last. */
+const csrOf = (q: QuoteCardData) => parseFloat(q.csr ?? "");
 
 /** Filter + sort the non-gold quotes (the Gold Quote stays pinned on top).
  *  Price-on-request quotes always sink below priced ones in a premium sort;
- *  the claim settlement ratio sort runs highest first across all of them. */
+ *  the claim settlement ratio sorts run across all of them, either way. */
 function arrange(list: QuoteCardData[], filter: QuoteFilter[], sort: QuoteSort, immediateOnly: boolean) {
   const kept = list.filter(
     (q) =>
@@ -74,7 +74,12 @@ function arrange(list: QuoteCardData[], filter: QuoteFilter[], sort: QuoteSort, 
       (filter.length === 0 || filter.includes(q.insurer)),
   );
   const bySort = (a: QuoteCardData, b: QuoteCardData) => {
-    if (sort === "csrHigh") return csrOf(b) - csrOf(a);
+    if (sort === "csrHigh" || sort === "csrLow") {
+      const ca = csrOf(a);
+      const cb = csrOf(b);
+      if (Number.isNaN(ca) || Number.isNaN(cb)) return Number.isNaN(ca) === Number.isNaN(cb) ? 0 : Number.isNaN(ca) ? 1 : -1;
+      return sort === "csrHigh" ? cb - ca : ca - cb;
+    }
     const pa = priceOf(a);
     const pb = priceOf(b);
     if (pa === Infinity || pb === Infinity) return pa === pb ? 0 : pa === Infinity ? 1 : -1;

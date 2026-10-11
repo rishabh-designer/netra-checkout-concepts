@@ -26,10 +26,15 @@
   flex-shrink: 0;
 }
 
+/* Segmented control (829:21917): a neutral sunken track, r24, the chosen
+   tab a raised white pill sliding inside it. */
 .tabs {
   flex: 1;
   display: flex;
-  gap: var(--spacing-12);
+  gap: var(--spacing-2);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-24);
+  background: var(--color-card-sunken);
 }
 
 .tab {
@@ -39,13 +44,14 @@
   align-items: center;
   justify-content: center;
   height: 40px;
-  padding: var(--spacing-4) 6px;
+  padding: var(--spacing-8) 0;
   border: 0;
+  border-radius: 999px;
   background: none;
-  font-size: var(--font-size-200);
+  font-size: var(--font-size-100);
   font-weight: 500;
   letter-spacing: var(--track-500);
-  line-height: 1;
+  line-height: 1.5;
   color: var(--color-brand-primary-muted);
   cursor: pointer;
   transition: color 0.2s ease;
@@ -67,16 +73,42 @@
   outline-offset: 2px;
 }
 
-/* The selected tab's tint and 2px underline; slides between tabs. */
+/* The chosen tab's white pill, hairline and soft lift; slides between tabs. */
 .ink {
   position: absolute;
-  inset: 0;
-  border-bottom: 2px solid var(--color-brand-primary);
-  background: var(--color-brand-primary-tint);
+  inset: -1px;
+  border: 1px solid var(--color-brand-primary-border);
+  border-radius: 999px;
+  background: var(--color-card);
+  box-shadow: var(--shadow-mid-raised);
 }
 
+/* The 16 mark, 4 before the label. */
 .tabLabel {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.tabIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.tabIcon > div {
+  display: flex;
+}
+
+/* Phones' dock: the × on the open tab (taps close it). */
+.tabClose {
+  flex-shrink: 0;
+  margin-left: var(--spacing-2);
+  opacity: 0.7;
 }
 
 .collapse {

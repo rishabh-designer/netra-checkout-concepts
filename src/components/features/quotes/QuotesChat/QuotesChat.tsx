@@ -56,7 +56,8 @@ export function ChatAvatar({ live = false, state = "waiting" }: { live?: boolean
 export function QuotesChat({ content, context, open = true, variant, onClose }: QuotesChatProps) {
   const reduced = useReducedMotion();
   const greeting = content.greeting
-    .replace("{count}", String(context.quotes.length + (context.gold?.revealed ? 1 : 0)))
+    // The Gold Quote counts from the start, as in the page heading.
+    .replace("{count}", String(context.quotes.length + (context.gold ? 1 : 0)))
     .replace("{company}", context.company);
   const [messages, setMessages] = useState<Message[]>([{ id: 0, from: "bot", text: greeting }]);
   const [draft, setDraft] = useState("");
@@ -142,7 +143,7 @@ export function QuotesChat({ content, context, open = true, variant, onClose }: 
               animate={{ opacity: 1, transition: { delay: 0.2 } }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
             >
-              {content.suggestions.map((s) => (
+              {(context.keyLines && content.suggestionsScored ? content.suggestionsScored : content.suggestions).map((s) => (
                 <button key={s} type="button" className={styles.suggestion} onClick={() => ask(s)}>
                   {s}
                 </button>

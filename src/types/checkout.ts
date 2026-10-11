@@ -127,8 +127,6 @@ export interface CheckoutSummaryContent {
   insurerInfoLabel: string;
   /** Tooltips: the tags and the insurer info mark (`{insurer}` filled in). */
   tips: { immediate: string; gold: string; insurer: string };
-  /** Badge on the insurer box of a paid Gold Quote (Figma 670:53310). */
-  excellentLabel: string;
 }
 
 export interface CheckoutContent {
@@ -156,8 +154,9 @@ export interface CheckoutContent {
   otherPersonLabel: string;
   steps: {
     billing: CheckoutStepChrome & { fields: CheckoutField[] };
-    /** KYC + Company on one step: its title, banner and first section title. */
-    verification: CheckoutStepChrome;
+    /** KYC + Company on one step: its title, banner and first section title;
+     *  `esign` adds the KYC Verification section (the cases listed). */
+    verification: CheckoutStepChrome & { esign?: CheckoutEsignContent };
     /** Company Registration Details (Verification's second section). */
     company: CheckoutStepChrome & { cases: Record<QuoteCaseId, CheckoutField[]> };
     kyc: CheckoutStepChrome & {
@@ -217,7 +216,12 @@ export interface SuccessSuggestion {
 /** Checkout (Success), Figma 670:51168: the end of the journey after Pay. */
 export interface CheckoutSuccessContent {
   /** `{name}`, `{company}` and `{order}` (the order number, highlighted). */
+  /** The greeting card's serif headline (692:58159). */
+  headline: string;
   greeting: string;
+  /** Under the greeting card's rule, once the mandate is e-Signed:
+   *  `{riskHeld}` and `{dashboard}` are links. */
+  upNext: { label: string; body: string; riskHeld: string; dashboard: string };
   orderPrefix: string;
   badgeAlt: string;
   stats: { startLabel: string; endLabel: string; premiumLabel: string; periodLabel: string; periodValue: string };
@@ -235,6 +239,12 @@ export interface CheckoutSuccessContent {
   mandate: SuccessTimelineRow & { link: string };
   issuance: SuccessTimelineRow;
   signLabel: string;
+  /** The Mandate Letter already e-Signed: Checkout's action in place of Due Diligence. */
+  riskHeldLabel: string;
+  /** A scored quote's pill: "{count} Key Coverages & Exclusions". */
+  keyLinesLabel: string;
+  /** The header action, with the mandate already signed. */
+  dashboardLabel: string;
   /** The timeline chevron: show or hide a step's copy. */
   stepToggle: { show: string; hide: string };
   viewPolicyLabel: string;
@@ -264,14 +274,51 @@ export interface CheckoutSuccessContent {
   riskHeld: {
     title: string;
     body: string;
+    /** The × in the top-right corner. */
+    closeLabel: string;
     /** The letter preview, drawn in code (683:56607): its header title, the
      *  line naming the policy (`{company}`), and the back sheet's labels. */
-    preview: { title: string; forLabel: string; backEyebrow: string; backTitle: string; summaryLabel: string };
+    preview: { title: string; forLabel: string; backEyebrow: string; backTitle: string };
     imageAlt: string;
     downloadLabel: string;
     whatsappLabel: string;
     downloadToast: { title: string; description: string };
     whatsappToast: { title: string; description: string };
     delayMs: number;
+  };
+}
+
+/** KYC Verification: signing the proposal with Aadhaar through NSDL e-Sign.
+ *  The field reads like an upload; clicking it opens the e-Sign popup. */
+export interface CheckoutEsignContent {
+  /** The cases that show it. */
+  cases: QuoteCaseId[];
+  sectionTitle: string;
+  label: string;
+  title: string;
+  hint: string;
+  /** Once signed: the field's success copy (`{file}` = `signedName`). */
+  signedName: string;
+  successTitle: string;
+  successBody: string;
+  redoLabel: string;
+  /** Review: the row's label and its value once signed ("E-Aadhaar" · "Signed"). */
+  reviewLabel: string;
+  reviewSigned: string;
+  modal: {
+    title: string;
+    intro: string;
+    consent: string;
+    idLabel: string;
+    idPlaceholder: string;
+    idError: string;
+    sendLabel: string;
+    cancelLabel: string;
+    otpLabel: string;
+    otpPlaceholder: string;
+    otpHint: string;
+    otpError: string;
+    verifyLabel: string;
+    closeLabel: string;
   };
 }

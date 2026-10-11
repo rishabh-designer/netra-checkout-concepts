@@ -1,18 +1,20 @@
-/* Controls row (Figma 658:45930): the two labelled fields left, 32 apart;
-   the Immediate Purchase switch right, bottom-aligned with the fields. On a
-   narrow feed the switch drops under the fields. */
+/* Controls row: Filtering, Sorting and the Immediate Purchase switch, all
+   together on the right, 16 apart. On a narrow feed they wrap, still
+   right-aligned. */
 .row {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: flex-end;
   flex-wrap: wrap;
-  gap: var(--spacing-16) var(--spacing-32);
+  gap: var(--spacing-16);
   width: 100%;
 }
 
 .dropdowns {
   display: flex;
-  gap: var(--spacing-32);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--spacing-16);
   min-width: 0;
 }
 
@@ -20,9 +22,23 @@
 .field {
   display: flex;
   flex-direction: column;
-  width: 260px;
+  width: 280px;
   min-width: 0;
   max-width: 100%;
+}
+
+/* The row's fields carry their meaning in the value ("Filtering: …",
+   "Sorting by …"), so they drop the label above; the mobile sheet keeps it. */
+.row .fieldLabel {
+  display: none;
+}
+
+/* In the row each field hugs its value: as narrow as it can go with its
+   own padding intact, so it never reads tight (a picked insurer's long
+   name stops at 340 and ellipses, with a tooltip). */
+.row .field {
+  width: max-content;
+  max-width: 340px;
 }
 
 .fieldLabel {
@@ -47,6 +63,23 @@
 
 .dropdown:hover {
   background: var(--color-brand-primary-subtle);
+}
+
+/* The sort and filter menus' options at 12 (the shared menus default to
+   16), in the row and in the mobile sheet. */
+.dropdown [role="option"] {
+  font-size: var(--font-size-75);
+}
+
+/* In the row the fields hug their value, so a menu can be narrower than
+   its options: it grows to fit them (never narrower than the field),
+   opening from the field's right edge as the controls sit on the right. */
+.row .dropdown > * > [role="listbox"],
+.row .dropdown > * > div:has(> [role="listbox"]) {
+  left: auto;
+  right: 0;
+  width: max-content;
+  min-width: 100%;
 }
 
 /* The SelectMenu trigger fills the field: value left, chevron + glyph right.

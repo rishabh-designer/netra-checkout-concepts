@@ -24,6 +24,8 @@ export interface SuccessTimelineItem {
   /** Under the copy: the row's next action (disabled while pending). */
   /** `pendingTip`: the tooltip while the row is still pending. */
   action?: { label: string; onClick?: () => void; onHover?: () => void; pendingTip?: string };
+  /** Starts unfolded even when it isn't the step in progress. */
+  startOpen?: boolean;
 }
 
 export interface SuccessTimelineProps {
@@ -70,7 +72,7 @@ export function SuccessTimeline({ items, delay = 0, toggleLabels }: SuccessTimel
   const reduced = useReducedMotion();
   // Only the step in progress starts open; done and pending ones start
   // folded to their pill.
-  const [open, setOpen] = useState(() => new Set(items.filter((it) => it.state === "active").map((it) => it.pill)));
+  const [open, setOpen] = useState(() => new Set(items.filter((it) => it.state === "active" || it.startOpen).map((it) => it.pill)));
   // Only the steps open on arrival rise in with the page; once toggled, a
   // step just unfolds.
   const [openedOnArrival, setOpenedOnArrival] = useState(open);
@@ -164,7 +166,7 @@ export function SuccessTimeline({ items, delay = 0, toggleLabels }: SuccessTimel
                     {it.action && (
                       <button type="button" className={styles.action} disabled={it.state === "pending"} data-tooltip={it.state === "pending" ? it.action.pendingTip : undefined} onClick={it.action.onClick} onMouseEnter={it.action.onHover}>
                         {it.action.label}
-                        <ArrowRight size={14} />
+                        <ArrowRight size={12} />
                       </button>
                     )}
                   </div>

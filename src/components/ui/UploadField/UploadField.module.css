@@ -55,16 +55,16 @@
   box-shadow: 0 0 0 4px var(--color-info-ring);
 }
 
-/* Filled states (Figma 638:23694 / 638:23674): a hairline solid stroke. */
+/* Filled states (Figma 638:23694 / 638:23674): a hairline solid stroke,
+   keeping the zone's r24 like every other state. */
 .zone[data-state="success"] {
   --zone-ink: var(--color-success);
   --zone-tint: var(--color-success-subtle);
   border-style: solid;
   border-width: var(--border-hairline);
-  border-radius: var(--radius-16);
 }
 
-/* Fetched for the customer (the MCA): purple, r24. */
+/* Fetched for the customer (the MCA): purple. */
 .zone[data-state="fetched"] {
   --zone-ink: var(--color-brand-primary);
   --zone-tint: var(--color-brand-primary-subtle);
@@ -77,7 +77,6 @@
   --zone-tint: var(--color-error-tint);
   border-style: solid;
   border-width: var(--border-hairline);
-  border-radius: var(--radius-16);
 }
 
 .zone[data-state="disabled"] {

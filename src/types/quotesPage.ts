@@ -74,6 +74,9 @@ export interface DetailsPanelContent {
   legalNameVerified: string;
   /** The panel's tab strip (Figma 770:26992): Score | Chat | Profile. */
   tabs: { score: string; chat: string; profile: string };
+  /** The popup that greets a verified business (A, B) once per visit: its
+   *  info line, the button that closes it onto the quotes, and the ×. */
+  scoreIntro: { hint: string; ctaLabel: string; closeLabel: string };
   /** The Score tab: the risk score badge and the Gold Quote's key lines. */
   score: RiskScoreContent;
 }
@@ -282,7 +285,7 @@ export interface FeaturesDrawerContent {
 export type QuoteFilter = string;
 /** Feed order: the insurer default, premium either way, or most coverages first. */
 /** By price, the quote as shown (GST included). */
-export type QuoteSort = "priceLow" | "priceHigh" | "csrHigh";
+export type QuoteSort = "priceLow" | "priceHigh" | "csrLow" | "csrHigh";
 
 /** How a quote's price follows the business: each mock price is for
  *  `referenceCrore` of cover at the reference turnover (factor 1). */
@@ -375,7 +378,7 @@ export interface QuotesFeedContent {
   coverageCountLabel: string;
   /** The Gold Quote's chip ("4 Personalized Coverages"). */
   personalizedCountLabel: string;
-  /** The chip once the risk is scored: "{met}/{total} Match". */
+  /** The chip once the risk is scored: "{met} Key Coverages & Exclusions" ({total} also available). */
   riskFitLabel: string;
   /** Under each insurer's logo: "Claim Settlement Ratio: {value}". */
   csrLabel: string;
@@ -436,6 +439,9 @@ export interface QuotesChatContent {
   /** `{company}`, `{count}`. */
   greeting: string;
   suggestions: string[];
+  /** A scored business (A, B): starter questions about the Gold Quote and
+   *  the key lines, in place of `suggestions`. */
+  suggestionsScored?: string[];
   replies: {
     count: string;
     cheapest: string;
@@ -452,6 +458,23 @@ export interface QuotesChatContent {
     compare: string;
     goldLocked: string;
     goldRevealed: string;
+    /** "What is the Gold Quote?": the explainer, with A's priced or B's pending status. */
+    goldWhat: string;
+    goldWhatPriced: string;
+    goldWhatPending: string;
+    /** The key lines ({count}, {list}), and one insurer against them ({met}, {matched}, {missing}). */
+    keyCoverages: string;
+    keyExclusions: string;
+    keyCoveragesAll: string;
+    keyCoveragesSome: string;
+    keyCoveragesNone: string;
+    keyExclusionsAll: string;
+    keyExclusionsSome: string;
+    keyExclusionsNone: string;
+    /** Case C: nothing scored to match against. */
+    keyNone: string;
+    /** Joins a list of what's missing: "a, b or c". */
+    or: string;
     sumInsured: string;
     details: string;
     noRecommend: string;

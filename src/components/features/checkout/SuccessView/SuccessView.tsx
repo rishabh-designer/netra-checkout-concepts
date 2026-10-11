@@ -102,8 +102,8 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
     const id = window.setTimeout(() => setLoading(false), LOAD_MS);
     return () => window.clearTimeout(id);
   }, []);
-  // The Risk Held Letter opens a beat after the page has fully drawn in; it
-  // can't be dismissed, only acted on (either action confirms and closes it).
+  // The Risk Held Letter opens a beat after the page has fully drawn in;
+  // either action confirms and closes it, and the × closes it as is.
   const [riskHeld, setRiskHeld] = useState(false);
   const [notice, setNotice] = useState<{ title: string; description: string } | null>(null);
   useEffect(() => {
@@ -127,18 +127,24 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   ends.setDate(ends.getDate() - 1);
   const final = splitPrice(quote.price ?? "", content.summary.gstRate).total;
   const count = (quote.coverages ?? quote.policy?.top ?? []).length;
-  const countLabel = (quote.gold ? s.personalizedLabel : s.coveragesLabel).replace("{count}", String(count));
+  // A scored quote counts its key coverages and exclusions (as on the quote
+  // cards); otherwise its top coverages.
+  const fit = quote.riskFit;
+  const countLabel = fit
+    ? s.keyLinesLabel.replace("{count}", String(fit.met))
+    : (quote.gold ? s.personalizedLabel : s.coveragesLabel).replace("{count}", String(count));
+  const coverageItems = fit
+    ? fit.lines.map((l) => ({ label: l.title, kind: l.kind, met: l.met }))
+    : (quote.coverages ?? quote.policy?.top ?? []);
   const product = content.summary.productLines.join(" ");
   const sign = () => {
     setToast(false);
     requestAnimationFrame(() => setToast(true));
   };
-  // The Suggests bot also eggs on the page's actions: a nod for the mandate,
-  // a thank-you bow for the invoice, and a curious look at whatever a
-  // chevron is about to reveal.
+  // The Suggests bot also eggs on the page's actions: a nod for the mandate
+  // and a curious look at whatever a chevron is about to reveal.
   const bot = useRef<NetraBotHandle>(null);
   const cheerSign = () => bot.current?.react("nodYes");
-  const cheerInvoice = () => bot.current?.react("thankYouBow");
   const peekCoverages = () => bot.current?.react("curiousTilt");
   const peekPrices = () => bot.current?.react("curiousPeek");
   // Opening a fold earns a soft smile; closing one, a glance as it's tucked away.
@@ -176,13 +182,30 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   );
   const diligence = expert ? s.diligence.expert : s.diligence[caseId];
   const time = duration(clock.seconds);
+  // The Mandate Letter was signed with Aadhaar at checkout: no Due
+  // Diligence step; Checkout stays open with the Risk Held Letter to download.
+  const signed = !!content.steps.verification.esign?.cases.includes(caseId);
+  const downloadRiskHeld = () => finishRiskHeld(s.riskHeld.downloadToast);
   const rows: SuccessTimelineItem[] = [
     { pill: s.stepLabels[0], state: "done", title: s.profiling.title, body: fill(s.profiling.body, { product }), status: { label: s.profiling.statusLabel!, time: s.profiling.time! }, link: { label: s.riskReportLabel, onClick: () => notify("riskReport") } },
     { pill: s.stepLabels[1], state: "done", title: pick.title, body: fill(pick.body, { product, count: countLabel, insurer: quote.insurer }), status: { label: pick.statusLabel!, time: pick.time! }, tag: goldTag },
-    { pill: s.stepLabels[2], state: "done", title: diligence.title, body: fill(diligence.body, { time }), status: { label: diligence.statusLabel!, time }, tag: purchaseTag },
-    { pill: s.stepLabels[3], state: "active", title: s.mandate.title, body: fill(s.mandate.body, { mandate: s.mandate.link }, ["mandate"]), action: { label: s.signLabel, onClick: sign, onHover: cheerSign } },
-    { pill: s.stepLabels[4], state: "pending", title: s.issuance.title, body: s.issuance.body, action: { label: s.viewPolicyLabel, pendingTip: s.viewPolicyPendingTip } },
+    {
+      pill: s.stepLabels[2],
+      state: "done",
+      title: diligence.title,
+      body: fill(diligence.body, { time }),
+      status: { label: diligence.statusLabel!, time },
+      tag: purchaseTag,
+      ...(signed ? { startOpen: true, action: { label: s.riskHeldLabel, onClick: downloadRiskHeld, onHover: cheerSign } } : {}),
+    },
+    ...(signed
+      ? []
+      : [{ pill: s.stepLabels[3], state: "active" as const, title: s.mandate.title, body: fill(s.mandate.body, { mandate: s.mandate.link }, ["mandate"]), action: { label: s.signLabel, onClick: sign, onHover: cheerSign } }]),
+    { pill: s.stepLabels[4], state: "pending", title: s.issuance.title, body: s.issuance.body, action: { label: s.viewPolicyLabel, pendingTip: s.viewPolicyPendingTip }, startOpen: true },
   ];
+  // The page's lead action (header, mobile footer): with nothing left to
+  // sign (A), it's the BimaKendra dashboard.
+  const lead = signed ? { label: s.dashboardLabel, onClick: () => notify("dashboard") } : { label: s.signLabel, onClick: sign };
   const company = checkout.companyName || result?.companyName || content.fallbackCompanyName;
   const [greetA, greetB = ""] = s.greeting.replace("{name}", name).replace("{company}", company).split("{order}");
   const stats = [
@@ -202,7 +225,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
         variant="outline"
         onCta={() => notify("contactSupport")}
         // Mobile: Sign Mandate Letter moves to a footer (735:36146).
-        leadCta={mobile ? undefined : { label: s.signLabel, onClick: sign, onHover: cheerSign }}
+        leadCta={mobile ? undefined : { ...lead, onHover: cheerSign }}
         icon={<span className={styles.headset} style={{ "--icon": `url(${content.header.supportIconSrc})` } as CSSProperties} aria-hidden />}
       />
 
@@ -222,34 +245,66 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                     <span className={styles.beamGlow} aria-hidden>
                       <span className={styles.beamSpin} />
                     </span>
+                    {/* Figma 692:58159: the headline, greeting and stats beside the
+                        badge, then (Case A) the rule and what's next. */}
                     <div className={styles.hello}>
-                      <div className={styles.badgeWrap}>
-                        <motion.div
-                          className={styles.badge}
-                          initial={reduced ? false : { scale: 0.3, rotate: -40, opacity: 0 }}
-                          animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                          transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.2 }}
-                        >
-                          <SuccessBadge label={s.badgeAlt} />
+                      <div className={styles.helloTop}>
+                        <div className={styles.helloText}>
+                          <motion.h1 className={styles.headline} {...rise(0.05)}>
+                            {s.headline}
+                          </motion.h1>
+                          <motion.p className={styles.greeting} {...rise(0.1)}>
+                            {greetA}
+                            <mark>#{s.orderPrefix}-{order.id}</mark>
+                            {greetB}
+                          </motion.p>
+                          <dl className={styles.stats}>
+                            {stats.map((st, i) => (
+                              <motion.div key={st.label} className={styles.stat} {...rise(0.2 + i * 0.06)}>
+                                <dt>{st.label}</dt>
+                                <dd>{st.value}</dd>
+                              </motion.div>
+                            ))}
+                          </dl>
+                        </div>
+                        <div className={styles.badgeWrap}>
+                          <motion.div
+                            className={styles.badge}
+                            initial={reduced ? false : { scale: 0.3, rotate: -40, opacity: 0 }}
+                            animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                            transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.2 }}
+                          >
+                            <SuccessBadge label={s.badgeAlt} />
+                          </motion.div>
+                          {/* The Gold Quote's dithered shockwave and glitter, in green. */}
+                          <DitherBurst radius={120} delay={0.3} duration={1.1} edgeToken="--color-success" coreToken="--color-success-border" />
+                        </div>
+                      </div>
+                      {signed && (
+                        <motion.div className={styles.upNext} {...rise(0.45)}>
+                          <div className={styles.helloRule}>
+                            <IkkatDivider height={4} unit={22} />
+                          </div>
+                          <div className={styles.upNextText}>
+                            <p className={styles.upNextLabel}>{s.upNext.label}</p>
+                            <p className={styles.upNextBody}>
+                              {s.upNext.body.split(/(\{riskHeld\}|\{dashboard\})/).map((part, i) =>
+                                part === "{riskHeld}" ? (
+                                  <button key={i} type="button" className={styles.upNextLink} onClick={() => setRiskHeld(true)}>
+                                    {s.upNext.riskHeld}
+                                  </button>
+                                ) : part === "{dashboard}" ? (
+                                  <button key={i} type="button" className={styles.upNextLink} onClick={() => notify("dashboard")}>
+                                    {s.upNext.dashboard}
+                                  </button>
+                                ) : (
+                                  part
+                                ),
+                              )}
+                            </p>
+                          </div>
                         </motion.div>
-                        {/* The Gold Quote's dithered shockwave and glitter, in green. */}
-                        <DitherBurst radius={120} delay={0.3} duration={1.1} edgeToken="--color-success" coreToken="--color-success-border" />
-                      </div>
-                      <div className={styles.helloText}>
-                        <motion.h1 className={styles.greeting} {...rise(0.1)}>
-                          {greetA}
-                          <mark>#{s.orderPrefix}-{order.id}</mark>
-                          {greetB}
-                        </motion.h1>
-                        <dl className={styles.stats}>
-                          {stats.map((st, i) => (
-                            <motion.div key={st.label} className={styles.stat} {...rise(0.2 + i * 0.06)}>
-                              <dt>{st.label}</dt>
-                              <dd>{st.value}</dd>
-                            </motion.div>
-                          ))}
-                        </dl>
-                      </div>
+                      )}
                     </div>
                     <span className={styles.beamRing} aria-hidden>
                       <span className={styles.beamSpin} />
@@ -293,11 +348,11 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                     quote={quote}
                     company={company}
                     beam={false}
-                    coverages={count ? { label: countLabel, items: quote.coverages ?? quote.policy?.top ?? [], onToggleHover: peekCoverages, onToggle: folded } : undefined}
+                    coverages={coverageItems.length ? { label: countLabel, items: coverageItems, onToggleHover: peekCoverages, onToggle: folded } : undefined}
                     paid={{
                       label: s.paidLabel.replace("{date}", long(paidAt)),
                       amount: <CountUp to={final} delay={0.7} />,
-                      invoice: { label: s.invoiceLabel, onClick: () => notify("downloadInvoice"), onHover: cheerInvoice },
+                      // Download Invoice is hidden for now (pass `invoice` to bring it back).
                       onToggleHover: peekPrices,
                       onToggle: folded,
                     }}
@@ -315,7 +370,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
         </AnimatePresence>
       </div>
 
-      {mobile && <CheckoutFooter cta={{ label: s.signLabel, enabled: true, onClick: sign }} />}
+      {mobile && <CheckoutFooter cta={{ ...lead, enabled: true }} />}
 
       <RiskHeldModal
         open={riskHeld}
@@ -323,6 +378,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
         company={company}
         onDownload={() => finishRiskHeld(s.riskHeld.downloadToast)}
         onWhatsApp={() => finishRiskHeld(s.riskHeld.whatsappToast)}
+        onClose={() => setRiskHeld(false)}
       />
       <Toast open={!!notice} tone="success" title={notice?.title ?? ""} description={notice?.description} onClose={closeNotice} />
       <Toast open={toast} title={s.mandateToast.title} description={s.mandateToast.description.replace("{email}", email)} onClose={() => setToast(false)} />

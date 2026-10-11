@@ -24,23 +24,16 @@
 }
 
 /* Skeleton ↔ content swap layer: carries the 2-column grid
-   (panel 320 | feed, 41 apart; Figma 769:24625). */
+   (panel 320 | feed, 16 apart, plus the feed's own 16 of glow room). */
 .swap {
   flex: 1;
   min-width: 0;
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
-  column-gap: 41px;
+  column-gap: var(--spacing-16);
   width: 100%;
   height: 100%;
   min-height: 0;
-}
-
-/* Narrower desktops: tighten the 40px gutters so the feed keeps its width. */
-@media (max-width: 1440px) {
-  .swap {
-    column-gap: var(--spacing-24);
-  }
 }
 
 .swap > * {

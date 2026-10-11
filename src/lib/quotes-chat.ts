@@ -10,6 +10,9 @@ export interface QuotesChatContext {
   /** Your Details, as shown in the sidebar. */
   details: { label: string; value: string }[];
   phone: string;
+  /** A scored business's key lines (the Gold Quote's): what every quote's
+   *  match is measured against. None for Case C. */
+  keyLines?: { coverages: string[]; exclusions: string[] };
 }
 
 type Replies = QuotesChatContent["replies"];
@@ -53,6 +56,34 @@ export function answerQuotesQuestion(question: string, ctx: QuotesChatContext, r
   const topOf = (x: QuoteCardData) => list((x.policy?.top ?? x.coverages ?? []).slice(0, 2), r.and) || "its standard cover";
 
   if (has(q, /\b(best|recommend|should i|suggest|better|which one|pick)\b/) && insurers.length < 2) return r.noRecommend;
+
+  // The business's key lines: what they are, and how one quote meets them.
+  const exclAsked = has(q, /exclu/);
+  if (has(q, /\bkey\b/) && (exclAsked || has(q, /cover/))) {
+    const key = ctx.keyLines;
+    if (!key) return r.keyNone;
+    const kind = exclAsked ? "exclusion" : "coverage";
+    const lines = exclAsked ? key.exclusions : key.coverages;
+    if (insurers.length === 1) {
+      const x = insurers[0];
+      const fit = (x.riskFit?.lines ?? []).filter((l) => l.kind === kind);
+      const met = fit.filter((l) => l.met).map((l) => l.title);
+      const missing = fit.filter((l) => !l.met).map((l) => l.title);
+      const v = { insurer: x.insurer, count: String(lines.length), met: String(met.length), matched: list(met, r.and), missing: list(missing, r.or) };
+      if (!missing.length) return fill(exclAsked ? r.keyExclusionsAll : r.keyCoveragesAll, v);
+      if (!met.length) return fill(exclAsked ? r.keyExclusionsNone : r.keyCoveragesNone, v);
+      return fill(exclAsked ? r.keyExclusionsSome : r.keyCoveragesSome, v);
+    }
+    return fill(exclAsked ? r.keyExclusions : r.keyCoverages, { count: String(lines.length), list: list(lines, r.and) });
+  }
+
+  // "What is the Gold Quote?": what it is, then where this one stands.
+  if (has(q, /gold/) && has(q, /what is|what's|whats|explain|mean|about/) && ctx.gold) {
+    const g = ctx.gold.quote;
+    const total = (ctx.keyLines?.coverages.length ?? 0) + (ctx.keyLines?.exclusions.length ?? 0);
+    const status = g.price && g.logoSrc ? fill(r.goldWhatPriced, { insurer: g.insurer, price: g.price }) : r.goldWhatPending;
+    return fill(r.goldWhat, { total: String(total), status });
+  }
 
   if (insurers.length >= 2 || (has(q, /compare|differ|\bvs\b|versus/) && priced.length >= 2)) {
     const [a, b] = insurers.length >= 2 ? insurers : priced;

@@ -39,6 +39,11 @@ export interface UploadFieldProps {
   /** `fileName` was fetched for the customer, not uploaded: the purple
    *  "Successfully Fetched!" state, with a button to upload their own. */
   fetched?: boolean;
+  /** The default state's line under the title, in place of `copy.hint`. */
+  hint?: string;
+  /** Not a file: clicking runs this instead of the file picker (e.g. the
+   *  Aadhaar e-Sign hand-off), and drop is off. */
+  onPick?: () => void;
 }
 
 const ILLUSTRATION: Record<UploadState, string> = {
@@ -77,7 +82,7 @@ function isAccepted(file: File): boolean {
  * make room for the button. Only the file name is kept; nothing is sent.
  * Usage: <UploadField label="…" title="Upload Company GST" fileName={f} onChange={setF} copy={upload} />
  */
-export function UploadField({ label, title, mandatory, fileName, onChange, copy, disabled, accept = "image/*,.pdf,application/pdf", fetched = false }: UploadFieldProps) {
+export function UploadField({ label, title, mandatory, fileName, onChange, copy, disabled, accept = "image/*,.pdf,application/pdf", fetched = false, hint, onPick }: UploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const id = useId();
   const [failure, setFailure] = useState<{ file: string; reason: string } | null>(null);
@@ -101,6 +106,7 @@ export function UploadField({ label, title, mandatory, fileName, onChange, copy,
 
   const browse = () => {
     if (state === "disabled") return;
+    if (onPick) return onPick();
     if (inputRef.current) inputRef.current.value = "";
     inputRef.current?.click();
   };
@@ -114,7 +120,7 @@ export function UploadField({ label, title, mandatory, fileName, onChange, copy,
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
     setDragging(false);
-    if (state !== "disabled") take(e.dataTransfer.files[0]);
+    if (state !== "disabled" && !onPick) take(e.dataTransfer.files[0]);
   };
 
   const pickable = state === "default";
@@ -132,11 +138,11 @@ export function UploadField({ label, title, mandatory, fileName, onChange, copy,
           data-dragging={dragging || undefined}
           role={pickable ? "button" : undefined}
           tabIndex={pickable ? 0 : undefined}
-          aria-label={pickable ? `${title}. ${copy.hint}` : undefined}
+          aria-label={pickable ? `${title}. ${hint ?? copy.hint}` : undefined}
           onClick={pickable ? browse : undefined}
           onKeyDown={pickable ? (e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), browse()) : undefined}
           onDragOver={(e) => {
-            if (state === "disabled") return;
+            if (state === "disabled" || onPick) return;
             e.preventDefault();
             setDragging(true);
           }}
@@ -163,7 +169,7 @@ export function UploadField({ label, title, mandatory, fileName, onChange, copy,
               {state === "disabled" && copy.disabledTitle}
             </p>
             <p className={styles.sub} data-tooltip-overflow>
-              {state === "default" && copy.hint}
+              {state === "default" && (hint ?? copy.hint)}
               {state === "success" && withFile(copy.successBody, fileName, styles.fileOk)}
               {state === "fetched" && withFile(copy.fetchedBody, fileName, styles.fileOk)}
               {state === "failure" && failure && withFile(failure.reason, failure.file, styles.fileBad)}
