@@ -378,8 +378,10 @@ export interface QuotesFeedContent {
   coverageCountLabel: string;
   /** The Gold Quote's chip ("4 Personalized Coverages"). */
   personalizedCountLabel: string;
-  /** The chip once the risk is scored: "{met} Key Coverages & Exclusions" ({total} also available). */
+  /** Once the risk is scored: "{met} Key Features" ({total} also available), the card popup's title. */
   riskFitLabel: string;
+  /** The card's chip once scored: "View {met} Key Features". */
+  riskFitChipLabel: string;
   /** Under each insurer's logo: "Claim Settlement Ratio: {value}". */
   csrLabel: string;
   /** Per case, the key lines each insurer's quote meets (the Gold Quote

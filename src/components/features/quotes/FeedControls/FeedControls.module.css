@@ -1,10 +1,9 @@
-/* Controls row: Filtering, Sorting and the Immediate Purchase switch, all
-   together on the right, 16 apart. On a narrow feed they wrap, still
-   right-aligned. */
+/* Controls row: Filtering and Sorting on the left, 16 apart; the Immediate
+   Purchase switch on the right. On a narrow feed they wrap. */
 .row {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--spacing-16);
   width: 100%;
@@ -13,7 +12,7 @@
 .dropdowns {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: var(--spacing-16);
   min-width: 0;
 }
@@ -73,11 +72,11 @@
 
 /* In the row the fields hug their value, so a menu can be narrower than
    its options: it grows to fit them (never narrower than the field),
-   opening from the field's right edge as the controls sit on the right. */
+   opening from the field's left edge as the controls sit on the left. */
 .row .dropdown > * > [role="listbox"],
 .row .dropdown > * > div:has(> [role="listbox"]) {
-  left: auto;
-  right: 0;
+  left: 0;
+  right: auto;
   width: max-content;
   min-width: 100%;
 }

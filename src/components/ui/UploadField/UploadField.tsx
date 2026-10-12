@@ -44,8 +44,6 @@ export interface UploadFieldProps {
   /** Not a file: clicking runs this instead of the file picker (e.g. the
    *  Aadhaar e-Sign hand-off), and drop is off. */
   onPick?: () => void;
-  /** A link at the end of the label row (e.g. View Mandate Letter). */
-  labelAction?: ReactNode;
 }
 
 const ILLUSTRATION: Record<UploadState, string> = {
@@ -84,7 +82,7 @@ function isAccepted(file: File): boolean {
  * make room for the button. Only the file name is kept; nothing is sent.
  * Usage: <UploadField label="…" title="Upload Company GST" fileName={f} onChange={setF} copy={upload} />
  */
-export function UploadField({ label, title, mandatory, fileName, onChange, copy, disabled, accept = "image/*,.pdf,application/pdf", fetched = false, hint, onPick, labelAction }: UploadFieldProps) {
+export function UploadField({ label, title, mandatory, fileName, onChange, copy, disabled, accept = "image/*,.pdf,application/pdf", fetched = false, hint, onPick }: UploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const id = useId();
   const [failure, setFailure] = useState<{ file: string; reason: string } | null>(null);
@@ -129,13 +127,10 @@ export function UploadField({ label, title, mandatory, fileName, onChange, copy,
 
   return (
     <div className={styles.field}>
-      <div className={styles.labelRow}>
-        <label className={styles.label} htmlFor={id}>
-          {label}
-          {mandatory && state !== "disabled" && <span className={styles.req}>*</span>}
-        </label>
-        {labelAction}
-      </div>
+      <label className={styles.label} htmlFor={id}>
+        {label}
+        {mandatory && state !== "disabled" && <span className={styles.req}>*</span>}
+      </label>
       <div className={styles.wrap}>
         <div
           className={styles.zone}

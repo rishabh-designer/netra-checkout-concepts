@@ -155,8 +155,8 @@ export interface CheckoutContent {
   steps: {
     billing: CheckoutStepChrome & { fields: CheckoutField[] };
     /** KYC + Company on one step: its title, banner and first section title;
-     *  `esign` adds the KYC Verification section (the cases listed). */
-    verification: CheckoutStepChrome & { esign?: CheckoutEsignContent };
+     *  `mandate` adds the broker-mandate tick by the CTA (the cases listed). */
+    verification: CheckoutStepChrome & { mandate?: CheckoutMandateContent };
     /** Company Registration Details (Verification's second section). */
     company: CheckoutStepChrome & { cases: Record<QuoteCaseId, CheckoutField[]> };
     kyc: CheckoutStepChrome & {
@@ -243,7 +243,7 @@ export interface CheckoutSuccessContent {
   signLabel: string;
   /** The Mandate Letter already e-Signed: Checkout's action in place of Due Diligence. */
   riskHeldLabel: string;
-  /** A scored quote's pill: "{count} Key Coverages & Exclusions". */
+  /** A scored quote's pill: "{count} Key Features". */
   keyLinesLabel: string;
   /** The header action, with the mandate already signed. */
   dashboardLabel: string;
@@ -292,39 +292,22 @@ export interface CheckoutSuccessContent {
   };
 }
 
-/** KYC Verification: signing the proposal with Aadhaar through NSDL e-Sign.
- *  The field reads like an upload; clicking it opens the e-Sign popup. */
-export interface CheckoutEsignContent {
-  /** The cases that show it. */
+/** Verification's broker mandate: a consent tick (blue, info) that gates
+ *  Save & Continue in the listed cases. */
+export interface CheckoutMandateContent {
   cases: QuoteCaseId[];
-  sectionTitle: string;
-  label: string;
-  title: string;
-  hint: string;
-  /** Once signed: the field's success copy (`{file}` = `signedName`). */
-  signedName: string;
-  successTitle: string;
-  successBody: string;
-  redoLabel: string;
-  /** Opens the Mandate Letter being signed, beside the field and in the popup. */
+  consentText: string;
+  /** The link after the tick's text: opens `letter`. */
   viewLabel: string;
-  /** Review: the row's label and its value once signed ("E-Aadhaar" · "Signed"). */
-  reviewLabel: string;
-  reviewSigned: string;
-  modal: {
+  /** The letter preview: `{company}` in the paragraphs and sign-off, `{date}` (DD/MM/YYYY) in `dateLabel`. */
+  letter: {
     title: string;
-    intro: string;
-    consent: string;
-    idLabel: string;
-    idPlaceholder: string;
-    idError: string;
-    sendLabel: string;
-    cancelLabel: string;
-    otpLabel: string;
-    otpPlaceholder: string;
-    otpHint: string;
-    otpError: string;
-    verifyLabel: string;
     closeLabel: string;
+    dateLabel: string;
+    to: string[];
+    subject: string;
+    paragraphs: string[];
+    signOff: string;
+    signatory: string;
   };
 }

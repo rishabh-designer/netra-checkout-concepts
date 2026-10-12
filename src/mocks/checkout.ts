@@ -106,35 +106,27 @@ export const mockCheckoutContent: CheckoutContent = {
       banner: "As per IRDAI guidelines, KYC is mandatory to issue your policy. Upload your GST certificate or PAN card and BimaNetra will fill in your details.",
       sectionTitle: "KYC Details",
       otherPerson: "hidden",
-      esign: {
+      // The broker mandate, a tick that gates Save & Continue (in the cases
+      // listed). Given here, there's no Mandate Letter to sign after paying.
+      mandate: {
         cases: ["A", "B", "C"],
-        sectionTitle: "KYC Verification",
-        label: "Upload Signature via E-Aadhaar",
-        title: "Sign Mandate Letter with E-Aadhaar",
-        hint: "Click to connect to NSDL E-Sign",
-        signedName: "your Aadhaar",
-        successTitle: "Signed successfully",
-        successBody: "Signed with {file} through NSDL E-Sign.",
-        redoLabel: "Sign Again",
+        consentText:
+          "I hereby authorise BimaKavach to be my Insurance Broker for this Policy, giving them exclusive access to procure quotes, issue policies, raise endorsements, file claims and renew policies on my behalf.",
         viewLabel: "View Mandate Letter",
-        reviewLabel: "E-Aadhaar",
-        reviewSigned: "Signed",
-        modal: {
-          title: "NSDL E-Sign",
-          intro: "Sign your Mandate Letter with your Aadhaar. NSDL confirms it's you with an OTP; we never see or store your Aadhaar number.",
-          consent:
-            "I allow NSDL e-Gov to use my Aadhaar or Virtual ID to confirm my identity and sign this document, and for no other purpose.",
-          idLabel: "Aadhaar or Virtual ID",
-          idPlaceholder: "12-digit Aadhaar or 16-digit VID",
-          idError: "Enter a 12-digit Aadhaar or a 16-digit Virtual ID",
-          sendLabel: "Send OTP",
-          cancelLabel: "Cancel",
-          otpLabel: "OTP",
-          otpPlaceholder: "6-digit OTP",
-          otpHint: "Sent to the mobile number linked to your Aadhaar",
-          otpError: "Enter the 6-digit OTP",
-          verifyLabel: "Verify & Sign",
+        // A plain preview of the letter the tick agrees to.
+        letter: {
+          title: "Mandate Letter",
           closeLabel: "Close",
+          dateLabel: "Date: {date}",
+          to: ["To,", "BimaKavach Insurance Broking Pvt. Ltd.", "506, Om Gurudev Plaza, Vijay Nagar, Indore, Madhya Pradesh 452010"],
+          subject: "Subject: Appointment of BimaKavach as our Insurance Broker",
+          paragraphs: [
+            "We, {company}, appoint BimaKavach Insurance Broking Pvt. Ltd. (IRDAI Registration No. 901) as our insurance broker for our Directors & Officers Insurance Policy.",
+            "This gives BimaKavach exclusive authority to procure quotes from insurers, issue policies, raise endorsements, file claims and renew policies on our behalf.",
+            "This mandate stays in force for the policy period and its renewals, until we withdraw it in writing.",
+          ],
+          signOff: "For {company}",
+          signatory: "Authorised Signatory",
         },
       },
     },
@@ -343,7 +335,7 @@ export const mockCheckoutContent: CheckoutContent = {
     paidLabel: "Paid successfully on {date}",
     coveragesLabel: "{count} Top Coverages",
     personalizedLabel: "{count} Personalised Coverages",
-    keyLinesLabel: "{count} Key Coverages & Exclusions",
+    keyLinesLabel: "{count} Key Features",
     rm: {
       eyebrow: "Meet Your Relationship Manager",
       name: "Shubh Bangar",

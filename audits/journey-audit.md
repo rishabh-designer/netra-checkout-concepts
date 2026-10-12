@@ -10,9 +10,9 @@
 
 | | Business | Records | Onboarding | Quotes | Checkout | Success |
 |---|---|---|---|---|---|---|
-| **A** | Pepe Jeans Innerfashion Pvt Ltd | Verified | Fields filled and green; Risk auto-personalised | Welcome popup → Score tab · 82.4/100 · Gold: Generali with an offer | Documents fetched from MCA; E-Sign | Risk Held Letter, Visit Dashboard |
-| **B** | Sabyasachi Calcutta LLP | Partly verified | PAN green, type/business orange guesses, turnover blank | Welcome popup → Score tab · 80*/100 · Gold: "Your Personalised Gold Quote", Unlock Quote | Address a guess to check; E-Sign | Same as A |
-| **C** | Studio Two Rupees LLP | None found | Everything by hand | Chat tab · no score · Schedule a Call | Everything by hand; E-Sign | Same as A |
+| **A** | Pepe Jeans Innerfashion Pvt Ltd | Verified | Fields filled and green; Risk auto-personalised | Welcome popup → Score tab · 82.4/100 · Gold: Generali with an offer | Documents fetched from MCA; broker-mandate tick | Risk Held Letter, Visit Dashboard |
+| **B** | Sabyasachi Calcutta LLP | Partly verified | PAN green, type/business orange guesses, turnover blank | Welcome popup → Score tab · 80*/100 · Gold: "Your Personalised Gold Quote", Unlock Quote | Address a guess to check; broker-mandate tick | Same as A |
+| **C** | Studio Two Rupees LLP | None found | Everything by hand | Chat tab · no score · Schedule a Call | Everything by hand; broker-mandate tick | Same as A |
 
 **Severity:** 4 = blocks or misleads · 3 = major friction or a misleading claim · 2 = noticeable, worth fixing · 1 = polish.
 
@@ -38,7 +38,7 @@
 |---|---|---|---|---|
 | 1 | ✅ **Fixed:** the Risk Held Letter is now framed as proof of cover (S1) | Success | All | ~~3~~ |
 | 2 | ✅ **Fixed:** "You're covered from today" now leads Up Next and the Risk Held modal (S2) | Success | All | ~~3~~ |
-| 3 | ✅ **Fixed:** users can now read the Mandate Letter before signing, and it has one name (K1) | Checkout | All | ~~3~~ |
+| 3 | ✅ **Resolved:** the e-sign is replaced by a broker-mandate tick by the CTA, so the mandate's full text is what the user agrees to (K1) | Checkout | All | ~~3~~ |
 | 4 | ~~Declarations pre-answered "No"~~ **Withdrawn:** the answers come from public sources, and Confirm and Continue is the customer's confirmation (O1) | Onboarding | A, B | - |
 | 5 | ~~"Business Secured", "Risk Insured" claim cover too early~~ **Withdrawn:** by design, these say BimaNetra is securing the business and insuring the risk in real time from public sources, as an expert would on a call (O2) | Onboarding | All | - |
 | 6 | **Quotes confirmed by an expert also get a Risk Held Letter** and the 7-day promise, while their row says an expert still has to confirm with the insurer | Success | All (non-immediate quotes) | 3 |
@@ -49,7 +49,7 @@
 | 11 | **"Profile" means two different things:** contact details in onboarding, company details on the quotes page | Onboarding, Quotes | All | 2 |
 | 12 | ~~The welcome popup returns on every load~~ **Withdrawn:** on every load only for the prototype's sake | Quotes | A, B | - |
 | 13 | **Case B's research panel says "tick the box to confirm"** but there is no box | Onboarding | B | 2 |
-| 14 | **"Upload Signature via E-Aadhaar"**: nothing is uploaded; it's a sign-with-OTP flow | Checkout | All | 2 |
+| 14 | ✅ **Resolved:** the "Upload Signature via E-Aadhaar" field is gone (K3) | Checkout | All | ~~2~~ |
 | 15 | ✅ **Fixed:** the payment consent no longer distances the broker; the legal line moved to the Disclaimer (K5) | Checkout | All | ~~2~~ |
 
 ---
@@ -66,7 +66,7 @@ Quotes
   Welcome popup (A, B, every load) → feed with Gold Quote reveal → Details panel (Score/Chat/Profile)
   Buy (price button) → Checkout   ·   Request Quote → quote inquiry   ·   Unlock Quote (B Gold) → Gold gate
 Checkout
-  Billing (contact, locked company name) → Verification (KYC uploads + numbers, Company Registration, KYC Verification e-sign) → Review (consent) → Pay ₹X
+  Billing (contact, locked company name) → Verification (KYC uploads + numbers, Company Registration; broker-mandate tick by the CTA) → Review (consent) → Pay ₹X
 Success
   Greeting card (headline, greeting, stats, badge, Up Next) · Risk Held modal opens itself after 4s
   Timeline: Profiling ✓ · Quotes ✓ · Checkout ✓ (Download Risk Held Letter) · Policy Issuance (pending, View Policy Copy disabled)
@@ -108,7 +108,7 @@ Success
 |---|---|
 | **Arrival** | The welcome popup shows right after the skeleton on **every load** (A, B), and the Gold Quote reveal waits until it's dismissed. The info line now sits above Show All. |
 | **Details panel** | Back to the earlier order: **A and B open on Score** (Score · Chat · Profile); **C opens on Chat** (Chat · Profile · Score). |
-| **Everything else** | Unchanged since the 12 Oct re-run: card layout (Figma 827:20909), "N Key Coverages & Exclusions" chip, score out of 100, Gold Quote naming, filled Filter & Sort with Claim Settlement sorts, grouped Sum Insured menu, chat starter questions, 32/16 side padding. |
+| **Everything else** | Unchanged since the 12 Oct re-run: card layout (Figma 827:20909), "View N Key Features" chip, score out of 100, Gold Quote naming, filled Filter & Sort with Claim Settlement sorts, grouped Sum Insured menu, chat starter questions, 32/16 side padding. |
 
 **Resolved by these changes:** the previous #2 ("after the welcome popup, the score lives in the last tab"), IA1 and Task 8 are closed. A and B land on the Score tab, so the score is one glance away after the popup.
 
@@ -142,7 +142,7 @@ Success
 | Task | Outcome | Friction |
 |---|---|---|
 | 1 · What happened, and which quote first? | ✅ A: popup → Show All → Gold card with 11 key lines and the offer. ✅ B: popup → Gold card leads with Unlock Quote. ✅ C: Chat opens with general questions. | B's asterisk. *2* |
-| 2 · What do the key lines mean for this quote? | ✅ Chip count; popup ticks and crosses; Chat answers by name. | Nothing says the lines are *the business's own*. "11 Key Coverages & Exclusions" can read as the policy's highlights. *A, B · 2* |
+| 2 · What do the key lines mean for this quote? | ✅ Chip count; popup ticks and crosses; Chat answers by name. | Nothing says the lines are *the business's own*. "View 11 Key Features" can read as the policy's highlights. *A, B · 2* |
 | 3 · Buy now | ✅ One click on a priced card; Immediate Purchase toggle filters fast. | None (the price-and-arrow button is intentional). |
 | 4 · Change Sum Insured | ✅ Withdrawn: kept behind Profile → Edit Details on purpose; A and B's Sum Insured is the recommended one. | - |
 | 5 · Compare two quotes | ✅ Add → tray → Compare Now; NetraBot stands in for B's Gold logo. | Offline insurers can't be compared; users learn by trying. *1* |
@@ -191,7 +191,7 @@ Feed ─ breadcrumb · "N Directors & Officers Insurance Quotes" · Need Help
 | # | Copy now | Issue | Suggested | Cases | Sev |
 |---|---|---|---|---|---|
 | C1 | Popup button "Show All" | Can read as "show all coverages" | "See My Quotes" | A, B | 2 |
-| C2 | Chip "7 Key Coverages & Exclusions" | Doesn't say they're the business's own | "7 of Your Key Lines", or "Yours" in the popup header | A, B | 2 |
+| C2 | Chip "View 7 Key Features" | Doesn't say they're the business's own | "7 of Your Key Lines", or "Yours" in the popup header | A, B | 2 |
 | C3 | ✅ Fixed: Profile "Enter Company Type" | Now "Company Type" | - | All | ~~2~~ |
 | C4 | "80*/100" | Tooltip only | Caption: "Provisional until your report is ready" | B | 2 |
 | C5 | ~~"₹7,800 →" never says what it does~~ **Withdrawn:** intentional. | | | All | - |
@@ -212,25 +212,25 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 - **Three steps, clearly named**, with a stepper that blocks skipping ahead ("Finish the earlier steps first") and a progress bar.
 - **Upload once, fill everything:** uploading the GST certificate or PAN card reads it ("Reading your document…") and fills the numbers and address, each marked "Read from your GST certificate".
 - **Case A's documents arrive already fetched from MCA**, with Upload New as an escape hatch.
-- **The e-sign modal is honest about privacy:** consent is a separate tick, and "we never see or store your Aadhaar number". Clear errors ("Enter a 12-digit Aadhaar or a 16-digit Virtual ID").
-- **The signature gates Save & Continue**, and Review shows "E-Aadhaar · Signed", so nothing is missed.
+- **The broker mandate is one plain tick** by Save & Continue, in the blue info style, with the full authorisation in view: no separate document, OTP or popup.
+- **The mandate tick gates Save & Continue** and stays ticked on return, so it can't be missed.
 - **Review → Pay ₹X** names the amount on the button.
 - **The IRDAI reason for KYC is stated up front** in the Verification banner.
 
 ### Findings
 | # | Finding | Lens | Cases | Sev |
 |---|---|---|---|---|
-| K1 | ✅ **Fixed.** "View Mandate Letter" now sits at the end of the e-sign field's label row and after the NSDL popup's intro, so users can read what they sign. The popup says "Sign your Mandate Letter with your Aadhaar" (was "proposal"). In the prototype the link shows a "next" notice. | Heuristic (H1, H4), Usability | All | ~~3~~ |
+| K1 | ✅ **Resolved.** The Aadhaar e-sign (and its unseen Mandate Letter) is replaced by a consent tick by the CTA: "I hereby authorise BimaKavach to be my Insurance Broker for this Policy, giving them exclusive access to procure quotes, issue policies, raise endorsements, file claims and renew policies on my behalf." What the user agrees to is the text they read, and "View Mandate Letter" right after it opens the letter itself. | Heuristic (H1, H4), Usability | All | ~~3~~ |
 | K2 | ~~No path for a buyer who isn't the signatory.~~ **Withdrawn:** Billing offers "Buy in Another Person's Name" before the user reaches Verification, so the signatory can be set up front. | Usability | All | - |
-| K3 | **"Upload Signature via E-Aadhaar"**: nothing is uploaded; it's a sign-with-OTP flow, and the zone below already says "Sign…". Suggested label: "E-Sign with Aadhaar". | Content | All | 2 |
-| K4 | **Two KYC sections on one step:** "KYC Details" (uploads and numbers) at the top and "KYC Verification" (e-sign) at the bottom, with Company Registration Details between them. The hardest task comes last and its title repeats the first. Suggested: rename it "Mandate Letter" or "E-Sign", or move it under KYC Details. | IA | All | 2 |
+| K3 | ✅ **Resolved.** The "Upload Signature via E-Aadhaar" field is gone. | Content | All | ~~2~~ |
+| K4 | ✅ **Resolved.** The second "KYC Verification" section is gone; Verification has KYC Details and Company Registration Details only. | IA | All | ~~2~~ |
 | K5 | ✅ **Fixed.** The payment consent now reads "I confirm all details provided are correct. The insurer issues the policy from these details, so please check them carefully." The original legal line ("The broker is not responsible for policy creation errors…") moved to the Disclaimer. | Content | All | ~~2~~ |
 | K6 | **"Final" and "may revise it" in one line:** the checkout disclaimer reads "The price shown is final for the details you've entered. If any of them turn out to be wrong, the insurer may revise it." Fine legally, but it's the only place the condition appears, and B/C later read "we'll double-check" (S7). Say it once, plainly, on Review: "Your price is fixed unless a detail turns out to be wrong." | Content, Heuristic (H1) | All | 2 |
-| K7 | **Verification is the longest step by far:** 2 uploads, 2 numbers, 3 address fields and the e-sign with two OTP stages, behind one Save & Continue. For C (all by hand) it's the heaviest screen in the journey. Consider making the e-sign its own step, or showing per-section ticks. | Usability | C (mostly) | 2 |
+| K7 | **Verification is the longest step:** 2 uploads, 2 numbers and 3 address fields behind one Save & Continue (lighter now the e-sign's two OTP stages are gone). For C, all by hand. Per-section ticks would help. | Usability | C (mostly) | 1 |
 | K8 | **"Premium" means two things:** in the Purchase Summary it's the pre-GST figure; on Success "Policy Premium" is the total including GST. | Content | All | 1 |
 | K9 | **Long upload labels:** "Upload a PDF or an Image of Your Company GST Certificate". Suggested: "GST Certificate (PDF or image)". ✅ Billing's "Enter Company Name" is now "Company Name". | Content | All | 1 |
 | K10 | **Ampersands in body copy:** "shown on your policy & used for communication". Use "and". | Content | All | 1 |
-| K11 | **E-sign naming:** E-Aadhaar, NSDL E-Sign, NSDL e-Gov, Aadhaar eSign. Pick "Aadhaar E-Sign" for the feature and "NSDL" for the provider. | Content | All | 1 |
+| K11 | ✅ **Resolved.** No e-sign, so no E-Aadhaar / NSDL naming to reconcile. | Content | All | - |
 
 ---
 
@@ -289,8 +289,8 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 | Where documents live | Dashboard · Document Vault · Policies folder · BimaKendra | One name |
 | The BimaNetra assessment | Risk Report · BimaNetra Report · Risk Assessment Report · View Report | BimaNetra Report |
 | Proof of cover | Risk Held Letter · Risk Held Report · Held Cover Letter | Risk Held Letter |
-| The signed document | ✅ Mandate Letter | Keep |
-| Signing | E-Aadhaar · NSDL E-Sign · NSDL e-Gov · Upload Signature | Aadhaar E-Sign (via NSDL) |
+| The mandate | ✅ Broker mandate (a tick on Verification) | Keep |
+| Signing | ✅ None (the e-sign is gone) | - |
 | Premium | Premium (pre-GST) · Policy Premium (incl. GST) · Total Cost | Premium / Total Cost |
 | Booking a call | ✅ Schedule a Call | Keep |
 | Field labels | ✅ Company Name, Company Type | Keep |
@@ -320,10 +320,10 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
   1. From the product page, get a quote for your company.
   2. Tell us what BimaNetra found and whether it's right (O6).
   3. Pick and buy a quote.
-  4. Sign the mandate. *Ask: what did you just sign?* (K1)
+  4. Tick the broker mandate. *Ask: what did you just agree to?* (K1)
   5. On Success, without clicking: *"Are you covered right now? When does your policy arrive? What would you show your bank tomorrow?"* (S1–S3)
 - **Measure:** task success, time to first quote, time to pay, comprehension of the key-lines chip, correct answers to the three Success questions, SUS.
-- **Hypotheses:** (1) fewer than half can say they're covered today from the Success screen as it is; (2) most open View Mandate Letter before signing.
+- **Hypotheses:** (1) fewer than half can say they're covered today from the Success screen as it is; (2) most can say what the broker-mandate tick lets BimaKavach do, and some open View Mandate Letter.
 
 ---
 

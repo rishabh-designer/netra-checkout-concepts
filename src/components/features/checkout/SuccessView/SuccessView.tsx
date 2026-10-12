@@ -194,9 +194,9 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   );
   const diligence = expert ? s.diligence.expert : s.diligence[caseId];
   const time = duration(clock.seconds);
-  // The Mandate Letter was signed with Aadhaar at checkout: no Due
-  // Diligence step; Checkout stays open with the Risk Held Letter to download.
-  const signed = !!content.steps.verification.esign?.cases.includes(caseId);
+  // The broker mandate was given at checkout: no Due Diligence step;
+  // Checkout stays open with the Risk Held Letter to download.
+  const signed = !!content.steps.verification.mandate?.cases.includes(caseId);
   const downloadRiskHeld = () => finishRiskHeld(s.riskHeld.downloadToast);
   const rows: SuccessTimelineItem[] = [
     { pill: s.stepLabels[0], state: "done", title: s.profiling.title, body: fill(s.profiling.body, { product }), status: { label: s.profiling.statusLabel!, time: s.profiling.time! }, link: { label: s.riskReportLabel, onClick: () => notify("riskReport") } },

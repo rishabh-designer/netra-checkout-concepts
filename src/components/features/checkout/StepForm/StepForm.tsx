@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import type { FieldStatus } from "@/components/ui/InteractiveInput";
 import { UploadField } from "@/components/ui/UploadField";
 import type { CheckoutField as Field, CheckoutUpload, CheckoutUploadCopy } from "@/types/checkout";
@@ -37,8 +36,6 @@ export interface StepFormProps {
   model: FormModel;
   /** Single column (edit drawer). */
   stacked?: boolean;
-  /** Verification: one more titled section after Company (KYC Verification). */
-  extra?: { title: string; content: ReactNode };
 }
 
 /**
@@ -48,12 +45,11 @@ export interface StepFormProps {
  *  - Company (638:20126): Pincode + Place side by side, Address full width.
  *  - KYC (638:22763): the GST and PAN numbers side by side, their uploads
  *    under them.
- *  - Verification: KYC, then Company under its own title (one step), then
- *    any `extra` section (KYC Verification's e-Sign).
+ *  - Verification: KYC, then Company under its own title (one step).
  * `stacked` collapses to one column for the 624px edit drawer.
  * Usage: <StepForm step="verification" fields={kyc} companyFields={company} companyTitle="…" uploads={u} uploadCopy={c} model={m} />
  */
-export function StepForm({ step, fields, companyFields = [], companyTitle, uploads = [], uploadCopy, model, stacked = false, extra }: StepFormProps) {
+export function StepForm({ step, fields, companyFields = [], companyTitle, uploads = [], uploadCopy, model, stacked = false }: StepFormProps) {
   const input = (raw: Field) => {
     const f = model.show?.(raw) ?? raw;
     return (
@@ -118,15 +114,6 @@ export function StepForm({ step, fields, companyFields = [], companyTitle, uploa
         <hr className={styles.partRule} />
         {company(companyFields)}
       </div>
-      {extra && (
-        <div className={styles.part}>
-          <h2 className={styles.partTitle}>{extra.title}</h2>
-          <hr className={styles.partRule} />
-          <div className={styles.grid} data-stacked={stacked || undefined}>
-            <div className={styles.full}>{extra.content}</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

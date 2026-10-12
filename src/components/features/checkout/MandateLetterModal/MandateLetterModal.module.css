@@ -1,0 +1,58 @@
+/* A letter on a page: a hairline sheet, the logotype and date over the
+   addressee, subject and body, then the sign-off with a signature line. */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-24);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-12);
+  background: var(--color-card);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.5;
+  color: var(--color-label-primary);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding-bottom: var(--spacing-12);
+  border-bottom: var(--border-hairline) solid var(--color-brand-primary);
+}
+
+.logo {
+  height: 16px;
+  width: auto;
+}
+
+.date,
+.signatory {
+  color: var(--color-label-secondary);
+}
+
+.to {
+  display: flex;
+  flex-direction: column;
+}
+
+.subject {
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+}
+
+.sign {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-12);
+}
+
+.line {
+  width: 160px;
+  height: 24px;
+  border-bottom: var(--border-hairline) solid var(--color-label-secondary);
+}

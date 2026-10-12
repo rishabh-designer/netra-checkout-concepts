@@ -15,7 +15,7 @@ export interface ScoreIntroProps {
   body: string;
   /** The Business Health badge, as the Score tab shows it. */
   badge: ReactNode;
-  /** "11 Key Coverages & Exclusions". */
+  /** "11 Key Features". */
   listTitle: string;
   coverages: string[];
   exclusions: string[];

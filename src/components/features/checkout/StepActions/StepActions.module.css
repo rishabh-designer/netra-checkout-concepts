@@ -48,6 +48,25 @@
   color: var(--color-caution-label);
 }
 
+.consent[data-variant="summary"][data-tone="info"] {
+  border-color: var(--color-info-border);
+  background: var(--color-info-subtle);
+  color: var(--color-info);
+}
+
 .consent[data-variant="summary"] .check {
   margin-top: var(--spacing-4);
+}
+
+/* The consent's link (View Mandate Letter): purple, underlined, the line's size. */
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }

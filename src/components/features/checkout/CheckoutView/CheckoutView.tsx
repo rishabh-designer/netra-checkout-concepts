@@ -9,8 +9,8 @@ import { AgentProgress } from "@/components/ui/AgentProgress";
 import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
 import { useQuoteFlow } from "@/lib/quote-flow";
 import { useDemoNotice } from "@/lib/demo-notice";
-import { EsignField } from "../EsignField";
-import { ESIGN_KEY, useCheckout } from "../useCheckout";
+import { MANDATE_KEY, useCheckout } from "../useCheckout";
+import { MandateLetterModal } from "../MandateLetterModal";
 import { useCheckoutClock } from "../useCheckoutClock";
 import { useCheckoutMobile } from "../useCheckoutMobile";
 import { CheckoutStepper } from "../CheckoutStepper";
@@ -73,6 +73,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
   const clock = useCheckoutClock();
   const notify = useDemoNotice();
   const [consent, setConsent] = useState(false);
+  const [letterOpen, setLetterOpen] = useState(false);
   const [editing, setEditing] = useState<"verification" | null>(null);
   // A document being "read" (OCR): the fields it fills show a reading
   // placeholder for a beat, then fill in green.
@@ -89,7 +90,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
     writeLastCheckout({ step });
   }, [step]);
   const { kyc, company } = content.steps;
-  const esign = content.steps.verification.esign;
+  const mandate = content.steps.verification.mandate;
   const hrefFor = (s: CheckoutStepId) => `${basePath}/${s}`;
 
   const formStep = step === "review" ? null : step;
@@ -104,6 +105,16 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
         }
       : co.progressOf(step);
   const barPercent = Math.round(8 + (progress.total ? progress.done / progress.total : 1) * 87);
+  // Review: the details check (caution). Verification: the broker mandate
+  // (info), kept with the checkout so it stays ticked on return.
+  const mandated = !!co.get(MANDATE_KEY);
+  const stepConsent =
+    step === "review"
+      ? { text: content.steps.review.consentText, checked: consent, onToggle: () => setConsent((c) => !c), tone: "review" as const }
+      : step === "verification" && mandate?.cases.includes(co.caseId)
+        ? { text: mandate.consentText, checked: mandated, onToggle: () => co.set({ [MANDATE_KEY]: mandated ? "" : "1" }), tone: "info" as const, link: { label: mandate.viewLabel, onClick: () => setLetterOpen(true) } }
+        : undefined;
+
   const cta =
     step === "review"
       ? {
@@ -128,14 +139,9 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
       : {
           label: content.saveLabel,
           enabled: co.isComplete(formStep!),
-          blockedTip: content.ctaBlocked.fields,
+          blockedTip: stepConsent && !stepConsent.checked && co.progressOf(formStep!).done === co.progressOf(formStep!).total - 1 ? content.ctaBlocked.consent : content.ctaBlocked.fields,
           onClick: () => router.push(hrefFor(steps[i + 1])),
         };
-
-  const stepConsent =
-    step === "review"
-      ? { text: content.steps.review.consentText, checked: consent, onToggle: () => setConsent((c) => !c), tone: "review" as const }
-      : undefined;
 
   // Live value of a Company field by key (seed or edit), for the pincode autofill.
   const live = (key: string) => {
@@ -230,11 +236,6 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
                   valueOf={co.valueOf}
                   fileOf={co.get}
                   onEdit={setEditing}
-                  extraRows={
-                    esign && esign.cases.includes(co.caseId)
-                      ? [{ key: ESIGN_KEY, label: esign.reviewLabel, value: co.get(ESIGN_KEY) ? esign.reviewSigned : "" }]
-                      : undefined
-                  }
                 />
               ) : step === "verification" ? (
                 <StepForm
@@ -245,21 +246,6 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
                   uploads={kyc.uploads}
                   uploadCopy={content.upload}
                   model={model}
-                  extra={
-                    esign && esign.cases.includes(co.caseId)
-                      ? {
-                          title: esign.sectionTitle,
-                          content: (
-                            <EsignField
-                              content={esign}
-                              uploadCopy={content.upload}
-                              signed={!!co.get(ESIGN_KEY)}
-                              onSignedChange={(on) => co.set({ [ESIGN_KEY]: on ? "1" : "" })}
-                            />
-                          ),
-                        }
-                      : undefined
-                  }
                 />
               ) : (
                 <StepForm step="billing" fields={co.fieldsFor("billing")} uploadCopy={content.upload} model={model} />
@@ -314,6 +300,17 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
         >
           <PurchaseSummary content={content.summary} quote={co.quote} compact />
         </CheckoutFooter>
+      )}
+
+      {mandate && (
+        <MandateLetterModal
+          open={letterOpen}
+          onClose={() => setLetterOpen(false)}
+          content={mandate.letter}
+          company={companyName}
+          logoSrc={content.header.logoSrc}
+          logoAlt={content.header.logoAlt}
+        />
       )}
 
       <CheckoutEditDrawer

@@ -122,6 +122,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     coverageCount: content.coverageCountLabel,
     personalizedCount: content.personalizedCountLabel,
     riskFit: content.riskFitLabel,
+    riskFitChip: content.riskFitChipLabel,
     csr: content.csrLabel,
     viewFeatures: content.viewFeaturesLabel,
     coveragesUnavailable: content.coveragesUnavailableLabel,

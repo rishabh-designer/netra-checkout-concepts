@@ -13,12 +13,15 @@ export interface StepCtaProps {
 }
 
 /** A confirmation that gates the CTA: the guessed-details check on a fuzzy
- *  step ("verify"), or Review's broker disclaimer ("review", caution tone). */
+ *  step ("verify"), Review's details check ("review", caution tone), or
+ *  Verification's broker mandate ("info", blue). */
 export interface StepConsentData {
   text: string;
   checked: boolean;
   onToggle: () => void;
-  tone: "verify" | "review";
+  tone: "verify" | "review" | "info";
+  /** A link right after the text (e.g. View Mandate Letter); clicking it doesn't toggle the tick. */
+  link?: { label: string; onClick: () => void };
 }
 
 /**
@@ -44,7 +47,24 @@ export function StepConsent({ consent, variant, className }: { consent: StepCons
   return (
     <label className={cn(styles.consent, className)} data-tone={consent.tone} data-variant={variant}>
       <Checkbox size={variant === "footer" ? 12 : 16} className={styles.check} checked={consent.checked} onChange={consent.onToggle} />
-      <span>{consent.text}</span>
+      <span>
+        {consent.text}
+        {consent.link && (
+          <>
+            {" "}
+            <button
+              type="button"
+              className={styles.link}
+              onClick={(e) => {
+                e.preventDefault();
+                consent.link!.onClick();
+              }}
+            >
+              {consent.link.label}
+            </button>
+          </>
+        )}
+      </span>
     </label>
   );
 }

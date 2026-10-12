@@ -13,7 +13,7 @@ export const mockGoldInquiryContent: GoldInquiryContent = {
     { label: "LIVE QUOTES", href: "/directors-and-officers-insurance/quotes" },
     { label: "UNLOCK GOLD QUOTE" },
   ],
-  title: "Gold Quote Selected! Sit Back While We Call You.",
+  title: "Gold Quote Unlocked! Sit Back While We Call You.",
   intro: "Thanks. We have saved your interest. Here is what is next:",
   steps: [
     "Your quote will be locked for 45 days",

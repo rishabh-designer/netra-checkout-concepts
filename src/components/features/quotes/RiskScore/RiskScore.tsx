@@ -136,7 +136,7 @@ export interface ScoreListProps {
 /**
  * ScoreList — a serif heading over ticked (covered) and crossed (excluded)
  * lines, as in the Score tab (Figma 776:32143 / 776:32176).
- * Usage: <ScoreList title="Key Coverages & Exclusions" items={[{ label, tone: "covered" }, …]} />
+ * Usage: <ScoreList title="11 Key Features" items={[{ label, tone: "covered" }, …]} />
  */
 export function ScoreList({ title, items, delay = 0, still = false }: ScoreListProps) {
   const reduced = useReducedMotion();

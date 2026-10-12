@@ -69,8 +69,10 @@ export interface QuoteCardLabels {
   coverageCount: string;
   /** The Gold Quote's chip: "{count} Personalized Coverages". */
   personalizedCount: string;
-  /** Once the risk is scored: "{met} Key Coverages & Exclusions". */
+  /** Once the risk is scored: "{met} Key Features" (the popup's title). */
   riskFit?: string;
+  /** The card's chip once scored: "View {met} Key Features". */
+  riskFitChip?: string;
   /** Under the logo: "Claim Settlement Ratio: {value}". */
   csr?: string;
   /** Top Coverages view only: the View All Features pill, the offline
@@ -108,10 +110,12 @@ export interface QuoteCardProps {
   compareFull?: boolean;
 }
 
-/** The coverages chip copy for a quote (count first, or the bare label). */
-export function coverageChipLabel(quote: QuoteCardData, labels: QuoteCardLabels) {
-  if (quote.riskFit && labels.riskFit) {
-    return labels.riskFit.replace("{met}", String(quote.riskFit.met)).replace("{total}", String(quote.riskFit.total));
+/** The coverages chip copy for a quote (count first, or the bare label);
+ *  `chip` picks the card's "View …" wording for a scored quote. */
+export function coverageChipLabel(quote: QuoteCardData, labels: QuoteCardLabels, chip = false) {
+  const fitLabel = chip ? (labels.riskFitChip ?? labels.riskFit) : labels.riskFit;
+  if (quote.riskFit && fitLabel) {
+    return fitLabel.replace("{met}", String(quote.riskFit.met)).replace("{total}", String(quote.riskFit.total));
   }
   const count = quote.coverages?.length ?? 0;
   if (!count) return labels.topCoverages;
@@ -372,7 +376,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
             <>
               <div className={styles.foot} data-reveal="coverage">
                 <button type="button" className={styles.chip} onClick={onViewFeatures} aria-haspopup="dialog">
-                  {!quote.coverages?.length && !quote.riskFit && labels.viewCoverages ? labels.viewCoverages : coverageChipLabel(quote, labels)}
+                  {!quote.coverages?.length && !quote.riskFit && labels.viewCoverages ? labels.viewCoverages : coverageChipLabel(quote, labels, true)}
                   <ChipChevron />
                 </button>
                 {compare}

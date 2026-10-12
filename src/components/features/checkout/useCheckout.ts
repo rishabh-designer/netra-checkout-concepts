@@ -8,8 +8,8 @@ import type { CheckoutContent, CheckoutField, CheckoutFormPart } from "@/types/c
 import type { QuoteCardData } from "@/types/quotesPage";
 import type { FieldStatus } from "@/components/ui/InteractiveInput";
 
-/** Where the checkout keeps the Mandate Letter's Aadhaar e-Sign ("1" once signed). */
-export const ESIGN_KEY = "esignSigned";
+/** Where the checkout keeps Verification's broker-mandate tick ("1" once given). */
+export const MANDATE_KEY = "mandateGiven";
 
 /** Set while "Buy in Another Person's Name" is on (Billing fields go manual). */
 export const OTHER_PERSON_KEY = "otherPerson";
@@ -178,10 +178,10 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
     [content, fetched, ocr],
   );
 
-  // Verification also needs the Mandate Letter signed with Aadhaar, in the
-  // cases that show it (all three).
-  const needsEsign = useCallback(
-    (step: CheckoutFormPart) => step === "verification" && !!content.steps.verification.esign?.cases.includes(caseId),
+  // Verification also needs the broker mandate ticked, in the cases that
+  // show it (all three).
+  const needsMandate = useCallback(
+    (step: CheckoutFormPart) => step === "verification" && !!content.steps.verification.mandate?.cases.includes(caseId),
     [content, caseId],
   );
 
@@ -189,22 +189,22 @@ export function useCheckout(content: CheckoutContent, fallbackQuote: QuoteCardDa
     (step: CheckoutFormPart) => {
       const fieldsOk = fieldsFor(step).every((f) => !f.mandatory || (valueOf(f).trim() && !errorOf(f)));
       const uploadsOk = (step !== "kyc" && step !== "verification") || content.steps.kyc.uploads.every((u) => !!get(u.key));
-      const esignOk = !needsEsign(step) || !!get(ESIGN_KEY);
-      return fieldsOk && uploadsOk && esignOk;
+      const mandateOk = !needsMandate(step) || !!get(MANDATE_KEY);
+      return fieldsOk && uploadsOk && mandateOk;
     },
-    [fieldsFor, valueOf, errorOf, content, get, needsEsign],
+    [fieldsFor, valueOf, errorOf, content, get, needsMandate],
   );
 
   const progressOf = useCallback(
     (step: CheckoutFormPart) => {
       const fields = fieldsFor(step).filter((f) => f.mandatory);
       const uploads = step === "kyc" || step === "verification" ? content.steps.kyc.uploads : [];
-      const esign = needsEsign(step) ? 1 : 0;
+      const mandate = needsMandate(step) ? 1 : 0;
       const done =
-        fields.filter((f) => valueOf(f).trim() && !errorOf(f)).length + uploads.filter((u) => !!get(u.key)).length + (esign && get(ESIGN_KEY) ? 1 : 0);
-      return { done, total: fields.length + uploads.length + esign };
+        fields.filter((f) => valueOf(f).trim() && !errorOf(f)).length + uploads.filter((u) => !!get(u.key)).length + (mandate && get(MANDATE_KEY) ? 1 : 0);
+      return { done, total: fields.length + uploads.length + mandate };
     },
-    [fieldsFor, content, valueOf, errorOf, get, needsEsign],
+    [fieldsFor, content, valueOf, errorOf, get, needsMandate],
   );
 
   const isFetched = useCallback(

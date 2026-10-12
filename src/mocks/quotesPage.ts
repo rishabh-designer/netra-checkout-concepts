@@ -261,25 +261,6 @@ const FEATURES_DRAWER: FeaturesDrawerContent = {
       ],
     },
     {
-      key: "territory",
-      label: "Territory & Jurisdiction",
-      tone: "info",
-      items: WORLDWIDE_TERRITORY,
-    },
-    {
-      key: "exclusions",
-      label: "Exclusions",
-      tone: "excluded",
-      items: [
-        { title: "Fraud & Dishonesty", body: "Deliberate fraud, criminal acts or knowingly breaking the law. Your legal costs are still paid until a court rules against you." },
-        { title: "Personal Profit", body: "Any money or advantage you weren't legally entitled to." },
-        { title: "Earlier Claims", body: "Lawsuits or problems you already knew about, or that were already underway, before your cover started." },
-        { title: "Injury & Property Damage", body: "Physical injury, illness or death, and damage to property. Shareholder or regulator claims that follow from these are still covered." },
-        { title: "Pollution", body: "Claims caused by pollution. Legal costs and shareholder claims linked to it are still covered." },
-        { title: "Claims From Within", body: "Claims one insured person or the company brings against another. Whistle-blower, shareholder and liquidator claims are still covered." },
-      ],
-    },
-    {
       key: "coverages",
       label: "Coverages/Extensions",
       tone: "covered",
@@ -297,6 +278,19 @@ const FEATURES_DRAWER: FeaturesDrawerContent = {
       ],
     },
     {
+      key: "exclusions",
+      label: "Exclusions",
+      tone: "excluded",
+      items: [
+        { title: "Fraud & Dishonesty", body: "Deliberate fraud, criminal acts or knowingly breaking the law. Your legal costs are still paid until a court rules against you." },
+        { title: "Personal Profit", body: "Any money or advantage you weren't legally entitled to." },
+        { title: "Earlier Claims", body: "Lawsuits or problems you already knew about, or that were already underway, before your cover started." },
+        { title: "Injury & Property Damage", body: "Physical injury, illness or death, and damage to property. Shareholder or regulator claims that follow from these are still covered." },
+        { title: "Pollution", body: "Claims caused by pollution. Legal costs and shareholder claims linked to it are still covered." },
+        { title: "Claims From Within", body: "Claims one insured person or the company brings against another. Whistle-blower, shareholder and liquidator claims are still covered." },
+      ],
+    },
+    {
       key: "deductibles",
       label: "Deductibles",
       tone: "info",
@@ -306,6 +300,12 @@ const FEATURES_DRAWER: FeaturesDrawerContent = {
         { title: "Entity Employment Practices", body: "₹5,00,000 per claim, paid by the company." },
         { title: "Securities Claims", body: "₹10,00,000 per claim. This only applies to listed companies." },
       ],
+    },
+    {
+      key: "territory",
+      label: "Territory & Jurisdiction",
+      tone: "info",
+      items: WORLDWIDE_TERRITORY,
     },
   ],
 };
@@ -358,7 +358,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
       goldLocked: "Your Gold Quote is ready. Select Reveal Quote to see it.",
       goldRevealed: "Your Gold Quote is from {insurer} at {price}, with {list}, built by BimaNetra from your verified details.",
       goldWhat:
-        "Your Gold Quote is the one BimaNetra builds from your verified details, so it meets all {total} of your key coverages and exclusions. {status}",
+        "Your Gold Quote is the one BimaNetra builds from your verified details, so it meets all {total} of your key features. {status}",
       goldWhatPriced: "It's from {insurer} at {price}, and you can buy it right now.",
       goldWhatPending: "It gets its insurer and price once our report on your business is ready.",
       keyCoverages: "Your {count} key coverages are {list}. Each quote shows how many of your key lines it meets.",
@@ -451,7 +451,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
       outOf: "/100",
       info: "How healthy your business looks to insurers, out of 100, from what we verified. Higher is better.",
       mutedInfo: "We couldn't check your business's health without public records about it.",
-      listTitle: "{count} Key Coverages & Exclusions",
+      listTitle: "{count} Key Features",
       byCase: { A: "82.4", B: "80*", C: "N/A" },
       // B's score is provisional (only parts verified): its asterisk explained.
       infoByCase: {
@@ -548,7 +548,8 @@ export const mockQuotesPageContent: QuotesPageContent = {
     viewCoveragesLabel: "View Coverages",
     coverageCountLabel: "{count} Top Coverages",
     personalizedCountLabel: "{count} Personalised Coverages",
-    riskFitLabel: "{met} Key Coverages & Exclusions",
+    riskFitLabel: "{met} Key Features",
+    riskFitChipLabel: "View {met} Key Features",
     csrLabel: "Claim Settlement Ratio: {value}",
     riskFitByCase: RISK_FIT_BY_CASE,
     coveragesUnavailableLabel: "Unavailable",

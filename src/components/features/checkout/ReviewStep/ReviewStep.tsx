@@ -19,8 +19,6 @@ export interface ReviewStepProps {
   valueOf: (field: CheckoutField) => string;
   fileOf: (key: string) => string;
   onEdit: (section: "verification") => void;
-  /** Rows after Verification's own (E-Aadhaar · Signed); "" shows as empty. */
-  extraRows?: { key: string; label: string; value: string }[];
 }
 
 const EMPTY = "-";
@@ -33,7 +31,7 @@ const EMPTY = "-";
  * Verification opens its edit drawer.
  * Usage: <ReviewStep content={review} billing={…} verification={…} uploads={…} valueOf={…} fileOf={…} onEdit={…} />
  */
-export function ReviewStep({ content, billing, verification, uploads, valueOf, fileOf, onEdit, extraRows = [] }: ReviewStepProps) {
+export function ReviewStep({ content, billing, verification, uploads, valueOf, fileOf, onEdit }: ReviewStepProps) {
   // Read-only summary: no mandatory marks (nothing here is being filled in).
   const fieldRow = (f: CheckoutField): Row => {
     const v = valueOf(f);
@@ -55,7 +53,6 @@ export function ReviewStep({ content, billing, verification, uploads, valueOf, f
         ...verification.slice(0, uploads.length).map((f) => fieldRow(f)),
         ...uploads.map((u) => ({ key: u.key, label: u.reviewLabel, value: fileOf(u.key) ? content.uploadedLabel : EMPTY })),
         ...verification.slice(uploads.length).map((f) => fieldRow(f)),
-        ...extraRows.map((r) => ({ ...r, value: r.value || EMPTY })),
       ],
       locked: false,
     },

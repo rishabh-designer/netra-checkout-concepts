@@ -32,10 +32,10 @@
 .body {
   width: 100%;
   padding: 0 var(--spacing-24);
-  font-size: var(--font-size-300);
+  font-size: var(--font-size-100);
   font-weight: 500;
   letter-spacing: var(--track-500);
-  line-height: 1.5;
+  line-height: 1.3;
   color: var(--color-label-primary);
 }
 
@@ -48,6 +48,13 @@
   padding: var(--spacing-12) var(--spacing-16);
   border-top: var(--border-hairline) solid var(--color-border-subtle);
   background: var(--color-card-sunken);
+}
+
+/* The Risk Held Letter popup's buttons: 14px, 12/20, r16. */
+.actions > button {
+  padding: var(--spacing-12) var(--spacing-20);
+  border-radius: var(--radius-16);
+  font-size: var(--font-size-100);
 }
 
 /* ── Additional Details drawer ─────────────────────────────── */
