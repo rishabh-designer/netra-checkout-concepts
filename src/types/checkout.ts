@@ -194,7 +194,8 @@ export interface CheckoutContent {
  *  and highlighted by the view. */
 export interface SuccessTimelineRow {
   title: string;
-  body: string;
+  /** Copy under the title; the row shows only its title without it. */
+  body?: string;
 }
 
 /** A "BimaNetra Suggests" product card. */
@@ -209,18 +210,17 @@ export interface SuccessSuggestion {
 
 /** Checkout (Success), Figma 670:51168: the end of the journey after Pay. */
 export interface CheckoutSuccessContent {
-  /** `{name}`, `{company}` and `{order}` (the order number, highlighted). */
-  /** The greeting card's serif headline (692:58159). */
+  /** The greeting card's serif headline (692:58159); `{name}` is the buyer's
+   *  first name. */
   headline: string;
-  greeting: string;
   /** Under the greeting card's rule, once the mandate is e-Signed:
    *  `{riskHeld}` and `{dashboard}` are links; `lead` opens it, in bold;
    *  `{issueDate}` is `issueWorkingDays` working days after payment (DD/MM/YYYY),
    *  also filled in the Policy Issuance row. */
-  upNext: { label: string; lead: string; body: string; riskHeld: string; dashboard: string; issueWorkingDays: number };
-  orderPrefix: string;
+  upNext: { lead: string; body: string; riskHeld: string; dashboard: string; issueWorkingDays: number };
   badgeAlt: string;
-  stats: { startLabel: string; endLabel: string; premiumLabel: string; periodLabel: string; periodValue: string };
+  /** Start, end and period (the premium is in the Purchase Summary). */
+  stats: { startLabel: string; endLabel: string; periodLabel: string; periodValue: string };
   /** The journey's pills over the greeting card, in order (Due Diligence
    *  only while the mandate is still to sign). */
   stepLabels: [string, string, string, string, string];
@@ -253,7 +253,8 @@ export interface CheckoutSuccessContent {
   paidLabel: string;
   coveragesLabel: string;
   personalizedLabel: string;
-  rm: { eyebrow: string; name: string; photoSrc: string; body: string; phone: string; phoneHref: string; phoneIconSrc: string };
+  /** `body`, a line about them, is optional (left out for now). */
+  rm: { eyebrow: string; name: string; photoSrc: string; body?: string; phone: string; phoneHref: string; phoneIconSrc: string };
   suggestions: { title: string; ctaLabel: string; immediateLabel: string; immediateTip: string; items: SuccessSuggestion[] };
   /** Screen-reader note while the page loads. */
   loadingLabel: string;

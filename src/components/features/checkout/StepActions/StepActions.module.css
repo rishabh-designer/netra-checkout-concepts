@@ -20,20 +20,20 @@
   color: var(--color-caution-label);
 }
 
-/* Footer (checkout's mobile footer, 734:36135): 4/8 in, 6 gap, 14px Medium
+/* Footer (checkout's mobile footer, 734:36135): 4/8 in, 6 gap, 12px Medium
    on 1.4 in primary ink whatever the tone; a 12px box, 0.75 stroke, r4,
    level with the first line. */
 .consent[data-variant="footer"] {
   flex: none;
   gap: var(--spacing-6);
   padding: var(--spacing-4) var(--spacing-8);
-  font-size: var(--font-size-100);
+  font-size: var(--font-size-75);
   color: var(--color-label-primary);
 }
 
-/* The 12 box (ui/Checkbox), level with the first line. */
+/* The 12 box (ui/Checkbox), centred on the first 12/1.4 line. */
 .consent[data-variant="footer"] .check {
-  margin-top: 4px;
+  margin-top: 2.4px;
 }
 
 /* Summary (in the Purchase Summary card, Figma 613:69256): a yellow caution

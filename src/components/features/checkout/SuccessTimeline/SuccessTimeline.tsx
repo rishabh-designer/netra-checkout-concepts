@@ -19,7 +19,8 @@ export interface SuccessTimelineItem {
   label: string;
   state: SuccessStepState;
   title: string;
-  body: ReactNode;
+  /** Copy under the title (optional: the row can be its title and action). */
+  body?: ReactNode;
   /** Under the copy: the step's action (disabled while pending; `pendingTip`
    *  explains why). `download` leads with a download mark, else an arrow trails. */
   action?: { label: string; onClick?: () => void; onHover?: () => void; pendingTip?: string; download?: boolean };
@@ -111,7 +112,7 @@ export function SuccessTimeline({ items, delay = 0 }: SuccessTimelineProps) {
               </span>
               <motion.div className={styles.body} {...rise(d + 0.2)}>
                 <p className={styles.title}>{it.title}</p>
-                <p className={styles.copy}>{it.body}</p>
+                {it.body && <p className={styles.copy}>{it.body}</p>}
                 {it.action && (
                   <div className={styles.actions}>
                     <button

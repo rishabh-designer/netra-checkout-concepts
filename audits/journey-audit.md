@@ -202,7 +202,7 @@ Feed ─ breadcrumb · "N Directors & Officers Insurance Quotes" · Need Help
 | C9 | "We’ve" / "We're" | Mixed apostrophes | Curly everywhere | All | 1 |
 | C10 | "Want a Sharper Price?" | Implies blunt prices | Optional: "Want a Price That Fits Better?" | C | 1 |
 | C11 | "Down from ₹7,800 with BimaNetra" | Tooltip only | Visible on the card | A | 1 |
-| C12 | Chip "View 11 Key Features", titles "11 Key Features" | The 11 include exclusions, which limit cover; "features" reads as 11 good things | Keep "Key Features" but split the popup header ("6 Coverages · 5 Exclusions"), or "11 Key Terms" | A, B | 2 |
+| C12 | ~~"Key Features" also counts exclusions~~ **Withdrawn:** intentional; the right exclusions make sure the customer isn't overpaying | | | A, B | - |
 
 Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 
@@ -263,18 +263,18 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 | S12 | **"It took you just 12m 25s to pay"**: "just" reads oddly once the clock passes a few minutes. Drop "just" above ~3 minutes. | Content | A | 1 |
 | S13 | **"An excellent choice!"** after choosing the Gold Quote praises the pick. Post-sale it isn't advice, but it sits close to IRDAI's "best" line. Optional: "Your Gold Quote is built around your business." | Content | A, B (Gold) | 1 |
 | S14 | **Two help routes in view:** "Speak to an Expert" (header) and the RM card's phone. They are the same job; point the header to the RM. | IA | All | 1 |
-| S15 | **"Policy Premium" is the GST-inclusive total** (see K8). | Content | All | 1 |
+| S15 | ✅ **Resolved.** The Policy Premium stat is gone from the greeting card; the price lives in the Purchase Summary. | Content | All | ~~1~~ |
 
 ### Live copy (after the fixes)
 **Up Next**
-> **You're covered from today.** Your policy will be issued in 7 working days, by around 21/10/2026. We'll email it to you, and you'll find it on your Dashboard. Until then, your Risk Held Letter is your proof of cover. Thank you for securing your business with BimaKavach!
+> **You're covered from today.** Your policy will reach your email and Dashboard by around 21/10/2026. Until then, your Risk Held Letter is your proof of cover.
 
 **Risk Held modal**
 > **You're covered from today.** Your insurer is issuing your policy. Until it arrives, this letter is your proof of cover. Share it with anyone who asks, such as your board, a lender or an investor.
 > Buttons: View · Send to WhatsApp
 
-**Policy Issuance row**
-> Expected by 21/10/2026. We'll email your policy to you as soon as it's issued, and you'll find it on your Dashboard.
+**After 7 Working Days row**
+> Receive Policy Copy (title only; the copy under it was removed, as the date is in Up Next)
 
 *Dates shown for a payment on 12/10/2026.*
 
@@ -285,7 +285,7 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 ### Labels inventory
 | Concept | Names in use | Suggested |
 |---|---|---|
-| Key features | Key Features (chip: View N Key Features) · key coverages / key exclusions (Chat) | Keep; see C12 |
+| Key features | ✅ Key Features (chip: View N Key Features), coverages and exclusions together by design | Keep |
 | The Gold Quote | ✅ Gold Quote (B card: Your Personalised Gold Quote; tag: Secured with BimaNetra) | Keep |
 | Experts | ✅ IRDAI-certified Bima Experts · Speak to an Expert · Relationship Manager | Keep; route Speak to an Expert to the RM after purchase |
 | Contact details vs company details | Profile (onboarding: contact) · Profile (quotes: company) · Your Details (panel label) | Contact (onboarding), Profile (quotes) |

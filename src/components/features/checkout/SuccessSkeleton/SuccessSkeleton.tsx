@@ -14,10 +14,10 @@ const T = 40;
 /**
  * SuccessSkeleton — the success page's loading state, block for block with
  * the real layout: on the left the journey's row of four pills, the
- * greeting card (badge, greeting, four stats) and the two next steps (a
- * label, then a title, lines and an action beside the dashed rail), then a
- * row of three suggestion cards; on the right the purchase summary over
- * the RM card. Each block fades up and
+ * greeting card (badge, headline, three stats, Up Next) and the two next steps (a
+ * label, then a title and an action beside the dashed rail), then a row of
+ * three suggestion cards; on the right the purchase summary over the RM
+ * card (stacked, between the greeting card and the steps). Each block fades up and
  * shimmers on its own stagger, so the page reads as one wave.
  * Usage: <SuccessSkeleton label="Confirming your payment" />
  */
@@ -36,29 +36,30 @@ export function SuccessSkeleton({ label, nextUp = true }: SuccessSkeletonProps) 
           <div className={styles.hello}>
             <Skeleton variant="circular" width={80} height={80} delay={next()} className={styles.badge} />
             <div className={styles.helloText}>
-              <Skeleton width="92%" height={16} delay={next()} />
-              <Skeleton width="48%" height={16} delay={next()} />
-              {/* Phones: the greeting wraps to four lines. */}
-              <Skeleton width="86%" height={16} delay={next()} className={styles.phoneOnly} />
-              <Skeleton width="64%" height={16} delay={next()} className={styles.phoneOnly} />
+              {/* The serif headline (two lines on a phone). */}
+              <Skeleton width="72%" height={28} delay={next()} />
+              <Skeleton width="56%" height={28} delay={next()} className={styles.phoneOnly} />
               <div className={styles.stats}>
-                {[0, 1, 2, 3].map((k) => (
+                {[0, 1, 2].map((k) => (
                   <div key={k} className={styles.stat}>
                     <Skeleton width={80} height={10} delay={next()} />
-                    <Skeleton width={104} height={22} delay={i * T - 20} />
+                    <Skeleton width={80} height={16} delay={i * T - 20} />
                   </div>
                 ))}
               </div>
+              {/* Up Next: the note (five lines on a phone). */}
+              <Skeleton width="96%" height={14} delay={next()} />
+              <Skeleton width="60%" height={14} delay={next()} />
+              <Skeleton width="90%" height={14} delay={next()} className={styles.phoneOnly} />
+              <Skeleton width="84%" height={14} delay={next()} className={styles.phoneOnly} />
             </div>
           </div>
-          <div>
+          <div className={styles.steps}>
             {[0, 1].map((k) => (
               <div key={k} className={styles.step}>
                 <Skeleton width={k ? 128 : 76} height={12} delay={next()} />
                 <div className={styles.stepBody}>
                   <Skeleton width="44%" height={16} delay={i * T} />
-                  <Skeleton width="92%" height={12} delay={i * T + 20} />
-                  <Skeleton width="56%" height={12} delay={i * T + 40} className={styles.phoneOnly} />
                   <Skeleton variant="rounded" width={k ? 140 : 190} height={33} delay={next()} className={styles.action} />
                 </div>
               </div>
@@ -82,10 +83,6 @@ export function SuccessSkeleton({ label, nextUp = true }: SuccessSkeletonProps) 
         </div>
         <div className={styles.side}>
           <div className={styles.summary}>
-            <div className={styles.summaryTags}>
-              <Skeleton variant="rounded" width={132} height={24} delay={T} />
-              <Skeleton variant="rounded" width={145} height={24} delay={2 * T} />
-            </div>
             <Skeleton width={152} height={18} delay={3 * T} />
             <Skeleton width={220} height={14} delay={4 * T} />
             <Skeleton width={180} height={40} delay={5 * T} />

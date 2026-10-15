@@ -260,5 +260,14 @@
   }
   .pane {
     overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  /* Open, the dock sits in a lightbox: the page behind blurs and dims under
+     the drawers' scrim, just below the dock (35). */
+  .scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 34;
+    touch-action: none;
   }
 }

@@ -62,11 +62,12 @@
   gap: var(--spacing-24);
 }
 
+/* The headline, the stats and Up Next, 24 apart. */
 .helloText {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--spacing-16);
+  gap: var(--spacing-24);
   min-width: 0;
   max-width: 685px;
 }
@@ -81,24 +82,11 @@
   color: var(--color-success);
 }
 
-.greeting {
-  font-size: var(--font-size-100);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1.5;
-  color: var(--color-label-primary);
-}
-
-.greeting mark {
-  background: none;
-  color: var(--color-success);
-}
-
-/* Four equal columns, 32 apart (692:58162): 12 grey label over a 14
+/* Three equal columns, 32 apart (692:58162): 12 grey label over a 16
    Medium value, 4 apart. */
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-auto-rows: auto;
   gap: var(--spacing-16) var(--spacing-32);
 }
@@ -127,7 +115,7 @@
 
 .stat dd {
   margin: 0;
-  font-size: var(--font-size-100);
+  font-size: var(--font-size-200);
   font-weight: 500;
   letter-spacing: var(--track-500);
   line-height: 1;
@@ -135,31 +123,13 @@
   color: var(--color-label-primary);
 }
 
-/* Up Next (838:24646): the ikkat rule, then a grey label over the note,
-   its two links in brand ink. */
-.upNext {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-16);
-}
-
-.helloRule {
-  padding: var(--spacing-8) var(--spacing-12);
-}
-
+/* Up Next (838:24646), under the stats: a subtle hairline, 24 below the
+   stats and 24 above the note; the note's two links in brand ink. */
 .upNextText {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
-  padding: 0 var(--spacing-12);
-}
-
-.upNextLabel {
-  font-size: var(--font-size-75);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1.5;
-  color: var(--color-label-tertiary);
+  padding-top: var(--spacing-24);
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
 }
 
 .upNextBody {
@@ -341,20 +311,37 @@
   }
 }
 
-/* Below 1000: 16 all round, as every page. */
+/* Below 1000: 16 all round, as every page; the badge at 56 (in an 80 box,
+   the same 12 of air each side). */
 @media (max-width: 999px) {
   .body {
     padding: var(--spacing-16);
   }
+  .badgeWrap {
+    width: 80px;
+    height: 80px;
+  }
+  .badge,
+  .badge > svg {
+    width: 56px;
+    height: 56px;
+  }
 }
 
 @media (max-width: 700px) {
+  /* The three stats stay in one row, 16 apart. */
   .stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-16);
   }
   .helloTop,
   .next {
     flex-direction: column;
     align-items: flex-start;
+  }
+  /* Stacked, the badge leads, above the headline: its visible 80 lines up
+     with the text (the 104 box's 12 of air pulled back left and below). */
+  .badgeWrap {
+    order: -1;
+    margin: 0 0 calc(-1 * var(--spacing-12)) calc(-1 * var(--spacing-12));
   }
 }

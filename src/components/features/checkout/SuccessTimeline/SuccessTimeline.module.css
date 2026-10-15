@@ -64,7 +64,8 @@
    otherwise. */
 .list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  /* min(): on a phone the one column is never wider than the screen. */
+  grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
   column-gap: var(--spacing-32);
   list-style: none;
 }
@@ -192,3 +193,28 @@
   cursor: not-allowed;
 }
 
+/* Phones: the four pills always share one line. The row is a container;
+   each pill's type is tied to the row's width (capped at the desktop 14) and
+   its mark, padding and gap scale with it in em. The labels run 16.8em and
+   each pill adds 2.4em, so 3.3cqi type plus 3cqi gaps fill ~97% of the row. */
+@media (max-width: 999px) {
+  .steps {
+    container-type: inline-size;
+    flex-wrap: nowrap;
+    gap: min(var(--spacing-16), 3cqi);
+  }
+  .pill {
+    gap: 0.3em;
+    padding: 0.45em 0.55em;
+    font-size: min(var(--font-size-100), 3.3cqi);
+  }
+  .tick {
+    width: 1em;
+    height: 1em;
+  }
+  .dot {
+    width: 0.72em;
+    height: 0.72em;
+    margin: 0.14em;
+  }
+}

@@ -22,7 +22,7 @@ import type { QuotesChatContext } from "@/lib/quotes-chat";
 import { priceFeed } from "@/lib/pricing";
 import styles from "./QuotesView.module.css";
 import { EASE_STD } from "@/lib/motion";
-import { isAtMost } from "@/lib/media";
+import { isAtMost, useAtMost } from "@/lib/media";
 import { ArrowRight } from "@/components/icons/ArrowRight";
 
 export interface QuotesViewProps {
@@ -65,6 +65,8 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
     values?.[key]?.trim() || content.detailsPanel.rows.find((r) => r.key === key)?.value;
   const sumInsured = detail("coverage");
   const caseId = result?.caseId;
+  // The welcome popup's medal: 320 on wide screens, 160 on phones.
+  const phone = useAtMost("mobile");
   const feed = useMemo(
     () => withRiskFit(priceFeed(content.feed, { sumInsured, turnover: detail("turnover") }), caseId, content.detailsPanel.score.listLength),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -279,7 +281,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
               score={scoreWord(panel.score.byCase[caseId], panel.score.bands)}
               label={panel.score.label}
               swappable
-              medalPx={320}
+              medalPx={phone ? 160 : 320}
               medalLoop
               info={panel.score.infoByCase?.[caseId] ?? panel.score.info}
             />

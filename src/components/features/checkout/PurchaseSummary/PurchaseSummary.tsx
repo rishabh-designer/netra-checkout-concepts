@@ -141,9 +141,8 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
             (compact: hung off the name row itself). */}
         {!compact && !paid && productIcon}
         {/* Pills: Secured with BimaNetra on the Gold Quote, Immediate Purchase on
-            anything bought online (a priced Gold Quote carries both). Once
-            paid they sit above the title (Figma 670:51168); in checkout,
-            beside it. */}
+            anything bought online (a priced Gold Quote carries both), beside
+            the title in checkout. Once paid they're gone: the purchase is done. */}
         {(() => {
           const immediate = !!quote.immediate;
           const pills = (
@@ -180,7 +179,6 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
           );
           return paid ? (
             <div className={styles.headStack}>
-              {pills}
               <div className={styles.headRow}>
                 {heading}
                 {/* Closed points down; open turns it over to point up (like the journey timeline). */}

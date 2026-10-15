@@ -246,23 +246,19 @@ export const mockCheckoutContent: CheckoutContent = {
     tips: { immediate: TAG_TIPS.immediate, gold: TAG_TIPS.gold, insurer: "{insurer} issues this policy and settles its claims" },
   },
   success: {
-    headline: "Your Policy Booking is Confirmed!",
-    greeting: "Hello, {name}. You have successfully paid for your Directors & Officers Insurance policy for {company} {order}.",
+    headline: "{name}, Your Policy Booking is Confirmed!",
     upNext: {
-      label: "Up Next:",
       lead: "You're covered from today.",
-      body: "Your policy will be issued in 7 working days, by around {issueDate}. We'll email it to you, and you'll find it on your {dashboard}. Until then, your {riskHeld} is your proof of cover. Thank you for securing your business with BimaKavach!",
+      body: "Your policy will reach your email and {dashboard} by around {issueDate}. Until then, your {riskHeld} is your proof of cover.",
       riskHeld: "Risk Held Letter",
       dashboard: "Dashboard",
       // Working days (Mon to Fri) from the payment date, which is day 0.
       issueWorkingDays: 7,
     },
-    orderPrefix: "DNO",
     badgeAlt: "Payment successful",
     stats: {
       startLabel: "Policy Start Date",
       endLabel: "Policy End Date",
-      premiumLabel: "Policy Premium",
       periodLabel: "Coverage Period",
       periodValue: "12 Months",
     },
@@ -271,19 +267,13 @@ export const mockCheckoutContent: CheckoutContent = {
     stepLabels: ["Profiling", "Quotes", "Checkout", "Due Diligence", "Policy Issuance"],
     // Under the greeting card: what comes next, now and once issued.
     next: { now: "Next Action", after: "After {days} Working Days" },
-    riskHeldStep: {
-      title: "Download your Risk Held Letter",
-      body: "It's your proof of cover until your policy arrives. Keep it handy, and share it with anyone who asks, such as your board or a lender.",
-    },
+    riskHeldStep: { title: "Download your Risk Held Letter" },
     mandate: {
       title: "Sign your Mandate Letter",
       body: "To issue your new policy, your {mandate}. Don't worry, it's ready, and it's also in your BimaKendra Tasks.",
       link: "Mandate Letter must be signed",
     },
-    issuance: {
-      title: "Receive Policy Copy",
-      body: "Expected by {issueDate}. We'll email your policy to you as soon as it's issued, and you'll find it on your Dashboard.",
-    },
+    issuance: { title: "Receive Policy Copy" },
     signLabel: "Sign Mandate Letter",
     riskHeldLabel: "Download Risk Held Letter",
     dashboardLabel: "Visit Dashboard",
@@ -304,7 +294,6 @@ export const mockCheckoutContent: CheckoutContent = {
       eyebrow: "Meet Your Relationship Manager",
       name: "Shubh Bangar",
       photoSrc: "/media/success/rm-photo.png",
-      body: "Shubh has been in the insurance field for over 7 years. He can support you with your existing policies and advise you on other products to keep your business fully protected.",
       phone: "+91-90072-96854",
       phoneHref: "tel:+919007296854",
       phoneIconSrc: "/media/gold-inquiry/call.svg",

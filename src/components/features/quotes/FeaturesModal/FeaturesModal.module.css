@@ -564,8 +564,9 @@
        the list never shows beside or under the pinned footer. */
     box-shadow: 0 0 0 var(--spacing-16) var(--color-card), 0 calc(var(--spacing-16) + env(safe-area-inset-bottom)) 0 var(--spacing-16) var(--color-card);
   }
-  /* Pinned to the sheet's top while it scrolls, with no fill of its own:
-     the sheet's colour shows behind the pager and ×. */
+  /* Pinned to the sheet's top while it scrolls, in the sheet's white with
+     12 clear under the pager and ×, so the name and tabs scroll away
+     beneath it instead of running into the buttons. */
   .topBar {
     position: sticky;
     top: calc(-1 * var(--spacing-12));
@@ -575,7 +576,8 @@
     justify-content: space-between;
     flex-shrink: 0;
     margin: calc(-1 * var(--spacing-12)) calc(-1 * var(--spacing-16)) 0;
-    padding: var(--spacing-12) var(--spacing-16) var(--spacing-8);
+    padding: var(--spacing-12) var(--spacing-16);
+    background: var(--color-card);
   }
   .pagerTop {
     display: contents;

@@ -26,7 +26,7 @@ export interface RmCardProps {
 /**
  * RmCard — Meet your Relationship Manager (Figma 692:58458), under the
  * purchase summary: peach wash and ring, the eyebrow over the serif name,
- * a ringed photo, a warm line about them, and their phone. Hovering (or
+ * a ringed photo, a warm line about them (when given), and their phone. Hovering (or
  * focusing inside) rakes the Upgraded banner's dithered light across it.
  * Usage: <RmCard rm={s.rm} delay={0.9} />
  */
@@ -53,7 +53,7 @@ export function RmCard({ rm, delay = 0 }: RmCardProps) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={rm.photoSrc} alt={rm.name} className={styles.photo} />
       </div>
-      <p className={styles.rmBody}>{rm.body}</p>
+      {rm.body && <p className={styles.rmBody}>{rm.body}</p>}
       <a href={rm.phoneHref} className={styles.phone}>
         {rm.phone}
         {/* The call glyph as a mask, so it takes the link's purple. */}

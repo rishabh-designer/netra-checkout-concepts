@@ -34,6 +34,17 @@ function unlockScroll() {
   saved = null;
 }
 
+/** The page scroll lock on its own, for an overlay that isn't a dialog (the
+ *  phones' details dock): it shares the dialogs' count, so whichever closes
+ *  last releases the page. Usage: usePageScrollLock(sheetOpen); */
+export function usePageScrollLock(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    lockScroll();
+    return unlockScroll;
+  }, [active]);
+}
+
 export interface DialogOptions {
   open: boolean;
   onClose: () => void;

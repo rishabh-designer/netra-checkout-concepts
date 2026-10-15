@@ -26,6 +26,7 @@ import { readOrder, type PaidOrder } from "../order";
 import styles from "./SuccessView.module.css";
 import { Button } from "@/components/ui/Button";
 import { EASE_OUT as EASE, EASE_SMOOTH } from "@/lib/motion";
+import { useAtMost } from "@/lib/media";
 
 export interface SuccessViewProps {
   content: CheckoutContent;
@@ -73,14 +74,13 @@ function CountUp({ to, delay }: { to: number; delay: number }) {
 /**
  * SuccessView — Checkout (Success), Figma 670:51168: the end of the journey,
  * after Pay on Review. A skeleton of the page holds for a beat, then it draws
- * in: the greeting and policy stats, the green badge popping with a burst,
- * the journey timeline row by row (Profiling, Quotes and
- * Checkout done; Due Diligence open on Sign Mandate Letter; Policy Issuance
- * waiting), then the ikkat rule and BimaNetra Suggests in the same column; the
- * paid Purchase Summary slides in beside it with its amount counting up,
- * over the RM card. The copy
- * follows the paid quote (Gold, immediate, or confirmed by an expert) and
- * the flow's case.
+ * in: the journey's pills, the headline (by first name) and policy stats, the
+ * green badge popping with a burst, then what comes next row by row, then the
+ * ikkat rule and BimaNetra Suggests; the paid Purchase Summary slides in
+ * beside it with its amount counting up, over the RM card. Stacked (phones),
+ * the summary and RM card sit between the greeting card and what comes next.
+ * The copy follows the paid quote (Gold, immediate, or confirmed by an
+ * expert) and the flow's case.
  * Usage: <SuccessView content={checkout} quotesHref="…" fallbackQuote={q} />
  */
 export function SuccessView(props: SuccessViewProps) {
@@ -91,6 +91,8 @@ export function SuccessView(props: SuccessViewProps) {
 function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps) {
   const reduced = useReducedMotion();
   const mobile = useCheckoutMobile();
+  // Phones: the badge drops to 56, so its burst shrinks with it.
+  const small = useAtMost("mobile");
   const s = content.success;
   const { result, selectedQuote, checkout } = useQuoteFlow();
   const quote = selectedQuote ?? fallbackQuote;
@@ -171,12 +173,12 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   const next: SuccessTimelineItem[] = [
     signed
       ? { label: s.next.now, state: "active", title: s.riskHeldStep.title, body: s.riskHeldStep.body, action: { label: s.riskHeldLabel, onClick: downloadRiskHeld, onHover: cheerSign, download: true } }
-      : { label: s.next.now, state: "active", title: s.mandate.title, body: fill(s.mandate.body, { mandate: s.mandate.link }, ["mandate"]), action: { label: s.signLabel, onClick: sign, onHover: cheerSign } },
+      : { label: s.next.now, state: "active", title: s.mandate.title, body: fill(s.mandate.body ?? "", { mandate: s.mandate.link }, ["mandate"]), action: { label: s.signLabel, onClick: sign, onHover: cheerSign } },
     {
       label: s.next.after.replace("{days}", String(s.upNext.issueWorkingDays)),
       state: "pending",
       title: s.issuance.title,
-      body: s.issuance.body.replace("{issueDate}", issueDate),
+      body: s.issuance.body?.replace("{issueDate}", issueDate),
       action: { label: s.viewPolicyLabel, pendingTip: s.viewPolicyPendingTip },
     },
   ];
@@ -184,15 +186,42 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   // sign (A), it's the BimaKendra dashboard.
   const lead = signed ? { label: s.dashboardLabel, onClick: () => notify("dashboard") } : { label: s.signLabel, onClick: sign };
   const company = checkout.companyName || result?.companyName || content.fallbackCompanyName;
-  const [greetA, greetB = ""] = s.greeting.replace("{name}", name).replace("{company}", company).split("{order}");
+  // "Amit, Your Policy Booking is Confirmed!": the buyer by first name.
+  const headline = s.headline.replace("{name}", name.trim().split(/\s+/)[0] ?? "");
+  // The premium is in the Purchase Summary, so three stats.
   const stats = [
     { label: s.stats.startLabel, value: ddmmyyyy(paidAt) },
     { label: s.stats.endLabel, value: ddmmyyyy(ends) },
-    { label: s.stats.premiumLabel, value: formatInr(final) },
     { label: s.stats.periodLabel, value: s.stats.periodValue },
   ];
   const rise = (d: number) =>
     reduced ? {} : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.55, delay: d, ease: EASE } };
+  // The paid summary over the RM card: beside the journey on wide screens
+  // (sliding in from the right), under the greeting card when stacked.
+  const summary = (
+    <motion.div
+      className={styles.summary}
+      initial={reduced ? false : mobile ? { opacity: 0, y: 10 } : { opacity: 0, x: 24 }}
+      animate={{ opacity: 1, x: 0, y: 0 }}
+      transition={{ duration: 0.7, delay: 0.2, ease: EASE }}
+    >
+      <PurchaseSummary
+        content={content.summary}
+        quote={quote}
+        company={company}
+        beam={false}
+        coverages={coverageItems.length ? { label: countLabel, items: coverageItems } : undefined}
+        paid={{
+          label: s.paidLabel.replace("{date}", ddmmyyyy(paidAt)),
+          amount: <CountUp to={final} delay={0.7} />,
+          // Download Invoice is hidden for now (pass `invoice` to bring it back).
+          onToggleHover: peekDetails,
+          onToggle: folded,
+        }}
+        below={<RmCard rm={s.rm} delay={0.9} />}
+      />
+    </motion.div>
+  );
 
   return (
     <div className={styles.page}>
@@ -218,33 +247,50 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                 <main className={styles.main}>
                   {/* The journey so far, as a row of pills (692:58157). */}
                   <SuccessSteps steps={steps} delay={0.1} />
-                  {/* Greeting card (692:58159): the badge, the greeting and the
-                      policy stats, under a slow green border beam. */}
+                  {/* Greeting card (692:58159): the badge, the headline, the policy
+                      stats and Up Next, under a slow green border beam. */}
                   <motion.div className={styles.helloBeam} {...rise(0)}>
                     <span className={styles.beamGlow} aria-hidden>
                       <span className={styles.beamSpin} />
                     </span>
-                    {/* Figma 692:58159: the headline, greeting and stats beside the
-                        badge, then (Case A) the rule and what's next. */}
+                    {/* Figma 692:58159: the headline, the stats and Up Next beside
+                        the badge (stacked on phones, the badge first). */}
                     <div className={styles.hello}>
                       <div className={styles.helloTop}>
                         <div className={styles.helloText}>
                           <motion.h1 className={styles.headline} {...rise(0.05)}>
-                            {s.headline}
+                            {headline}
                           </motion.h1>
-                          <motion.p className={styles.greeting} {...rise(0.1)}>
-                            {greetA}
-                            <mark>#{s.orderPrefix}-{order.id}</mark>
-                            {greetB}
-                          </motion.p>
                           <dl className={styles.stats}>
                             {stats.map((st, i) => (
-                              <motion.div key={st.label} className={styles.stat} {...rise(0.2 + i * 0.06)}>
+                              <motion.div key={st.label} className={styles.stat} {...rise(0.1 + i * 0.06)}>
                                 <dt>{st.label}</dt>
                                 <dd>{st.value}</dd>
                               </motion.div>
                             ))}
                           </dl>
+                          {/* Up Next (838:24646), under the stats once the mandate is
+                              given. */}
+                          {signed && (
+                            <motion.div className={styles.upNextText} {...rise(0.3)}>
+                              <p className={styles.upNextBody}>
+                                <strong className={styles.upNextLead}>{s.upNext.lead}</strong>{" "}
+                                {s.upNext.body.replace("{issueDate}", issueDate).split(/(\{riskHeld\}|\{dashboard\})/).map((part, i) =>
+                                  part === "{riskHeld}" ? (
+                                    <button key={i} type="button" className={styles.upNextLink} onClick={() => setRiskHeld(true)}>
+                                      {s.upNext.riskHeld}
+                                    </button>
+                                  ) : part === "{dashboard}" ? (
+                                    <button key={i} type="button" className={styles.upNextLink} onClick={() => notify("dashboard")}>
+                                      {s.upNext.dashboard}
+                                    </button>
+                                  ) : (
+                                    part
+                                  ),
+                                )}
+                              </p>
+                            </motion.div>
+                          )}
                         </div>
                         <div className={styles.badgeWrap}>
                           <motion.div
@@ -256,40 +302,17 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                             <SuccessBadge label={s.badgeAlt} />
                           </motion.div>
                           {/* The Gold Quote's dithered shockwave and glitter, in green. */}
-                          <DitherBurst radius={120} delay={0.3} duration={1.1} edgeToken="--color-success" coreToken="--color-success-border" />
+                          <DitherBurst radius={small ? 84 : 120} delay={0.3} duration={1.1} edgeToken="--color-success" coreToken="--color-success-border" />
                         </div>
                       </div>
-                      {signed && (
-                        <motion.div className={styles.upNext} {...rise(0.45)}>
-                          <div className={styles.helloRule}>
-                            <IkkatDivider height={4} unit={22} />
-                          </div>
-                          <div className={styles.upNextText}>
-                            <p className={styles.upNextLabel}>{s.upNext.label}</p>
-                            <p className={styles.upNextBody}>
-                              <strong className={styles.upNextLead}>{s.upNext.lead}</strong>{" "}
-                              {s.upNext.body.replace("{issueDate}", issueDate).split(/(\{riskHeld\}|\{dashboard\})/).map((part, i) =>
-                                part === "{riskHeld}" ? (
-                                  <button key={i} type="button" className={styles.upNextLink} onClick={() => setRiskHeld(true)}>
-                                    {s.upNext.riskHeld}
-                                  </button>
-                                ) : part === "{dashboard}" ? (
-                                  <button key={i} type="button" className={styles.upNextLink} onClick={() => notify("dashboard")}>
-                                    {s.upNext.dashboard}
-                                  </button>
-                                ) : (
-                                  part
-                                ),
-                              )}
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
                     </div>
                     <span className={styles.beamRing} aria-hidden>
                       <span className={styles.beamSpin} />
                     </span>
                   </motion.div>
+
+                  {/* Stacked (phones): the summary and RM card come next. */}
+                  {mobile && summary}
 
                   {/* What comes next (692:58157): the action now, then the policy copy. */}
                   <SuccessTimeline items={next} delay={0.5} />
@@ -306,30 +329,7 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                 </main>
                 {/* Right column once paid (Figma 670:51168): the summary (no beam),
                     and the Relationship Manager as its own card under it. */}
-                <aside className={styles.side}>
-                  <motion.div
-                    className={styles.summary}
-                    initial={reduced ? false : { opacity: 0, x: 24 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.7, delay: 0.2, ease: EASE }}
-                  >
-                  <PurchaseSummary
-                    content={content.summary}
-                    quote={quote}
-                    company={company}
-                    beam={false}
-                    coverages={coverageItems.length ? { label: countLabel, items: coverageItems } : undefined}
-                    paid={{
-                      label: s.paidLabel.replace("{date}", ddmmyyyy(paidAt)),
-                      amount: <CountUp to={final} delay={0.7} />,
-                      // Download Invoice is hidden for now (pass `invoice` to bring it back).
-                      onToggleHover: peekDetails,
-                      onToggle: folded,
-                    }}
-                    below={<RmCard rm={s.rm} delay={0.9} />}
-                  />
-                  </motion.div>
-                </aside>
+                {!mobile && <aside className={styles.side}>{summary}</aside>}
               </div>
 
               {/* Under both columns, full width like the disclaimer: the ikkat rule,

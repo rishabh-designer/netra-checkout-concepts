@@ -2,7 +2,7 @@
 
 import { scoreWord } from "@/lib/score-band";
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { animate, motion, useMotionValue, useReducedMotion } from "motion/react";
+import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion } from "motion/react";
 import type { DetailsPanelContent } from "@/types/quotesPage";
 import type { QuoteCaseId } from "@/lib/quote-flow";
 import { NoRecordsBanner, UpgradeBanner, type UpgradeStage } from "../UpgradeBanner";
@@ -12,6 +12,8 @@ import styles from "./DetailsPanel.module.css";
 import { Chevron } from "@/components/icons/Chevron";
 import { EASE_OUT } from "@/lib/motion";
 import { useAtMost } from "@/lib/media";
+import { SCRIM } from "@/components/ui/SideDrawer";
+import { usePageScrollLock } from "@/lib/dialog";
 import { NetraBot } from "@/components/ui/NetraBot";
 import { FileTextIcon } from "@/components/icons/FileTextIcon";
 import { UserIcon } from "@/components/icons/UserIcon";
@@ -132,6 +134,22 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
+  // Phones' dock, open: the page behind blurs under the drawers' scrim (a
+  // lightbox) and holds still (the dialogs' shared lock); a tap on the scrim,
+  // or Escape, closes the tab.
+  const sheetOpen = dock && !folded;
+  usePageScrollLock(sheetOpen);
+  const toggleRef = useRef(onToggleCollapse);
+  useEffect(() => {
+    toggleRef.current = onToggleCollapse;
+  });
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const onKey = (e: globalThis.KeyboardEvent) => e.key === "Escape" && toggleRef.current?.();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sheetOpen]);
+
   const choose = (next: Tab) => {
     // Phones' dock: tapping the open tab again (it shows an ×) closes it.
     if (dock && !folded && next === tab) {
@@ -191,6 +209,21 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
   });
 
   return (
+    <>
+    <AnimatePresence>
+      {sheetOpen && (
+        <motion.div
+          key="scrim"
+          className={styles.scrim}
+          aria-hidden
+          initial={SCRIM.hidden}
+          animate={SCRIM.shown}
+          exit={SCRIM.hidden}
+          transition={{ duration: reduced ? 0 : 0.3, ease: EASE_OUT }}
+          onClick={onToggleCollapse}
+        />
+      )}
+    </AnimatePresence>
     <aside className={styles.panel} data-collapsed={folded || undefined}>
       <div className={styles.tabBar}>
         <div className={styles.tabs} role="tablist" aria-label={content.title} onKeyDown={onTabKey}>
@@ -311,5 +344,6 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
         </div>
       </div>
     </aside>
+    </>
   );
 }
