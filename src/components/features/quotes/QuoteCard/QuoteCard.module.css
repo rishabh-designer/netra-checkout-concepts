@@ -267,11 +267,6 @@
 }
 
 /* Territory (Worldwide / India Only): purple theme. */
-.tab[data-tone="territory"] {
-  border-color: var(--color-brand-primary-border);
-  color: var(--color-brand-primary);
-}
-
 .tab[data-tone="gold"] {
   border-color: var(--color-brand-secondary-subtle-bold);
   color: var(--color-brand-secondary);

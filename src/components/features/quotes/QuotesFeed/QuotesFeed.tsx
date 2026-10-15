@@ -8,12 +8,12 @@ import { resetCheckoutClock } from "@/components/features/checkout/useCheckoutCl
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { BreadcrumbTrail } from "@/components/ui/BreadcrumbTrail";
-import type { QuoteCardData, QuoteFilter, QuoteRating, QuoteSort, QuotesFeedContent } from "@/types/quotesPage";
+import type { QuoteCardData, QuoteFilter, QuoteSort, QuotesFeedContent } from "@/types/quotesPage";
 import type { QuoteCaseId } from "@/lib/quote-flow";
 import { FeedControls } from "../FeedControls";
 import { FeaturesModal, type QuoteTone } from "../FeaturesModal";
 import { AdditionalDetailsDrawer, GoldGateModal } from "../GoldGate";
-import { QuoteCard, type QuoteCardView } from "../QuoteCard";
+import { QuoteCard } from "../QuoteCard";
 import { NeedHelpCard } from "../HelpDesk";
 import { CompareSheet } from "../CompareSheet";
 import { CompareView } from "../CompareView";
@@ -124,13 +124,9 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     riskFit: content.riskFitLabel,
     riskFitChip: content.riskFitChipLabel,
     csr: content.csrLabel,
-    viewFeatures: content.viewFeaturesLabel,
-    coveragesUnavailable: content.coveragesUnavailableLabel,
-    ratings: content.ratingLabels,
   };
   // Card view: the current card, or the previous Top Coverages card
   // (LIVE QUOTES in the breadcrumb swaps them).
-  const [cardView, setCardView] = useState<QuoteCardView>("compact");
 
   const reduced = useReducedMotion();
   // Cases A and B both lead with the Reveal slot: the customer unveils their
@@ -154,13 +150,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     if (revealed) return;
     setRevealIntro("idle");
   }, [revealed]);
-  // Top Coverages view: with a Gold Quote in the feed, every quote is rated
-  // against it — gold Excellent, immediate Good, priced Average, offline N/A.
-  const hasGold = list.some((q) => q.gold);
-  const rate = (q: QuoteCardData): QuoteRating =>
-    q.gold ? "excellent" : q.immediate ? "good" : q.price ? "average" : "na";
-  const rated = hasGold ? list.map((q) => ({ ...q, rating: rate(q) })) : list;
-  const quotes = sumInsured ? rated.map((q) => ({ ...q, sumInsured })) : rated;
+  const quotes = sumInsured ? list.map((q) => ({ ...q, sumInsured })) : list;
   const toneOf = (q: QuoteCardData): QuoteTone =>
     q.gold ? "gold" : q.immediate ? "immediate" : q.price ? "priced" : "quote";
 
@@ -231,7 +221,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   });
   const [countBefore, countAfter = ""] = content.availableLabel.split("{count}");
   // The Gold card lives in the reveal slot; the rest follow it.
-  const goldCard: QuoteCardData = { ...gold, rating: "excellent", ...(sumInsured ? { sumInsured } : {}) };
+  const goldCard: QuoteCardData = { ...gold, ...(sumInsured ? { sumInsured } : {}) };
   const rest = ghostFirst && revealed ? quotes.slice(1) : quotes;
   const pickedQuotes = picked
     .map((key) => (key === "gold" ? (ghostFirst && revealed ? goldCard : undefined) : quotes.find((q) => !q.gold && q.insurer === key)))
@@ -297,8 +287,6 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
             <BreadcrumbTrail
               items={content.breadcrumb}
               variant="slash"
-              onCurrentClick={() => setCardView((v) => (v === "compact" ? "features" : "compact"))}
-              currentPressed={cardView === "features"}
             />
             <h1 className={styles.title}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -380,7 +368,6 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                   onSettled={() => setRevealIntro("play")}
                 >
                   <QuoteCard
-                    view={cardView}
                     {...compareProps(goldCard)}
                     quote={goldCard}
                     labels={labels}
@@ -398,7 +385,6 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
             {shown.map((quote, i) => {
               const card = (
                 <QuoteCard
-                  view={cardView}
                   {...compareProps(quote)}
                   quote={quote}
                   labels={labels}

@@ -1,70 +1,13 @@
-/* Journey (692:58221): pill, then its row (a 28px rail gutter + the body),
-   step after step with no gaps; the rail's dashed lines join the pills. */
-.list {
+/* The success page's journey (Figma 692:58157): a row of step pills over
+   the greeting card, then, under it, what comes next: each item's label,
+   then a dashed rail beside its title, copy and action. */
+
+/* The journey's pills in a row, 16 apart. */
+.steps {
   display: flex;
-  flex-direction: column;
-  list-style: none;
-}
-
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.row {
-  display: flex;
-  align-self: stretch;
-  /* A folded step keeps a short stretch of rail to the next pill. */
-  min-height: var(--spacing-16);
-}
-
-/* Chevron, then its pill (713:59195), 12 apart. */
-.head {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-12);
-}
-
-/* The foldable copy: clipped while it opens and closes. */
-/* Clips while it folds, but with 16 of room each side so a button's hover
-   glow (16 blur) isn't cut off; the negative margin keeps the layout put. */
-.fold {
-  min-width: 0;
-  overflow: hidden;
-  margin-inline: calc(-1 * var(--spacing-16));
-  padding-inline: var(--spacing-16);
-}
-
-/* The chevron (18) + its 12 gap: the dashed line runs down from under the
-   chevron's centre, and the copy lines up with the pill. */
-.gutter {
-  display: flex;
-  flex-shrink: 0;
-  width: 30px;
-  padding: var(--spacing-4) 9px;
-}
-
-.line {
-  width: 0;
-  border-left: 1px dashed var(--color-border-subtle);
-  transform-origin: top;
-}
-
-/* Body: 16 above and below; title row, copy, then the action. */
-.body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-  min-width: 0;
-  padding: var(--spacing-16) 0;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: var(--spacing-16);
-  padding-top: var(--spacing-12);
+  list-style: none;
 }
 
 /* stepper-web pill: 6/8, r-full, tone ring over a soft tint. */
@@ -116,12 +59,68 @@
 }
 
 
-/* Title with its tag beside it (Secured with BimaNetra, Immediate Purchase). */
-.titleRow {
+/* What comes next: label, then its row (a 28px rail gutter + the body).
+   Side by side once the column has room for two (wide screens); stacked
+   otherwise. */
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  column-gap: var(--spacing-32);
+  list-style: none;
+}
+
+.step {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* "Next Action", "After 7 Working Days": 12 SemiBold, black (grey once pending). */
+.label {
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  line-height: 1.2;
+  color: var(--color-label-primary);
+}
+
+.step[data-state="pending"] .label {
+  color: var(--color-label-tertiary);
+}
+
+.row {
+  display: flex;
+  align-self: stretch;
+}
+
+/* The dashed rail runs down from under the label's start; the copy sits 28 in. */
+.gutter {
+  display: flex;
+  flex-shrink: 0;
+  width: 28px;
+  padding: var(--spacing-8) 0 var(--spacing-8) 13px;
+}
+
+.line {
+  width: 0;
+  border-left: 1px dashed var(--color-border-subtle);
+  transform-origin: top;
+}
+
+/* Body: 16 above and below; title, copy, then the action. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+  padding: var(--spacing-16) 0;
+}
+
+.actions {
+  display: flex;
   align-items: center;
-  gap: var(--spacing-8);
+  gap: var(--spacing-16);
+  padding-top: var(--spacing-12);
 }
 
 .title {
@@ -158,47 +157,6 @@
 
 .step[data-state="pending"] .copy {
   opacity: 0.6;
-}
-
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-8);
-  flex-shrink: 0;
-  font-size: var(--font-size-100);
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.statusLabel {
-  font-weight: 600;
-  letter-spacing: var(--track-600);
-  color: var(--color-label-secondary);
-}
-
-.statusTime {
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  color: var(--color-label-tertiary);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Text link (Download Risk Report): info blue, 14 SemiBold, -1%, underlined;
-   no fill, stroke or padding. */
-.link {
-  flex-shrink: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--color-info-fill);
-  font-size: var(--font-size-100);
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: var(--track-600);
-  white-space: nowrap;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
 }
 
 /* Row action, the small button (692:58090 / 692:58117): 10/14, 12px label

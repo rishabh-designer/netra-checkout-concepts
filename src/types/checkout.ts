@@ -107,12 +107,9 @@ export interface CheckoutSummaryContent {
   productLines: [string, string];
   productIconSrc: string;
   priceTitle: string;
-  /** Paid: the chevron's labels for showing and hiding the breakdown. */
-  priceShowLabel: string;
-  priceHideLabel: string;
-  /** Success page: the coverages box's chevron labels. */
-  coveragesShowLabel: string;
-  coveragesHideLabel: string;
+  /** Paid: the one chevron's labels, opening and closing the details. */
+  detailsShowLabel: string;
+  detailsHideLabel: string;
   premiumLabel: string;
   gstLabel: string;
   totalLabel: string;
@@ -193,14 +190,11 @@ export interface CheckoutContent {
   fallbackCompanyName: string;
 }
 
-/** A timeline row on the success page. `{…}` tokens in `body` are filled
+/** A next step on the success page. `{…}` tokens in `body` are filled
  *  and highlighted by the view. */
 export interface SuccessTimelineRow {
   title: string;
   body: string;
-  /** Status on the right of a done row ("Profiling Done") and its time. */
-  statusLabel?: string;
-  time?: string;
 }
 
 /** A "BimaNetra Suggests" product card. */
@@ -227,16 +221,13 @@ export interface CheckoutSuccessContent {
   orderPrefix: string;
   badgeAlt: string;
   stats: { startLabel: string; endLabel: string; premiumLabel: string; periodLabel: string; periodValue: string };
-  /** Left rail pills, in row order. */
+  /** The journey's pills over the greeting card, in order (Due Diligence
+   *  only while the mandate is still to sign). */
   stepLabels: [string, string, string, string, string];
-  profiling: SuccessTimelineRow;
-  /** Quote Selected: the Gold Quote, or any other quote (`{insurer}`). */
-  quoteGold: SuccessTimelineRow;
-  quoteOther: SuccessTimelineRow;
-  /** Due Diligence per case (A found everything, B confirmed, C typed in),
-   *  and for quotes an expert confirms before issuing. `{time}` is how long
-   *  checkout took. */
-  diligence: Record<QuoteCaseId, SuccessTimelineRow> & { expert: SuccessTimelineRow };
+  /** Labels over the next steps: now, and after `{days}` working days. */
+  next: { now: string; after: string };
+  /** The next action once the mandate is given: the Risk Held Letter. */
+  riskHeldStep: SuccessTimelineRow;
   /** `mandate.body`'s `{mandate}`: the underlined phrase. */
   mandate: SuccessTimelineRow & { link: string };
   issuance: SuccessTimelineRow;
@@ -247,13 +238,9 @@ export interface CheckoutSuccessContent {
   keyLinesLabel: string;
   /** The header action, with the mandate already signed. */
   dashboardLabel: string;
-  /** The timeline chevron: show or hide a step's copy. */
-  stepToggle: { show: string; hide: string };
   viewPolicyLabel: string;
   /** Tooltip on View Policy Copy before the policy is issued. */
   viewPolicyPendingTip: string;
-  /** Text link on the profiling row, in place of its status. */
-  riskReportLabel: string;
   /** The Purchase Summary's paid footer: a small button for the tax invoice. */
   invoiceLabel: string;
   /** Bottom line beside the big Sign Mandate Letter button. */

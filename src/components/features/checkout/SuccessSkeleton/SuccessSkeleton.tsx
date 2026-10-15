@@ -10,15 +10,12 @@ export interface SuccessSkeletonProps {
 
 /* Blocks draw in reading order, 40ms apart; the summary runs alongside. */
 const T = 40;
-/* The timeline step that opens by default (Due Diligence, "active"). */
-const ACTIVE = 3;
 
 /**
  * SuccessSkeleton — the success page's loading state, block for block with
- * the real layout: on the left the greeting card (badge, greeting, four
- * stats) and the five-step timeline as it opens (an
- * accordion: the done and pending steps are just their pill, the active one,
- * Due Diligence, shows its title, lines and action beside the rail), then a
+ * the real layout: on the left the journey's row of four pills, the
+ * greeting card (badge, greeting, four stats) and the two next steps (a
+ * label, then a title, lines and an action beside the dashed rail), then a
  * row of three suggestion cards; on the right the purchase summary over
  * the RM card. Each block fades up and
  * shimmers on its own stagger, so the page reads as one wave.
@@ -31,6 +28,11 @@ export function SuccessSkeleton({ label, nextUp = true }: SuccessSkeletonProps) 
     <div className={styles.wrap} role="status" aria-label={label}>
       <div className={styles.fold}>
         <div className={styles.main}>
+          <div className={styles.pills}>
+            {[78, 70, 82, 120].map((w, k) => (
+              <Skeleton key={k} variant="rounded" width={w} height={26} delay={next()} className={styles.pill} />
+            ))}
+          </div>
           <div className={styles.hello}>
             <Skeleton variant="circular" width={80} height={80} delay={next()} className={styles.badge} />
             <div className={styles.helloText}>
@@ -50,20 +52,15 @@ export function SuccessSkeleton({ label, nextUp = true }: SuccessSkeletonProps) 
             </div>
           </div>
           <div>
-            {[0, 1, 2, 3, 4].map((k) => (
+            {[0, 1].map((k) => (
               <div key={k} className={styles.step}>
-                <Skeleton variant="rounded" width={k === 4 ? 116 : 90} height={26} delay={next()} className={styles.pill} />
-                {k === ACTIVE ? (
-                  <div className={styles.stepBody}>
-                    <Skeleton width="44%" height={16} delay={i * T} />
-                    <Skeleton width="92%" height={12} delay={i * T + 20} />
-                    <Skeleton width="88%" height={12} delay={i * T + 40} />
-                    <Skeleton width="56%" height={12} delay={i * T + 60} className={styles.phoneOnly} />
-                    <Skeleton variant="rounded" width={176} height={38} delay={next()} className={styles.action} />
-                  </div>
-                ) : (
-                  <div className={styles.stepGap} />
-                )}
+                <Skeleton width={k ? 128 : 76} height={12} delay={next()} />
+                <div className={styles.stepBody}>
+                  <Skeleton width="44%" height={16} delay={i * T} />
+                  <Skeleton width="92%" height={12} delay={i * T + 20} />
+                  <Skeleton width="56%" height={12} delay={i * T + 40} className={styles.phoneOnly} />
+                  <Skeleton variant="rounded" width={k ? 140 : 190} height={33} delay={next()} className={styles.action} />
+                </div>
               </div>
             ))}
           </div>

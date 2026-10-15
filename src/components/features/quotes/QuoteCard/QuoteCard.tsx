@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DitherImage } from "@/components/ui/DitherImage";
-import type { QuoteCardData, QuoteRating, QuoteTerritory } from "@/types/quotesPage";
+import type { QuoteCardData, QuoteTerritory } from "@/types/quotesPage";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
-import { IndicatorBadge } from "@/components/ui/IndicatorBadge";
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
 import { BadgeCheckIcon } from "@/components/icons/BadgeCheckIcon";
 import { splitName } from "@/lib/utils";
@@ -13,28 +12,12 @@ import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import { BookOpenIcon } from "@/components/icons/BookOpenIcon";
 import { NetraBot } from "@/components/ui/NetraBot";
 import styles from "./QuoteCard.module.css";
-import fx from "./QuoteCardFeatures.module.css";
 import { Chevron } from "@/components/icons/Chevron";
-
-/** 12px chevron on View All Features (Figma 587:62128), success green. */
-function FeaturesChevron() {
-  return (
-    <Chevron dir="right" size={12} color="var(--color-success)" />
-  );
-}
 
 /** The name on two lines; a two-word name ("Gold Quote") stays on one,
  *  over a blank line that keeps the card's height. */
 const nameLines = (name: string): [string, string] =>
   name.trim().split(/\s+/).length <= 2 ? [name, "\u00a0"] : splitName(name);
-
-/** Rating chip tone (Figma 584:45338 / 45382 / 45476 / 45508). */
-const RATING_TONE = {
-  excellent: "success",
-  good: "info",
-  average: "caution",
-  na: "disabled",
-} as const;
 
 /** The coverages chip's chevron (Figma 658:48100), info blue, at the chip's
  *  12px label size. */
@@ -75,18 +58,9 @@ export interface QuoteCardLabels {
   riskFitChip?: string;
   /** Under the logo: "Claim Settlement Ratio: {value}". */
   csr?: string;
-  /** Top Coverages view only: the View All Features pill, the offline
-   *  "Unavailable" block and the rating chips. */
-  viewFeatures?: string;
-  coveragesUnavailable?: string;
-  ratings?: Record<QuoteRating, string>;
   /** Tag tooltips (what Immediate Purchase, territory… mean). */
   tips?: { immediate: string; gold: string; compareOff: string; compareFull: string; offer: string; territory: Record<QuoteTerritory, string> };
 }
-
-/** "compact" — the current card (Figma 658:47652); "features" — the previous
- *  Top Coverages card (640:24913), swapped in from the breadcrumb. */
-export type QuoteCardView = "compact" | "features";
 
 export interface QuoteCardProps {
   quote: QuoteCardData;
@@ -101,7 +75,6 @@ export interface QuoteCardProps {
   /** Slim card ("Other Quotes" on the Gold Inquiry page, Figma 642:35456):
    *  just the tag, logo, name and price bar (no rule or footer). */
   mini?: boolean;
-  view?: QuoteCardView;
   /** Add To Compare, controlled by the feed (its compare bar). Without
    *  `onToggleCompare` the tick is local. */
   compared?: boolean;
@@ -148,7 +121,7 @@ export function lockBeam(el: HTMLElement | null) {
  * border beam. `data-reveal` hooks let RevealCard choreograph its entrance.
  * Usage: <QuoteCard quote={q} labels={…} onViewFeatures={open} onSelect={buy} />
  */
-export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro = "done", mini = false, view = "compact", compared: comparedProp, onToggleCompare, compareFull = false }: QuoteCardProps) {
+export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro = "done", mini = false, compared: comparedProp, onToggleCompare, compareFull = false }: QuoteCardProps) {
   const arrowRef = useRef<MoveRightIconHandle>(null);
   const [comparedLocal, setComparedLocal] = useState(false);
   const compared = onToggleCompare ? !!comparedProp : comparedLocal;
@@ -158,13 +131,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
   const tone = quote.gold ? "gold" : quote.immediate ? "immediate" : quote.price ? "priced" : "quote";
   const filled = tone === "gold" || !!quote.price;
 
-  // Territory tag (purple, text only), then the tone tag.
-  const territoryTag =
-    quote.territory && labels.territory ? (
-      <span className={styles.tab} data-tone="territory" data-reveal="pill" data-tooltip={labels.tips?.territory[quote.territory]}>
-        {labels.territory[quote.territory]}
-      </span>
-    ) : null;
+  // The tone tag (territory reads from the key features, not a pill).
   const toneTag =
     tone === "gold" ? (
       <span className={styles.tab} data-tone="gold" data-reveal="pill" data-tooltip={labels.tips?.gold}>
@@ -177,13 +144,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
         {labels.immediatePurchase}
       </span>
     ) : null;
-  const tag =
-    territoryTag || toneTag ? (
-      <span className={styles.tabs}>
-        {territoryTag}
-        {toneTag}
-      </span>
-    ) : null;
+  const tag = toneTag ? <span className={styles.tabs}>{toneTag}</span> : null;
 
   // Shared by both views: the price / Get Quote button and Add To Compare.
   const priceButton = (
@@ -250,72 +211,7 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
     },
   };
 
-  // The previous Top Coverages layout (640:24913): logo beside the name, the
-  // coverages box, then Add To Compare · Sum Insured · price in the bar.
-  const featuresCard = (
-    <article className={styles.card} data-tone={tone} {...hover}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/media/checkout/product-icon.png" alt="" aria-hidden className={fx.mark} />
-      {tag}
-      <div className={fx.inner}>
-        <div className={fx.head}>
-          {quote.logoSrc && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={quote.logoSrc} alt="" aria-hidden className={fx.logo} data-reveal="item" />
-          )}
-          <h3 className={fx.name} title={quote.insurer}>
-            {nameLines(quote.insurer).map((line, i) => (
-              <span key={i} className={fx.nameLine} data-reveal="item" data-tooltip-overflow>{line}</span>
-            ))}
-          </h3>
-        </div>
-
-        <div className={fx.coverage} data-reveal="coverage">
-          <div className={fx.coverageHead}>
-            <p className={fx.coverageLabel} data-reveal="item">{labels.topCoverages}</p>
-            {quote.rating && labels.ratings && (
-              <span className={fx.rating} data-reveal="rating">
-                <IndicatorBadge label={labels.ratings[quote.rating]} tone={RATING_TONE[quote.rating]} size="sm" />
-              </span>
-            )}
-          </div>
-          {quote.coverages?.length ? (
-            <ul className={fx.chips}>
-              {quote.coverages.map((c, i) => (
-                <li key={`${c}-${i}`} className={fx.chip} data-reveal="chip">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/media/coverage-check.svg" alt="" aria-hidden className={fx.chipCheck} />
-                  {c}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className={fx.unavailable} data-reveal="item">{labels.coveragesUnavailable}</p>
-          )}
-          <div className={fx.rule} data-reveal="rule">
-            <IkkatDivider height={2} unit={19} color={RULE_COLOR[tone]} />
-          </div>
-          <button type="button" className={fx.viewFeatures} onClick={onViewFeatures} aria-haspopup="dialog" data-reveal="item">
-            {labels.viewFeatures}
-            <FeaturesChevron />
-          </button>
-        </div>
-
-        <div className={fx.bar} data-reveal="bar">
-          {compare}
-          <div className={fx.barRight}>
-            <div className={styles.sum}>
-              <span className={styles.sumLabel}>{labels.sumInsured}</span>
-              <span className={styles.sumValue}>{quote.sumInsured}</span>
-            </div>
-            {priceButton}
-          </div>
-        </div>
-      </div>
-    </article>
-  );
-
-  const compactCard = (
+  const card = (
     <article
       className={styles.card}
       data-tone={tone}
@@ -400,7 +296,6 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
     </article>
   );
 
-  const card = view === "features" && !mini ? featuresCard : compactCard;
 
   // Gold: a golden beam circles the border (overlay only — card CSS untouched).
   // Two masked layers share one rotating conic sweep: a crisp ring on top and

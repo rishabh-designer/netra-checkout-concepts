@@ -18,6 +18,14 @@
   --color-brand-primary-border: #d1c6ff;
   --color-brand-secondary: #ff7700;
   --color-brand-secondary-deep: #b35300; /* ikkat marks on warm copy (stats line) */
+  /* The gold medal (the alternate Business Health badge): warm satin gold,
+     glint to shadow. */
+  --color-medal-glint: #fff2d8;
+  --color-medal-light: #ecbf7f;
+  --color-medal: #c98b45;
+  --color-medal-mid: #a2672c;
+  --color-medal-deep: #6a3d15;
+  --color-medal-shadow: #2f1a08;
   --color-brand-primary-tint: rgba(65, 0, 207, 0.08); /* button/primary/fill/primary/clicked */
 
   /* labels */

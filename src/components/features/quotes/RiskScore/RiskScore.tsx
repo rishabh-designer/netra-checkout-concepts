@@ -1,8 +1,11 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { EASE_OUT } from "@/lib/motion";
 import styles from "./RiskScore.module.css";
+import { MedalBadge } from "./MedalBadge";
+import { toggleBadgeStyle, useBadgeStyle } from "./badgeStyle";
 
 /* The badge's three glow rings (Figma 776:32116-18): box in the 210 frame,
    then how far each SVG bleeds past it for its glow. */
@@ -12,18 +15,28 @@ const RINGS = [
   { src: "/figma/score/ring-3.svg", left: 27.46, top: 33.33, w: 155.072, h: 143.35, bleed: [11.65, 10.77] },
 ];
 
+/** The rings' frame on screen (210 × 0.7103); the medal's default size too. */
+const RINGS_PX = 149.16;
+const FLIP_EASE = [0.65, 0, 0.35, 1] as const;
+
 export interface RiskScoreBadgeProps {
-  /** The score as shown ("82.4", or "N/A" when it couldn't be scored). */
+  /** The score as shown ("Excellent", a provisional "Excellent*", or "N/A"). */
   score: string;
   label: string;
-  /** The scale after the score, small ("/100"). */
-  outOf?: string;
   /** The info icon's tooltip. */
   info: string;
   /** Not scored (Case C): greyed rings and a grey pill. */
   muted?: boolean;
   /** Arrived already shown (a reload): no entrance. */
   still?: boolean;
+  /** A click on the art flips every badge between the rings (default) and
+   *  the gold medal on its back. */
+  swappable?: boolean;
+  /** The medal's size on screen: the rings' size by default; larger where
+   *  there's room (the welcome popup, 320), capped to its column. */
+  medalPx?: number;
+  /** The medal spins on a loop (the popup); otherwise it holds still. */
+  medalLoop?: boolean;
 }
 
 /**
@@ -31,15 +44,45 @@ export interface RiskScoreBadgeProps {
  * glowing hex rings and the diamond mark behind an orange pill holding the
  * score in the serif, its label ("Business Health") and an info tooltip under it. The rings
  * fade in from the outside in and the pill lands last. `muted` greys it all
- * for a business we couldn't score.
- * Usage: <RiskScoreBadge score="82.4" outOf="/100" label="Business Health" info="…" />
+ * for a business we couldn't score. With `swappable`, a click on the art
+ * flips every badge on the page over to the gold medal and back (never saved).
+ * Usage: <RiskScoreBadge score="Excellent" label="Business Health" info="…" />
  */
-export function RiskScoreBadge({ score, label, outOf, info, muted = false, still = false }: RiskScoreBadgeProps) {
+export function RiskScoreBadge({ score, label, info, muted = false, still = false, swappable = false, medalPx: medalMax = RINGS_PX, medalLoop = false }: RiskScoreBadgeProps) {
   const reduced = useReducedMotion();
   const quiet = reduced || still;
+  const medal = useBadgeStyle() === "medal" && swappable;
+  // The medal at its asked size where it fits, else as wide as its column.
+  const root = useRef<HTMLDivElement>(null);
+  const [room, setRoom] = useState(medalMax);
+  useEffect(() => {
+    const column = root.current?.parentElement;
+    if (!column || !swappable) return;
+    const ro = new ResizeObserver(([e]) => setRoom(e.contentRect.width));
+    ro.observe(column);
+    return () => ro.disconnect();
+  }, [swappable]);
+  const medalPx = Math.min(medalMax, room);
   return (
-    <div className={styles.badge} data-muted={muted || undefined}>
-      <div className={styles.art}>
+    <div ref={root} className={styles.badge} data-muted={muted || undefined}>
+      <motion.div
+        className={styles.art}
+        data-swap={swappable || undefined}
+        onClick={swappable ? toggleBadgeStyle : undefined}
+        initial={false}
+        // The medal at its size (up to 320 in the popup); the rings at their 149 frame.
+        animate={{ width: medal ? medalPx : RINGS_PX, height: medal ? medalPx : RINGS_PX }}
+        transition={reduced ? { duration: 0 } : { duration: 0.9, ease: FLIP_EASE }}
+      >
+        {/* A card that flips: the rings on its front, the medal on its back. */}
+        <motion.div
+          className={styles.flipper}
+          initial={false}
+          animate={{ rotateY: medal ? 180 : 0 }}
+          transition={reduced ? { duration: 0 } : { duration: 0.9, ease: FLIP_EASE }}
+        >
+        <div className={styles.side} data-hidden={medal || undefined}>
+        <div className={styles.frame}>
         {RINGS.map((r, i) => (
           <motion.span
             key={r.src}
@@ -77,11 +120,19 @@ export function RiskScoreBadge({ score, label, outOf, info, muted = false, still
           ) : (
             score
           )}
-          {/* The scale, small on the baseline: "82.4/100". */}
-          {outOf && <span className={styles.outOf}>{outOf}</span>}
         </motion.span>
-      </div>
-      <p className={styles.caption}>
+        </div>
+        </div>
+        {swappable && (
+          <div className={styles.side} data-back="" data-hidden={medal ? undefined : ""}>
+            <MedalBadge score={score} label={label} loop={medalLoop} />
+          </div>
+        )}
+        </motion.div>
+      </motion.div>
+      {/* The medal carries the label itself, so the caption steps out of view
+          (keeping its space, so nothing below moves as the badge flips). */}
+      <p className={styles.caption} style={medal ? { visibility: "hidden" } : undefined}>
         <span>{label}</span>
         <button type="button" className={styles.info} aria-label={info} data-tooltip={info} data-tooltip-wrap="">
           <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden>

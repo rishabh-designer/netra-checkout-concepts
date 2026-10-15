@@ -9,8 +9,6 @@ import { useDemoNotice } from "@/lib/demo-notice";
 import { formatInr, splitPrice } from "@/lib/checkout";
 import { QuotesHeader } from "@/components/features/quotes/QuotesHeader";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
-import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
-import { BadgeCheckIcon, type BadgeCheckIconHandle } from "@/components/icons/BadgeCheckIcon";
 import { DitherBurst } from "@/components/ui/DitherBurst";
 import { Toast } from "@/components/ui/Toast";
 import { useCheckoutClock } from "../useCheckoutClock";
@@ -18,7 +16,7 @@ import { useCheckoutMobile } from "../useCheckoutMobile";
 import { CheckoutFooter } from "../CheckoutFooter";
 import { PurchaseSummary } from "../PurchaseSummary";
 import { Disclaimer } from "../Disclaimer";
-import { SuccessTimeline, type SuccessTimelineItem } from "../SuccessTimeline";
+import { SuccessSteps, SuccessTimeline, type SuccessStep, type SuccessTimelineItem } from "../SuccessTimeline";
 import { SuccessSkeleton } from "../SuccessSkeleton";
 import { RmCard, Suggestions } from "../SuccessMore";
 import type { NetraBotHandle } from "@/components/ui/NetraBot";
@@ -48,9 +46,7 @@ function fill(template: string, vars: Record<string, string>, links: string[] = 
   });
 }
 
-const short = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-const long = (d: Date) => d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-/** DD/MM/YYYY. */
+/** Every date on the page reads DD/MM/YYYY. */
 const ddmmyyyy = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
 /** `days` working days (Mon to Fri) after `from`, which is day 0. */
 function addWorkingDays(from: Date, days: number): Date {
@@ -61,7 +57,6 @@ function addWorkingDays(from: Date, days: number): Date {
   }
   return d;
 }
-const duration = (s: number) => (s < 60 ? `${s.toFixed(1)}s` : `${Math.floor(s / 60)}m ${Math.round(s % 60)}s`);
 
 /** The paid amount, counting up from zero once the summary has landed. */
 function CountUp({ to, delay }: { to: number; delay: number }) {
@@ -148,7 +143,6 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   const coverageItems = fit
     ? fit.lines.map((l) => ({ label: l.title, kind: l.kind, met: l.met }))
     : (quote.coverages ?? quote.policy?.top ?? []);
-  const product = content.summary.productLines.join(" ");
   const sign = () => {
     setToast(false);
     requestAnimationFrame(() => setToast(true));
@@ -157,63 +151,34 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   // and a curious look at whatever a chevron is about to reveal.
   const bot = useRef<NetraBotHandle>(null);
   const cheerSign = () => bot.current?.react("nodYes");
-  const peekCoverages = () => bot.current?.react("curiousTilt");
-  const peekPrices = () => bot.current?.react("curiousPeek");
+  const peekDetails = () => bot.current?.react("curiousPeek");
   // Opening a fold earns a soft smile; closing one, a glance as it's tucked away.
   const folded = (open: boolean) => bot.current?.react(open ? "softSmile" : "tuckAway");
 
-  const pick = quote.gold ? s.quoteGold : s.quoteOther;
-  // Bought outright (not an expert-confirmed quote): the Immediate Purchase
-  // pill sits where the row's status would.
-  const expert = !quote.gold && !quote.immediate;
-  const bagRef = useRef<ShoppingBagIconHandle>(null);
-  const eyeRef = useRef<BadgeCheckIconHandle>(null);
-  // The Gold Quote's Quote Selected row carries Secured with BimaNetra.
-  const goldTag = quote.gold ? (
-    <span
-      className={styles.tag}
-      data-tone="gold"
-      data-tooltip={content.summary.tips.gold}
-      onMouseEnter={() => eyeRef.current?.startAnimation()}
-      onMouseLeave={() => eyeRef.current?.stopAnimation()}
-    >
-      <BadgeCheckIcon ref={eyeRef} size={10} color="var(--color-brand-secondary)" />
-      {content.summary.poweredByLabel}
-    </span>
-  ) : undefined;
-  const purchaseTag = expert ? undefined : (
-    <span
-      className={styles.tag}
-      data-tooltip={content.summary.tips.immediate}
-      onMouseEnter={() => bagRef.current?.startAnimation()}
-      onMouseLeave={() => bagRef.current?.stopAnimation()}
-    >
-      <ShoppingBagIcon ref={bagRef} size={10} color="var(--color-success)" />
-      {content.summary.immediateLabel}
-    </span>
-  );
-  const diligence = expert ? s.diligence.expert : s.diligence[caseId];
-  const time = duration(clock.seconds);
-  // The broker mandate was given at checkout: no Due Diligence step;
-  // Checkout stays open with the Risk Held Letter to download.
+  // The broker mandate was given at checkout: nothing left to sign; the next
+  // action is the Risk Held Letter.
   const signed = !!content.steps.verification.mandate?.cases.includes(caseId);
   const downloadRiskHeld = () => finishRiskHeld(s.riskHeld.downloadToast);
-  const rows: SuccessTimelineItem[] = [
-    { pill: s.stepLabels[0], state: "done", title: s.profiling.title, body: fill(s.profiling.body, { product }), status: { label: s.profiling.statusLabel!, time: s.profiling.time! }, link: { label: s.riskReportLabel, onClick: () => notify("riskReport") } },
-    { pill: s.stepLabels[1], state: "done", title: pick.title, body: fill(pick.body, { product, count: countLabel, insurer: quote.insurer }), status: { label: pick.statusLabel!, time: pick.time! }, tag: goldTag },
+  // The journey's pills (692:58157): done up to checkout, then where it is now.
+  const steps: SuccessStep[] = [
+    { label: s.stepLabels[0], state: "done" },
+    { label: s.stepLabels[1], state: "done" },
+    { label: s.stepLabels[2], state: "done" },
+    ...(signed ? [] : [{ label: s.stepLabels[3], state: "active" as const }]),
+    { label: s.stepLabels[4], state: signed ? "active" : "pending" },
+  ];
+  // What comes next: the action now, then the policy copy once issued.
+  const next: SuccessTimelineItem[] = [
+    signed
+      ? { label: s.next.now, state: "active", title: s.riskHeldStep.title, body: s.riskHeldStep.body, action: { label: s.riskHeldLabel, onClick: downloadRiskHeld, onHover: cheerSign, download: true } }
+      : { label: s.next.now, state: "active", title: s.mandate.title, body: fill(s.mandate.body, { mandate: s.mandate.link }, ["mandate"]), action: { label: s.signLabel, onClick: sign, onHover: cheerSign } },
     {
-      pill: s.stepLabels[2],
-      state: "done",
-      title: diligence.title,
-      body: fill(diligence.body, { time }),
-      status: { label: diligence.statusLabel!, time },
-      tag: purchaseTag,
-      ...(signed ? { startOpen: true, action: { label: s.riskHeldLabel, onClick: downloadRiskHeld, onHover: cheerSign } } : {}),
+      label: s.next.after.replace("{days}", String(s.upNext.issueWorkingDays)),
+      state: "pending",
+      title: s.issuance.title,
+      body: s.issuance.body.replace("{issueDate}", issueDate),
+      action: { label: s.viewPolicyLabel, pendingTip: s.viewPolicyPendingTip },
     },
-    ...(signed
-      ? []
-      : [{ pill: s.stepLabels[3], state: "active" as const, title: s.mandate.title, body: fill(s.mandate.body, { mandate: s.mandate.link }, ["mandate"]), action: { label: s.signLabel, onClick: sign, onHover: cheerSign } }]),
-    { pill: s.stepLabels[4], state: "pending", title: s.issuance.title, body: s.issuance.body.replace("{issueDate}", issueDate), action: { label: s.viewPolicyLabel, pendingTip: s.viewPolicyPendingTip }, startOpen: true },
   ];
   // The page's lead action (header, mobile footer): with nothing left to
   // sign (A), it's the BimaKendra dashboard.
@@ -221,8 +186,8 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
   const company = checkout.companyName || result?.companyName || content.fallbackCompanyName;
   const [greetA, greetB = ""] = s.greeting.replace("{name}", name).replace("{company}", company).split("{order}");
   const stats = [
-    { label: s.stats.startLabel, value: short(paidAt) },
-    { label: s.stats.endLabel, value: short(ends) },
+    { label: s.stats.startLabel, value: ddmmyyyy(paidAt) },
+    { label: s.stats.endLabel, value: ddmmyyyy(ends) },
     { label: s.stats.premiumLabel, value: formatInr(final) },
     { label: s.stats.periodLabel, value: s.stats.periodValue },
   ];
@@ -251,6 +216,8 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
             <motion.div key="content" className={styles.content} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
               <div className={styles.fold}>
                 <main className={styles.main}>
+                  {/* The journey so far, as a row of pills (692:58157). */}
+                  <SuccessSteps steps={steps} delay={0.1} />
                   {/* Greeting card (692:58159): the badge, the greeting and the
                       policy stats, under a slow green border beam. */}
                   <motion.div className={styles.helloBeam} {...rise(0)}>
@@ -324,7 +291,8 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                     </span>
                   </motion.div>
 
-                  <SuccessTimeline items={rows} delay={0.5} toggleLabels={s.stepToggle} />
+                  {/* What comes next (692:58157): the action now, then the policy copy. */}
+                  <SuccessTimeline items={next} delay={0.5} />
 
                   {!s.hideNextUp && (
                     <motion.div className={styles.next} {...rise(1.25)}>
@@ -335,20 +303,9 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                     </motion.div>
                   )}
 
-                  {/* Under the journey, in the same column: the ikkat rule, then BimaNetra Suggests. */}
-                  <motion.div
-                    className={styles.rule}
-                    initial={reduced ? false : { clipPath: "inset(0 100% 0 0)" }}
-                    animate={{ clipPath: "inset(0 0% 0 0)" }}
-                    transition={{ duration: 0.9, delay: 1.1, ease: EASE }}
-                  >
-                    <IkkatDivider height={4} unit={22} />
-                  </motion.div>
-
-                  <Suggestions suggestions={s.suggestions} delay={1.2} botRef={bot} />
                 </main>
                 {/* Right column once paid (Figma 670:51168): the summary (no beam),
-                    closing on the Relationship Manager. */}
+                    and the Relationship Manager as its own card under it. */}
                 <aside className={styles.side}>
                   <motion.div
                     className={styles.summary}
@@ -361,18 +318,33 @@ function SuccessScreen({ content, quotesHref, fallbackQuote }: SuccessViewProps)
                     quote={quote}
                     company={company}
                     beam={false}
-                    coverages={coverageItems.length ? { label: countLabel, items: coverageItems, onToggleHover: peekCoverages, onToggle: folded } : undefined}
+                    coverages={coverageItems.length ? { label: countLabel, items: coverageItems } : undefined}
                     paid={{
-                      label: s.paidLabel.replace("{date}", long(paidAt)),
+                      label: s.paidLabel.replace("{date}", ddmmyyyy(paidAt)),
                       amount: <CountUp to={final} delay={0.7} />,
                       // Download Invoice is hidden for now (pass `invoice` to bring it back).
-                      onToggleHover: peekPrices,
+                      onToggleHover: peekDetails,
                       onToggle: folded,
                     }}
-                    after={<RmCard rm={s.rm} delay={0.9} />}
+                    below={<RmCard rm={s.rm} delay={0.9} />}
                   />
                   </motion.div>
                 </aside>
+              </div>
+
+              {/* Under both columns, full width like the disclaimer: the ikkat rule,
+                  then BimaNetra Suggests. */}
+              <div className={styles.more}>
+                <motion.div
+                  className={styles.rule}
+                  initial={reduced ? false : { clipPath: "inset(0 100% 0 0)" }}
+                  animate={{ clipPath: "inset(0 0% 0 0)" }}
+                  transition={{ duration: 0.9, delay: 1.1, ease: EASE }}
+                >
+                  <IkkatDivider height={4} unit={22} />
+                </motion.div>
+
+                <Suggestions suggestions={s.suggestions} delay={1.2} botRef={bot} />
               </div>
 
               <motion.div {...rise(1.7)}>

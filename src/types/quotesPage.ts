@@ -1,3 +1,4 @@
+import type { ScoreBand } from "@/lib/score-band";
 import type { DemoNoticeKey } from "./demoNotice";
 import type { BreadcrumbItem } from "./productPage";
 import type { QuoteCaseId } from "@/lib/quote-flow";
@@ -83,15 +84,16 @@ export interface DetailsPanelContent {
 
 export interface RiskScoreContent {
   label: string;
-  /** After the score, small: "/100". */
-  outOf: string;
+  /** The score shows as a word: the highest band whose `min` it reaches. */
+  bands: ScoreBand[];
   /** The info icon's tooltip, scored and not (Case C). */
   info: string;
   mutedInfo: string;
   /** One list: the key coverages, then the key exclusions. `{count}` is
    *  how many lines it holds. */
   listTitle: string;
-  /** Each case's score as shown; "N/A" where it couldn't be scored. */
+  /** Each case's score ("82.4", a provisional "80*", or "N/A" where it
+   *  couldn't be scored); shown as its band's word. */
   byCase: Record<QuoteCaseId, string>;
   /** A case's own tooltip where its score needs a note (B's asterisk). */
   infoByCase?: Partial<Record<QuoteCaseId, string>>;
@@ -152,9 +154,6 @@ export interface QuoteCardData {
   /** The revealed exact-match "Gold Quote" (Figma 553:29978): caution-gold card,
    *  "Secured with BimaNetra" pill, orange Get Quote. */
   gold?: boolean;
-  /** How this quote compares against the Gold Quote — set by the feed only
-   *  when a Gold Quote is present (exact match). */
-  rating?: QuoteRating;
   /** Where the policy covers you — a purple tag on the card, left of
    *  Immediate Purchase / Secured with BimaNetra. */
   territory?: QuoteTerritory;
@@ -228,8 +227,6 @@ export interface CompareViewContent {
   tabs: { key: string; label: string }[];
   sections: CompareSection[];
 }
-
-export type QuoteRating = "excellent" | "good" | "average" | "na";
 
 /** One entry in a features-drawer tab: a titled line with its explanation. */
 export interface FeatureItem {
@@ -334,7 +331,6 @@ export interface QuotesFeedContent {
   quotes: QuoteCardData[];
   /** Per-case quote list override (e.g. fuzzy B). Falls back to `quotes`. */
   quotesByCase?: Partial<Record<QuoteCaseId, QuoteCardData[]>>;
-  viewFeaturesLabel: string;
   featuresDrawer: FeaturesDrawerContent;
   compareLabel: string;
   comparisonUnavailableLabel: string;
@@ -387,10 +383,6 @@ export interface QuotesFeedContent {
   /** Per case, the key lines each insurer's quote meets (the Gold Quote
    *  meets them all). Case C isn't scored, so it has none. */
   riskFitByCase?: Partial<Record<QuoteCaseId, RiskFitByInsurer>>;
-  /** Compact grid: the coverage box of an offline quote (no coverages). */
-  coveragesUnavailableLabel: string;
-  /** Rating chip copy (shown beside "Top Coverages" when a Gold Quote leads). */
-  ratingLabels: Record<QuoteRating, string>;
   poweredByLabel: string;
 }
 

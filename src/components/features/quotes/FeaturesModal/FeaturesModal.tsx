@@ -178,11 +178,6 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                   {/* pagination (727:34231), chevrons only: each one's tooltip
                       names the quote it goes to ("Quote 2 of 7"). */}
                   {pagerEl && <div className={styles.pagerInCard}>{pagerEl}</div>}
-                  {quote.territory && labels.territory && (
-                    <span className={styles.tag} data-tone="territory" data-tooltip={labels.tips?.territory[quote.territory]}>
-                      {labels.territory[quote.territory]}
-                    </span>
-                  )}
                   {tone === "gold" ? (
                     <span className={styles.tag} data-tone="gold" data-tooltip={labels.tips?.gold}>
                       <BadgeCheckIcon size={10} color="var(--color-brand-secondary)" />

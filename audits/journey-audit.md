@@ -10,8 +10,8 @@
 
 | | Business | Records | Onboarding | Quotes | Checkout | Success |
 |---|---|---|---|---|---|---|
-| **A** | Pepe Jeans Innerfashion Pvt Ltd | Verified | Fields filled and green; Risk auto-personalised | Welcome popup → Score tab · 82.4/100 · Gold: Generali with an offer | Documents fetched from MCA; broker-mandate tick | Risk Held Letter, Visit Dashboard |
-| **B** | Sabyasachi Calcutta LLP | Partly verified | PAN green, type/business orange guesses, turnover blank | Welcome popup → Score tab · 80*/100 · Gold: "Your Personalised Gold Quote", Unlock Quote | Address a guess to check; broker-mandate tick | Same as A |
+| **A** | Pepe Jeans Innerfashion Pvt Ltd | Verified | Fields filled and green; Risk auto-personalised | Welcome popup → Score tab · Excellent (82.4) · Gold: Generali with an offer | Documents fetched from MCA; broker-mandate tick | Risk Held Letter, Visit Dashboard |
+| **B** | Sabyasachi Calcutta LLP | Partly verified | PAN green, type/business orange guesses, turnover blank | Welcome popup → Score tab · Excellent* (80) · Gold: "Your Personalised Gold Quote", Unlock Quote | Address a guess to check; broker-mandate tick | Same as A |
 | **C** | Studio Two Rupees LLP | None found | Everything by hand | Chat tab · no score · Schedule a Call | Everything by hand; broker-mandate tick | Same as A |
 
 **Severity:** 4 = blocks or misleads · 3 = major friction or a misleading claim · 2 = noticeable, worth fixing · 1 = polish.
@@ -41,7 +41,7 @@
 | 3 | ✅ **Resolved:** the e-sign is replaced by a broker-mandate tick by the CTA, so the mandate's full text is what the user agrees to (K1) | Checkout | All | ~~3~~ |
 | 4 | ~~Declarations pre-answered "No"~~ **Withdrawn:** the answers come from public sources, and Confirm and Continue is the customer's confirmation (O1) | Onboarding | A, B | - |
 | 5 | ~~"Business Secured", "Risk Insured" claim cover too early~~ **Withdrawn:** by design, these say BimaNetra is securing the business and insuring the risk in real time from public sources, as an expert would on a call (O2) | Onboarding | All | - |
-| 6 | **Quotes confirmed by an expert also get a Risk Held Letter** and the 7-day promise, while their row says an expert still has to confirm with the insurer | Success | All (non-immediate quotes) | 3 |
+| 6 | ~~Expert-confirmed quotes get the same cover promise~~ **Withdrawn:** only Immediate Purchase quotes can check out; every other quote, priced or not, goes to the Quote Request page, so it never reaches Success (S8) | Success | All | - |
 | 7 | ~~No path when the buyer isn't the Aadhaar signatory~~ **Withdrawn:** Billing's "Buy in Another Person's Name" covers this before Verification (K2) | Checkout | All | - |
 | 8 | **Cards carry five signals each** in three visual styles, with no clear order | Quotes | All | 3 |
 | 9 | ✅ **Fixed:** the policy now has an expected date (7 working days after payment, DD/MM/YYYY) in Up Next and Policy Issuance (S3) | Success | All | ~~2~~ |
@@ -106,9 +106,10 @@ Success
 ### What changed since the last pass
 | Area | Now |
 |---|---|
-| **Arrival** | The welcome popup shows right after the skeleton on **every load** (A, B), and the Gold Quote reveal waits until it's dismissed. The info line now sits above Show All. |
+| **Arrival** | The welcome popup shows right after the skeleton on **every load** (A, B), and the Gold Quote reveal waits until it's dismissed. The info line now sits above Show Quotes. |
 | **Details panel** | Back to the earlier order: **A and B open on Score** (Score · Chat · Profile); **C opens on Chat** (Chat · Profile · Score). |
-| **Everything else** | Unchanged since the 12 Oct re-run: card layout (Figma 827:20909), "View N Key Features" chip, score out of 100, Gold Quote naming, filled Filter & Sort with Claim Settlement sorts, grouped Sum Insured menu, chat starter questions, 32/16 side padding. |
+| **Since the last pass** | Filter and Sort moved left, the Immediate Purchase switch stays right. "Key Coverages & Exclusions" is now **"Key Features"**; the card chip reads **"View N Key Features"**. Quote popup tabs reordered: Overview, Coverages/Extensions, Exclusions, Deductibles, Territory & Jurisdiction. The Gold gate's body and buttons match the Risk Held popup (14px). The Gold inquiry page reads "Gold Quote Unlocked!". |
+| **Everything else** | Unchanged since the 12 Oct re-run: card layout (Figma 827:20909), "View N Key Features" chip, score shown as a word (Excellent, Great, Good, Fair), Gold Quote naming, filled Filter & Sort with Claim Settlement sorts, grouped Sum Insured menu, chat starter questions, 32/16 side padding. |
 
 **Resolved by these changes:** the previous #2 ("after the welcome popup, the score lives in the last tab"), IA1 and Task 8 are closed. A and B land on the Score tab, so the score is one glance away after the popup.
 
@@ -121,15 +122,15 @@ Success
 | 4 | ~~Changing Sum Insured takes three steps~~ **Withdrawn:** by design; for A and B the Sum Insured is BimaNetra's recommendation, and the business doesn't want it changed casually | All | Usability, IA | - |
 | 5 | **"80*"**: the asterisk is explained only by a tooltip, which doesn't exist on touch | B | Heuristic, Copy | 2 |
 | 6 | ✅ **Fixed:** Profile's "Enter Company Type" is now "Company Type" | All | Copy | ~~2~~ |
-| 7 | **The sort field changes width** between price and claim-settlement sorts, shifting the filter beside it | All | Visual | 2 |
-| 8 | **"Show All"** under a list of coverages can read as "show all coverages" | A, B | Copy, Usability | 2 |
+| 7 | ✅ **Resolved by layout:** Filter and Sort now sit on the left, so the sort field's width change no longer shifts the filter | All | Visual | ~~2~~ |
+| 8 | ✅ **Fixed:** the welcome popup's button now reads "Show Quotes" (C1) | A, B | Copy, Usability | ~~2~~ |
 | 9 | ~~The buy button never says "Buy"~~ **Withdrawn:** the price-and-arrow button is intentional | All | Usability, Copy | - |
 | 10 | **Small grey text** (12px tertiary) likely below AA contrast | All | Visual | 2 |
 
 ### 2.1 Heuristic evaluation
-- **H1 Visibility of status** ✅ The popup tells A and B what happened, what it means and what it changed. ✅ Filter and Sort show the feed's state. ⚠️ "80*/100" is provisional only in a tooltip. *B · 2*
-- **H2 Real-world match** ✅ "82.4/100" shows its scale; the chip says what it counts. ⚠️ "Claim Settlement" (sort) vs "Claim Settlement Ratio" (cards). *All · 1*
-- **H3 Control and freedom** ✅ The popup closes with ×, Show All, Esc or outside click; compare items remove one by one.
+- **H1 Visibility of status** ✅ The popup tells A and B what happened, what it means and what it changed. ✅ Filter and Sort show the feed's state. ⚠️ "Excellent* (80)" is provisional only in a tooltip. *B · 2*
+- **H2 Real-world match** ✅ "Excellent" reads plainly, with no scale to decode; the chip says what it counts. ⚠️ "Claim Settlement" (sort) vs "Claim Settlement Ratio" (cards). *All · 1*
+- **H3 Control and freedom** ✅ The popup closes with ×, Show Quotes, Esc or outside click; compare items remove one by one.
 - **H4 Consistency** ✅ One name for the Gold Quote and the experts. ✅ A and B share one tab order; C's differs by design. ✅ "Schedule a Call" now has one casing everywhere. ⚠️ Curly and straight apostrophes mixed. *1* ⚠️ NetraBot keeps its colour in the Chat tab when unselected. *1*
 - **H5 Error prevention** ✅ Compare caps at 3; offline quotes show "Unavailable"; Request Quote only means asking an offline insurer.
 - **H6 Recognition over recall** ✅ The chip names what it counts. ✅ The key lines are on the Score tab A and B land on.
@@ -141,7 +142,7 @@ Success
 ### 2.2 Usability walkthrough
 | Task | Outcome | Friction |
 |---|---|---|
-| 1 · What happened, and which quote first? | ✅ A: popup → Show All → Gold card with 11 key lines and the offer. ✅ B: popup → Gold card leads with Unlock Quote. ✅ C: Chat opens with general questions. | B's asterisk. *2* |
+| 1 · What happened, and which quote first? | ✅ A: popup → Show Quotes → Gold card with 11 key lines and the offer. ✅ B: popup → Gold card leads with Unlock Quote. ✅ C: Chat opens with general questions. | B's asterisk. *2* |
 | 2 · What do the key lines mean for this quote? | ✅ Chip count; popup ticks and crosses; Chat answers by name. | Nothing says the lines are *the business's own*. "View 11 Key Features" can read as the policy's highlights. *A, B · 2* |
 | 3 · Buy now | ✅ One click on a priced card; Immediate Purchase toggle filters fast. | None (the price-and-arrow button is intentional). |
 | 4 · Change Sum Insured | ✅ Withdrawn: kept behind Profile → Edit Details on purpose; A and B's Sum Insured is the recommended one. | - |
@@ -153,16 +154,16 @@ Success
 ### 2.3 Information architecture
 ```
 Header ─ Logo · Mail Quotes
-Welcome popup (A, B, every load) ─ upgrade copy + Business Health | key lines · info line · Show All
+Welcome popup (A, B, every load) ─ upgrade copy + Business Health | key lines · info line · Show Quotes
 Left panel ─ segmented tabs (A, B: Score · Chat · Profile; C: Chat · Profile · Score)
 ├─ Score    → banner (title + View Report / Notify Me / Schedule a Call) · Business Health x/100 · key lines
 ├─ Chat     → Ask BimaNetra (A/B: Gold Quote + key-line questions; C: general)
 └─ Profile  → Legal Company Name ✓ · 7 rows · Edit Details
    (phones: a floating dock; the open tab shows ×)
 Feed ─ breadcrumb · "N Directors & Officers Insurance Quotes" · Need Help
-     ─ Filtering · Sorting · Immediate Purchase Only (right-aligned)
+     ─ Filtering · Sorting (left) ··· Immediate Purchase Only (right)
      ─ cards ─ tags · logo | CSR · name · key-lines chip | Compare · rule · Sum Insured | price
-        └─ popup ─ key lines · Overview · Territory · Exclusions · Coverages · Deductibles
+        └─ popup ─ key features · Overview · Coverages/Extensions · Exclusions · Deductibles · Territory & Jurisdiction
 ```
 | # | Finding | Cases | Sev |
 |---|---|---|---|
@@ -173,12 +174,12 @@ Feed ─ breadcrumb · "N Directors & Officers Insurance Quotes" · Need Help
 | IA5 | **Three labels for one place:** breadcrumb "Live Quotes", heading "Directors & Officers Insurance Quotes", tab title "Directors & Officers Insurance". | All | 1 |
 
 ### 2.4 Visual design
-**Working:** the two-face type system; the calmer card layout with every card in a row lining up (B's Gold included); the segmented tabs with a clear white pill; the welcome popup close to Figma on both widths; the full-size "82.4/100"; consistent 32/16 padding.
+**Working:** the two-face type system; the calmer card layout with every card in a row lining up (B's Gold included); the segmented tabs with a clear white pill; the welcome popup close to Figma on both widths; the full-size "Excellent (82.4)"; consistent 32/16 padding.
 
 | # | Finding | Cases | Sev |
 |---|---|---|---|
 | V1 | **Badge overload on cards.** Up to five pill-like elements in three styles. Suggested order: price and CTA, then the key-lines chip, then Immediate Purchase; CSR and territory as quieter text. | All | 3 |
-| V2 | **The sort field's width changes** with its value (≈247px price, ≈320px claim settlement). Fix it at the longest option. | All | 2 |
+| V2 | ✅ **Resolved by layout.** Filter and Sort now start on the left (filter first), so the sort field growing or shrinking moves nothing before it. | All | ~~2~~ |
 | V3 | **The CSR pill's style is new to the system** (neutral hairline, 12px grey). | All | 1 |
 | V4 | **Two-line insurer names** at 18px SemiBold take height in compact cards. | All | 1 |
 | V5 | **Popup backdrop** uses the site scrim, not Figma's 54% black. | A, B | 1 |
@@ -190,10 +191,10 @@ Feed ─ breadcrumb · "N Directors & Officers Insurance Quotes" · Need Help
 ### 2.5 Content & copy
 | # | Copy now | Issue | Suggested | Cases | Sev |
 |---|---|---|---|---|---|
-| C1 | Popup button "Show All" | Can read as "show all coverages" | "See My Quotes" | A, B | 2 |
+| C1 | ✅ Fixed: popup button "Show All" | Now "Show Quotes" | - | A, B | ~~2~~ |
 | C2 | Chip "View 7 Key Features" | Doesn't say they're the business's own | "7 of Your Key Lines", or "Yours" in the popup header | A, B | 2 |
 | C3 | ✅ Fixed: Profile "Enter Company Type" | Now "Company Type" | - | All | ~~2~~ |
-| C4 | "80*/100" | Tooltip only | Caption: "Provisional until your report is ready" | B | 2 |
+| C4 | "Excellent* (80)" | Tooltip only | Caption: "Provisional until your report is ready" | B | 2 |
 | C5 | ~~"₹7,800 →" never says what it does~~ **Withdrawn:** intentional. | | | All | - |
 | C6 | "Claim Settlement" vs "Claim Settlement Ratio" | Two names | Accept, or "Settlement Ratio" in the sort | All | 1 |
 | C7 | "Arriving Soon", "Arriving Soon", "Almost There" | Two identical steps | "A few minutes left" → "About a minute" → "Almost there" | B | 1 |
@@ -201,6 +202,7 @@ Feed ─ breadcrumb · "N Directors & Officers Insurance Quotes" · Need Help
 | C9 | "We’ve" / "We're" | Mixed apostrophes | Curly everywhere | All | 1 |
 | C10 | "Want a Sharper Price?" | Implies blunt prices | Optional: "Want a Price That Fits Better?" | C | 1 |
 | C11 | "Down from ₹7,800 with BimaNetra" | Tooltip only | Visible on the card | A | 1 |
+| C12 | Chip "View 11 Key Features", titles "11 Key Features" | The 11 include exclusions, which limit cover; "features" reads as 11 good things | Keep "Key Features" but split the popup header ("6 Coverages · 5 Exclusions"), or "11 Key Terms" | A, B | 2 |
 
 Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 
@@ -254,7 +256,7 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 | S5 | **Two documents, near-identical names:** "Download Risk Report" (Profiling row, the BimaNetra assessment), "Risk Held Letter" (proof of cover), and the preview's back page reads "Risk Assessment Report"; the modal body says "Risk Held Report". Rename the first "BimaNetra Report" (as the Gold row's status already says) and keep "Risk Held Letter" as the only "Risk Held". | Content, IA | All | 2 |
 | S6 | ✅ **Fixed.** The modal's first button now reads "View" (was "Download Now", which didn't download; it opens the user's documents). | Heuristic (H2), Usability | All | ~~2~~ |
 | S7 | **Unspoken checks for B and C.** Their Checkout row (marked done) says "we'll double-check the rest" (B) or "We'll check them before your policy is issued" (C), but no step shows that check, and nothing says what happens if it fails (a call? a price change? cover?). Either add it to the Policy Issuance row ("We're checking your details with the insurer; we'll call only if something needs you") or drop the line. | Heuristic (H1), Usability | B, C | 2 |
-| S8 | **Expert-confirmed quotes get the same promise.** A priced quote without Immediate Purchase (e.g. Royal Sundaram) can be paid; its Checkout row reads "Next Up: Expert Review… An expert confirms your details with the insurer before the policy is issued", yet the page still offers a Risk Held Letter and "issued in 7 working days". If cover isn't bound until the insurer accepts, the letter overstates it. Give this path its own Up Next ("Your expert confirms with the insurer within a working day; your cover starts once they accept") or confirm cover is held. | Content, Heuristic (H2) | All (non-immediate) | 3 |
+| S8 | ~~Expert-confirmed quotes get the same promise.~~ **Withdrawn.** Only Immediate Purchase quotes check out (`QuotesFeed` sends every other quote, priced or not, to the Quote Request page), so the Success page's "You're covered from today" only ever follows an immediate, in-authority purchase. | Content, Heuristic (H2) | All | - |
 | S9 | **"Booking" is travel language.** "Your Policy Booking is Confirmed!" sits next to "You have successfully paid for your… policy" and "Your policy will be issued". Suggested headline: **"You're Covered!"** or "Payment Received, Cover Started". | Content | All | 2 |
 | S10 | **The Risk Held modal opens itself after 4s**, over the greeting, before the user has read it. Good instinct; consider 6–8s, or opening it only after the timeline has drawn. | Usability | All | 1 |
 | S11 | **US date format:** "Oct 12, 2026", "Paid successfully on October 12, 2026". British: "12 Oct 2026", "12 October 2026". | Content | All | 1 |
@@ -283,6 +285,7 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 ### Labels inventory
 | Concept | Names in use | Suggested |
 |---|---|---|
+| Key features | Key Features (chip: View N Key Features) · key coverages / key exclusions (Chat) | Keep; see C12 |
 | The Gold Quote | ✅ Gold Quote (B card: Your Personalised Gold Quote; tag: Secured with BimaNetra) | Keep |
 | Experts | ✅ IRDAI-certified Bima Experts · Speak to an Expert · Relationship Manager | Keep; route Speak to an Expert to the RM after purchase |
 | Contact details vs company details | Profile (onboarding: contact) · Profile (quotes: company) · Your Details (panel label) | Contact (onboarding), Profile (quotes) |
@@ -301,7 +304,7 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 | Onboarding | "Business Secured", "Risk Insured" | Real-time securing from public sources | ✅ By design |
 | Quotes | "Immediate Purchase: buy your policy right now, completely online" | Buyable now | ✅ |
 | Checkout | "The price shown is final… the insurer may revise it" | Conditional price | ⚠️ Say it on Review (K6) |
-| Success | "You're covered from today" (Up Next, Risk Held modal) · Risk Held Letter as proof of cover | Covered now | ✅ Said where it counts; still overstated for expert quotes (S8) |
+| Success | "You're covered from today" (Up Next, Risk Held modal) · Risk Held Letter as proof of cover | Covered now | ✅ Said where it counts, and only ever after an Immediate Purchase |
 
 ### House-rule checks
 | Rule | Result |
@@ -327,4 +330,4 @@ Chat's key-line answers stay factual and never pick an insurer. ✅ IRDAI-safe.
 
 ---
 
-*Test notes:* Sum Insured was ₹5 Cr in all three cases (kept from earlier testing). The browser session also held earlier checkout state, so the Case B Success check showed Case A's Generali Gold Quote at ₹8,500 and Case C's fallback name; copy and structure were verified, not per-case values. The Success texts above were read from the rendered page (Case B) and from `mocks/checkout.ts`. The expert-quote path (S8) was traced in code (`CheckoutView.tsx`, `SuccessView.tsx`), not clicked through.
+*Test notes:* Sum Insured was ₹5 Cr in all three cases (kept from earlier testing). The browser session also held earlier checkout state, so the Case B Success check showed Case A's Generali Gold Quote at ₹8,500 and Case C's fallback name; copy and structure were verified, not per-case values. The Success texts above were read from the rendered page (Case B) and from `mocks/checkout.ts`. The expert-quote path (S8) was re-traced in code: only Immediate Purchase quotes reach checkout, so S8 is withdrawn.

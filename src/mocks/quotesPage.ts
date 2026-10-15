@@ -443,19 +443,26 @@ export const mockQuotesPageContent: QuotesPageContent = {
     tabs: { score: "Score", chat: "Chat", profile: "Profile" },
     scoreIntro: {
       hint: "Look through the features on each quote to see how they match against your business",
-      ctaLabel: "Show All",
+      ctaLabel: "Show Quotes",
       closeLabel: "Close",
     },
     score: {
       label: "Business Health",
-      outOf: "/100",
-      info: "How healthy your business looks to insurers, out of 100, from what we verified. Higher is better.",
+      // The score shows as a word: 70 and up Excellent, 60 Great, 50 Good,
+      // below 50 Fair.
+      bands: [
+        { min: 70, label: "Excellent" },
+        { min: 60, label: "Great" },
+        { min: 50, label: "Good" },
+        { min: 0, label: "Fair" },
+      ],
+      info: "How healthy your business looks to insurers, from what we verified: Excellent, Great, Good or Fair.",
       mutedInfo: "We couldn't check your business's health without public records about it.",
       listTitle: "{count} Key Features",
       byCase: { A: "82.4", B: "80*", C: "N/A" },
       // B's score is provisional (only parts verified): its asterisk explained.
       infoByCase: {
-        B: "*Provisional. How healthy your business looks to insurers, out of 100, from what we've verified so far. It's final once our report is ready.",
+        B: "*Provisional. How healthy your business looks to insurers, from what we've verified so far. It's final once our report is ready.",
       },
       listLength: 6,
     },
@@ -504,7 +511,6 @@ export const mockQuotesPageContent: QuotesPageContent = {
     switchLabel: "Immediate Purchase Only",
     quotes: QUOTES,
     quotesByCase: { A: MATCHED_QUOTES, B: MATCHED_QUOTES },
-    viewFeaturesLabel: "View All Features",
     featuresDrawer: FEATURES_DRAWER,
     compareLabel: "Add to Compare",
     compareSheet: { title: "Compare Quotes", ctaLabel: "Compare Now", removeLabel: "Remove {insurer} from compare", min: 2, max: 3, minTip: "Pick at least 2 quotes to compare" },
@@ -552,8 +558,6 @@ export const mockQuotesPageContent: QuotesPageContent = {
     riskFitChipLabel: "View {met} Key Features",
     csrLabel: "Claim Settlement Ratio: {value}",
     riskFitByCase: RISK_FIT_BY_CASE,
-    coveragesUnavailableLabel: "Unavailable",
-    ratingLabels: { excellent: "Excellent", good: "Good", average: "Average", na: "N/A" },
     poweredByLabel: "Secured with BimaNetra",
   },
 };

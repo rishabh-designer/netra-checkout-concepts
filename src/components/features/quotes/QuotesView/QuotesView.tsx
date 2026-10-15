@@ -1,5 +1,6 @@
 "use client";
 
+import { scoreWord } from "@/lib/score-band";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { QuotesPageContent } from "@/types/quotesPage";
@@ -246,9 +247,11 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
           body={(panel.upgraded.bodyByCase?.[caseId] || panel.upgraded.body).replace("{company}", introCompany)}
           badge={
             <RiskScoreBadge
-              score={panel.score.byCase[caseId]}
-              outOf={panel.score.outOf}
+              score={scoreWord(panel.score.byCase[caseId], panel.score.bands)}
               label={panel.score.label}
+              swappable
+              medalPx={320}
+              medalLoop
               info={panel.score.infoByCase?.[caseId] ?? panel.score.info}
             />
           }

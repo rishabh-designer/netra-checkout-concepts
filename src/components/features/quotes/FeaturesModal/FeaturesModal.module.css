@@ -164,13 +164,6 @@
   color: var(--color-success);
 }
 
-/* Territory (Worldwide / India Only): the purple version, as on the card. */
-.tag[data-tone="territory"] {
-  border-color: var(--color-brand-primary-border);
-  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-primary-subtle));
-  color: var(--color-brand-primary);
-}
-
 .tag[data-tone="gold"] {
   border-color: var(--color-brand-secondary-subtle-bold);
   background: linear-gradient(to bottom, var(--color-card), var(--color-brand-secondary-subtle));

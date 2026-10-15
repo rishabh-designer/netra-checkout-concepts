@@ -10,12 +10,131 @@
 
 .art {
   position: relative;
+  /* The rings' frame on screen (210 × 0.7103); grows to the medal's 250
+     while the medal shows (set by the component). */
+  width: 149.16px;
+  height: 149.16px;
+}
+
+/* The rings' 210 frame, scaled as one piece so the outer ring (with its
+   glow) is 160 tall: 160 / 225.25 of Figma's 210 frame. Rings, diamond and
+   pill keep their proportions. */
+.frame {
+  position: relative;
   width: 210px;
   height: 210px;
-  /* Scaled as one piece so the outer ring (with its glow) is 160 tall:
-     160 / 225.25 of Figma's 210 frame. Rings, diamond and pill keep
-     their proportions. */
   zoom: 0.7103;
+}
+
+/* A click flips the art: a card in 3D, the rings on its front and the
+   medal on its back. */
+.art[data-swap] {
+  cursor: pointer;
+  perspective: 900px;
+}
+
+.flipper {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.side {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  backface-visibility: hidden;
+  /* The side turning away hides at the halfway point of the 0.9s turn (some
+     of the rings' layers, with their blur and glow, would otherwise show
+     through the turning medal). */
+  transition: visibility 0s linear 0.45s;
+}
+
+.side[data-hidden] {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side {
+    transition: none;
+  }
+}
+
+.side[data-back] {
+  transform: rotateY(180deg);
+}
+
+/* The back side holds the medal's 3D body: its edge layers and its face. */
+.side[data-back] {
+  transform-style: preserve-3d;
+}
+
+.medalBody {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* On a loop the medal rests face-on, swaying a touch, then eases into a
+   full turn on its vertical axis and lands (as in the reference spin). */
+.medalBody[data-loop] {
+  animation: medal-loop 6s infinite;
+}
+
+@keyframes medal-loop {
+  0% {
+    transform: rotateY(0deg) rotateX(4deg);
+    animation-timing-function: ease-in-out;
+  }
+  30% {
+    transform: rotateY(-9deg) rotateX(4deg);
+    animation-timing-function: ease-in-out;
+  }
+  62% {
+    transform: rotateY(0deg) rotateX(4deg);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.3, 1);
+  }
+  80%,
+  100% {
+    transform: rotateY(360deg) rotateX(4deg);
+  }
+}
+
+.medal,
+.medalEdge {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* The face turns away cleanly; the edge layers show from either side. */
+.medal {
+  backface-visibility: hidden;
+}
+
+/* Greyed per layer (a filter on the 3D body would flatten it). */
+.badge[data-muted] .medal,
+.badge[data-muted] .medalEdge {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+/* The medal's engraved words: Anek, set in the SVG. */
+.medalText {
+  font-family: var(--font-body);
+}
+
+/* The score's word on the medal: Instrument Serif, as on the rings' pill. */
+.medalScore {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-style: italic;
+  letter-spacing: 0;
 }
 
 .ring,
@@ -66,6 +185,12 @@
   color: var(--color-label-inverse);
 }
 
+/* A scored badge holds a word ("Excellent"), so its sides come in to keep
+   the pill inside the rings; the muted "N/A" keeps the wide sides. */
+.badge:not([data-muted]) .pill {
+  padding-inline: var(--spacing-16);
+}
+
 .caption {
   display: inline-flex;
   align-items: center;
@@ -92,8 +217,8 @@
   filter: grayscale(1);
 }
 
-.badge[data-muted] .art > .ring,
-.badge[data-muted] .art > .diamond {
+.badge[data-muted] .frame > .ring,
+.badge[data-muted] .frame > .diamond {
   opacity: 0.45 !important;
 }
 
@@ -150,16 +275,6 @@
 }
 
 /* A provisional score's asterisk: small, raised to the numerals' top. */
-/* "/100" after the score, at the score's own size. */
-.outOf {
-  margin-left: 0.02em;
-}
-
-/* With the scale the pill holds more, so its sides come in. */
-.pill:has(.outOf) {
-  padding-inline: var(--spacing-16);
-}
-
 .note {
   display: inline-block;
   margin-left: 0.04em;

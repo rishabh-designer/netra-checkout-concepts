@@ -1,5 +1,6 @@
 "use client";
 
+import { scoreWord } from "@/lib/score-band";
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { animate, motion, useMotionValue, useReducedMotion } from "motion/react";
 import type { DetailsPanelContent } from "@/types/quotesPage";
@@ -155,14 +156,14 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
   // The banners' copy names the business: "We've verified Pepe Jeans …".
   const named = (text: string) => text.replace("{company}", companyName || content.companyFallback);
   const scored = !!caseId && caseId !== "C" && !noRecords;
-  const score = scored ? content.score.byCase[caseId] : content.score.byCase.C;
+  const score = scoreWord(scored ? content.score.byCase[caseId] : content.score.byCase.C, content.score.bands);
   const n = content.score.listLength;
   // Under the banner's copy: the badge, then the key lines.
   const badge = (
     <RiskScoreBadge
       score={score}
       label={content.score.label}
-      outOf={scored ? content.score.outOf : undefined}
+      swappable
       info={scored ? content.score.infoByCase?.[caseId] ?? content.score.info : content.score.mutedInfo}
       muted={!scored}
       still={arrivedUpgraded && !openCount}

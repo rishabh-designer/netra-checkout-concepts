@@ -1,2 +1,2 @@
-export { SuccessTimeline } from "./SuccessTimeline";
-export type { SuccessTimelineItem, SuccessStepState } from "./SuccessTimeline";
+export { SuccessTimeline, SuccessSteps } from "./SuccessTimeline";
+export type { SuccessTimelineItem, SuccessStep, SuccessStepState } from "./SuccessTimeline";

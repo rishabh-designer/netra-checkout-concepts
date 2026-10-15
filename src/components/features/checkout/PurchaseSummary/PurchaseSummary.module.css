@@ -36,6 +36,34 @@
   --summary-foot: color-mix(in srgb, var(--color-success-subtle) 40%, var(--color-card));
 }
 
+/* Paid: the heading with the one chevron on its right (854:25433). */
+.headRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+}
+
+/* Paid: the details (insurer, key features, price breakdown) fold open
+   together under the product name. */
+.detailsFold {
+  overflow: hidden;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+/* Success page: the Relationship Manager, its own card under the summary. */
+.below {
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-24);
+  background: var(--color-card);
+}
+
 .head {
   display: flex;
   align-items: center;
@@ -135,10 +163,24 @@
   font-size: var(--font-size-300);
 }
 
-/* 4 higher and 4 further right than checkout, with the tighter padding. */
-.card[data-paid] .productIconCrop {
-  top: 127px;
-  right: var(--spacing-16);
+/* Paid (854:25597): the product name top left, the cropped mark bottom right
+   resting on a hairline along the row's foot. */
+.product[data-paid] {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  border-bottom: var(--border-hairline) solid var(--color-border-neutral);
+}
+
+.product[data-paid] .productName {
+  align-self: flex-start;
+}
+
+.product[data-paid] .productIconCrop {
+  position: static;
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-right: var(--spacing-4);
 }
 
 .productIcon {
@@ -222,32 +264,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
-}
-
-.priceChevron {
-  margin-left: auto;
-}
-
-.priceToggle {
-  display: flex;
-  align-items: center;
-  padding: 0;
-  border: 0;
-  background: none;
-  font-family: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.priceToggle:focus-visible {
-  outline: 2px solid var(--color-brand-primary-border);
-  outline-offset: 4px;
-  border-radius: var(--radius-6);
-}
-
-/* The breakdown folds in and out. */
-.rowsFold {
-  overflow: hidden;
 }
 
 .priceTitle {
@@ -382,17 +398,6 @@
   align-self: stretch;
 }
 
-/* Rule and chips fold under the pill; the top padding stands in for the box's 12 gap. */
-.coveragesFold {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-  align-self: stretch;
-  margin-top: calc(-1 * var(--spacing-12));
-  padding-top: var(--spacing-12);
-  overflow: hidden;
-}
-
 .coveragesRule {
   align-self: stretch;
   border: 0;
@@ -438,7 +443,6 @@
 .paid {
   display: flex;
   justify-content: flex-end;
-  padding-top: var(--spacing-24);
 }
 
 .paidTotal {

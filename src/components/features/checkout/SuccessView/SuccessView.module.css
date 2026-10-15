@@ -206,10 +206,16 @@
    each side. Below: the column's 24 gap + the rule's 8 padding - 8. Above,
    the timeline's last row also trails 16 of rail under its pill, so: 16 + 24
    + 8 - 24. */
+/* Under both columns, full width like the disclaimer: the ikkat rule, then
+   BimaNetra Suggests, 24 apart. */
+.more {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
 .rule {
-  margin-top: calc(-1 * var(--spacing-24));
-  margin-bottom: calc(-1 * var(--spacing-8));
-  padding: var(--spacing-8) var(--spacing-12);
+  padding: var(--spacing-8) 0;
 }
 
 /* Next up (673:55870): hairline above, muted line left, the big CTA right. */
@@ -351,29 +357,4 @@
     flex-direction: column;
     align-items: flex-start;
   }
-}
-
-/* Timeline tags (Immediate Purchase, Secured with BimaNetra): the policy
-   details modal's squarer r12 tag, white fading to the tone's tint. */
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  flex-shrink: 0;
-  padding: var(--spacing-4) var(--spacing-8);
-  border: var(--border-hairline) solid var(--color-success-border);
-  border-radius: var(--radius-12);
-  background: linear-gradient(to bottom, var(--color-card), var(--color-success-subtle));
-  font-size: var(--font-size-75);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: var(--track-500);
-  white-space: nowrap;
-  color: var(--color-success);
-}
-
-.tag[data-tone="gold"] {
-  border-color: var(--color-brand-secondary-subtle-bold);
-  background: linear-gradient(to bottom, var(--color-card), var(--color-brand-secondary-subtle));
-  color: var(--color-brand-secondary);
 }
