@@ -34,12 +34,12 @@ Popups that are popups by design (Checkout Edit, Know More, Gold gate, Risk Held
 
 | Stage | Score | Was | In one line |
 |---|---|---|---|
-| Product page + onboarding | 7.5 / 10 | 7 | Tips and truncated lines now open on a tap. The company field sits below the fold, and Case C's "Enter a new company?" is cut off. |
+| Product page + onboarding | 8 / 10 | 7 | Tips and truncated lines open on a tap, and whole fields take a tap. The company field sits below the fold, and Case C's "Enter a new company?" is cut off. |
 | Quote page | 7 / 10 | 6 | The dock opens in a lightbox, the popup's medal is smaller (the CTA is now ~64px below) and the Key Features sheet's buttons no longer collide with its tabs. Its tabs still scroll sideways with no cue, and the targets are tiny. |
 | Gold / Quote inquiry | 8 / 10 | 8 | Clean at every size. The carousel gives no sign there's more. |
-| Checkout | 6.5 / 10 | 6 | Disabled buttons now give their reason on a tap, and the footer is 29% at 375. Only the middle 18px of a field responds to a tap. |
+| Checkout | 7 / 10 | 6 | Disabled buttons give their reason on a tap, whole fields take a tap, and the footer is 29% at 375. Still: the "Read from…" notes and the "or" in the uploads banner. |
 | Success | 9 / 10 | 8.5 | A one-line stepper, a shorter hero and the asked-for order. Only the pills' 9.5px at 320 remains. |
-| **Overall** | **7.6 / 10** | 7.1 | Nothing scrolls sideways and tips work on touch. What's left: tap areas (M2), Case C's cut-off action (M8) and the checkout footer's height (M27). |
+| **Overall** | **7.8 / 10** | 7.1 | Nothing scrolls sideways, tips work on touch and whole fields take a tap. What's left: Case C's cut-off action (M8), the checkout footer's height (M27) and small targets (M4). |
 
 ---
 
@@ -63,7 +63,7 @@ Popups that are popups by design (Checkout Edit, Know More, Gold gate, Risk Held
 |---|---|---|---|---|
 | 1 | ✅ **Fixed:** tooltips now open on a tap (M1) | All | All | ~~3~~ |
 | 2 | **The checkout footer takes a third to half the screen** once the mandate tick moves into it (M27) | Verification, Review | All | 3 |
-| 3 | **Only the middle 18px of a 43px field focuses it** (M2) | Product page, onboarding, checkout | All | 3 |
+| 3 | ✅ **Fixed:** a finger tap anywhere in a field's box focuses it, or opens its list (M2) | Product page, onboarding, checkout | All | ~~3~~ |
 | 4 | ✅ **Fixed:** the Key Features popup's ‹ › × bar now has the sheet's fill and 12px below it, so the tabs scroll away under it (M16) | Quotes | All | ~~3~~ |
 | 5 | **"Enter a new company?" is cut off by an ellipsis.** It's the only action for a new company, and the open dropdown covers the CTA (M8) | Product page | C | 3 |
 | 6 | **Disabled Save & Continue with every visible field green.** The missing PAN upload is off-screen, and the reason is a tooltip (M28) | Verification | All (seen in C) | 2 |
@@ -104,7 +104,7 @@ Popups that are popups by design (Checkout Edit, Know More, Gold gate, Risk Held
 | # | Finding | Lens | Cases | Sev |
 |---|---|---|---|---|
 | M1 | **Tooltips are hover-only.** `Tooltip.tsx` ignores `pointerType === "touch"` and otherwise only opens on `:focus-visible`, which a tap doesn't trigger. On a phone none of these open:<br>• the field (i) icons ("Your company's registered name, as on MCA records");<br>• the CSR and offer pills;<br>• the `data-tooltip-overflow` text for truncated names;<br>• the only reasons given for disabled buttons ("Fill in the required fields first", "Finish the earlier steps first", "Billing details are locked once saved").<br>A greyed button just sits there. This builds on the journey audit's H10 and Quotes #5, and it's systemic, not one icon. **Fix:** open on tap for touch (toggle on `pointerup`, close on an outside tap or scroll). For disabled CTAs, also show the reason as a line above the button on <1000px. | Touch, Heuristic (H1, H10) | All | 3 |
-| M2 | **18px tap area in a 43px field.** In the shared `InteractiveInput` (product page, onboarding, checkout, Gold gate), the box is a `div` and the `input` is only the text line. Taps 3px from the top or 4px from the bottom of a field focus nothing; tested on Billing. **Fix:** focus the input on `pointerdown` anywhere in the box, or let the input fill the box's height. | Touch | All | 3 |
+| M2 | ✅ **Fixed.** Only the 18px text line inside each 43px field box took a tap. Now, in the shared `InteractiveInput`, a finger tap anywhere in the box focuses the input, or opens a select's list. Clear and info keep their own taps, and mouse clicks are unchanged. Tested edge taps on Billing and on a select in Edit Details. | Touch | All | ~~3~~ |
 | M3 | **Clear sits next to info.** In every filled field, × (14×14) is 8px from (i) (14×14). A thumb aiming for (i), which does nothing on touch (M1), can wipe the field. **Fix (mobile):** show × only while the field is focused, and give each icon a 32px hit area through padding. | Touch | All | 2 |
 | M4 | **Small targets** (aim for 44px; at least 32px through padding):<br>• Immediate Purchase and Buy in Another Person's Name switches: 32×16, and their labels don't toggle them (tested);<br>• Add to Compare: 97×12;<br>• "View N Key Features" chip and Sort & Filter: 21px tall;<br>• compare remove, carousel ‹ ›, Purchase Summary chevron and Disclaimer chevron: 18×18;<br>• popup and sheet ×: 24×24;<br>• Up Next links (Dashboard, Risk Held Letter): 21px tall;<br>• header buttons: 29px tall;<br>• breadcrumb "…": 6×10. | Touch | All | 2 |
 | M5 | **Hover tints stick after a tap.** 34 stylesheets use `:hover`; only one component checks `(hover: hover)`. On a phone the last-tapped spot keeps its tint. In the chat sheets, the next answer chip under your finger looks pre-selected. **Fix:** wrap hover rules in `@media (hover: hover)`. | Touch, Visual | All | 1 |

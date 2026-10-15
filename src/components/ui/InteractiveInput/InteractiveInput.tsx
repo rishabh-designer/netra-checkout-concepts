@@ -135,6 +135,8 @@ export function InteractiveInput({
   completions,
 }: InteractiveInputProps) {
   const inputRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
+  // Touch: was the press that started this click a finger? (See the box's onClick.)
+  const fingerTap = useRef(false);
   const uid = useId();
   const inputId = name ?? uid;
   const helpId = `${uid}-help`;
@@ -246,6 +248,18 @@ export function InteractiveInput({
         data-open={(isSelect && menuOpen) || undefined}
         data-multiline={isTextarea || undefined}
         data-locked={locked || undefined}
+        // Phones: the whole box takes a finger's tap, not only the 18px text
+        // line inside it. A tap on the box's own padding focuses the input (or
+        // opens a select's list); its buttons (clear, info) keep their taps.
+        onPointerDown={(e) => {
+          fingerTap.current = e.pointerType === "touch";
+        }}
+        onClick={(e) => {
+          if (!fingerTap.current || readOnly || locked || loading) return;
+          if ((e.target as Element).closest("button, input, textarea, a, [role=listbox], [role=option]")) return;
+          if (isSelect) e.currentTarget.querySelector<HTMLButtonElement>(`.${styles.selectTrigger}`)?.click();
+          else inputRef.current?.focus();
+        }}
       >
         {prefix && (
           <span className={styles.prefix} aria-hidden>
