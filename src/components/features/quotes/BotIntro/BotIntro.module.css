@@ -1,0 +1,179 @@
+/* Case C's welcome (Figma 860:26489): white, r12, a soft lilac lift; the
+   title and ×, NetraBot in the slot, a rule, the info bar, the chat that
+   plays itself, then Continue over a hairline. */
+.panel {
+  border-radius: var(--radius-12);
+  box-shadow: var(--shadow-modal-lilac);
+  overflow: hidden;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-20) var(--spacing-20) 0;
+  background: var(--color-card);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-feature-settings: var(--font-display-features);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--font-size-heading-sm);
+  line-height: 1.2;
+  color: var(--color-brand-primary);
+}
+
+.slot {
+  display: flex;
+  justify-content: center;
+}
+
+.rule {
+  margin: 0;
+  border: 0;
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+}
+
+/* The info bar: as the A/B popup's hint, full width. */
+.info {
+  padding: var(--spacing-10) var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-info-border);
+  border-radius: var(--radius-8);
+  background: linear-gradient(145deg, var(--color-info-subtle) 0%, var(--color-card) 6.5%, var(--color-card) 93.2%, var(--color-info-subtle) 100%);
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.5;
+  color: var(--color-label-secondary);
+}
+
+/* The preview: sunken grey, a fixed height; lines sit at the foot and the
+   older ones fade as they rise to the top edge. */
+.preview {
+  position: relative;
+  height: 236px;
+  margin-inline: calc(-1 * var(--spacing-20));
+  padding: var(--spacing-16) var(--spacing-20);
+  background: var(--color-card-sunken);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 48px);
+  mask-image: linear-gradient(to bottom, transparent 0, black 48px);
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--spacing-10);
+  height: 100%;
+}
+
+.line {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-8);
+  max-width: 84%;
+}
+
+.line[data-from="you"] {
+  align-self: flex-end;
+}
+
+/* The question: brand purple, as the chat's own; the answer: white, NetraBot beside it. */
+.bubble {
+  padding: var(--spacing-10) 14px;
+  border-radius: var(--radius-16);
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.45;
+}
+
+.line[data-from="you"] .bubble {
+  border-bottom-right-radius: var(--radius-6);
+  background: var(--color-brand-primary);
+  color: var(--color-label-inverse);
+}
+
+.line[data-from="bot"] .bubble {
+  border-bottom-left-radius: var(--radius-6);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  background: var(--color-card);
+  color: var(--color-label-primary);
+}
+
+/* NetraBot typing: three dots, bobbing in turn. */
+.bubble[data-typing] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding-block: 14px;
+}
+
+.bubble[data-typing] span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  corner-shape: round;
+  background: var(--color-label-tertiary);
+  animation: typing-dot 1s ease-in-out infinite;
+}
+
+.bubble[data-typing] span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.bubble[data-typing] span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-inline: calc(-1 * var(--spacing-20));
+  padding: var(--spacing-12) var(--spacing-12);
+  border-top: var(--border-hairline) solid var(--color-border-subtle);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-10) 14px;
+  border: var(--border-hairline) solid var(--color-brand-primary);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-primary);
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  line-height: 1;
+  color: var(--color-label-inverse);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.cta:hover {
+  box-shadow: var(--shadow-button-primary-hover);
+}

@@ -22,6 +22,8 @@ export interface QuotesChatProps {
   variant?: "drawer";
   /** The ×: the web column closes from its head as a drawer does. */
   onClose?: () => void;
+  /** Bump it to put the cursor in the input (Case C's intro, on Continue). */
+  focusKey?: number;
 }
 
 interface Message {
@@ -53,7 +55,7 @@ export function ChatAvatar({ live = false, state = "waiting" }: { live?: boolean
  * it never picks an insurer.
  * Usage: <QuotesChat content={content.chat} context={ctx} iconSrc={…} />
  */
-export function QuotesChat({ content, context, open = true, variant, onClose }: QuotesChatProps) {
+export function QuotesChat({ content, context, open = true, variant, onClose, focusKey }: QuotesChatProps) {
   const reduced = useReducedMotion();
   const greeting = content.greeting
     // The Gold Quote counts from the start, as in the page heading.
@@ -73,6 +75,11 @@ export function QuotesChat({ content, context, open = true, variant, onClose }: 
     const id = window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 120);
     return () => window.clearTimeout(id);
   }, [open]);
+
+  // Asked for from outside (Case C's intro, on Continue).
+  useEffect(() => {
+    if (focusKey) inputRef.current?.focus({ preventScroll: true });
+  }, [focusKey]);
 
   // Keep the newest message in view.
   useEffect(() => {

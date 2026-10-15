@@ -78,6 +78,10 @@ export interface DetailsPanelContent {
   /** The popup that greets a verified business (A, B) once per visit: its
    *  info line, the button that closes it onto the quotes, and the ×. */
   scoreIntro: { hint: string; ctaLabel: string; closeLabel: string };
+  /** Case C's welcome (Figma 860:26489): NetraBot introduced, then a chat
+   *  that plays itself through `exchanges`: short, illustrative answers, with
+   *  `{company}`, `{sum}`, `{count}`, `{immediate}` and `{cheapest}` filled from the page. */
+  botIntro: { title: string; body: string; exchanges: { q: string; a: string }[]; ctaLabel: string; closeLabel: string; typingLabel: string };
   /** The Score tab: the risk score badge and the Gold Quote's key lines. */
   score: RiskScoreContent;
 }
@@ -444,6 +448,10 @@ export interface QuotesChatContent {
     priceOffline: string;
     priciest: string;
     immediate: string;
+    /** "What kind of coverages do I need?": `{company}`, `{about}` (its type, business and turnover), `{count}`, `{sum}`. */
+    needs: string;
+    /** Inside `{about}`: "turnover {turnover}". */
+    needsTurnover: string;
     offline: string;
     worldwide: string;
     india: string;

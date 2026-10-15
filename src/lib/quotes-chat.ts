@@ -7,8 +7,8 @@ export interface QuotesChatContext {
   gold?: { quote: QuoteCardData; revealed: boolean };
   company: string;
   sumInsured: string;
-  /** Your Details, as shown in the sidebar. */
-  details: { label: string; value: string }[];
+  /** Your Details, as shown in the sidebar (`key` names the onboarding field). */
+  details: { key?: string; label: string; value: string }[];
   phone: string;
   /** A scored business's key lines (the Gold Quote's): what every quote's
    *  match is measured against. None for Case C. */
@@ -56,6 +56,14 @@ export function answerQuotesQuestion(question: string, ctx: QuotesChatContext, r
   const topOf = (x: QuoteCardData) => list((x.policy?.top ?? x.coverages ?? []).slice(0, 2), r.and) || "its standard cover";
 
   if (has(q, /\b(best|recommend|should i|suggest|better|which one|pick)\b/) && insurers.length < 2) return r.noRecommend;
+
+  // "What kind of coverages do I need?": what D&O protects, set against the
+  // business's own details (whatever was entered at onboarding).
+  if (has(q, /(what|which) (kind|type|sort)s? of cover|cover(age)?s? (do )?i need|do i need|need (any )?cover/)) {
+    const detail = (key: string) => ctx.details.find((d) => d.key === key)?.value?.trim() ?? "";
+    const about = [detail("type"), detail("business"), detail("turnover") && fill(r.needsTurnover, { turnover: detail("turnover") })].filter(Boolean).join(", ");
+    return fill(r.needs, { company: ctx.company, about: about ? ` (${about})` : "", count: String(all.length), sum: ctx.sumInsured });
+  }
 
   // The business's key lines: what they are, and how one quote meets them.
   const exclAsked = has(q, /exclu/);

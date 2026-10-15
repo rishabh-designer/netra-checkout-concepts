@@ -29,8 +29,8 @@ export interface RiskScoreBadgeProps {
   muted?: boolean;
   /** Arrived already shown (a reload): no entrance. */
   still?: boolean;
-  /** A click on the art flips every badge between the rings (default) and
-   *  the gold medal on its back. */
+  /** Shows the gold medal (the default), and a click on the art flips every
+   *  badge over to the rings and back. Without it, just the rings. */
   swappable?: boolean;
   /** The medal's size on screen: the rings' size by default; larger where
    *  there's room (the welcome popup, 320), capped to its column. */
@@ -45,7 +45,7 @@ export interface RiskScoreBadgeProps {
  * score in the serif, its label ("Business Health") and an info tooltip under it. The rings
  * fade in from the outside in and the pill lands last. `muted` greys it all
  * for a business we couldn't score. With `swappable`, a click on the art
- * flips every badge on the page over to the gold medal and back (never saved).
+ * the badge opens on the gold medal and a click flips every badge on the page over to the rings and back (never saved).
  * Usage: <RiskScoreBadge score="Excellent" label="Business Health" info="…" />
  */
 export function RiskScoreBadge({ score, label, info, muted = false, still = false, swappable = false, medalPx: medalMax = RINGS_PX, medalLoop = false }: RiskScoreBadgeProps) {

@@ -12,6 +12,7 @@ import { QuoteModal } from "@/components/features/quote-modal/QuoteModal";
 import { QuotesHeader } from "../QuotesHeader";
 import { DetailsPanel } from "../DetailsPanel";
 import { ScoreIntro } from "../ScoreIntro";
+import { BotIntro } from "../BotIntro";
 import { RiskScoreBadge } from "../RiskScore";
 import type { UpgradeStage } from "../UpgradeBanner";
 import { QuotesFeed } from "../QuotesFeed";
@@ -116,6 +117,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   // revealed), Your Details as the sidebar shows them.
   const chatContext = useMemo<QuotesChatContext>(() => {
     const rows = content.detailsPanel.rows.map((row) => ({
+      key: row.key,
       label: row.label,
       value: (row.key && values?.[row.key]?.trim()) || row.value,
     }));
@@ -152,6 +154,19 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const introCompany = result?.companyName || panel.companyFallback;
   // Only A and B, with key lines to show, get the popup (and wait on it).
   const introEligible = (caseId === "A" || caseId === "B") && !!scoreLists;
+  // Case C has no score to show: its popup introduces NetraBot instead, and
+  // Continue puts the cursor in the chat.
+  const botIntroEligible = caseId === "C";
+  const [botIntroOpen, setBotIntroOpen] = useState(false);
+  const [chatFocus, setChatFocus] = useState(0);
+  useEffect(() => {
+    if (loading || !botIntroEligible || introShown.current) return;
+    const id = window.setTimeout(() => {
+      introShown.current = true;
+      setBotIntroOpen(true);
+    }, 350);
+    return () => window.clearTimeout(id);
+  }, [loading, botIntroEligible]);
   useEffect(() => {
     if (loading || !introEligible || introShown.current) return;
     // As the page fades in from the skeleton.
@@ -210,7 +225,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 verifyFrom={lured ? VERIFY_FROM : undefined}
                 companyName={result?.companyName || undefined}
                 scoreLists={scoreLists}
-                chat={<QuotesChat content={content.chat} context={chatContext} variant="drawer" />}
+                chat={<QuotesChat content={content.chat} context={chatContext} variant="drawer" focusKey={chatFocus} />}
                 onSimulate={() => setUpgradeStage("verifying")}
                 onVerified={() => setUpgradeStage("upgraded")}
                 onReset={
@@ -234,6 +249,20 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Case C's welcome: NetraBot, and a chat that plays itself. */}
+      {botIntroEligible && (
+        <BotIntro
+          open={botIntroOpen}
+          onClose={() => setBotIntroOpen(false)}
+          onContinue={() => {
+            setBotIntroOpen(false);
+            setChatFocus((n) => n + 1);
+          }}
+          content={panel.botIntro}
+          context={chatContext}
+        />
+      )}
 
       {/* The verified business's welcome: score, key lines, Show All. */}
       {introEligible && scoreLists && (caseId === "A" || caseId === "B") && (

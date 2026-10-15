@@ -349,6 +349,9 @@ export const mockQuotesPageContent: QuotesPageContent = {
       priceOffline: "{insurer} quotes offline. Select Request Quote on its card and our team will fetch the price.",
       priciest: "The highest price is {price} from {insurer}.",
       immediate: "You can buy {list} online right now. The others need a quick check by the insurer first.",
+      needs:
+        "For {company}{about}, D&O protects your directors and partners when a business decision is challenged. At its core: defence costs, regulatory investigations, and claims from customers, investors or employees. All {count} quotes are for {sum} of cover.",
+      needsTurnover: "turnover {turnover}",
       offline: "{list} quote offline, so select Request Quote and our team will fetch their price.",
       worldwide: "{list} cover claims brought anywhere in the world.",
       india: "{list} cover claims brought in India only.",
@@ -441,6 +444,21 @@ export const mockQuotesPageContent: QuotesPageContent = {
     legalNameLabel: "Legal Company Name",
     legalNameVerified: "Confirmed with the MCA's company records",
     tabs: { score: "Score", chat: "Chat", profile: "Profile" },
+    botIntro: {
+      title: "Introducing NetraBot",
+      body: "NetraBot reads the details of your business, compares the quotes you've been offered and answers your questions about them.",
+      // Illustrative: short and easy to scan, a few details from the page.
+      exchanges: [
+        { q: "What does D&O insurance do?", a: "It pays the legal costs when a business decision is challenged." },
+        { q: "Who does it protect?", a: "Everyone who runs {company}: partners, directors and managers." },
+        { q: "Which quotes can I buy today?", a: "{immediate} of your {count}, right here online." },
+        { q: "What's the lowest price?", a: "{cheapest} a year." },
+        { q: "Can you compare two for me?", a: "Yes. Tick Add to Compare on any two." },
+      ],
+      ctaLabel: "Continue",
+      closeLabel: "Close",
+      typingLabel: "NetraBot is typing",
+    },
     scoreIntro: {
       hint: "Look through the features on each quote to see how they match against your business",
       ctaLabel: "Show Quotes",

@@ -163,7 +163,8 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
     <RiskScoreBadge
       score={score}
       label={content.score.label}
-      swappable
+      // An unscored business (Case C) keeps the greyed rings: no medal for N/A.
+      swappable={scored}
       info={scored ? content.score.infoByCase?.[caseId] ?? content.score.info : content.score.mutedInfo}
       muted={!scored}
       still={arrivedUpgraded && !openCount}
