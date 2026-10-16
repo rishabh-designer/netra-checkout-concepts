@@ -126,14 +126,19 @@ export function TooltipLayer() {
       hide();
     };
     // Taps are read from touch events, which reach disabled controls too.
-    const start = { x: 0, y: 0 };
+    // (Plain assignments: the production minifier mis-compiles a
+    // destructuring assignment to these.)
+    let startX = 0;
+    let startY = 0;
     const onTouchStart = (e: TouchEvent) => {
       const t = e.touches[0];
-      if (t) [start.x, start.y] = [t.clientX, t.clientY];
+      if (!t) return;
+      startX = t.clientX;
+      startY = t.clientY;
     };
     const onTouchEnd = (e: TouchEvent) => {
       const t = e.changedTouches[0];
-      if (!t || e.touches.length || Math.hypot(t.clientX - start.x, t.clientY - start.y) > TAP_SLOP) return;
+      if (!t || e.touches.length || Math.hypot(t.clientX - startX, t.clientY - startY) > TAP_SLOP) return;
       // The topmost element under the finger (disabled ones included).
       const el = document.elementFromPoint(t.clientX, t.clientY)?.closest(TOOLTIP);
       const again = !!el && el === pressed.el;
