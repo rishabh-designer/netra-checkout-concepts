@@ -114,12 +114,6 @@ export interface CheckoutSummaryContent {
   totalLabel: string;
   /** GST rate as a fraction (0.18). */
   gstRate: number;
-  /** The BimaNetra offer (quotes with an original price): label, and the
-   *  percent note after the saving ("{pct}" is the rounded percent off). */
-  offerLabel: string;
-  offerPercent: string;
-  /** With an offer, the total before it ("Price"); `totalLabel` is then the amount to pay. */
-  priceLabel: string;
   insurerInfoLabel: string;
   /** Tooltips: the tags and the insurer info mark (`{insurer}` filled in). */
   tips: { immediate: string; insurer: string };

@@ -301,8 +301,7 @@
   color: var(--color-label-primary);
 }
 
-/* Total: a lilac rule above. With no offer it's the final price (bold
-   purple); with one it's the plain subtotal before the saving. */
+/* Total Cost: a lilac rule above, the price bold purple. */
 /* Rows are 24 apart like the rest; a divider sits midway in that gap (the
    row pulls up 12 and pads 12), so no row gets extra air. */
 .row[data-total] {
@@ -315,53 +314,9 @@
   color: var(--color-label-primary);
 }
 
-.row[data-total="final"] dd {
+.row[data-total] dd {
   font-weight: 700;
   letter-spacing: var(--track-700);
-  color: var(--color-brand-primary);
-}
-
-/* BimaNetra Offer (Figma 638:18153): between two rules, orange label, the
-   saving in green with a faint "(15% Off)". */
-.row[data-offer] {
-  margin: calc(-1 * var(--spacing-12)) 0;
-  padding: var(--spacing-12) 0;
-  border-top: var(--border-hairline) solid var(--color-brand-primary-border);
-  border-bottom: var(--border-hairline) solid var(--color-brand-primary-border);
-}
-
-.row[data-offer] dt {
-  color: var(--color-brand-secondary);
-}
-
-.row[data-offer] dd {
-  color: var(--color-success-deep);
-}
-
-.offerPct {
-  /* One point under the price, and one point more room before it. */
-  margin-right: 1px;
-  font-size: calc(var(--font-size-300) - 1px);
-  color: var(--color-label-disabled);
-}
-
-/* Final Cost: dark label, the price in Instrument Serif italic 24, purple. */
-.row[data-final] {
-  align-items: center;
-}
-
-.row[data-final] dt {
-  color: var(--color-label-primary);
-}
-
-.row[data-final] dd {
-  font-family: var(--font-display);
-  font-feature-settings: var(--font-display-features);
-  font-size: var(--font-size-heading-sm);
-  font-style: italic;
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: -0.32px;
   color: var(--color-brand-primary);
 }
 
@@ -664,17 +619,6 @@
 .card[data-compact] .row[data-total] {
   margin-top: 0;
   padding-top: 20px;
-}
-
-/* The offer's rules sit 24 off the rows either side, 20 off its own line. */
-.card[data-compact] .row[data-offer] {
-  margin: var(--spacing-4) 0;
-  padding: 20px 0;
-}
-
-.card[data-compact] .row[data-final] dd {
-  font-size: var(--font-size-heading-md);
-  letter-spacing: -0.01em;
 }
 
 /* Compact: the beam follows the card's r16. */

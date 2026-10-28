@@ -60,20 +60,15 @@ const RULE_COLOR = {
 /**
  * PurchaseSummary — the summary card in checkout's left panel (Figma
  * 638:17307): the quote's pill, dotted rule, product name + icon, insurer box
- * and the price split at 18% GST. A quote with an offer (the Gold Quotes)
- * prices its original, then the BimaNetra Offer (saving and % off) and the
- * Final Cost in serif; others end on the Total Cost. The step CTA and any
+ * and the price split at 18% GST: Premium and GST, then the Total Cost
+ * they add up to. The step CTA and any
  * consent live on the form side. On the success page it also lists the
  * quote's coverages and ends on the paid amount (`coverages`, `paid`).
  * Usage: <PurchaseSummary content={summary} quote={q} />
  */
 export function PurchaseSummary({ content, quote, coverages, paid, company, beam = true, compact = false, footer, below }: PurchaseSummaryProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
-  // An offer prices the original, then takes the saving off it.
-  const base = splitPrice(quote.originalPrice ?? quote.price ?? "", content.gstRate);
-  const final = splitPrice(quote.price ?? "", content.gstRate).total;
-  const saving = quote.originalPrice ? base.total - final : 0;
-  const pct = base.total ? Math.round((saving / base.total) * 100) : 0;
+  const base = splitPrice(quote.price ?? "", content.gstRate);
   const tone = quote.gold ? "gold" : quote.immediate ? "immediate" : "neutral";
   const [line1, line2] = splitName(quote.insurer);
   const productIcon = (
@@ -100,26 +95,10 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
         <dt>{content.gstLabel}</dt>
         <dd>{formatInr(base.gst)}</dd>
       </div>
-      <div className={styles.row} data-total={saving ? "plain" : "final"}>
-        <dt>{saving ? content.priceLabel : content.totalLabel}</dt>
+      <div className={styles.row} data-total>
+        <dt>{content.totalLabel}</dt>
         <dd>{formatInr(base.total)}</dd>
       </div>
-      {saving > 0 && (
-        <>
-          <div className={styles.row} data-offer>
-            <dt>{content.offerLabel}</dt>
-            <dd>
-              <span className={styles.offerPct}>{content.offerPercent.replace("{pct}", String(pct))}</span> {formatInr(saving)}
-            </dd>
-          </div>
-          {!paid && (
-            <div className={styles.row} data-final>
-              <dt>{content.totalLabel}</dt>
-              <dd>{formatInr(final)}</dd>
-            </div>
-          )}
-        </>
-      )}
     </dl>
   );
 
@@ -277,7 +256,7 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
             {/* The paid amount over its date (854:25433). */}
             <div className={styles.paid}>
               <div className={styles.paidTotal}>
-                <p className={styles.paidAmount}>{paid.amount ?? formatInr(final)}</p>
+                <p className={styles.paidAmount}>{paid.amount ?? formatInr(base.total)}</p>
                 <p className={styles.paidLabel}>{paid.label}</p>
               </div>
             </div>

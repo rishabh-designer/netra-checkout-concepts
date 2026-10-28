@@ -20,19 +20,13 @@ export interface PricingInput {
 /**
  * priceQuote — one quote's price for this business: its mock price (set for
  * the reference cover and turnover) scaled by the Sum Insured and the
- * turnover band, rounded. An offer keeps its discount: the struck price is
- * scaled the same way and the offer price stays the same share of it.
+ * turnover band, rounded.
  */
 export function priceQuote(q: QuoteCardData, input: PricingInput, p: QuotePricing): QuoteCardData {
   if (!q.price) return q;
   const cover = crores(input.sumInsured) ?? p.referenceCrore;
   const factor = Math.pow(cover / p.referenceCrore, p.coverExponent) * (p.turnoverFactors[input.turnover ?? ""] ?? 1);
   const round = (n: number) => Math.max(p.roundTo, Math.round(n / p.roundTo) * p.roundTo);
-  if (q.originalPrice) {
-    const was = round(rupees(q.originalPrice) * factor);
-    const share = rupees(q.price) / rupees(q.originalPrice);
-    return { ...q, originalPrice: inr(was), price: inr(round(was * share)) };
-  }
   return { ...q, price: inr(round(rupees(q.price) * factor)) };
 }
 

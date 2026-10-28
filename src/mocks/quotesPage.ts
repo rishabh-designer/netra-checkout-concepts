@@ -24,7 +24,7 @@ const GOLD_QUOTE: QuoteCardData = {
 /* Case A's Gold Quote carries an offer (₹10,000 down to ₹8,500; checkout
    shows the saving, the card just the price). Its insurer and price are
    known, so it's named for Generali and on sale now (Immediate Purchase). */
-const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, insurer: "Generali Central Insurance", immediate: true, price: "₹8,500", originalPrice: "₹10,000", coverages: GOLD_A_POLICY.top, policy: GOLD_A_POLICY };
+const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, insurer: "Generali Central Insurance", immediate: true, price: "₹8,500", coverages: GOLD_A_POLICY.top, policy: GOLD_A_POLICY };
 /* Case B's records are fuzzy, so its Gold Quote can't be mapped to an insurer
    or a price yet: NetraBot in place of a logo, and Unlock Quote. */
 const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "", ctaLabel: "Unlock Quote", coverages: GOLD_B_POLICY.top, policy: GOLD_B_POLICY };
@@ -477,6 +477,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
       info: "How healthy your business looks to insurers, from what we verified: Excellent, Great, Good or Fair.",
       mutedInfo: "We couldn't check your business's health without public records about it.",
       listTitle: "{count} Key Features",
+      listGroups: { covered: "Coverages", excluded: "Deductions" },
       byCase: { A: "82.4", B: "80*", C: "N/A" },
       // B's score is provisional (only parts verified): its asterisk explained.
       infoByCase: {
@@ -543,7 +544,6 @@ export const mockQuotesPageContent: QuotesPageContent = {
     cardTips: {
       immediate: TAG_TIPS.immediate,
       compareOff: "This insurer quotes offline, so it can't be compared",
-      offer: "Down from {from} with BimaNetra",
       compareFull: "You can compare up to 3 quotes",
       territory: TAG_TIPS.territory,
     },

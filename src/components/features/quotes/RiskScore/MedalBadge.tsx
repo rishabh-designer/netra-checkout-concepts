@@ -19,8 +19,8 @@ export interface MedalBadgeProps {
 }
 
 /**
- * MedalBadge — the alternate Business Health badge (the back of the flip): a
- * thick gold hexagon medal, point on top. Its body is real depth (20 layers,
+ * MedalBadge — a scored business's Business Health badge: a thick gold
+ * hexagon medal, point on top. Its body is real depth (20 layers,
  * light at the lip to deep at the back) between two faces, so its edge shows
  * as it turns. With `loop` it rests face-on, swaying a touch, then eases into
  * a full turn and lands (still for reduced motion); without, it holds still.

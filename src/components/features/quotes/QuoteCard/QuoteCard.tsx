@@ -56,7 +56,7 @@ export interface QuoteCardLabels {
   /** The corner tag once scored: "Coverage Match: {value}%". */
   coverageMatch?: string;
   /** Tag tooltips (what Immediate Purchase, territory… mean). */
-  tips?: { immediate: string; compareOff: string; compareFull: string; offer: string; territory: Record<QuoteTerritory, string> };
+  tips?: { immediate: string; compareOff: string; compareFull: string; territory: Record<QuoteTerritory, string> };
 }
 
 export interface QuoteCardProps {

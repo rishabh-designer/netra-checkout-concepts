@@ -10,8 +10,8 @@
 
 .art {
   position: relative;
-  /* The rings' frame on screen (210 × 0.7103); grows to the medal's 250
-     while the medal shows (set by the component). */
+  /* The rings' frame on screen (210 × 0.7103); the medal's size is set by
+     the component. */
   width: 149.16px;
   height: 149.16px;
 }
@@ -28,46 +28,10 @@
 
 /* A click flips the art: a card in 3D, the rings on its front and the
    medal on its back. */
-.art[data-swap] {
-  cursor: pointer;
+/* The medal's frame: depth for its 3D body (edge layers and faces) as it
+   turns on a loop. */
+.art[data-medal] {
   perspective: 900px;
-}
-
-.flipper {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-}
-
-.side {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  backface-visibility: hidden;
-  /* The side turning away hides at the halfway point of the 0.9s turn (some
-     of the rings' layers, with their blur and glow, would otherwise show
-     through the turning medal). */
-  transition: visibility 0s linear 0.45s;
-}
-
-.side[data-hidden] {
-  visibility: hidden;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .side {
-    transition: none;
-  }
-}
-
-.side[data-back] {
-  transform: rotateY(180deg);
-}
-
-/* The back side holds the medal's 3D body: its edge layers and its face. */
-.side[data-back] {
-  transform-style: preserve-3d;
 }
 
 .medalBody {
@@ -247,12 +211,22 @@
   color: var(--color-brand-primary);
 }
 
+/* A group's subheading ("Coverages", "Deductions"): 14 Medium. */
+.listGroup {
+  font-size: var(--font-size-100);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1;
+  color: var(--color-label-primary);
+}
+
+/* A group's lines, 8 in from its subheading. */
 .items {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
   margin: 0;
-  padding: 0;
+  padding: 0 var(--spacing-8);
   list-style: none;
 }
 

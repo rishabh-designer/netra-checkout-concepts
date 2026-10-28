@@ -96,6 +96,8 @@ export interface RiskScoreContent {
   /** One list: the key coverages, then the key exclusions. `{count}` is
    *  how many lines it holds. */
   listTitle: string;
+  /** The subheadings over its two groups (Figma 866:23031). */
+  listGroups: { covered: string; excluded: string };
   /** Each case's score ("82.4", a provisional "80*", or "N/A" where it
    *  couldn't be scored); shown as its band's word. */
   byCase: Record<QuoteCaseId, string>;
@@ -142,8 +144,6 @@ export interface QuoteCardData {
   /** An unpriced quote's own button label, in place of Request Quote
    *  (Case B's Gold Quote: "Unlock Quote"). */
   ctaLabel?: string;
-  /** The price before the offer, shown struck through beside `price`. */
-  originalPrice?: string;
   /** true → "Add to Compare" checkbox; false/undefined → "Comparison Unavailable". */
   comparable?: boolean;
   /** true → a locked "ghost" card whose only action is "Reveal Quote" (fuzzy match). */
@@ -350,7 +350,7 @@ export interface QuotesFeedContent {
   /** Card territory tags ("Worldwide Coverage", "India Only Coverage"). */
   territoryLabels: Record<QuoteTerritory, string>;
   /** Quote card tag tooltips: what each tag means. */
-  cardTips: { immediate: string; compareOff: string; compareFull: string; offer: string; territory: Record<QuoteTerritory, string> };
+  cardTips: { immediate: string; compareOff: string; compareFull: string; territory: Record<QuoteTerritory, string> };
   revealQuoteLabel: string;
   /** Under the locked Reveal button, before verification completes. */
   revealLockedHint: string;

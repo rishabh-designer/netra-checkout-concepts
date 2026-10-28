@@ -177,7 +177,7 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
       score={score}
       label={content.score.label}
       // An unscored business (Case C) keeps the greyed rings: no medal for N/A.
-      swappable={scored}
+      medal={scored}
       info={scored ? content.score.infoByCase?.[caseId] ?? content.score.info : content.score.mutedInfo}
       muted={!scored}
       still={arrivedUpgraded && !openCount}
@@ -187,9 +187,9 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
     scored && scoreLists ? (
         <ScoreList
           title={content.score.listTitle.replace("{count}", String(Math.min(n, scoreLists.coverages.length) + Math.min(n, scoreLists.exclusions.length)))}
-          items={[
-            ...scoreLists.coverages.slice(0, n).map((label) => ({ label, tone: "covered" as const })),
-            ...scoreLists.exclusions.slice(0, n).map((label) => ({ label, tone: "excluded" as const })),
+          groups={[
+            { heading: content.score.listGroups.covered, tone: "covered", items: scoreLists.coverages.slice(0, n) },
+            { heading: content.score.listGroups.excluded, tone: "excluded", items: scoreLists.exclusions.slice(0, n) },
           ]}
           delay={0.7}
           still={arrivedUpgraded && !openCount}

@@ -327,7 +327,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
             <RiskScoreBadge
               score={scoreWord(panel.score.byCase[caseId], panel.score.bands)}
               label={panel.score.label}
-              swappable
+              medal
               medalPx={phone ? 160 : 320}
               medalLoop
               info={panel.score.infoByCase?.[caseId] ?? panel.score.info}
