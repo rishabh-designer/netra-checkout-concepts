@@ -51,3 +51,14 @@ export function withRiskFit(feed: QuotesFeedContent, caseId: QuoteCaseId | undef
     goldQuoteByCase: feed.goldQuoteByCase?.[caseId] ? { ...feed.goldQuoteByCase, [caseId]: fit(feed.goldQuoteByCase[caseId]!) } : feed.goldQuoteByCase,
   };
 }
+
+/**
+ * coverageMatch — how much of the business's key lines a quote meets, as a
+ * percentage to the nearest 5 (8 of 11 → 73% → 75%). Undefined for a quote
+ * that isn't scored (Case C, or no policy to check).
+ * Usage: const pct = coverageMatch(quote.riskFit); // 75
+ */
+export function coverageMatch(fit: RiskFit | undefined): number | undefined {
+  if (!fit || !fit.total) return undefined;
+  return Math.round((fit.met / fit.total) * 20) * 5;
+}

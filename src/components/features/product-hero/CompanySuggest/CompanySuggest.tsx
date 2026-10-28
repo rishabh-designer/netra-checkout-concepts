@@ -60,8 +60,8 @@ export interface CompanySuggestProps {
  * the customer picks their registered entity instead of us guessing. It
  * leads with a disabled "No Result for “…”. Enter New Company?" row, then
  * "MCA Records": each match with its registered name. "Enter New Company?"
- * turns the list into an "MCA Search Request" that echoes the name as it's
- * typed. The host input owns the keyboard.
+ * accepts the typed name as a new company (the list closes, the field turns
+ * green). The host input owns the keyboard.
  * Usage: <CompanySuggest id={id} open={o} query={q} options={opts} active={i} content={search} onPick={pick} onHover={setI} />
  */
 export function CompanySuggest({ id, open, query, options, active, content, onPick, onHover }: CompanySuggestProps) {

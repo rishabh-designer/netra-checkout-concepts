@@ -84,19 +84,27 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
   // before continuing. Enter picks the highlighted row (then submits).
   const suggestId = useId();
   const [suggestOpen, setSuggestOpen] = useState(false);
-  // "Enter New Company?" switches the list to an MCA search request for what's
-  // typed; clearing the field goes back to the registry.
+  // The list's mode (a typed new company once went to an MCA search request;
+  // "Enter New Company?" now just accepts the name); clearing resets it.
   const [suggestMode, setSuggestMode] = useState<CompanySuggestMode>("search");
   // -1 = the default row (the first match, else the lead row).
   const [hovered, setHovered] = useState(-1);
+  // Taken as a new company ("Enter New Company?"): the field shows its tick
+  // whatever the name's length, until it's typed in again.
+  const [accepted, setAccepted] = useState(false);
   const options = findCompanyOptions(companyName, content.companySearch, suggestMode);
   const active = hovered < 0 ? defaultCompanyOption(options) : hovered;
   const listShown = suggestOpen && options.length > 0;
   const pickCompany = (opt: CompanyOption | undefined) => {
     if (!opt) return;
+    // "Enter New Company?": the typed name is accepted as the company, the
+    // list closes and the field shows its green tick; Get My Quote starts
+    // the flow (as Case C).
     if (opt.kind === "new") {
-      setSuggestMode("request");
+      setAccepted(true);
+      setSuggestOpen(false);
       setHovered(-1);
+      emitHeroPulse("typing");
       return;
     }
     if (opt.kind === "record") setCompanyName(opt.legalName);
@@ -207,13 +215,14 @@ export function LeadFormCard({ content, quoteModal, focus, quotesPreview, topSlo
           onFocus={preloadQuoteModal}
           onChange={(v) => {
             setCompanyName(v);
+            setAccepted(false);
             setEmptyError(false);
             setSuggestOpen(true);
             setHovered(-1);
             if (!v.trim()) setSuggestMode("search");
             emitHeroPulse("typing");
           }}
-          status={emptyError ? "error" : companyName.trim().length >= 4 ? "success" : "empty"}
+          status={emptyError ? "error" : accepted || companyName.trim().length >= 4 ? "success" : "empty"}
           helpText={emptyError ? quoteModal.emptyNameError : undefined}
           helpTone="error"
           showHelp={emptyError}

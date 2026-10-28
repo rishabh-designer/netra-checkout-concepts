@@ -71,3 +71,18 @@
     padding: var(--spacing-16);
   }
 }
+
+/* Ask BimaNetra's drawer: white to the middle, BimaNetra's warmth rising to
+   the foot. Phones: a tall sheet (40 of scrim above, as the quote form's)
+   whose log fills it and composer sits at its foot; quadrupled to outrank
+   the bottom sheet's own content-height cap. */
+.chatDrawer {
+  background: linear-gradient(to top, var(--color-brand-secondary-subtle), var(--color-card) 50%);
+}
+
+@media (max-width: 900px) {
+  .chatDrawer.chatDrawer.chatDrawer.chatDrawer {
+    height: calc(100dvh - var(--spacing-40));
+    max-height: calc(100dvh - var(--spacing-40));
+  }
+}

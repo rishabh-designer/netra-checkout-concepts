@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import type { FeatureItem, FeatureTab, FeaturesDrawerContent, QuoteCardData } from "@/types/quotesPage";
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
-import { BadgeCheckIcon } from "@/components/icons/BadgeCheckIcon";
 import { CloseButton, IconButton } from "@/components/ui/IconButton";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
-import { coverageChipLabel, lockBeam, type QuoteCardLabels } from "../QuoteCard";
+import { coverageChipLabel, type QuoteCardLabels } from "../QuoteCard";
 import { Cross, Tick } from "../RiskScore";
-import cardStyles from "../QuoteCard/QuoteCard.module.css";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import styles from "./FeaturesModal.module.css";
 import { Chevron } from "@/components/icons/Chevron";
@@ -18,7 +17,20 @@ import { Button } from "@/components/ui/Button";
 import { EASE_OUT } from "@/lib/motion";
 import { useAtMost } from "@/lib/media";
 
-export type QuoteTone = "gold" | "immediate" | "priced" | "quote";
+/** Every quote, the Gold Quote included, reads by what it is: bought
+ *  online, priced, or one to request. No quote is singled out. */
+export type QuoteTone = "immediate" | "priced" | "quote";
+
+/** How long a tab (or a paged-to quote) shows its skeleton before the list
+ *  fades in: it replaces the old list at once. */
+const SKELETON_MS = 300;
+/** The skeleton's rows: title bar width and body lines. */
+const SKELETON_ROWS = [
+  { title: "46%", lines: ["94%", "62%"] },
+  { title: "58%", lines: ["88%"] },
+  { title: "40%", lines: ["92%", "48%"] },
+  { title: "52%", lines: ["84%"] },
+];
 
 export interface FeaturesModalProps {
   open: boolean;
@@ -69,15 +81,35 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
   const baseId = useId();
   const tipFor = (i: number) => content.pagerTip.replace("{n}", String(i + 1)).replace("{total}", String(pager?.total ?? 0));
 
-  // Each opening starts on the default tab, with focus on ×.
+  // Each opening starts on the default tab (Overview) and counts as a fresh
+  // view, so its skeleton plays again (set during render, as the panel opens).
+  const [wasOpen, setWasOpen] = useState(open);
+  const [session, setSession] = useState(0);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) {
+      setActive(content.defaultTab);
+      setSession((n) => n + 1);
+    }
+  }
+  // Focus on × as it opens.
   useEffect(() => {
     if (!open) return;
-    setActive(content.defaultTab);
     const id = window.setTimeout(() => closeRef.current?.focus(), 60);
     return () => window.clearTimeout(id);
-  }, [open, content.defaultTab]);
+  }, [open]);
 
   const tab = content.tabs.find((t) => t.key === active) ?? content.tabs[0];
+  // A quick, quiet skeleton each time the list changes: on opening, on a tab
+  // and on paging to another quote.
+  const view = `${session}|${tab.key}|${quote?.insurer ?? ""}`;
+  const [shownView, setShownView] = useState<string | null>(null);
+  useEffect(() => {
+    if (!open || reduced) return;
+    const id = window.setTimeout(() => setShownView(view), SKELETON_MS);
+    return () => window.clearTimeout(id);
+  }, [open, reduced, view]);
+  const loading = !reduced && shownView !== view;
   // Overview, coverages and exclusions come from the quote's own policy; its
   // top coverages carry the Top Feature (or, on Gold, Personalized) pill.
   // Once the risk is scored, the pills mark the business's key lines instead.
@@ -103,9 +135,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
     ? tab.key === "exclusions"
       ? { label: content.keyExclusionLabel, tip: content.keyExclusionTip }
       : { label: content.keyCoverageLabel, tip: content.keyCoverageTip }
-    : quote?.gold
-      ? { label: content.personalizedLabel, tip: content.personalizedTip }
-      : { label: content.topFeatureLabel, tip: content.topFeatureTip };
+    : { label: content.topFeatureLabel, tip: content.topFeatureTip };
   const summary = quote?.coverages ?? quote?.policy?.top ?? [];
 
   // Arrow keys move between tabs (WAI-ARIA tabs pattern).
@@ -119,7 +149,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
     tabRefs.current[next]?.focus();
   };
 
-  const filled = tone === "gold" || !!quote?.price;
+  const filled = !!quote?.price || !!quote?.gold;
   const [nameTop, nameBottom] = content.productName.split("\n");
 
   // pagination (727:34231), chevrons only: each one's tooltip names the
@@ -152,18 +182,6 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
     >
       {quote && (
         <div className={styles.modal} data-tone={tone}>
-          {/* The Gold card's beam, round the whole modal (same comet, same
-              phase), with its halo just outside. */}
-          {tone === "gold" && (
-            <>
-              <span className={styles.beamGlow} aria-hidden>
-                <span ref={lockBeam} className={cardStyles.beamSpin} />
-              </span>
-              <span className={styles.beamRing} aria-hidden>
-                <span ref={lockBeam} className={cardStyles.beamSpin} />
-              </span>
-            </>
-          )}
           {/* Top bar: × (top-right); on mobile the pager joins it, top-left. */}
           <div className={styles.topBar}>
             {pagerEl && <div className={styles.pagerTop}>{pagerEl}</div>}
@@ -178,12 +196,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                   {/* pagination (727:34231), chevrons only: each one's tooltip
                       names the quote it goes to ("Quote 2 of 7"). */}
                   {pagerEl && <div className={styles.pagerInCard}>{pagerEl}</div>}
-                  {tone === "gold" ? (
-                    <span className={styles.tag} data-tone="gold" data-tooltip={labels.tips?.gold}>
-                      <BadgeCheckIcon size={10} color="var(--color-brand-secondary)" />
-                      {labels.poweredBy}
-                    </span>
-                  ) : tone === "immediate" ? (
+                  {tone === "immediate" ? (
                     <span className={styles.tag} data-tooltip={labels.tips?.immediate}>
                       <ShoppingBagIcon size={10} color="var(--color-success)" />
                       {labels.immediatePurchase}
@@ -215,7 +228,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                   <ul className={styles.coverageList}>
                     {summary.map((c) => (
                       <li key={c} className={styles.coverage}>
-                        <SquareCheckbox tone={tone === "gold" ? "secondary" : "info"} state="checked" size={12} />
+                        <SquareCheckbox tone="info" state="checked" size={12} />
                         {c}
                       </li>
                     ))}
@@ -266,13 +279,28 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
               className={styles.content}
               tabIndex={0}
             >
-              <AnimatePresence mode="wait" initial={false}>
+              {loading ? (
+                // The list's shape, for a beat: a mark and a title bar over a
+                // line or two, the rows 40ms apart. It stands in at once.
+                <ul className={styles.list} aria-busy>
+                  {SKELETON_ROWS.map((row, k) => (
+                    <li key={k} className={styles.item}>
+                      <span className={styles.skeletonTitle}>
+                        <Skeleton variant="circular" width={14} height={14} delay={k * 40} />
+                        <Skeleton width={row.title} height={14} delay={k * 40} />
+                      </span>
+                      {row.lines.map((w, j) => (
+                        <Skeleton key={j} width={w} height={10} delay={k * 40 + 20 * (j + 1)} />
+                      ))}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
                 <motion.ul
-                  key={tab.key}
+                  key={view}
                   className={styles.list}
                   initial={reduced ? false : { opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={reduced ? undefined : { opacity: 0, y: -4 }}
                   transition={{ duration: 0.2, ease: EASE_OUT }}
                 >
                   {items.map((item) => (
@@ -290,7 +318,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                     </li>
                   ))}
                 </motion.ul>
-              </AnimatePresence>
+              )}
             </div>
 
             <div className={styles.footer}>
@@ -299,7 +327,7 @@ export function FeaturesModal({ open, onClose, content, quote, tone, labels, onS
                 <span className={styles.sumValue}>{quote.sumInsured}</span>
               </div>
               <Button
-                tone={!filled ? "outline" : tone === "gold" ? "secondary" : "primary"}
+                tone={filled ? "primary" : "outline"}
                 onClick={onSelect}
                 onMouseEnter={() => arrowRef.current?.startAnimation()}
                 onMouseLeave={() => arrowRef.current?.stopAnimation()}

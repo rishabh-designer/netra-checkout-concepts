@@ -1,4 +1,5 @@
 import type { QuoteCardData, QuotesChatContent } from "@/types/quotesPage";
+import { coverageMatch } from "@/lib/risk-fit";
 
 /** What Ask BimaNetra can see on the Quotes page. */
 export interface QuotesChatContext {
@@ -55,6 +56,14 @@ export function answerQuotesQuestion(question: string, ctx: QuotesChatContext, r
   const priceOf = (x: QuoteCardData) => x.price ?? "unpriced";
   const topOf = (x: QuoteCardData) => list((x.policy?.top ?? x.coverages ?? []).slice(0, 2), r.and) || "its standard cover";
 
+  // "Where should I give my attention?": what differs most, never a pick. (Before
+  // the no-recommend check: its "should I" asks where to look, not which to buy.)
+  if (has(q, /attention|focus|look at|watch out/)) {
+    const key = ctx.keyLines;
+    if (!key) return r.keyNone;
+    return fill(r.attention, { total: String(key.coverages.length + key.exclusions.length) });
+  }
+
   if (has(q, /\b(best|recommend|should i|suggest|better|which one|pick)\b/) && insurers.length < 2) return r.noRecommend;
 
   // "What kind of coverages do I need?": what D&O protects, set against the
@@ -83,6 +92,20 @@ export function answerQuotesQuestion(question: string, ctx: QuotesChatContext, r
       return fill(exclAsked ? r.keyExclusionsSome : r.keyCoveragesSome, v);
     }
     return fill(exclAsked ? r.keyExclusions : r.keyCoverages, { count: String(lines.length), list: list(lines, r.and) });
+  }
+
+  // Coverage Match: one quote's, or every quote's, highest first. (A "best
+  // match" question never gets here: it's turned down above.)
+  if (has(q, /\bmatch/)) {
+    const scored = all.filter((x) => coverageMatch(x.riskFit) !== undefined);
+    if (!scored.length) return r.matchNone;
+    const pct = (x: QuoteCardData) => coverageMatch(x.riskFit) ?? 0;
+    if (insurers.length === 1 && insurers[0].riskFit) {
+      const x = insurers[0];
+      return fill(r.matchOne, { insurer: x.insurer, pct: String(pct(x)), met: String(x.riskFit!.met), total: String(x.riskFit!.total) });
+    }
+    const ranked = [...scored].sort((a, b) => pct(b) - pct(a)).map((x) => `${x.insurer} ${pct(x)}%`);
+    return fill(r.match, { total: String(scored[0].riskFit!.total), list: list(ranked, r.and) });
   }
 
   // "What is the Gold Quote?": what it is, then where this one stands.

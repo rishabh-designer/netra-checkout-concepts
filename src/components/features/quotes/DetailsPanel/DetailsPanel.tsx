@@ -14,20 +14,19 @@ import { EASE_OUT } from "@/lib/motion";
 import { useAtMost } from "@/lib/media";
 import { SCRIM } from "@/components/ui/SideDrawer";
 import { usePageScrollLock } from "@/lib/dialog";
-import { NetraBot } from "@/components/ui/NetraBot";
 import { FileTextIcon } from "@/components/icons/FileTextIcon";
 import { UserIcon } from "@/components/icons/UserIcon";
 
-type Tab = "score" | "chat" | "profile";
-/** Scored (A, B): Score leads. */
-const TABS: Tab[] = ["score", "chat", "profile"];
-/** Case C (not scored): Chat leads and Score goes last. */
-const TABS_UNSCORED: Tab[] = ["chat", "profile", "score"];
-/** Each tab's mark beside its label (Figma 829:21917), in a 16 slot: the
- *  line icons at the label's 14 so they weigh the same as NetraBot's 16. */
+type Tab = "score" | "profile";
+/** Scored (A, B): Score leads. (Chat lives in its own drawer, opened from
+ *  the feed's Ask Netra box.) */
+const TABS: Tab[] = ["score", "profile"];
+/** Case C (not scored): Profile leads and Score goes last. */
+const TABS_UNSCORED: Tab[] = ["profile", "score"];
+/** Each tab's mark beside its label (Figma 829:21917), in a 16 slot at the
+ *  label's 14. */
 const TAB_ICON: Record<Tab, ReactNode> = {
   score: <FileTextIcon size={14} />,
-  chat: <NetraBot state="idle" size={16} />,
   profile: <UserIcon size={14} />,
 };
 
@@ -62,29 +61,26 @@ export interface DetailsPanelProps {
   companyName?: string;
   /** The Score tab's lists: the Gold Quote's coverages and exclusions. */
   scoreLists?: { coverages: string[]; exclusions: string[] };
-  /** The Chat tab: Ask BimaNetra, mounted on first open and kept after. */
-  chat?: ReactNode;
 }
 
 /**
  * DetailsPanel — the left column (Figma 770:26992), full column height: a tab
- * strip (A, B: Score | Chat | Profile; C: Chat | Profile | Score) over the chosen tab. Score is the upgrade
- * banner growing into the risk score badge and the Gold Quote's key coverages
- * and exclusions (Case C: not scored, no badge, and Schedule a Call); Chat is Ask
- * BimaNetra; Profile is Your Details with Edit Details. Phones fold it shut
- * to the tab strip (an accordion).
- * Usage: <DetailsPanel content={detailsPanel} values={values} onEdit={fn} chat={<QuotesChat … />} />
+ * strip (A, B: Score | Profile; C: Profile | Score) over the chosen tab. Score
+ * is the upgrade banner growing into the risk score badge and the Gold Quote's
+ * key coverages and exclusions (Case C: not scored, no badge, and Schedule a
+ * Call); Profile is Your Details with Edit Details. Phones fold it shut to the
+ * tab strip (an accordion). Chat isn't here: it opens in its own drawer.
+ * Usage: <DetailsPanel content={detailsPanel} values={values} onEdit={fn} />
  */
-export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false, verifyFrom, companyName, caseId, scoreLists, chat }: DetailsPanelProps) {
+export function DetailsPanel({ content, values, onEdit, collapsed, onToggleCollapse, stage = "pending", onSimulate, onVerified, onReset, noRecords = false, verifyFrom, companyName, caseId, scoreLists }: DetailsPanelProps) {
   const accordion = useAtMost("stack");
   // Phones: a floating dock 12 off the foot that opens upward.
   const dock = useAtMost("mobile");
   const notify = useDemoNotice();
   const baseId = useId();
-  // A and B open on Score; Case C has no score to show, so it opens on Chat.
+  // A and B open on Score; Case C has no score to show, so it opens on Profile.
   const tabs = noRecords || caseId === "C" ? TABS_UNSCORED : TABS;
   const [tab, setTab] = useState<Tab>(tabs[0]);
-  const [chatSeen, setChatSeen] = useState(tab === "chat");
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const folded = accordion && collapsed;
   // Mobile: each time the accordion opens, the upgraded banner replays from
@@ -157,7 +153,6 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
       return;
     }
     setTab(next);
-    if (next === "chat") setChatSeen(true);
     // Phones: a tab tap opens the folded accordion.
     if (folded) onToggleCollapse?.();
   };
@@ -300,11 +295,6 @@ export function DetailsPanel({ content, values, onEdit, collapsed, onToggleColla
             {scoreList}
           </UpgradeBanner>
         )}
-      </div>
-
-      {/* Chat (Figma 776:32100): Ask BimaNetra, kept once opened. */}
-      <div className={styles.pane} data-chat {...pane("chat")}>
-        {chatSeen && chat}
       </div>
 
       {/* Profile (Figma 776:32413): Your Details. */}

@@ -74,7 +74,7 @@ export interface DetailsPanelContent {
   companyFallback: string;
   legalNameVerified: string;
   /** The panel's tab strip (Figma 770:26992): Score | Chat | Profile. */
-  tabs: { score: string; chat: string; profile: string };
+  tabs: { score: string; profile: string };
   /** The popup that greets a verified business (A, B) once per visit: its
    *  info line, the button that closes it onto the quotes, and the ×. */
   scoreIntro: { hint: string; ctaLabel: string; closeLabel: string };
@@ -134,9 +134,6 @@ export interface NeedHelpContent {
 export interface QuoteCardData {
   insurer: string;
   logoSrc: string;
-  /** The insurer's claim settlement ratio ("98.6%"): a fact about the
-   *  company, the same in every case. None while the insurer is unknown. */
-  csr?: string;
   sumInsured: string;
   /** Immediate-purchase quotes surface first, carry a price, and are comparable. */
   immediate?: boolean;
@@ -147,8 +144,6 @@ export interface QuoteCardData {
   ctaLabel?: string;
   /** The price before the offer, shown struck through beside `price`. */
   originalPrice?: string;
-  /** 0–100; renders a "X% Match" progress bar when set. */
-  matchPercent?: number;
   /** true → "Add to Compare" checkbox; false/undefined → "Comparison Unavailable". */
   comparable?: boolean;
   /** true → a locked "ghost" card whose only action is "Reveal Quote" (fuzzy match). */
@@ -284,9 +279,9 @@ export interface FeaturesDrawerContent {
 
 /** "all", or one insurer's name (the feed builds the list from its quotes). */
 export type QuoteFilter = string;
-/** Feed order: the insurer default, premium either way, or most coverages first. */
-/** By price, the quote as shown (GST included). */
-export type QuoteSort = "priceLow" | "priceHigh" | "csrLow" | "csrHigh";
+/** Feed order: Coverage Match either way (scored cases; the default), or
+ *  price either way, the quote as shown (GST included). */
+export type QuoteSort = "matchHigh" | "matchLow" | "priceLow" | "priceHigh";
 
 /** How a quote's price follows the business: each mock price is for
  *  `referenceCrore` of cover at the reference turnover (factor 1). */
@@ -306,7 +301,7 @@ export interface QuotesFeedContent {
   checkoutHref: string;
   /** Where an offline quote's Get Quote leads (the quote request page). */
   quoteInquiryHref: string;
-  /** Feed title under the breadcrumb (658:45856); `{count}` is the number of quotes. */
+  /** Feed title (658:45856), the breadcrumb level with it on the right; `{count}` is the number of quotes. */
   availableLabel: string;
   /** D&O product mark before the title (32px). */
   titleIconSrc: string;
@@ -382,8 +377,9 @@ export interface QuotesFeedContent {
   riskFitLabel: string;
   /** The card's chip once scored: "View {met} Key Features". */
   riskFitChipLabel: string;
-  /** Under each insurer's logo: "Claim Settlement Ratio: {value}". */
-  csrLabel: string;
+  /** The card's tag once scored: "Coverage Match: {value}%", the share of
+   *  the business's key lines the quote meets (to the nearest 5). */
+  coverageMatchLabel: string;
   /** Per case, the key lines each insurer's quote meets (the Gold Quote
    *  meets them all). Case C isn't scored, so it has none. */
   riskFitByCase?: Partial<Record<QuoteCaseId, RiskFitByInsurer>>;
@@ -427,6 +423,12 @@ export interface GoldGateContent {
 /** Ask BimaNetra (the Quotes page chat): its chrome, starter questions and
  *  reply templates. `{…}` slots are filled from the page (quotes, details). */
 export interface QuotesChatContent {
+  /** The feed's Ask Netra box (Figma 866:23105): its button, the questions
+   *  its field types out by itself (random order), and the starter chips
+   *  under it (scored cases, else the chat's own). */
+  askLabel: string;
+  askPrompts: string[];
+  askSuggestionsScored?: string[];
   /** The header CTA while the chat is open. */
   closeLabel: string;
   title: string;
@@ -475,6 +477,13 @@ export interface QuotesChatContent {
     keyExclusionsNone: string;
     /** Case C: nothing scored to match against. */
     keyNone: string;
+    /** "Where should I give my attention?" ({total} key features). */
+    attention: string;
+    /** Coverage Match: what it is, each quote's ({list}), one quote's
+     *  ({insurer} {pct} {met} {total}), or none yet (Case C). */
+    match: string;
+    matchOne: string;
+    matchNone: string;
     /** Joins a list of what's missing: "a, b or c". */
     or: string;
     sumInsured: string;

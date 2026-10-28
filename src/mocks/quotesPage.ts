@@ -11,17 +11,6 @@ const ROYAL = "/Insurance.Comp/Royal.webp";
 const BAJAJ = "/Insurance.Comp/Bajaj.webp";
 const SBI = "/Insurance.Comp/SBI.webp";
 
-/* Claim settlement ratio per insurer (mock): a fact about the company, so
-   the same in every case. Whole numbers, no ties. */
-const CSR: Record<string, string> = {
-  "Generali Central Insurance": "99%",
-  "HDFC ERGO General Insurance": "98%",
-  "Royal Sundaram General Insurance": "96%",
-  "ICICI Lombard General Insurance": "95%",
-  "Bajaj General Insurance": "94%",
-  "SBI General Insurance": "93%",
-};
-
 /* The Gold Quote (A and B): unveiled from the Reveal slot that leads the stack. */
 const GOLD_QUOTE: QuoteCardData = {
   insurer: "Your Personalised Gold Quote",
@@ -32,14 +21,13 @@ const GOLD_QUOTE: QuoteCardData = {
   territory: "worldwide",
 };
 
-/* Case A's Gold Quote carries an offer: ₹10,000 struck down to ₹8,500. Its
-   insurer and price are known, so it's named for Generali and on sale now
-   (Immediate Purchase). */
-const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, insurer: "Generali Central Insurance", csr: CSR["Generali Central Insurance"], immediate: true, price: "₹8,500", originalPrice: "₹10,000", coverages: GOLD_A_POLICY.top, policy: GOLD_A_POLICY };
+/* Case A's Gold Quote carries an offer (₹10,000 down to ₹8,500; checkout
+   shows the saving, the card just the price). Its insurer and price are
+   known, so it's named for Generali and on sale now (Immediate Purchase). */
+const CASE_A_GOLD: QuoteCardData = { ...GOLD_QUOTE, insurer: "Generali Central Insurance", immediate: true, price: "₹8,500", originalPrice: "₹10,000", coverages: GOLD_A_POLICY.top, policy: GOLD_A_POLICY };
 /* Case B's records are fuzzy, so its Gold Quote can't be mapped to an insurer
-   or a price yet: NetraBot in place of a logo, an N/A claim settlement
-   ratio (so the card matches its neighbours), and Unlock Quote. */
-const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "", csr: "N/A", ctaLabel: "Unlock Quote", coverages: GOLD_B_POLICY.top, policy: GOLD_B_POLICY };
+   or a price yet: NetraBot in place of a logo, and Unlock Quote. */
+const CASE_B_GOLD: QuoteCardData = { ...GOLD_QUOTE, logoSrc: "", ctaLabel: "Unlock Quote", coverages: GOLD_B_POLICY.top, policy: GOLD_B_POLICY };
 
 /* The questions BimaNetra asks in chat (the Gold Quote's Additional
    Details and every Request a Quote), one at a time. */
@@ -121,8 +109,7 @@ const MATCHED_ROWS: QuoteCardData[] = [
    on the card (offline ones keep a plain "Top Coverages" chip). */
 const MATCHED_QUOTES: QuoteCardData[] = MATCHED_ROWS.map((q) => {
   const policy = INSURER_POLICIES[q.insurer];
-  const withCsr = { ...q, csr: CSR[q.insurer] };
-  return policy ? { ...withCsr, policy, ...(q.price ? { coverages: policy.top } : {}) } : withCsr;
+  return policy ? { ...q, policy, ...(q.price ? { coverages: policy.top } : {}) } : q;
 });
 
 /* Case C (no data, also the fallback for any unmatched name): the same six
@@ -246,7 +233,7 @@ const FEATURES_DRAWER: FeaturesDrawerContent = {
   keyExclusionLabel: "Key Exclusion",
   keyCoverageTip: "One of the coverages your risk score says your business needs",
   keyExclusionTip: "Carved out only as narrowly as your business needs",
-  defaultTab: "coverages",
+  defaultTab: "overview",
   tabs: [
     {
       key: "overview",
@@ -324,6 +311,14 @@ export const mockQuotesPageContent: QuotesPageContent = {
     title: "Ask BimaNetra",
     subtitle: "Ask anything about these quotes",
     placeholder: "Ask about prices, coverages, insurers…",
+    askLabel: "Ask BimaNetra",
+    askPrompts: [
+      "What coverage do you recommend for my company?",
+      "What else should I consider to be better protected?",
+      "Why is this cover recommended for me?",
+      "How do I get started?",
+    ],
+    askSuggestionsScored: ["What are my key coverages?", "What are my key exclusions?", "Where should I give my attention?"],
     sendLabel: "Send",
     thinkingLabel: "BimaNetra is reading your quotes",
     greeting:
@@ -373,6 +368,11 @@ export const mockQuotesPageContent: QuotesPageContent = {
       keyExclusionsAll: "Yes, {insurer} matches all {count} of your key exclusions.",
       keyExclusionsSome: "{insurer} matches {met} of your {count} key exclusions: {matched}. It doesn't match {missing}.",
       keyExclusionsNone: "{insurer} doesn't match any of your {count} key exclusions.",
+      match: "Coverage Match is the share of your {total} key features a quote meets, to the nearest 5%: {list}.",
+      attention:
+        "Start with your key exclusions: they differ most between these quotes. Then see how many of your {total} key features each one meets; its Coverage Match is on the card.",
+      matchOne: "{insurer} has a Coverage Match of {pct}%: it meets {met} of your {total} key features.",
+      matchNone: "Coverage Match needs your business's key features, and we couldn't map them without public records. Our experts can work them out with you on a call.",
       keyNone:
         "We couldn't verify your business, so there are no key coverages or exclusions to match quotes against yet. Our experts can help you find the right cover.",
       sumInsured: "Every quote here is for {sum} of cover. You can change it with Edit Details.",
@@ -443,7 +443,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     companyFallback: "your business",
     legalNameLabel: "Legal Company Name",
     legalNameVerified: "Confirmed with the MCA's company records",
-    tabs: { score: "Score", chat: "Chat", profile: "Profile" },
+    tabs: { score: "Score", profile: "Profile" },
     botIntro: {
       title: "Introducing NetraBot",
       body: "NetraBot reads the details of your business, compares the quotes you've been offered and answers your questions about them.",
@@ -515,11 +515,13 @@ export const mockQuotesPageContent: QuotesPageContent = {
     sortFilterCloseLabel: "Close",
     sortFieldLabel: "Sort Quotes",
     sortLabel: "Sorting by {option}",
+    // The first one the feed can use is the default: Coverage Match, best
+    // first (scored cases); Case C, unscored, starts on price.
     sortOptions: [
+      { id: "matchHigh", label: "Coverage Match: High to Low" },
+      { id: "matchLow", label: "Coverage Match: Low to High" },
       { id: "priceLow", label: "Price: Low to High" },
       { id: "priceHigh", label: "Price: High to Low" },
-      { id: "csrLow", label: "Claim Settlement: Low to High" },
-      { id: "csrHigh", label: "Claim Settlement: High to Low" },
     ],
     noResults: {
       title: "No Quotes Match These Filters",
@@ -574,7 +576,7 @@ export const mockQuotesPageContent: QuotesPageContent = {
     personalizedCountLabel: "{count} Personalised Coverages",
     riskFitLabel: "{met} Key Features",
     riskFitChipLabel: "View {met} Key Features",
-    csrLabel: "Claim Settlement Ratio: {value}",
+    coverageMatchLabel: "Coverage Match: {value}%",
     riskFitByCase: RISK_FIT_BY_CASE,
     poweredByLabel: "Secured with BimaNetra",
   },

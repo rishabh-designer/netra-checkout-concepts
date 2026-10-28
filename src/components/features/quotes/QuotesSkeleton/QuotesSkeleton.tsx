@@ -36,11 +36,10 @@ export function QuotesSkeleton({ cardCount, collapsed = false, rowCount = 7 }: Q
           mobile just its header bar, the accordion shut. */}
       <aside className={styles.rail}>
         <div className={styles.railTop}>
-          {/* The tab strip: Chat | Profile | Score. */}
+          {/* The tab strip: Score | Profile (Case C: Profile | Score). */}
           <div className={styles.railHead}>
-            <Skeleton variant="rounded" width="30%" height={32} delay={d(0)} />
-            <Skeleton variant="rounded" width="30%" height={32} delay={d(1)} />
-            <Skeleton variant="rounded" width="30%" height={32} delay={d(1) + 20} />
+            <Skeleton variant="rounded" width="47%" height={32} delay={d(0)} />
+            <Skeleton variant="rounded" width="47%" height={32} delay={d(1)} />
           </div>
           {!collapsed && (
             <div className={styles.rows}>
@@ -60,11 +59,15 @@ export function QuotesSkeleton({ cardCount, collapsed = false, rowCount = 7 }: Q
       <div className={styles.feed}>
         <div className={styles.top}>
           <div className={styles.topRow}>
+            {/* The title, then the Ask Netra box; the breadcrumb over Need Help. */}
             <div className={styles.heading}>
-              <Skeleton width={336} height={12} delay={d(1)} />
-              <Skeleton width={446} delay={d(2)} className={styles.titleBar} />
+              <Skeleton width={446} delay={d(1)} className={styles.titleBar} />
+              <Skeleton variant="rounded" height={100} delay={d(2)} className={styles.full} />
             </div>
-            <Skeleton variant="rounded" height={116} delay={d(3)} className={styles.help} />
+            <div className={styles.aside}>
+              <Skeleton width={236} height={10} delay={d(1)} className={styles.crumbBar} />
+              <Skeleton variant="rounded" height={116} delay={d(3)} className={styles.help} />
+            </div>
           </div>
           <Skeleton height={4} delay={d(4)} className={styles.rule} />
         </div>
@@ -85,12 +88,13 @@ export function QuotesSkeleton({ cardCount, collapsed = false, rowCount = 7 }: Q
             const base = d(7) + i * 80;
             return (
               <div key={i} className={styles.card}>
-                {/* As QuoteCard: logo | claim settlement ratio, the name,
-                    then match & compare, the rule, Sum Insured & price. */}
+                {/* As QuoteCard: the corner tag (Coverage Match), the logo,
+                    the name, then features & compare, the rule, Sum Insured
+                    & price. */}
+                <Skeleton variant="rounded" width={140} height={27} delay={base + 10} className={styles.cardTag} />
                 <div className={styles.cardHead}>
                   <div className={styles.cardBrand}>
                     <Skeleton variant="rounded" width={56} height={32} delay={base} />
-                    <Skeleton variant="rounded" width={150} height={22} delay={base + 10} />
                   </div>
                   <Skeleton width="58%" height={18} delay={base + 20} />
                   <Skeleton width="42%" height={18} delay={base + 40} />

@@ -76,43 +76,7 @@
   background: var(--color-card);
 }
 
-.tile[data-tone="gold"] {
-  /* Room for the Secured with BimaNetra tag. */
-  padding-top: 40px;
-  border-color: var(--color-brand-secondary-border);
-  background: linear-gradient(180deg, var(--color-brand-secondary-subtle) 0, var(--color-card) 70%);
-}
-
-.tags {
-  position: absolute;
-  top: -0.5px;
-  left: 15.5px;
-  display: flex;
-  gap: var(--spacing-8);
-}
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  padding: var(--spacing-6) var(--spacing-8) var(--spacing-8);
-  border: var(--border-hairline) solid var(--color-brand-primary-border);
-  border-radius: 0 0 var(--radius-12) var(--radius-12);
-  background: var(--color-card);
-  color: var(--color-brand-primary);
-  font-size: var(--font-size-75);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.tag[data-tone="gold"] {
-  border-color: var(--color-brand-secondary-subtle-bold);
-  color: var(--color-brand-secondary);
-}
-
-/* Level with the logo (and clear of the Gold's tag). */
+/* Level with the logo. */
 .remove {
   position: absolute;
   top: 22px;
@@ -127,10 +91,6 @@
   border-radius: var(--radius-8);
   background: var(--color-card);
   cursor: pointer;
-}
-
-.tile[data-tone="gold"] .remove {
-  top: 46px;
 }
 
 .remove:hover {
@@ -187,15 +147,6 @@
 .buttonFilled:hover {
   background: var(--color-brand-primary-hover);
   box-shadow: var(--shadow-button-primary-hover);
-}
-
-.tile[data-tone="gold"] .buttonFilled {
-  --btn: var(--color-brand-secondary);
-}
-
-.tile[data-tone="gold"] .buttonFilled:hover {
-  background: var(--color-brand-secondary);
-  box-shadow: var(--shadow-button-secondary-hover);
 }
 
 .buttonOutline {

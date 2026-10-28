@@ -1,8 +1,8 @@
 /*
  * Quote card (Figma 658:47652 immediate / 658:49729 priced / 658:49915
- * offline; Gold keeps 584:42982's caution palette). One layout; each
- * `data-tone` has its own diagonal gradient, price-bar fill, rule colour and
- * button. Gold also swaps the stroke and adds an outer orange glow.
+ * offline / 866:26034). One layout; each `data-tone` has its own diagonal
+ * gradient, price-bar fill, rule colour and button. The Gold Quote takes the
+ * tone of what it is, like any other quote.
  */
 .card {
   --bar-fill: var(--color-brand-primary-subtle);
@@ -51,120 +51,9 @@
   );
 }
 
-.card[data-tone="gold"] {
-  --bar-fill: var(--color-brand-secondary-subtle);
-  border-color: var(--color-caution);
-  box-shadow: var(--shadow-gold-glow);
-  background: linear-gradient(
-    202.89deg, /* 584:42982 */
-    var(--color-caution-subtle) 3.175%,
-    var(--color-card) 25.236%,
-    var(--color-card) 77.441%,
-    var(--color-brand-secondary-subtle) 81.359%
-  );
-}
-
 .card:hover {
   border-color: var(--color-card);
   box-shadow: var(--shadow-card-hover);
-}
-
-.card[data-tone="gold"]:hover {
-  border-color: var(--color-caution);
-  box-shadow: var(--shadow-gold-glow), var(--shadow-card-hover);
-}
-
-/*
- * Gold border beam (after libraries.dev "Border beam"): layers around the gold
- * card — its fill, stroke and glow are untouched. A large conic-gradient square
- * (.beamSpin) rotates with `transform` (always composited, so it never stalls)
- * inside two clips: .beamRing masks it to a 0.5px ring on top of the card;
- * .beamGlow blurs it behind the card as a halo. One slow 9s revolution with a
- * bright comet and a faint twin opposite — calm, almost hypnotic.
- */
-.goldBeam {
-  position: relative;
-  display: flex;
-  width: 100%;
-  border-radius: var(--radius-16);
-  isolation: isolate;
-}
-
-.beamRing,
-.beamGlow {
-  position: absolute;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-/* 0.5px ring laid exactly over the card's 0.5px stroke — the border itself
-   appears to light up as the comet passes. */
-.beamRing {
-  inset: 0;
-  z-index: 1;
-  padding: 0.5px;
-  border-radius: var(--radius-16);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-}
-
-/* Halo: 2px spread, radius = card 16 + 2, blur scaled with the spread
-   (reach ≈ 2 + 2×6 = 14px, well inside the feed's 24px top padding). */
-.beamGlow {
-  inset: -2px;
-  z-index: -1;
-  border-radius: calc(var(--radius-16) + 2px);
-  filter: blur(6px);
-  opacity: 1;
-}
-
-.beamSpin {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 1200px;
-  height: 1200px;
-  background: conic-gradient(
-    transparent 0% 10%,
-    color-mix(in srgb, var(--color-gold-highlight) 45%, transparent) 18%,
-    color-mix(in srgb, var(--color-caution) 40%, transparent) 22%,
-    transparent 30% 58%,
-    var(--color-gold-highlight) 70%,
-    var(--color-caution) 78%,
-    var(--color-gold) 85%,
-    var(--color-brand-secondary) 91%,
-    transparent 98% 100%
-  );
-  transform: translate(-50%, -50%) rotate(0deg);
-  animation: beam-rotate 9s linear infinite;
-  will-change: transform;
-}
-
-@keyframes beam-rotate {
-  to {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
-/* Reduced motion: no sweep — a faint static gold rim keeps the card distinct. */
-@media (prefers-reduced-motion: reduce) {
-  .beamSpin {
-    animation: none;
-    background: conic-gradient(
-      var(--color-gold-highlight),
-      var(--color-caution),
-      var(--color-gold),
-      var(--color-brand-secondary),
-      var(--color-gold-highlight)
-    );
-  }
-  .beamRing {
-    opacity: 0.35;
-  }
-  .beamGlow {
-    opacity: 0.2;
-  }
 }
 
 /* D&O mark: 130px, bottom half clipped, tucked behind the name and just
@@ -184,17 +73,16 @@
   height: 130px;
 }
 
-/* The mark keeps its warm orange on the Gold Quote and Immediate Purchase
-   cards, at rest and shimmering; every other card drops its colour
-   (luminosity blend). */
-.card:not([data-tone="gold"]):not([data-tone="immediate"]) .mark,
-.card:not([data-tone="gold"]):not([data-tone="immediate"]) .markShine {
+/* The mark keeps its warm orange on Immediate Purchase cards, at rest and
+   shimmering; every other card drops its colour (luminosity blend). */
+.card:not([data-tone="immediate"]) .mark,
+.card:not([data-tone="immediate"]) .markShine {
   mix-blend-mode: luminosity;
 }
 
 /* Hover shimmer (DitherImage over the mark): fades in with the hover and
-   out before it unmounts. In the mark's own colour on the Gold Quote and
-   Immediate Purchase cards; monochrome on the rest. */
+   out before it unmounts. In the mark's own colour on Immediate Purchase
+   cards; monochrome on the rest. */
 .markShine {
   position: absolute;
   top: 0;
@@ -202,7 +90,7 @@
   animation: mark-shine-in 0.28s ease both;
 }
 
-.card:not([data-tone="gold"]):not([data-tone="immediate"]) .markShine {
+.card:not([data-tone="immediate"]) .markShine {
   filter: grayscale(1);
 }
 
@@ -239,14 +127,14 @@
   position: static;
 }
 
-/* Tags hang off the top edge, right-aligned, 8 apart. */
+/* Tags hang off the top edge, right-aligned, 4 apart (866:26106). */
 .tabs {
   position: absolute;
   top: -0.5px;
   right: 11.5px;
   z-index: 1;
   display: flex;
-  gap: var(--spacing-8);
+  gap: var(--spacing-4);
 }
 
 /* Tag: white, tone hairline, rounded foot only, flush with the top edge. */
@@ -267,9 +155,10 @@
 }
 
 /* Territory (Worldwide / India Only): purple theme. */
-.tab[data-tone="gold"] {
-  border-color: var(--color-brand-secondary-subtle-bold);
-  color: var(--color-brand-secondary);
+/* Coverage Match (866:26115): the brand's lavender hairline, purple ink. */
+.tab[data-tone="match"] {
+  border-color: var(--color-brand-primary-border);
+  color: var(--color-brand-primary);
 }
 
 .tabIcon {
@@ -319,7 +208,7 @@
   height: 32px;
 }
 
-/* Logo left, claim settlement ratio right, one 32px row (827:20915). */
+/* The logo, one 32px row (827:20915). */
 .brand {
   display: flex;
   align-items: center;
@@ -327,26 +216,6 @@
   gap: var(--spacing-8);
   align-self: stretch;
   height: 32px;
-}
-
-.csr {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  padding: var(--spacing-4) var(--spacing-8);
-  border: var(--border-hairline) solid var(--color-border-subtle);
-  border-radius: var(--radius-8);
-  background: var(--color-card);
-  font-size: var(--font-size-75);
-  font-weight: 500;
-  letter-spacing: var(--track-500);
-  line-height: 1.2;
-  color: var(--color-label-secondary);
-  white-space: nowrap;
-}
-
-.csr > div {
-  display: flex;
 }
 
 .name {
@@ -406,7 +275,7 @@
   color: var(--color-brand-primary);
 }
 
-/* button/primary.fill — filled (price / gold) and outlined (Get Quote). */
+/* button/primary.fill — filled (a price, or Unlock Quote) and outlined (Get Quote). */
 .buttonFilled,
 .buttonOutline {
   --btn: var(--color-brand-primary);
@@ -438,21 +307,10 @@
   color: var(--btn);
 }
 
-.card[data-tone="gold"] .buttonFilled {
-  --btn: var(--color-brand-secondary);
-}
-
 .card:hover .buttonFilled {
   background: var(--color-brand-primary-hover);
   border-color: var(--color-brand-primary-subtle);
   box-shadow: var(--shadow-button-primary-hover);
-}
-
-.card[data-tone="gold"]:hover .buttonFilled {
-  background: var(--color-brand-secondary);
-  border-color: var(--color-brand-secondary-subtle-bold);
-  box-shadow: var(--shadow-button-secondary-hover);
-  filter: brightness(0.96);
 }
 
 /* Get Quote outline: neutral stroke, purple label. */
@@ -495,30 +353,6 @@
     var(--color-card) 93.2%,
     var(--color-info-subtle) 100%
   );
-}
-
-/* Gold Quote foot (707:59180): the pale corners turn warm (caution at
-   the start, peach at the end) on a caution hairline, and its Personalized
-   Coverages chip takes the secondary (orange) theme. */
-.card[data-tone="gold"] .foot {
-  border-color: var(--color-caution-border);
-  background: linear-gradient(
-    127deg,
-    var(--color-caution-subtle) 0%,
-    var(--color-card) 6.5%,
-    var(--color-card) 93.2%,
-    var(--color-brand-secondary-subtle) 100%
-  );
-}
-
-.card[data-tone="gold"] .chip {
-  border-color: var(--color-brand-secondary-border);
-  background: var(--color-brand-secondary-subtle);
-  color: var(--color-brand-secondary);
-}
-
-.card[data-tone="gold"] .chip:hover {
-  border-color: var(--color-brand-secondary);
 }
 
 /* Coverages chip (658:48095): opens the policy details modal. Figma r6,

@@ -132,6 +132,7 @@
   --radius-8: 8px;
   --radius-12: 12px;
   --radius-16: 16px;
+  --radius-20: 20px;
   --radius-24: 24px;
   --radius-32: 32px;
 
@@ -210,6 +211,7 @@
     --radius-8: 5px;
     --radius-12: 7px;
     --radius-16: 10px;
+    --radius-20: 12px;
     --radius-24: 14px;
     --radius-32: 19px;
   }

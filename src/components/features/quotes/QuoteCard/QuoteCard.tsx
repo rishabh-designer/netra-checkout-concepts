@@ -5,9 +5,8 @@ import { DitherImage } from "@/components/ui/DitherImage";
 import type { QuoteCardData, QuoteTerritory } from "@/types/quotesPage";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { MoveRightIcon, type MoveRightIconHandle } from "@/components/icons/MoveRightIcon";
-import { BadgeCheckIcon } from "@/components/icons/BadgeCheckIcon";
 import { splitName } from "@/lib/utils";
-import { PriceMorph, type PriceIntro } from "../PriceMorph";
+import { coverageMatch } from "@/lib/risk-fit";
 import { ShoppingBagIcon } from "@/components/icons/ShoppingBagIcon";
 import { BookOpenIcon } from "@/components/icons/BookOpenIcon";
 import { NetraBot } from "@/components/ui/NetraBot";
@@ -27,7 +26,6 @@ function ChipChevron() {
 
 /** Ikkat rule colour per card tone (Figma 658:49326 / 49729 / 49915). */
 const RULE_COLOR = {
-  gold: "var(--color-brand-secondary)",
   immediate: "var(--color-success)",
   priced: "var(--color-brand-primary)",
   quote: "var(--color-label-tertiary)",
@@ -56,8 +54,8 @@ export interface QuoteCardLabels {
   riskFit?: string;
   /** The card's chip once scored: "View {met} Key Features". */
   riskFitChip?: string;
-  /** Under the logo: "Claim Settlement Ratio: {value}". */
-  csr?: string;
+  /** The corner tag once scored: "Coverage Match: {value}%". */
+  coverageMatch?: string;
   /** Tag tooltips (what Immediate Purchase, territory… mean). */
   tips?: { immediate: string; gold: string; compareOff: string; compareFull: string; offer: string; territory: Record<QuoteTerritory, string> };
 }
@@ -69,9 +67,6 @@ export interface QuoteCardProps {
   onViewFeatures?: () => void;
   /** Price button — starts checkout (priced quotes) or the Gold gate. */
   onSelect?: () => void;
-  /** Offer prices (`originalPrice` set): where the strike → roll story is.
-   *  Defaults to "done" (the offer at rest). */
-  priceIntro?: PriceIntro;
   /** Slim card ("Other Quotes" on the Gold Inquiry page, Figma 642:35456):
    *  just the tag, logo, name and price bar (no rule or footer). */
   mini?: boolean;
@@ -95,70 +90,60 @@ export function coverageChipLabel(quote: QuoteCardData, labels: QuoteCardLabels,
   return (quote.gold ? labels.personalizedCount : labels.coverageCount).replace("{count}", String(count));
 }
 
-const BEAM_MS = 9000;
 /** Hover shimmer: the burst on entry, then a calmer glitter while hovered. */
 const SHINE_BURST_MS = 380;
 const SHINE_REST = 0.35;
-const SHINE_FADE_MS = 280; // one revolution; matches beam-rotate in the CSS
-
-/** Phase-locks the beam to the page clock, so a remount (the Gold card
- *  swapping from its reveal layer to the feed) picks up at the same angle
- *  instead of restarting from the top. */
-export function lockBeam(el: HTMLElement | null) {
-  const now = Number(document.timeline?.currentTime ?? performance.now());
-  if (el) el.style.animationDelay = `${-(now % BEAM_MS)}ms`;
-}
+const SHINE_FADE_MS = 280;
 
 /**
  * QuoteCard — one insurer quote in the grid (Figma 658:47652 immediate /
- * 658:49729 priced / 658:49915 offline). The tag hangs off the top edge
- * (Immediate Purchase, or Secured with BimaNetra on the Gold Quote), the logo
- * sits over the two-line insurer name with the D&O mark half-cropped behind,
- * then a tinted price bar (Sum Insured · price / Get Quote), an ikkat rule,
- * and a footer with the coverages chip (→ the policy details modal) and Add
- * To Compare. `data-tone` swaps the gradient, bar fill, rule and button; the
- * arrow loops while the card is hovered. The Gold card is wrapped in a golden
- * border beam. `data-reveal` hooks let RevealCard choreograph its entrance.
+ * 658:49729 priced / 658:49915 offline, 866:26034). The tags hang off the top
+ * edge (Immediate Purchase, then Coverage Match once scored), the logo sits
+ * over the two-line insurer name with the D&O mark half-cropped behind, then
+ * the coverages chip (→ the policy details modal) and Add To Compare, an
+ * ikkat rule, and a tinted price bar (Sum Insured · price / Get Quote).
+ * `data-tone` swaps the gradient, bar fill, rule and button; the arrow loops
+ * while the card is hovered. The Gold Quote looks like any other card: no
+ * quote is singled out. `data-reveal` hooks let RevealCard choreograph its
+ * entrance.
  * Usage: <QuoteCard quote={q} labels={…} onViewFeatures={open} onSelect={buy} />
  */
-export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro = "done", mini = false, compared: comparedProp, onToggleCompare, compareFull = false }: QuoteCardProps) {
+export function QuoteCard({ quote, labels, onViewFeatures, onSelect, mini = false, compared: comparedProp, onToggleCompare, compareFull = false }: QuoteCardProps) {
   const arrowRef = useRef<MoveRightIconHandle>(null);
   const [comparedLocal, setComparedLocal] = useState(false);
   const compared = onToggleCompare ? !!comparedProp : comparedLocal;
   const toggleCompare = onToggleCompare ?? (() => setComparedLocal((v) => !v));
   const compareLocked = compareFull && !compared;
 
-  const tone = quote.gold ? "gold" : quote.immediate ? "immediate" : quote.price ? "priced" : "quote";
-  const filled = tone === "gold" || !!quote.price;
+  // Every quote, the Gold Quote included, by what it is: bought online,
+  // priced, or one to request. (Case B's Gold has no price yet, but its
+  // Unlock Quote button fills like a price.)
+  const tone = quote.immediate ? "immediate" : quote.price || quote.gold ? "priced" : "quote";
+  const filled = !!quote.price || !!quote.gold;
 
-  // The tone tag (territory reads from the key features, not a pill).
-  const toneTag =
-    tone === "gold" ? (
-      <span className={styles.tab} data-tone="gold" data-reveal="pill" data-tooltip={labels.tips?.gold}>
-        <BadgeCheckIcon size={10} color="var(--color-brand-secondary)" />
-        {labels.poweredBy}
-      </span>
-    ) : tone === "immediate" ? (
-      <span className={styles.tab} data-tone="immediate" data-reveal="pill" data-tooltip={labels.tips?.immediate}>
+  // The corner tags: Immediate Purchase, then the Coverage Match once the
+  // risk is scored (Figma 866:26106).
+  const match = coverageMatch(quote.riskFit);
+  const tags = [
+    tone === "immediate" && (
+      <span key="immediate" className={styles.tab} data-tone="immediate" data-reveal="pill" data-tooltip={labels.tips?.immediate}>
         <ShoppingBagIcon size={10} color="var(--color-success)" />
         {labels.immediatePurchase}
       </span>
-    ) : null;
-  const tag = toneTag ? <span className={styles.tabs}>{toneTag}</span> : null;
+    ),
+    match !== undefined && labels.coverageMatch && (
+      <span key="match" className={styles.tab} data-tone="match" data-reveal="pill">
+        <BookOpenIcon size={12} />
+        {labels.coverageMatch.replace("{value}", String(match))}
+      </span>
+    ),
+  ].filter(Boolean);
+  const tag = tags.length ? <span className={styles.tabs}>{tags}</span> : null;
 
   // Shared by both views: the price / Get Quote button and Add To Compare.
   const priceButton = (
-    <button
-      type="button"
-      className={filled ? styles.buttonFilled : styles.buttonOutline}
-      onClick={onSelect}
-      data-tooltip={quote.price && quote.originalPrice ? labels.tips?.offer?.replace("{from}", quote.originalPrice) : undefined}
-    >
-      {quote.price && quote.originalPrice ? (
-        <PriceMorph from={quote.originalPrice} to={quote.price} intro={priceIntro} />
-      ) : (
-        (quote.price ?? quote.ctaLabel ?? labels.getQuote)
-      )}
+    <button type="button" className={filled ? styles.buttonFilled : styles.buttonOutline} onClick={onSelect}>
+      {quote.price ?? quote.ctaLabel ?? labels.getQuote}
       <MoveRightIcon ref={arrowRef} size={14} loop className={styles.arrow} />
     </button>
   );
@@ -238,8 +223,8 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
 
       <div className={styles.inner}>
         <div className={styles.head}>
-          {/* Logo left, claim settlement ratio right, on one 32px row. No
-              insurer yet (Case B's Gold): NetraBot holds the logo's place. */}
+          {/* The logo on one 32px row. No insurer yet (Case B's Gold):
+              NetraBot holds the logo's place. */}
           <div className={styles.brand}>
             {quote.logoSrc ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -250,13 +235,6 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
               </span>
             ) : (
               <span className={styles.logoSlot} aria-hidden />
-            )}
-            {/* The insurer's claim settlement ratio, a fact about the company. */}
-            {quote.csr && labels.csr && (
-              <span className={styles.csr} data-reveal="item">
-                <BookOpenIcon size={12} />
-                {labels.csr.replace("{value}", quote.csr)}
-              </span>
             )}
           </div>
           <h3 className={styles.name} title={quote.insurer}>
@@ -296,20 +274,5 @@ export function QuoteCard({ quote, labels, onViewFeatures, onSelect, priceIntro 
     </article>
   );
 
-
-  // Gold: a golden beam circles the border (overlay only — card CSS untouched).
-  // Two masked layers share one rotating conic sweep: a crisp ring on top and
-  // a blurred halo behind.
-  if (tone !== "gold") return card;
-  return (
-    <div className={styles.goldBeam}>
-      <span className={styles.beamGlow} aria-hidden data-reveal="beam">
-        <span ref={lockBeam} className={styles.beamSpin} />
-      </span>
-      {card}
-      <span className={styles.beamRing} aria-hidden data-reveal="beam">
-        <span ref={lockBeam} className={styles.beamSpin} />
-      </span>
-    </div>
-  );
+  return card;
 }

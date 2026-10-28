@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useCaseHref } from "@/lib/use-case-href";
 import { GOLD_DETAILS_KEY, useQuoteFlow } from "@/lib/quote-flow";
+import { coverageMatch } from "@/lib/risk-fit";
 import { resetCheckoutClock } from "@/components/features/checkout/useCheckoutClock";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
@@ -17,27 +18,26 @@ import { QuoteCard } from "../QuoteCard";
 import { NeedHelpCard } from "../HelpDesk";
 import { CompareSheet } from "../CompareSheet";
 import { CompareView } from "../CompareView";
-import { RevealCard } from "../RevealCard";
-import type { PriceIntro } from "../PriceMorph";
+import { DitherWash } from "@/components/ui/DitherWash";
 import styles from "./QuotesFeed.module.css";
 import { EASE_OUT, EASE_STD } from "@/lib/motion";
 
 export interface QuotesFeedProps {
   content: QuotesFeedContent;
-  /** The resolved flow case — selects a per-case quote list + the ghost card. */
+  /** The resolved flow case — selects a per-case quote list + the Gold Quote. */
   caseId?: QuoteCaseId;
   /** The Sum Insured the user chose in the flow ("₹10 Cr") — shown on every
    *  card in place of the mock's value. Off-flow, the mock value stays. */
   sumInsured?: string;
-  /** Cases A and B: verification finished, so the Reveal button is live. */
+  /** Cases A and B: verified and the feed in view (past the welcome popup):
+   *  the Gold card's shimmer plays. */
   unlocked?: boolean;
-  /** Cases A and B: the Gold Quote has been revealed. */
-  revealed?: boolean;
-  onRevealed?: () => void;
   /** Tells the page when the compare view opens or closes (its header CTA). */
   onComparingChange?: (comparing: boolean) => void;
   /** Ask BimaNetra is open: its chat stands in for the Need Help card. */
   helpHidden?: boolean;
+  /** Under the title: the Ask Netra box (Figma 866:23105). */
+  assist?: ReactNode;
 }
 
 /* The grid picks its column count from the feed's width: one up, until two
@@ -61,12 +61,12 @@ const columnsFor = (width: number) =>
 
 
 const priceOf = (q: QuoteCardData) => (q.price ? Number(q.price.replace(/\D/g, "")) : Infinity);
-/** "96%" → 96; none (or "N/A") is NaN and always sorts last. */
-const csrOf = (q: QuoteCardData) => parseFloat(q.csr ?? "");
+/** The quote's Coverage Match (75); an unscored quote is NaN and sorts last. */
+const matchOf = (q: QuoteCardData) => coverageMatch(q.riskFit) ?? NaN;
 
 /** Filter + sort the non-gold quotes (the Gold Quote stays pinned on top).
  *  Price-on-request quotes always sink below priced ones in a premium sort;
- *  the claim settlement ratio sorts run across all of them, either way. */
+ *  the Coverage Match sorts run across all of them, either way. */
 function arrange(list: QuoteCardData[], filter: QuoteFilter[], sort: QuoteSort, immediateOnly: boolean) {
   const kept = list.filter(
     (q) =>
@@ -74,11 +74,11 @@ function arrange(list: QuoteCardData[], filter: QuoteFilter[], sort: QuoteSort, 
       (filter.length === 0 || filter.includes(q.insurer)),
   );
   const bySort = (a: QuoteCardData, b: QuoteCardData) => {
-    if (sort === "csrHigh" || sort === "csrLow") {
-      const ca = csrOf(a);
-      const cb = csrOf(b);
-      if (Number.isNaN(ca) || Number.isNaN(cb)) return Number.isNaN(ca) === Number.isNaN(cb) ? 0 : Number.isNaN(ca) ? 1 : -1;
-      return sort === "csrHigh" ? cb - ca : ca - cb;
+    if (sort === "matchHigh" || sort === "matchLow") {
+      const ma = matchOf(a);
+      const mb = matchOf(b);
+      if (Number.isNaN(ma) || Number.isNaN(mb)) return Number.isNaN(ma) === Number.isNaN(mb) ? 0 : Number.isNaN(ma) ? 1 : -1;
+      return sort === "matchHigh" ? mb - ma : ma - mb;
     }
     const pa = priceOf(a);
     const pb = priceOf(b);
@@ -89,15 +89,15 @@ function arrange(list: QuoteCardData[], filter: QuoteFilter[], sort: QuoteSort, 
 }
 
 /**
- * QuotesFeed — the middle column (Figma 564:32970). A fixed top (breadcrumb + count,
+ * QuotesFeed — the middle column (Figma 564:32970). A fixed top (Ask Netra + count,
  * controls, ikkat rule) over a scroll area that holds the vertical quote stack
  * (480 wide). Only the scroll area moves. Matched cases (A and B) lead the stack with
- * a ghost "Reveal Quote" card that the customer opens to unveil their Gold
- * Quote. Filtering, sorting and "Immediate Purchase Only" rearrange the
- * rest; the reveal slot stays pinned first.
+ * their Gold Quote, a card like any other, which a dither shimmer crosses
+ * once as the feed comes into view. Filtering, sorting and "Immediate
+ * Purchase Only" rearrange the rest; the Gold card stays pinned first.
  * Usage: <QuotesFeed content={feed} caseId="B" sumInsured="₹10 Cr" />
  */
-export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, revealed = false, onRevealed, onComparingChange, helpHidden = false }: QuotesFeedProps) {
+export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, onComparingChange, helpHidden = false, assist }: QuotesFeedProps) {
   const feedRef = useRef<HTMLDivElement>(null);
   const [cols, setCols] = useState(1);
   useLayoutEffect(() => {
@@ -123,14 +123,11 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     personalizedCount: content.personalizedCountLabel,
     riskFit: content.riskFitLabel,
     riskFitChip: content.riskFitChipLabel,
-    csr: content.csrLabel,
+    coverageMatch: content.coverageMatchLabel,
   };
-  // Card view: the current card, or the previous Top Coverages card
-  // (LIVE QUOTES in the breadcrumb swaps them).
 
   const reduced = useReducedMotion();
-  // Cases A and B both lead with the Reveal slot: the customer unveils their
-  // own Gold Quote (A's unlocks moments after load, B's once verified).
+  // Cases A and B both lead with their own Gold Quote.
   const ghostFirst = caseId === "A" || caseId === "B";
   // Case B's Gold Quote is gated: unpriced until the Additional Details are in.
   const gate = caseId ? content.goldGateByCase?.[caseId] : undefined;
@@ -140,19 +137,12 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   const gold = (caseId && content.goldQuoteByCase?.[caseId]) ?? content.goldQuote;
   const all = (caseId && content.quotesByCase?.[caseId]) ?? content.quotes;
   // The Gold Quote is an insurer's own quote nudged to fit the risk (A's is
-  // Generali's): that insurer's plain quote never shows, so the count reads
-  // one less until the reveal adds the Gold back (5 → 6).
+  // Generali's): that insurer's plain quote never shows; the Gold takes its place.
   const base = ghostFirst ? all.filter((q) => q.insurer !== gold.insurer) : all;
-  const list = ghostFirst && revealed ? [gold, ...base] : base;
-  // The revealed Gold Quote's price strikes down once the card lands.
-  const [revealIntro, setRevealIntro] = useState<PriceIntro>(() => (revealed ? "done" : "idle"));
-  useEffect(() => {
-    if (revealed) return;
-    setRevealIntro("idle");
-  }, [revealed]);
+  const list = ghostFirst ? [gold, ...base] : base;
   const quotes = sumInsured ? list.map((q) => ({ ...q, sumInsured })) : list;
-  const toneOf = (q: QuoteCardData): QuoteTone =>
-    q.gold ? "gold" : q.immediate ? "immediate" : q.price ? "priced" : "quote";
+  // No quote is singled out: the Gold Quote reads by what it is, as any other.
+  const toneOf = (q: QuoteCardData): QuoteTone => (q.immediate ? "immediate" : q.price || q.gold ? "priced" : "quote");
 
   // Policy details modal — remembers the card it opened from so it mirrors
   // it (and stays filled while the modal fades out).
@@ -220,11 +210,11 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
     compareFull: picked.length >= compareMax,
   });
   const [countBefore, countAfter = ""] = content.availableLabel.split("{count}");
-  // The Gold card lives in the reveal slot; the rest follow it.
+  // The Gold card leads, pinned; the rest follow it.
   const goldCard: QuoteCardData = { ...gold, ...(sumInsured ? { sumInsured } : {}) };
-  const rest = ghostFirst && revealed ? quotes.slice(1) : quotes;
+  const rest = ghostFirst ? quotes.slice(1) : quotes;
   const pickedQuotes = picked
-    .map((key) => (key === "gold" ? (ghostFirst && revealed ? goldCard : undefined) : quotes.find((q) => !q.gold && q.insurer === key)))
+    .map((key) => (key === "gold" ? (ghostFirst ? goldCard : undefined) : quotes.find((q) => !q.gold && q.insurer === key)))
     .filter((q): q is QuoteCardData => !!q);
   // Compare Now opens the side-by-side view; removing the last quote closes it.
   const [comparing, setComparing] = useState(false);
@@ -239,7 +229,11 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   };
   // Picked insurers; none picked shows them all.
   const [filter, setFilter] = useState<QuoteFilter[]>([]);
-  const [sort, setSort] = useState<QuoteSort>("priceLow");
+  // Scored cases (A, B) sort by Coverage Match, best first; Case C has none,
+  // so its options leave those out and it starts on price.
+  const scored = all.some((q) => !!q.riskFit);
+  const sortOptions = scored ? content.sortOptions : content.sortOptions.filter((o) => o.id !== "matchHigh" && o.id !== "matchLow");
+  const [sort, setSort] = useState<QuoteSort>(() => sortOptions[0].id);
   const [immediateOnly, setImmediateOnly] = useState(false);
   // The Gold Quote stays pinned on top, unless another insurer is picked.
   const pinned = rest.filter((q) => q.gold && (filter.length === 0 || filter.includes(q.insurer)));
@@ -248,10 +242,10 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
   const filterOptions = [...new Set(rest.filter((q) => !q.gold).map((q) => q.insurer))];
   const arranged = arrange(rest.filter((q) => !q.gold), filter, sort, immediateOnly);
   const shown = [...pinned, ...arranged];
-  const shownCount = shown.length + (ghostFirst && revealed ? 1 : 0);
+  const shownCount = shown.length + (ghostFirst ? 1 : 0);
   // Policy details page through the quotes in feed order (the Gold Quote
-  // first once revealed), matched by insurer (the Gold one by its flag).
-  const pagerList = [...(ghostFirst && revealed ? [goldCard] : []), ...shown];
+  // first), matched by insurer (the Gold one by its flag).
+  const pagerList = [...(ghostFirst ? [goldCard] : []), ...shown];
   const pagerIndex = featuresQuote ? pagerList.findIndex((q) => (featuresQuote.gold ? q.gold : !q.gold && q.insurer === featuresQuote.insurer)) : -1;
   const pager =
     pagerIndex >= 0
@@ -279,15 +273,12 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
 
   return (
     <div ref={feedRef} className={styles.feed} data-comparing={picked.length > 0 || undefined} style={{ "--cols": cols } as CSSProperties}>
-      {/* Top section (658:45850): breadcrumb over the titled count, the Need
-          Help card on the right, and a full-width ikkat rule. */}
+      {/* Top section (866:23104): the titled count over Ask Netra on the
+          left; the breadcrumb over the Need Help card on the right, their
+          feet level; a full-width ikkat rule under. */}
       <div className={styles.top}>
         <div className={styles.topRow}>
           <div className={styles.heading}>
-            <BreadcrumbTrail
-              items={content.breadcrumb}
-              variant="slash"
-            />
             <h1 className={styles.title}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={content.titleIconSrc} alt="" aria-hidden className={styles.titleIcon} />
@@ -310,22 +301,28 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                 {countAfter}
               </span>
             </h1>
+            {assist}
           </div>
-          {/* Dissolves while Ask BimaNetra is open (the chat covers help), and
-              comes back when it closes. */}
-          <AnimatePresence initial={false}>
-            {!helpHidden && (
-              <motion.div
-                key="help"
-                initial={{ opacity: 0, filter: "blur(6px)", scale: 0.98 }}
-                animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
-                exit={{ opacity: 0, filter: "blur(6px)", scale: 0.98 }}
-                transition={{ duration: 0.35, ease: EASE_STD }}
-              >
-                <NeedHelpCard content={content.needHelp} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div className={styles.aside}>
+            <div className={styles.crumbs}>
+              <BreadcrumbTrail items={content.breadcrumb} variant="slash" />
+            </div>
+            {/* Dissolves while Ask BimaNetra is open (the chat covers help), and
+                comes back when it closes. */}
+            <AnimatePresence initial={false}>
+              {!helpHidden && (
+                <motion.div
+                  key="help"
+                  initial={{ opacity: 0, filter: "blur(6px)", scale: 0.98 }}
+                  animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
+                  exit={{ opacity: 0, filter: "blur(6px)", scale: 0.98 }}
+                  transition={{ duration: 0.35, ease: EASE_STD }}
+                >
+                  <NeedHelpCard content={content.needHelp} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
         <IkkatDivider unit={23.8} height={4} className={styles.rule} />
       </div>
@@ -344,7 +341,7 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
           filterResetLabel={content.filterResetLabel}
           filterApplyLabel={content.filterApplyLabel}
           sortLabel={content.sortLabel}
-          sortOptions={content.sortOptions}
+          sortOptions={sortOptions}
           sort={sort}
           onSortChange={setSort}
           switchLabel={content.switchLabel}
@@ -357,16 +354,11 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
 
           <div className={styles.stack}>
             {ghostFirst && (
-              <motion.div key="reveal-slot" className={styles.cell} {...reveal(0)}>
-                <RevealCard
-                  unlocked={unlocked}
-                  revealed={revealed}
-                  labels={{ reveal: content.revealQuoteLabel, lockedHint: content.revealLockedHint }}
-                  onRevealed={() => onRevealed?.()}
-                  // The price strikes down once the card sits still, so the
-                  // morph never restarts when the reveal layer hands over.
-                  onSettled={() => setRevealIntro("play")}
-                >
+              <motion.div key="gold-slot" className={styles.cell} {...reveal(0)}>
+                {/* The Gold Quote sits in the feed from the start, a card like
+                    any other; a brighter dither shimmer crosses it once, as
+                    the feed comes into view (after the welcome popup). */}
+                <div className={styles.goldCell}>
                   <QuoteCard
                     {...compareProps(goldCard)}
                     quote={goldCard}
@@ -375,10 +367,15 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, reve
                       setFeaturesQuote(goldCard);
                       setFeaturesOpen(true);
                     }}
-                    onSelect={revealed ? selectGold(goldCard) : undefined}
-                    priceIntro={revealIntro}
+                    onSelect={selectGold(goldCard)}
                   />
-                </RevealCard>
+                  {unlocked && (
+                    <span className={styles.goldShimmer} aria-hidden>
+                      {/* Neutral grey, a light hint: never a gold tint. */}
+                      <DitherWash delay={0.25} duration={1.9} edgeToken="--color-label-tertiary" trailToken="--color-border-subtle" strength={0.36} />
+                    </span>
+                  )}
+                </div>
               </motion.div>
             )}
             <AnimatePresence mode="popLayout" initial={false}>

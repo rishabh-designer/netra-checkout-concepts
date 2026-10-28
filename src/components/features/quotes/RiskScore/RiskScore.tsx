@@ -58,7 +58,11 @@ export function RiskScoreBadge({ score, label, info, muted = false, still = fals
   useEffect(() => {
     const column = root.current?.parentElement;
     if (!column || !swappable) return;
-    const ro = new ResizeObserver(([e]) => setRoom(e.contentRect.width));
+    // A hidden column (its tab not chosen) measures 0: keep the last size, so
+    // the medal doesn't shrink away and grow back on every tab switch.
+    const ro = new ResizeObserver(([e]) => {
+      if (e.contentRect.width > 0) setRoom(e.contentRect.width);
+    });
     ro.observe(column);
     return () => ro.disconnect();
   }, [swappable]);

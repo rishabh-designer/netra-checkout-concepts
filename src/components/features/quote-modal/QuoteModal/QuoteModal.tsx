@@ -289,8 +289,12 @@ export function QuoteModal({
     if (engineState === "closed") openEngine(false);
     else if (engineState !== "closing") closeEngine();
   }
+  // The Intelligence Engine shows its research beside the form, except in
+  // Edit Details and for Case C: with no public records there's nothing to
+  // research, so Case C's modal is the form alone.
+  const showEngine = !formOnly && caseId !== "C";
   const engineSheet: EngineSheet | undefined =
-    sheet && !formOnly
+    sheet && showEngine
       ? { expanded: engineState !== "closed", closing: engineState === "closing", toggle: toggleEngine }
       : undefined;
 
@@ -613,8 +617,8 @@ export function QuoteModal({
             </div>
 
             {/* Left visual — the persistent "Intelligence Engine" task-runner.
-                Hidden in form-only (Edit Details) mode. */}
-            {!formOnly && (
+                Hidden in form-only (Edit Details) mode and for Case C. */}
+            {showEngine && (
               <div ref={glowRef} className={styles.rightGlow}>
                 <div className={styles.right}>
                   <div className={styles.rightScroll}>

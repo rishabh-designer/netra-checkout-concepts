@@ -1,1 +1,1 @@
-export { QuoteCard, coverageChipLabel, lockBeam, type QuoteCardProps, type QuoteCardLabels } from "./QuoteCard";
+export { QuoteCard, coverageChipLabel, type QuoteCardProps, type QuoteCardLabels } from "./QuoteCard";

@@ -17,7 +17,10 @@ import { RiskScoreBadge } from "../RiskScore";
 import type { UpgradeStage } from "../UpgradeBanner";
 import { QuotesFeed } from "../QuotesFeed";
 import { QuotesSkeleton } from "../QuotesSkeleton";
-import { QuotesChat } from "../QuotesChat";
+import { QuotesChat, useQuotesChat } from "../QuotesChat";
+import { AskNetra } from "../AskNetra";
+import { SideDrawer } from "@/components/ui/SideDrawer";
+import { NetraBot } from "@/components/ui/NetraBot";
 import type { QuotesChatContext } from "@/lib/quotes-chat";
 import { priceFeed } from "@/lib/pricing";
 import styles from "./QuotesView.module.css";
@@ -47,6 +50,9 @@ export interface QuotesViewProps {
 const LOAD_MS = 1500;
 /* Cases A and B: the banner picks the verification count up from here on arrival. */
 const VERIFY_FROM = 89;
+/* The sidebar's "You're Upgraded!" follows the Gold Quote's shimmer by this
+   beat (its light then lands ~0.45s after the card's). */
+const PANEL_AFTER_MS = 250;
 
 export function QuotesView(props: QuotesViewProps) {
   // Wait for the saved flow (restored before the first paint on a reload), so
@@ -92,7 +98,6 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   // Edit Details reload keeps it.
   const lured = caseId === "A" || caseId === "B";
   const [upgradeStage, setUpgradeStage] = useState<UpgradeStage>(() => (lured ? "verifying" : "pending"));
-  const [revealed, setRevealed] = useState(false);
   const notify = useDemoNotice();
   // A verified business (A, B) is greeted, right after the skeleton, by a
   // popup explaining the score and the key lines the quotes are matched
@@ -115,8 +120,8 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const goldInsurer = lured ? ((caseId && feed.goldQuoteByCase?.[caseId]) ?? feed.goldQuote).insurer : undefined;
   const cardCount = feedQuotes.filter((q) => q.insurer !== goldInsurer).length + (lured ? 1 : 0);
 
-  // What Ask BimaNetra can see: the feed, the Gold Quote (priced only once
-  // revealed), Your Details as the sidebar shows them.
+  // What Ask BimaNetra can see: the feed, the Gold Quote, Your Details as the
+  // sidebar shows them.
   const chatContext = useMemo<QuotesChatContext>(() => {
     const rows = content.detailsPanel.rows.map((row) => ({
       key: row.key,
@@ -127,7 +132,8 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
     return {
       // The Gold Quote stands in for its insurer's plain quote.
       quotes: gold ? feedQuotes.filter((q) => q.insurer !== gold.insurer) : feedQuotes,
-      gold: gold && { quote: gold, revealed },
+      // The Gold Quote is in the feed from the start.
+      gold: gold && { quote: gold, revealed: true },
       company: result?.companyName || content.detailsPanel.companyLabel,
       sumInsured: values?.["coverage"] || rows.find((r) => r.label === feed.sumInsuredLabel)?.value || "",
       details: rows,
@@ -138,7 +144,16 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
         exclusions: gold.policy.exclusions.slice(0, content.detailsPanel.score.listLength).map((c) => c.title),
       },
     };
-  }, [content, feed, values, caseId, lured, feedQuotes, revealed, result?.companyName]);
+  }, [content, feed, values, caseId, lured, feedQuotes, result?.companyName]);
+
+  // Ask BimaNetra: the conversation lives here, so it survives the drawer
+  // closing; the feed's Ask Netra box asks, and the right drawer opens on it.
+  const chat = useQuotesChat(content.chat, chatContext);
+  const [chatOpen, setChatOpen] = useState(false);
+  const askAndOpen = (question: string) => {
+    chat.ask(question);
+    setChatOpen(true);
+  };
 
   // The Score tab's lists: the Gold Quote's own coverages and exclusions.
   const goldPolicy = lured ? ((caseId && feed.goldQuoteByCase?.[caseId]) ?? feed.goldQuote)?.policy : undefined;
@@ -156,11 +171,21 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   const introCompany = result?.companyName || panel.companyFallback;
   // Only A and B, with key lines to show, get the popup (and wait on it).
   const introEligible = (caseId === "A" || caseId === "B") && !!scoreLists;
+  // The Gold Quote's shimmer plays once verified and past the popup; the
+  // sidebar holds its upgraded banner (at 100%) until a beat after, so the
+  // quote lights up first, then the score.
+  const unlocked = upgradeStage === "upgraded" && (!introEligible || introDone);
+  const [panelCaughtUp, setPanelCaughtUp] = useState(false);
+  useEffect(() => {
+    if (!unlocked || panelCaughtUp) return;
+    const id = window.setTimeout(() => setPanelCaughtUp(true), PANEL_AFTER_MS);
+    return () => window.clearTimeout(id);
+  }, [unlocked, panelCaughtUp]);
+  const panelStage: UpgradeStage = upgradeStage === "upgraded" && !panelCaughtUp ? "verifying" : upgradeStage;
   // Case C has no score to show: its popup introduces NetraBot instead, and
-  // Continue puts the cursor in the chat.
+  // Continue opens the chat.
   const botIntroEligible = caseId === "C";
   const [botIntroOpen, setBotIntroOpen] = useState(false);
-  const [chatFocus, setChatFocus] = useState(0);
   useEffect(() => {
     if (loading || !botIntroEligible || introShown.current) return;
     const id = window.setTimeout(() => {
@@ -182,7 +207,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
   return (
     <div className={styles.page}>
       {/* Header CTA (Figma 770:30236): Mail Quotes, the arrow after the label.
-          Ask BimaNetra lives in the panel's Chat tab. */}
+          Ask BimaNetra opens from the feed's Ask Netra box. */}
       <QuotesHeader
         content={content.header}
         label={content.header.compareCtaLabel}
@@ -221,13 +246,12 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                 onEdit={() => setEditOpen(true)}
                 collapsed={detailsCollapsed}
                 onToggleCollapse={() => setDetailsCollapsed((v) => !v)}
-                stage={upgradeStage}
+                stage={panelStage}
                 noRecords={caseId !== "A" && caseId !== "B"}
                 caseId={caseId}
                 verifyFrom={lured ? VERIFY_FROM : undefined}
                 companyName={result?.companyName || undefined}
                 scoreLists={scoreLists}
-                chat={<QuotesChat content={content.chat} context={chatContext} variant="drawer" focusKey={chatFocus} />}
                 onSimulate={() => setUpgradeStage("verifying")}
                 onVerified={() => setUpgradeStage("upgraded")}
                 onReset={
@@ -235,22 +259,44 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
                     ? undefined
                     : () => {
                         setUpgradeStage("pending");
-                        setRevealed(false);
                       }
                 }
               />
               <QuotesFeed
-                unlocked={upgradeStage === "upgraded" && (!introEligible || introDone)}
-                revealed={revealed}
-                onRevealed={() => setRevealed(true)}
+                unlocked={unlocked}
                 content={feed}
                 caseId={caseId}
                 sumInsured={sumInsured}
+                assist={
+                  <AskNetra
+                    placeholder={content.chat.placeholder}
+                    askLabel={content.chat.askLabel}
+                    prompts={content.chat.askPrompts}
+                    suggestions={chatContext.keyLines && content.chat.askSuggestionsScored ? content.chat.askSuggestionsScored : content.chat.suggestions.slice(0, 3)}
+                    onOpen={() => setChatOpen(true)}
+                    onAsk={askAndOpen}
+                  />
+                }
               />
             </motion.div>
           )}
         </AnimatePresence>
       </main>
+
+      {/* Ask BimaNetra, in a drawer on the right (a tall sheet on phones). */}
+      <SideDrawer
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        title={content.chat.title}
+        // NetraBot before the title, its eyes on the pointer.
+        titleIcon={<NetraBot state="idle" follow="page" size={36} />}
+        closeLabel={content.chat.closeLabel}
+        width={424}
+        sheetOnMobile
+        className={styles.chatDrawer}
+      >
+        <QuotesChat content={content.chat} context={chatContext} session={chat} variant="drawer" open={chatOpen} />
+      </SideDrawer>
 
       {/* Case C's welcome: NetraBot, and a chat that plays itself. */}
       {botIntroEligible && (
@@ -259,7 +305,8 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
           onClose={() => setBotIntroOpen(false)}
           onContinue={() => {
             setBotIntroOpen(false);
-            setChatFocus((n) => n + 1);
+            // Once the popup has gone: the chat opens, its cursor ready.
+            window.setTimeout(() => setChatOpen(true), 350);
           }}
           content={panel.botIntro}
           context={chatContext}

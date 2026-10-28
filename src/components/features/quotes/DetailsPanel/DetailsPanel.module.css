@@ -17,7 +17,7 @@
   overflow: hidden;
 }
 
-/* Tab strip (776:32098): three equal tabs, 12 apart, flush with the
+/* Tab strip (776:32098): two equal tabs, 12 apart, flush with the
    panel's own padding; phones add the accordion's chevron at the end. */
 .tabBar {
   display: flex;
@@ -216,12 +216,6 @@
   }
   .panel[data-collapsed] {
     gap: 0;
-  }
-  /* The chat's log needs a height to scroll in. */
-  .pane[data-chat] {
-    height: 60vh;
-    height: 60dvh;
-    flex: none;
   }
 }
 

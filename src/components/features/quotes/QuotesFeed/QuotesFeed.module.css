@@ -38,19 +38,36 @@
 
 .topRow {
   display: flex;
-  align-items: stretch;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--spacing-24);
 }
 
-/* Breadcrumb at the top, the title at the foot of the card's height. */
+/* The title, then the Ask Netra box, 24 apart (Figma 866:23105). */
 .heading {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  justify-content: space-between;
   gap: var(--spacing-24);
   min-width: 0;
-  padding-top: var(--spacing-12);
+}
+
+/* The right column, as tall as the row: the breadcrumb level with the
+   title's top, the Need Help card level with the Ask box's foot. */
+.aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: var(--spacing-16);
+  flex-shrink: 0;
+}
+
+.crumbs {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 100%;
 }
 
 /* "7 Directors & Officers Insurance Quotes" (658:45854): 32px mark, serif 32. */
@@ -126,6 +143,27 @@
   flex: 1;
 }
 
+/* The Gold card's slot: its shimmer laid over the card, clipped to its r16,
+   multiplied in so the copy under it stays readable. */
+.goldCell {
+  position: relative;
+  display: flex;
+}
+
+.goldCell > article {
+  flex: 1;
+}
+
+.goldShimmer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: var(--radius-16);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
 /* No quotes left after filtering: a quiet note and a reset. */
 .empty {
   grid-column: 1 / -1;
@@ -182,10 +220,19 @@
   }
 }
 
-/* Narrow: Need Help drops under the heading. */
+/* Narrow: one column, the breadcrumb first, then the title and Ask Netra,
+   then Need Help. */
 @media (max-width: 760px) {
   .topRow {
     flex-direction: column;
+    align-items: stretch;
+  }
+  .aside {
+    display: contents;
+  }
+  .crumbs {
+    order: -1;
+    justify-content: flex-start;
   }
   .title {
     font-size: var(--font-size-heading-sm);

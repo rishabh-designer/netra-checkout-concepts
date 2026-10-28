@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { QuotesChatContent } from "@/types/quotesPage";
-import { answerQuotesQuestion, type QuotesChatContext } from "@/lib/quotes-chat";
+import type { QuotesChatContext } from "@/lib/quotes-chat";
+import type { QuotesChatSession } from "./useQuotesChat";
 import { AITextLoading } from "@/components/ui/AITextLoading";
 import styles from "./QuotesChat.module.css";
 import { EASE_OUT as EASE } from "@/lib/motion";
@@ -13,27 +14,16 @@ import { NetraBot } from "@/components/ui/NetraBot";
 export interface QuotesChatProps {
   content: QuotesChatContent;
   context: QuotesChatContext;
-  /** Unused since NetraBot replaced the sparkle; kept for callers. */
-  iconSrc?: string;
-  /** The column is showing: the input takes focus. */
+  /** The conversation (useQuotesChat), held by the page so it outlives this. */
+  session: QuotesChatSession;
+  /** The chat is showing: the input takes focus. */
   open?: boolean;
-  /** "drawer": inside the shared SideDrawer (phones), which draws the title,
-   *  the × and the surface; the chat is just its log and composer. */
+  /** "drawer": inside the shared SideDrawer, which draws the title, the ×
+   *  and the surface; the chat is just its log and composer. */
   variant?: "drawer";
-  /** The ×: the web column closes from its head as a drawer does. */
+  /** The ×, for a chat with its own head (not in a drawer). */
   onClose?: () => void;
-  /** Bump it to put the cursor in the input (Case C's intro, on Continue). */
-  focusKey?: number;
 }
-
-interface Message {
-  id: number;
-  from: "bot" | "you";
-  text: string;
-}
-
-/** How long BimaNetra "reads" before it answers. */
-const THINK_MS = 700;
 
 /**
  * ChatAvatar — the space beside BimaNetra's messages. Only the newest one
@@ -47,39 +37,27 @@ export function ChatAvatar({ live = false, state = "waiting" }: { live?: boolean
 }
 
 /**
- * QuotesChat — Ask BimaNetra on the Quotes page: a full-height chat column
- * beside the feed. It greets with the quote count, offers starter questions
- * until the first one is asked, and answers from the page itself (prices,
- * coverages, exclusions, territory, Your Details; the Gold Quote only once
- * it's revealed) after a short thinking beat. Neutral by design: it compares,
- * it never picks an insurer.
- * Usage: <QuotesChat content={content.chat} context={ctx} iconSrc={…} />
+ * QuotesChat — Ask BimaNetra on the Quotes page, shown in the chat drawer.
+ * The conversation (`session`) greets with the quote count; starter questions
+ * show until the first one is asked, and answers come from the page itself
+ * (prices, coverages, exclusions, Coverage Match, territory, Your Details;
+ * the Gold Quote only once it's revealed) after a short thinking beat.
+ * Neutral by design: it compares, it never picks an insurer.
+ * Usage: <QuotesChat content={content.chat} context={ctx} session={chat} variant="drawer" />
  */
-export function QuotesChat({ content, context, open = true, variant, onClose, focusKey }: QuotesChatProps) {
+export function QuotesChat({ content, context, session, open = true, variant, onClose }: QuotesChatProps) {
   const reduced = useReducedMotion();
-  const greeting = content.greeting
-    // The Gold Quote counts from the start, as in the page heading.
-    .replace("{count}", String(context.quotes.length + (context.gold ? 1 : 0)))
-    .replace("{company}", context.company);
-  const [messages, setMessages] = useState<Message[]>([{ id: 0, from: "bot", text: greeting }]);
+  const { messages, thinking } = session;
   const [draft, setDraft] = useState("");
-  const [thinking, setThinking] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const timer = useRef<number | undefined>(undefined);
 
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-  // Focus on open, after the column's width transition has begun.
+  // Focus on open, once the drawer has begun to slide in.
   useEffect(() => {
     if (!open) return;
     const id = window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 120);
     return () => window.clearTimeout(id);
   }, [open]);
-
-  // Asked for from outside (Case C's intro, on Continue).
-  useEffect(() => {
-    if (focusKey) inputRef.current?.focus({ preventScroll: true });
-  }, [focusKey]);
 
   // Keep the newest message in view.
   useEffect(() => {
@@ -88,16 +66,9 @@ export function QuotesChat({ content, context, open = true, variant, onClose, fo
   }, [messages, thinking, reduced]);
 
   const ask = (text: string) => {
-    const question = text.trim();
-    if (!question || thinking) return;
-    setMessages((m) => [...m, { id: m.length, from: "you", text: question }]);
+    if (!text.trim() || thinking) return;
+    session.ask(text);
     setDraft("");
-    setThinking(true);
-    timer.current = window.setTimeout(() => {
-      const reply = answerQuotesQuestion(question, context, content.replies);
-      setMessages((m) => [...m, { id: m.length, from: "bot", text: reply }]);
-      setThinking(false);
-    }, THINK_MS);
   };
 
   const onSubmit = (e: FormEvent) => {

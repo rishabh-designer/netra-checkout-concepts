@@ -1,0 +1,179 @@
+/* Ask Netra (Figma 866:23105), straight under the title. */
+.wrap {
+  min-width: 0;
+}
+
+/* The box: lavender hairline, white into a lavender foot, 12 inside, r12;
+   the chips 16 under the field. */
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding: var(--spacing-12);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-12);
+  background: linear-gradient(to bottom, var(--color-card) 86.3%, var(--color-brand-primary-subtle));
+}
+
+/* NetraBot (40) beside the field, 12 apart. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.bot {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* The field (a button that opens the chat): a subtle hairline, r8, 5/8
+   inside, the prompt left and Ask BimaNetra on the right. */
+.field {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+  padding: 5px var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-border-subtle);
+  border-radius: var(--radius-8);
+  background: var(--color-card);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.field:focus-visible {
+  outline: none;
+  border-color: var(--color-brand-primary);
+}
+
+@media (hover: hover) {
+  .field:hover {
+    border-color: var(--color-brand-primary-border);
+  }
+}
+
+/* The prompt: 12 Medium. Still (reduced motion), it reads as a field's
+   placeholder; typing, as the words being asked. */
+.prompt {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-75);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1.5;
+  color: var(--color-label-tertiary);
+}
+
+/* Typing: a row anchored right, under .typed. */
+.prompt[data-typed] {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* At least the field's width (so a short line sits left); a longer one
+   overflows to the left, keeping its end and the caret in view. */
+.typed {
+  flex: none;
+  min-width: 100%;
+  color: var(--color-label-primary);
+}
+
+/* The caret: a 1px purple bar, solid while letters land, blinking between. */
+.caret {
+  display: inline-block;
+  width: 1px;
+  height: 14px;
+  margin-left: 1px;
+  vertical-align: -2px;
+  background: var(--color-brand-primary);
+  animation: caretBlink 1s ease-in-out infinite;
+}
+
+.typed[data-typing] .caret {
+  animation: none;
+}
+
+@keyframes caretBlink {
+  0%, 45% { opacity: 0.95; }
+  55%, 100% { opacity: 0; }
+}
+
+/* Ask BimaNetra: BimaNetra's orange, 8/10, 12 SemiBold white (Figma r8,
+   one step rounder here). */
+.ask {
+  flex-shrink: 0;
+  display: inline-block;
+  padding: var(--spacing-8) var(--spacing-10);
+  border: var(--border-hairline) solid var(--color-brand-secondary);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-secondary);
+  font: inherit;
+  font-size: var(--font-size-75);
+  font-weight: 600;
+  letter-spacing: var(--track-600);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-label-inverse);
+  transition: box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+@media (hover: hover) {
+  .field:hover .ask {
+    box-shadow: var(--shadow-button-secondary-hover);
+    filter: brightness(0.96);
+  }
+}
+
+/* Starter questions under the field (52 in: past NetraBot), 6 apart. */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-left: 52px;
+  list-style: none;
+}
+
+/* A chip: lavender, 6/8, 10px Medium in muted purple (Figma r8, one step
+   rounder). */
+.chip {
+  padding: var(--spacing-6) var(--spacing-8);
+  border: var(--border-hairline) solid var(--color-brand-primary-border);
+  border-radius: var(--radius-12);
+  background: var(--color-brand-primary-subtle);
+  font: inherit;
+  font-size: var(--font-size-50);
+  font-weight: 500;
+  letter-spacing: var(--track-500);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-brand-primary-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--color-brand-primary);
+    color: var(--color-brand-primary);
+  }
+}
+
+/* Phones: the chips run edge to edge in one row that scrolls sideways. */
+@media (max-width: 999px) {
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-left: 0;
+    scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar {
+    display: none;
+  }
+}
