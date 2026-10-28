@@ -80,6 +80,10 @@ export const mockCheckoutContent: CheckoutContent = {
   saveLabel: "Save & Continue",
   ctaBlocked: { fields: "Fill in the required fields first", consent: "Tick the box to confirm first" },
   stepperLabels: { billing: "Billing", verification: "Verification", review: "Review" },
+  stepperFinal: {
+    label: "Policy Issuance",
+    tip: "After payment: a few small tasks, like viewing your Risk Held Letter, before your policy is issued",
+  },
   stepperUpcomingTip: "Finish the earlier steps first",
   stepperAriaLabel: "Checkout progress",
   otherPersonLabel: "Buy in Another Person's Name",
@@ -229,7 +233,6 @@ export const mockCheckoutContent: CheckoutContent = {
   summary: {
     title: "Purchase Summary",
     immediateLabel: "Immediate Purchase",
-    poweredByLabel: "Secured with BimaNetra",
     productLines: ["Directors & Officers", "Insurance"],
     productIconSrc: "/media/checkout/product-icon.png",
     priceTitle: "Price Details",
@@ -243,7 +246,7 @@ export const mockCheckoutContent: CheckoutContent = {
     offerPercent: "({pct}% Off)",
     priceLabel: "Price",
     insurerInfoLabel: "About this insurer",
-    tips: { immediate: TAG_TIPS.immediate, gold: TAG_TIPS.gold, insurer: "{insurer} issues this policy and settles its claims" },
+    tips: { immediate: TAG_TIPS.immediate, insurer: "{insurer} issues this policy and settles its claims" },
   },
   success: {
     headline: "{name}, Your Policy Booking is Confirmed!",

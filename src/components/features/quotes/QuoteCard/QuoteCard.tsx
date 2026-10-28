@@ -41,7 +41,6 @@ export interface QuoteCardLabels {
   immediatePurchase: string;
   /** Territory tags; omit to hide them. */
   territory?: Record<QuoteTerritory, string>;
-  poweredBy: string;
   /** Coverages heading with no count (offline quotes): "Top Coverages". */
   topCoverages: string;
   /** The card's coverages chip on offline quotes: "View Coverages". */
@@ -57,7 +56,7 @@ export interface QuoteCardLabels {
   /** The corner tag once scored: "Coverage Match: {value}%". */
   coverageMatch?: string;
   /** Tag tooltips (what Immediate Purchase, territory… mean). */
-  tips?: { immediate: string; gold: string; compareOff: string; compareFull: string; offer: string; territory: Record<QuoteTerritory, string> };
+  tips?: { immediate: string; compareOff: string; compareFull: string; offer: string; territory: Record<QuoteTerritory, string> };
 }
 
 export interface QuoteCardProps {

@@ -58,3 +58,20 @@
 .fill[data-state="done"] {
   background: var(--color-success);
 }
+
+/* Phones: four steps in one row, 8 apart, each column as wide as its pill
+   (the spare room shared out), so the longer labels aren't squeezed. */
+@media (max-width: 999px) {
+  .stepper {
+    gap: var(--spacing-8);
+  }
+  .step {
+    flex: 1 0 auto;
+  }
+}
+
+@media (max-width: 374px) {
+  .stepper {
+    gap: var(--spacing-4);
+  }
+}

@@ -14,8 +14,8 @@ export interface ProductTagPillsProps {
 }
 
 /**
- * ProductTagPills — the product's tag pills in a row (Immediate Purchase,
- * Secured with BimaNetra); each pill's animated icon plays while it's hovered.
+ * ProductTagPills — the product's tag pills in a row (Immediate Purchase);
+ * each pill's animated icon plays while it's hovered.
  * Usage: <ProductTagPills tags={content.tags} />
  */
 export function ProductTagPills({ tags, className }: ProductTagPillsProps) {

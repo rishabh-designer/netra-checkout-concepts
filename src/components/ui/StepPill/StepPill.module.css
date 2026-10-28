@@ -80,3 +80,30 @@
 .dot[data-state="upcoming"] circle {
   fill: var(--color-input-stroke);
 }
+
+/* Compact, on phones: 6/6 inside, 3 gap, labels a step smaller (current and
+   done 12, upcoming 10). */
+@media (max-width: 999px) {
+  .pill[data-compact] {
+    gap: 3px;
+    padding: var(--spacing-6);
+  }
+  .pill[data-compact] .label {
+    font-size: var(--font-size-50);
+  }
+  .pill[data-compact][data-state="current"] .label,
+  .pill[data-compact][data-state="done"] .label {
+    font-size: var(--font-size-75);
+  }
+}
+
+/* The narrowest phones: 4 at the sides, and every label 10. */
+@media (max-width: 374px) {
+  .pill[data-compact] {
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+  .pill[data-compact][data-state="current"] .label,
+  .pill[data-compact][data-state="done"] .label {
+    font-size: var(--font-size-50);
+  }
+}

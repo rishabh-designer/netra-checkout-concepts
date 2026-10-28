@@ -13,12 +13,7 @@
   isolation: isolate;
 }
 
-/* Hovering wakes the copy: the name turns orange, the bio goes black. */
-.rm:hover .rmName,
-.rm:focus-within .rmName {
-  color: var(--color-brand-secondary);
-}
-
+/* Hovering wakes the bio (it goes black); the name keeps its colour. */
 .rm:hover .rmBody,
 .rm:focus-within .rmBody {
   color: var(--color-label-primary);
@@ -63,7 +58,6 @@
   letter-spacing: 0;
   line-height: 1.2;
   color: var(--color-label-primary);
-  transition: color 0.2s ease;
 }
 
 .photo {

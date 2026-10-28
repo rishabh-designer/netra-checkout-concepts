@@ -22,6 +22,9 @@ export interface CheckoutStepperProps {
   hrefFor: (step: CheckoutStepId) => string;
   /** Tooltip on steps not reached yet. */
   upcomingTip?: string;
+  /** A last step past checkout (Policy Issuance): always upcoming, no
+   *  link, with its own tooltip. */
+  final?: { label: string; tip?: string };
 }
 
 const stateAt = (i: number, at: number): StepPillState => (i < at ? "done" : i === at ? "current" : "upcoming");
@@ -33,10 +36,11 @@ const EASE = HANDOFF.ease as unknown as [number, number, number, number];
  * grey) over a 3px bar. Done steps' bars run full green; the current step's
  * fills purple to its `barPercent`; upcoming bars are empty. Done pills link
  * back to their step. On Save & Continue the step just finished pops green,
- * then the next pill blooms and its bar fills.
- * Usage: <CheckoutStepper steps={…} current="verification" labels={…} from="billing" barPercent={50} hrefFor={(s) => …} />
+ * then the next pill blooms and its bar fills. `final` closes the row with a
+ * step that comes after checkout (Policy Issuance), never reached here.
+ * Usage: <CheckoutStepper steps={…} current="verification" labels={…} from="billing" barPercent={50} hrefFor={(s) => …} final={{ label: "Policy Issuance" }} />
  */
-export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null, barPercent, hrefFor, upcomingTip }: CheckoutStepperProps) {
+export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null, barPercent, hrefFor, upcomingTip, final }: CheckoutStepperProps) {
   const reduced = useReducedMotion();
   const at = steps.indexOf(current);
   const was = from ? steps.indexOf(from) : -1;
@@ -47,7 +51,7 @@ export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null
         const changed = !reduced && stateAt(i, was) !== state;
         const justCurrent = changed && state === "current";
         const fill = state === "done" ? 100 : state === "current" ? barPercent : 0;
-        const pill = <StepPill state={state} label={labels[s]} from={stateAt(i, was)} tip={state === "upcoming" ? upcomingTip : undefined} />;
+        const pill = <StepPill state={state} label={labels[s]} from={stateAt(i, was)} tip={state === "upcoming" ? upcomingTip : undefined} compact />;
         return (
           <li key={s} className={styles.step} aria-current={state === "current" ? "step" : undefined}>
             {state === "done" ? (
@@ -69,6 +73,12 @@ export function CheckoutStepper({ steps, current, labels, ariaLabel, from = null
           </li>
         );
       })}
+      {final && (
+        <li className={styles.step}>
+          <StepPill state="upcoming" label={final.label} from="upcoming" tip={final.tip} compact />
+          <span className={styles.track} aria-hidden />
+        </li>
+      )}
     </ol>
   );
 }

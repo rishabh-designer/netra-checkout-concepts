@@ -7,7 +7,6 @@ import type { QuoteCardData } from "@/types/quotesPage";
 import { TagPill } from "@/components/ui/TagPill";
 import { IkkatDivider } from "@/components/ui/IkkatDivider";
 import { ShoppingBagIcon, type ShoppingBagIconHandle } from "@/components/icons/ShoppingBagIcon";
-import { BadgeCheckIcon, type BadgeCheckIconHandle } from "@/components/icons/BadgeCheckIcon";
 import { SquareCheckbox } from "@/components/ui/SquareCheckbox";
 import { Cross, Tick } from "@/components/features/quotes/RiskScore";
 import { formatInr, splitPrice } from "@/lib/checkout";
@@ -70,7 +69,6 @@ const RULE_COLOR = {
  */
 export function PurchaseSummary({ content, quote, coverages, paid, company, beam = true, compact = false, footer, below }: PurchaseSummaryProps) {
   const bagRef = useRef<ShoppingBagIconHandle>(null);
-  const eyeRef = useRef<BadgeCheckIconHandle>(null);
   // An offer prices the original, then takes the saving off it.
   const base = splitPrice(quote.originalPrice ?? quote.price ?? "", content.gstRate);
   const final = splitPrice(quote.price ?? "", content.gstRate).total;
@@ -140,14 +138,14 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
             in a 100×50 window, pinned to the card beside the product name
             (compact: hung off the name row itself). */}
         {!compact && !paid && productIcon}
-        {/* Pills: Secured with BimaNetra on the Gold Quote, Immediate Purchase on
-            anything bought online (a priced Gold Quote carries both), beside
-            the title in checkout. Once paid they're gone: the purchase is done. */}
+        {/* Pills: Immediate Purchase on anything bought online (the Gold Quote
+            too, as any quote), beside the title in checkout. Once paid
+            they're gone: the purchase is done. */}
         {(() => {
           const immediate = !!quote.immediate;
           const pills = (
             <div className={styles.pills}>
-              {immediate && (!quote.gold || paid) && (
+              {immediate && (
                 <TagPill
                   variant="success"
                   className={styles.tag}
@@ -156,17 +154,6 @@ export function PurchaseSummary({ content, quote, coverages, paid, company, beam
                   icon={<ShoppingBagIcon ref={bagRef} size={12} color="var(--color-success)" />}
                   onMouseEnter={() => bagRef.current?.startAnimation()}
                   onMouseLeave={() => bagRef.current?.stopAnimation()}
-                />
-              )}
-              {quote.gold && (
-                <TagPill
-                  variant="secondary"
-                  className={styles.tag}
-                  label={content.poweredByLabel}
-                  tooltip={content.tips.gold}
-                  icon={<BadgeCheckIcon ref={eyeRef} size={12} color="var(--color-brand-secondary)" />}
-                  onMouseEnter={() => eyeRef.current?.startAnimation()}
-                  onMouseLeave={() => eyeRef.current?.stopAnimation()}
                 />
               )}
             </div>

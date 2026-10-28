@@ -100,7 +100,6 @@ export function GoldInquiryView({ content, header, feed: baseFeed, quotesHref, v
     immediatePurchase: feed.immediatePurchaseLabel,
     territory: feed.territoryLabels,
     tips: feed.cardTips,
-    poweredBy: feed.poweredByLabel,
     topCoverages: feed.topCoveragesLabel,
     viewCoverages: feed.viewCoveragesLabel,
     coverageCount: feed.coverageCountLabel,

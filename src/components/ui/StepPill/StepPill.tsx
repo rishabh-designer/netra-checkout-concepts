@@ -15,6 +15,9 @@ export interface StepPillProps {
   from?: StepPillState;
   /** Tooltip (e.g. on steps not reached yet). */
   tip?: string;
+  /** Phones (under 1000px): a tighter pill and smaller type, so four steps
+   *  share a row (the checkout stepper). */
+  compact?: boolean;
   className?: string;
 }
 
@@ -54,7 +57,7 @@ function Glyph({ state }: { state: StepPillState }) {
  * the quote form's Profile / Business / Risk pills.
  * Usage: <StepPill state="current" from="upcoming" label="Business" />
  */
-export function StepPill({ state, label, from, tip, className }: StepPillProps) {
+export function StepPill({ state, label, from, tip, compact, className }: StepPillProps) {
   const reduced = useReducedMotion();
   const changed = !reduced && from !== undefined && from !== state;
   const justDone = changed && state === "done";
@@ -64,6 +67,7 @@ export function StepPill({ state, label, from, tip, className }: StepPillProps) 
     <motion.span
       className={cn(styles.pill, className)}
       data-state={state}
+      data-compact={compact || undefined}
       data-tooltip={tip}
       initial={justDone ? { scale: 0.9 } : justCurrent ? { scale: 0.85, opacity: 0.6 } : false}
       animate={{ scale: 1, opacity: 1 }}

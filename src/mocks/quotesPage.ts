@@ -542,7 +542,6 @@ export const mockQuotesPageContent: QuotesPageContent = {
     territoryLabels: { worldwide: "Worldwide Coverage", india: "India Only Coverage" },
     cardTips: {
       immediate: TAG_TIPS.immediate,
-      gold: TAG_TIPS.gold,
       compareOff: "This insurer quotes offline, so it can't be compared",
       offer: "Down from {from} with BimaNetra",
       compareFull: "You can compare up to 3 quotes",
@@ -578,6 +577,5 @@ export const mockQuotesPageContent: QuotesPageContent = {
     riskFitChipLabel: "View {met} Key Features",
     coverageMatchLabel: "Coverage Match: {value}%",
     riskFitByCase: RISK_FIT_BY_CASE,
-    poweredByLabel: "Secured with BimaNetra",
   },
 };

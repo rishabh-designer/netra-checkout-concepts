@@ -216,6 +216,7 @@ function CheckoutScreen({ step, steps, basePath, quotesHref, content, fallbackQu
                     barPercent={barPercent}
                     hrefFor={hrefFor}
                     upcomingTip={content.stepperUpcomingTip}
+                    final={content.stepperFinal}
                   />
                 </div>
               </div>

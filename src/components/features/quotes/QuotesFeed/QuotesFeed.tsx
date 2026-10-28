@@ -116,7 +116,6 @@ export function QuotesFeed({ content, caseId, sumInsured, unlocked = false, onCo
     immediatePurchase: content.immediatePurchaseLabel,
     territory: content.territoryLabels,
     tips: content.cardTips,
-    poweredBy: content.poweredByLabel,
     topCoverages: content.topCoveragesLabel,
     viewCoverages: content.viewCoveragesLabel,
     coverageCount: content.coverageCountLabel,

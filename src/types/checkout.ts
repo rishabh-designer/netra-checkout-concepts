@@ -103,7 +103,6 @@ export interface CheckoutSummaryContent {
   title: string;
   immediateLabel: string;
   /** Pill on the Gold Quote's summary (in place of Immediate Purchase). */
-  poweredByLabel: string;
   productLines: [string, string];
   productIconSrc: string;
   priceTitle: string;
@@ -123,7 +122,7 @@ export interface CheckoutSummaryContent {
   priceLabel: string;
   insurerInfoLabel: string;
   /** Tooltips: the tags and the insurer info mark (`{insurer}` filled in). */
-  tips: { immediate: string; gold: string; insurer: string };
+  tips: { immediate: string; insurer: string };
 }
 
 export interface CheckoutContent {
@@ -145,6 +144,9 @@ export interface CheckoutContent {
   /** Tooltips on the greyed step CTA: why it can't be pressed yet. */
   ctaBlocked: { fields: string; consent: string };
   stepperLabels: Record<CheckoutStepId, string>;
+  /** The journey's last step, after checkout (Policy Issuance): never
+   *  reached here, it says a few small tasks follow payment. */
+  stepperFinal: { label: string; tip: string };
   /** Tooltip on steps not reached yet. */
   stepperUpcomingTip: string;
   stepperAriaLabel: string;

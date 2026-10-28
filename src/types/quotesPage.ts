@@ -150,11 +150,11 @@ export interface QuoteCardData {
   ghost?: boolean;
   /** "Top Coverages" chips; omitted on unpriced Get Quote cards. */
   coverages?: string[];
-  /** The revealed exact-match "Gold Quote" (Figma 553:29978): caution-gold card,
-   *  "Secured with BimaNetra" pill, orange Get Quote. */
+  /** The exact-match "Gold Quote" (Figma 553:29978): pinned first in the
+   *  feed, styled like any other quote. */
   gold?: boolean;
   /** Where the policy covers you — a purple tag on the card, left of
-   *  Immediate Purchase / Secured with BimaNetra. */
+   *  Immediate Purchase. */
   territory?: QuoteTerritory;
   /** This quote's own policy wording for the details modal (Overview,
    *  Coverages/Extensions, Exclusions); the other tabs stay standard. */
@@ -350,7 +350,7 @@ export interface QuotesFeedContent {
   /** Card territory tags ("Worldwide Coverage", "India Only Coverage"). */
   territoryLabels: Record<QuoteTerritory, string>;
   /** Quote card tag tooltips: what each tag means. */
-  cardTips: { immediate: string; gold: string; compareOff: string; compareFull: string; offer: string; territory: Record<QuoteTerritory, string> };
+  cardTips: { immediate: string; compareOff: string; compareFull: string; offer: string; territory: Record<QuoteTerritory, string> };
   revealQuoteLabel: string;
   /** Under the locked Reveal button, before verification completes. */
   revealLockedHint: string;
@@ -383,7 +383,6 @@ export interface QuotesFeedContent {
   /** Per case, the key lines each insurer's quote meets (the Gold Quote
    *  meets them all). Case C isn't scored, so it has none. */
   riskFitByCase?: Partial<Record<QuoteCaseId, RiskFitByInsurer>>;
-  poweredByLabel: string;
 }
 
 /** The gate on an unpriced Gold Quote (Case B): a centred modal, then the
