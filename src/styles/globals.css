@@ -110,6 +110,7 @@
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1); /* height tweens */
   --ease-hold: cubic-bezier(1, 0, 0, 1); /* slow start, slow end: the CTA sheen */
   --ease-engine: cubic-bezier(0.83, 0, 0.17, 1); /* the engine card: soft in-out, no stall */
+  --ease-easy: cubic-bezier(0.33, 0, 0.67, 1); /* easy ease: the research scan */
   --duration-flip: 0.25s; /* a chevron turning over */
 
   /* shadows */

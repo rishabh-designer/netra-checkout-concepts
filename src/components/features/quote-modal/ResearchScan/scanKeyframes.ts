@@ -1,11 +1,13 @@
+import { EASE_EASY } from "@/lib/motion";
+
 /* The scan's timing and physics (ResearchScan): a sweep of the bar per
    title, down, up, down…, with a flip of the page between sweeps. The bar
-   runs on keyframes; each flip is a spring (FLIP_SPRING), kicked off at its
-   time, and the paper bends with how fast it turns. */
+   runs on keyframes and each flip is a tween, both on easy ease; the paper
+   bends with how fast it turns. */
 
-/** A sweep of the bar down (or up) the page, and the room for a flip. */
-export const SWEEP_MS = 1000;
-export const FLIP_MS = 700;
+/** A sweep of the bar down (or up) the page, and a flip. */
+export const SWEEP_MS = 600;
+export const FLIP_MS = 450;
 /** The page (CSS --page-w, --page-h): the bar runs its height. It bends
  *  as SEGS hinged strips either side of its middle (CSS --seg-w). */
 export const PAGE_W = 168;
@@ -14,16 +16,15 @@ export const SEGS = 4;
 
 /** The bend: each hinge folds this much (deg) per deg/s the page turns,
  *  up to BEND_MAX, the trailing edges lagging; the paper springs back
- *  (PAPER_SPRING), so the bend follows the turn a touch late and flutters
- *  out as the turn settles. */
-export const BEND_PER = 0.009;
+ *  (PAPER_SPRING, near critically damped), so the bend follows the turn a
+ *  touch late and eases flat as the turn ends, without a flutter. */
+export const BEND_PER = 0.012;
 export const BEND_MAX = 10;
-export const PAPER_SPRING = { stiffness: 260, damping: 18, mass: 0.6 } as const;
+export const PAPER_SPRING = { stiffness: 300, damping: 26, mass: 0.6 } as const;
 
-/** A flip: a real spring (damping ratio about 0.73), so the page gathers
- *  speed, turns, runs a few degrees past under its own momentum and
- *  settles, inside FLIP_MS. */
-export const FLIP_SPRING = { type: "spring", stiffness: 120, damping: 16, mass: 1 } as const;
+/** A flip: half a turn on easy ease, so the page gathers speed, turns and
+ *  slows to a stop, inside FLIP_MS. */
+export const FLIP = { duration: FLIP_MS / 1000, ease: EASE_EASY } as const;
 
 /** Motion keyframes: values, and when each lands (0 to 1 of the loop). */
 export interface Track {

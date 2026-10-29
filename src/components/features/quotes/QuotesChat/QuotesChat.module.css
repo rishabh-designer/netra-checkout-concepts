@@ -74,8 +74,11 @@
 }
 
 /* Starters 12 apart at 14 (Figma r12, one step rounder). */
+/* No avatar column in the drawer, so the questions line up with the
+   greeting. */
 .chat[data-variant="drawer"] .suggestions {
   gap: var(--spacing-12);
+  padding-left: 0;
 }
 
 .chat[data-variant="drawer"] .suggestion {

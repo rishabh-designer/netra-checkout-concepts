@@ -182,8 +182,8 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
     return () => window.clearTimeout(id);
   }, [unlocked, panelCaughtUp]);
   const panelStage: UpgradeStage = upgradeStage === "upgraded" && !panelCaughtUp ? "verifying" : upgradeStage;
-  // Case C has no score to show: its popup introduces NetraBot instead, and
-  // Continue opens the chat.
+  // Case C has no score to show: its popup introduces NetraBot instead.
+  // Continue just closes it; the chat opens only when asked.
   const botIntroEligible = caseId === "C";
   const [botIntroOpen, setBotIntroOpen] = useState(false);
   useEffect(() => {
@@ -288,8 +288,9 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
         open={chatOpen}
         onClose={() => setChatOpen(false)}
         title={content.chat.title}
-        // NetraBot before the title, its eyes on the pointer.
-        titleIcon={<NetraBot state="idle" follow="page" size={36} />}
+        // NetraBot before the title, its eyes on the pointer, thinking while
+        // a reply is composed (the drawer's replies have no avatar).
+        titleIcon={<NetraBot state={chat.thinking ? "thinking" : "idle"} follow="page" size={36} />}
         closeLabel={content.chat.closeLabel}
         // Figma 880:29334: 624 wide (the default), the rule 16 under the title.
         headGap={16}
@@ -304,11 +305,7 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
         <BotIntro
           open={botIntroOpen}
           onClose={() => setBotIntroOpen(false)}
-          onContinue={() => {
-            setBotIntroOpen(false);
-            // Once the popup has gone: the chat opens, its cursor ready.
-            window.setTimeout(() => setChatOpen(true), 350);
-          }}
+          onContinue={() => setBotIntroOpen(false)}
           content={panel.botIntro}
           context={chatContext}
         />

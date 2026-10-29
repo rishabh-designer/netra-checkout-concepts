@@ -13,8 +13,8 @@ import {
   type MotionValue,
 } from "motion/react";
 import { FilledCheck } from "@/components/ui/InteractiveInput/icons";
-import { EASE_OUT, EASE_STD } from "@/lib/motion";
-import { BEND_MAX, BEND_PER, FLIP_SPRING, PAGE_H, PAGE_W, PAPER_SPRING, SEGS, scanKeyframes } from "./scanKeyframes";
+import { EASE_EASY } from "@/lib/motion";
+import { BEND_MAX, BEND_PER, FLIP, PAGE_H, PAGE_W, PAPER_SPRING, SEGS, scanKeyframes } from "./scanKeyframes";
 import styles from "./ResearchScan.module.css";
 
 export interface ResearchScanProps {
@@ -50,7 +50,7 @@ function Glint({ y }: { y: MotionValue<number> }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3, ease: EASE_STD }}
+      transition={{ duration: 0.2, ease: EASE_EASY }}
     >
       <span className={styles.dither} data-band="near" />
       <span className={styles.dither} data-band="mid" />
@@ -110,8 +110,8 @@ function Strip({ side, j, bend, bar, glint }: { side: "left" | "right"; j: numbe
  * (after a "Scanning your document" reference): a page under a purple bar,
  * a slab through the page, whose light dithers on the paper
  * as it sweeps down it. Between sweeps the page flips over like real paper:
- * a spring turns it (FLIP_SPRING), and the faster it turns the more its
- * edges trail, so it bends as it goes and springs flat as it settles. A
+ * half a turn on easy ease (FLIP), and the faster it turns the more its
+ * edges trail, so it bends as it goes and eases flat as it stops. A
  * title per sweep, each landing as the page passes edge-on. Once the loop
  * has played out it tells the timeline (`onScanned`) so the fields fill in;
  * when they have (`done`), the bar fades and the page settles face-on with
@@ -149,8 +149,8 @@ export function ResearchScan({ lines, note, doneTitle, doneNote, settled: settle
   const bar = useMemo(() => ({ y: barY, opacity: barA }), [barY, barA]);
   useEffect(() => {
     if (rest) return;
-    const runs = [animate(barY, k.bar.values, { duration: k.total / 1000, ease: "easeInOut", times: k.bar.times })];
-    const ids = k.flips.map((t, i) => window.setTimeout(() => runs.push(animate(turn, (i + 1) * 180, FLIP_SPRING)), t));
+    const runs = [animate(barY, k.bar.values, { duration: k.total / 1000, ease: EASE_EASY, times: k.bar.times })];
+    const ids = k.flips.map((t, i) => window.setTimeout(() => runs.push(animate(turn, (i + 1) * 180, FLIP)), t));
     ids.push(window.setTimeout(() => onScannedRef.current?.(), k.total));
     return () => {
       ids.forEach((id) => window.clearTimeout(id));
@@ -161,9 +161,9 @@ export function ResearchScan({ lines, note, doneTitle, doneNote, settled: settle
   useEffect(() => {
     if (!done || settled) return;
     const runs = [
-      animate(barA, 0, { duration: 0.3, ease: EASE_STD }),
-      animate(turn, k.end, FLIP_SPRING),
-      animate(tilt, 0, { duration: 0.6, ease: EASE_OUT }),
+      animate(barA, 0, { duration: 0.2, ease: EASE_EASY }),
+      animate(turn, k.end, FLIP),
+      animate(tilt, 0, { duration: 0.4, ease: EASE_EASY }),
     ];
     return () => runs.forEach((r) => r.stop());
   }, [done, settled, k, barA, turn, tilt]);
@@ -186,7 +186,7 @@ export function ResearchScan({ lines, note, doneTitle, doneNote, settled: settle
                   className={styles.tick}
                   initial={settled ? false : { opacity: 0, scale: 0.4 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.35, ease: EASE_OUT, delay: 0.25 }}
+                  transition={{ duration: 0.3, ease: EASE_EASY, delay: 0.15 }}
                 >
                   <FilledCheck color="var(--color-brand-primary)" />
                 </motion.span>
@@ -207,7 +207,7 @@ export function ResearchScan({ lines, note, doneTitle, doneNote, settled: settle
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.18, ease: EASE_STD }}
+              transition={{ duration: 0.15, ease: EASE_EASY }}
             >
               {rest ? doneTitle : lines[phase]}
             </motion.p>

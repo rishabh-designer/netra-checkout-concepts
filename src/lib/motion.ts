@@ -1,7 +1,7 @@
 /**
  * Motion tokens: one curve per job, shared by every Motion animation. The CSS
  * twins live in styles/globals.css (--ease-out, --ease-standard,
- * --ease-smooth, --ease-hold, --ease-engine); keep the two in step.
+ * --ease-smooth, --ease-hold, --ease-engine, --ease-easy); keep the two in step.
  */
 
 /** Strong ease-out (expo): things arriving, sheets rising, chevrons turning. */
@@ -18,3 +18,7 @@ export const EASE_HOLD = [1, 0, 0, 1] as const;
 
 /** The quote sheet's engine card: a soft in-out (quint) with no dead start. */
 export const EASE_ENGINE = [0.83, 0, 0.17, 1] as const;
+
+/** Easy ease (After Effects' in-and-out): the research scan's sweep, flip
+ *  and settle. */
+export const EASE_EASY = [0.33, 0, 0.67, 1] as const;

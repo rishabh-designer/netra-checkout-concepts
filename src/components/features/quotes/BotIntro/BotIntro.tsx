@@ -16,7 +16,7 @@ export interface BotIntroProps {
   open: boolean;
   /** The × (or Esc, or the scrim). */
   onClose: () => void;
-  /** Continue: closes it and hands over to the real chat. */
+  /** Continue: closes it (the chat stays shut until the customer asks). */
   onContinue: () => void;
   content: QuotesPageContent["detailsPanel"]["botIntro"];
   /** The page as Ask BimaNetra sees it: fills the answers' few details. */
@@ -59,7 +59,7 @@ function details(ctx: QuotesChatContext): Record<string, string> {
  * one-line answers, a few details filled from this business's page (its
  * name, cover, quote count, lowest price). After the last it clears and
  * starts again; hovering pauses it, and reduced motion shows the first two
- * exchanges still. Continue hands over to the chat.
+ * exchanges still. Continue closes it.
  * Usage: <BotIntro open={o} onClose={c} onContinue={go} content={…} context={ctx} />
  */
 export function BotIntro({ open, onClose, onContinue, content, context }: BotIntroProps) {

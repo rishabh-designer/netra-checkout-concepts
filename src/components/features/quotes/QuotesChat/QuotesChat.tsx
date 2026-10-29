@@ -77,12 +77,13 @@ export function QuotesChat({ content, context, session, open = true, variant, on
   };
 
   const asked = messages.some((m) => m.from === "you");
+  const drawer = variant === "drawer";
   // NetraBot sits beside BimaNetra's latest reply: it leans in while the
   // customer types and waits on them otherwise (thinking has its own row).
+  // Not in the drawer: NetraBot is already beside its title.
   const last = messages[messages.length - 1];
   const liveId = !thinking && last?.from === "bot" ? last.id : undefined;
   const botState = draft.trim() ? "listening" : "waiting";
-  const drawer = variant === "drawer";
 
   return (
     <section className={styles.chat} data-variant={variant} aria-label={content.title}>
@@ -106,13 +107,13 @@ export function QuotesChat({ content, context, session, open = true, variant, on
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: EASE }}
           >
-            {m.from === "bot" && <ChatAvatar live={m.id === liveId} state={botState} />}
+            {m.from === "bot" && !drawer && <ChatAvatar live={m.id === liveId} state={botState} />}
             <p className={styles.bubble}>{m.text}</p>
           </motion.div>
         ))}
         {thinking && (
           <div className={styles.message} data-from="bot">
-            <ChatAvatar live state="thinking" />
+            {!drawer && <ChatAvatar live state="thinking" />}
             <AITextLoading text={content.thinkingLabel} className={styles.thinking} />
           </div>
         )}
