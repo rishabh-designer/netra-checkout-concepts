@@ -1,10 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { AnimatePresence, animate, motion, useMotionValue, type MotionValue } from "motion/react";
+import {
+  AnimatePresence,
+  animate,
+  motion,
+  useMotionValue,
+  useMotionValueEvent,
+  useSpring,
+  useTransform,
+  useVelocity,
+  type MotionValue,
+} from "motion/react";
 import { FilledCheck } from "@/components/ui/InteractiveInput/icons";
 import { EASE_OUT, EASE_STD } from "@/lib/motion";
-import { PAGE_H, scanKeyframes, type Track } from "./scanKeyframes";
+import { BEND_MAX, BEND_PER, FLIP_SPRING, PAGE_H, PAGE_W, PAPER_SPRING, SEGS, scanKeyframes } from "./scanKeyframes";
 import styles from "./ResearchScan.module.css";
 
 export interface ResearchScanProps {
@@ -25,22 +35,13 @@ export interface ResearchScanProps {
 
 /** The page is tipped back this far throughout. */
 const TILT = 8;
+/** Each strip's width: SEGS of them either side of the middle. */
+const SEG_W = PAGE_W / (2 * SEGS);
 /** The page's text, as grey bars: a heading, two paragraphs. */
 const LINES = [72, 92, 100, 64, 0, 100, 86, 48];
-/** Sparkles round the bar: across (%), off its line (px), size, delay (ms). */
-const SPARKS = [
-  [12, -18, 7, 0],
-  [30, 14, 5, 180],
-  [46, -26, 6, 420],
-  [58, 20, 8, 90],
-  [72, -12, 5, 300],
-  [86, 24, 6, 520],
-  [22, 28, 4, 640],
-  [64, -30, 4, 260],
-] as const;
 
-/** The bar's light on the paper: a wash, dither thinning away from the bar
- *  (it crawls, so it flickers) and sparkles twinkling round it. */
+/** The bar's light on the paper: a wash, and dither thinning away from
+ *  the bar (it crawls, so it flickers). */
 function Glint({ y }: { y: MotionValue<number> }) {
   return (
     <motion.span
@@ -54,42 +55,68 @@ function Glint({ y }: { y: MotionValue<number> }) {
       <span className={styles.dither} data-band="near" />
       <span className={styles.dither} data-band="mid" />
       <span className={styles.dither} data-band="far" />
-      {SPARKS.map(([x, dy, s, d]) => (
-        <span
-          key={`${x}${dy}`}
-          className={styles.spark}
-          style={{ left: `${x}%`, top: `calc(50% + ${dy}px)`, width: s, height: s, marginLeft: -s / 2, marginTop: -s / 2, animationDelay: `${d}ms` }}
-        />
-      ))}
     </motion.span>
   );
 }
 
-/** One side of the page: the sheet (its corner folded) with its text and
- *  the bar's light, and anything pinned over it (the tick). */
-function Face({ back = false, glint, children }: { back?: boolean; glint: ReactNode; children?: ReactNode }) {
+/** The whole sheet (text and light), set `left` along so a strip's window
+ *  shows its own slice of it. */
+function Sheet({ left, glint }: { left: number; glint: ReactNode }) {
   return (
-    <div className={styles.face} data-back={back || undefined}>
-      <div className={styles.sheet}>
-        {LINES.map((w, i) => (w ? <span key={i} className={styles.line} data-head={i === 0 || undefined} style={{ width: `${w}%` }} /> : <span key={i} className={styles.gap} />))}
-        {glint}
-      </div>
-      {children}
+    <div className={styles.sheet} style={{ left }}>
+      {LINES.map((w, i) => (w ? <span key={i} className={styles.line} data-head={i === 0 || undefined} style={{ width: `${w}%` }} /> : <span key={i} className={styles.gap} />))}
+      {glint}
     </div>
   );
 }
 
 /**
+ * Strip — one hinged slice of the page, out from the middle (j = 0) to the
+ * edge, the next strip hung off its outer side. Every hinge past the middle
+ * folds by `bend`, so the page curves as it turns. Each strip carries its
+ * slice of both sides, its top and bottom edge and its piece of the bar;
+ * the outermost also the page's side edge and the bar's end.
+ */
+function Strip({ side, j, bend, bar, glint }: { side: "left" | "right"; j: number; bend: MotionValue<number>; bar: { y: MotionValue<number>; opacity: MotionValue<number> }; glint: ReactNode }) {
+  const outer = j === SEGS - 1;
+  // Where the strip starts along the page (from its left), front side; the
+  // back reads mirrored, so its slice starts that far from the other end.
+  const x0 = side === "right" ? PAGE_W / 2 + j * SEG_W : PAGE_W / 2 - (j + 1) * SEG_W;
+  return (
+    <motion.div className={styles.strip} data-side={side} data-outer={outer || undefined} style={j > 0 ? { rotateY: bend } : undefined}>
+      <div className={styles.slice}>
+        <Sheet left={-x0} glint={glint} />
+      </div>
+      <div className={styles.slice} data-back>
+        <Sheet left={-(PAGE_W - x0 - SEG_W)} glint={glint} />
+      </div>
+      <span className={styles.edge} data-side="top" />
+      <span className={styles.edge} data-side="bottom" />
+      {outer && <span className={styles.edge} data-side="end" />}
+      <motion.span className={styles.bar} style={bar}>
+        <span className={styles.slab} data-side="front" />
+        <span className={styles.slab} data-side="back" />
+        <span className={styles.slab} data-side="top" />
+        <span className={styles.slab} data-side="bottom" />
+        {outer && <span className={styles.slab} data-side="end" />}
+      </motion.span>
+      {!outer && <Strip side={side} j={j + 1} bend={bend} bar={bar} glint={glint} />}
+    </motion.div>
+  );
+}
+
+/**
  * ResearchScan — the template stand-in for a researched step's findings
- * (after a "Scanning your document" reference): a page with a folded
- * corner under a purple bar, a slab through the page, whose light dithers
- * and sparkles on the paper as it sweeps down it. The page then flips over
- * (scanKeyframes: tossed, swinging past, landing, the corner lifting) and
- * the bar sweeps back up, a title per sweep. Once the loop has played out
- * it tells the timeline (`onScanned`) so the fields fill in; when they
- * have (`done`), the bar fades and the page settles face-on with a tick.
- * The same every time: no company data.
- * Usage: <ResearchScan lines={scan.lines} note={scan.note} doneTitle={…} doneNote={…} settled={false} done={false} onScanned={tl.onStreamDone} />
+ * (after a "Scanning your document" reference): a page under a purple bar,
+ * a slab through the page, whose light dithers on the paper
+ * as it sweeps down it. Between sweeps the page flips over like real paper:
+ * a spring turns it (FLIP_SPRING), and the faster it turns the more its
+ * edges trail, so it bends as it goes and springs flat as it settles. A
+ * title per sweep, each landing as the page passes edge-on. Once the loop
+ * has played out it tells the timeline (`onScanned`) so the fields fill in;
+ * when they have (`done`), the bar fades and the page settles face-on with
+ * a tick. The same every time: no company data.
+ * Usage: <ResearchScan lines={task.scanLines} note={scan.note} doneTitle={…} doneNote={…} settled={false} done={false} onScanned={tl.onStreamDone} />
  */
 export function ResearchScan({ lines, note, doneTitle, doneNote, settled: settledProp, done, onScanned }: ResearchScanProps) {
   // At rest from the start if we arrived here already researched.
@@ -103,42 +130,55 @@ export function ResearchScan({ lines, note, doneTitle, doneNote, settled: settle
 
   const n = Math.max(1, lines.length);
   const k = useMemo(() => scanKeyframes(n), [n]);
-  // Each next title lands as the page is edge-on mid-flip; the loop's end
-  // hands over to the fields.
-  useEffect(() => {
-    if (settled) return;
-    const ids = k.flips.map((t, i) => window.setTimeout(() => setPhase(i + 1), t));
-    ids.push(window.setTimeout(() => onScannedRef.current?.(), k.total));
-    return () => ids.forEach((id) => window.clearTimeout(id));
-  }, [settled, k]);
 
-  const loop = (t: Track) => ({ duration: k.total / 1000, ease: "easeInOut" as const, times: t.times });
-  const settle = { duration: 0.6, ease: EASE_OUT };
-  // The bar's run, shared with its light on both sides of the page.
+  // The page's turn and tilt; the bend follows how fast it turns, through
+  // the paper's own spring; the floor shadow is its true width.
+  const turn = useMotionValue(0);
+  const tilt = useMotionValue(settled ? 0 : TILT);
+  const spin = useVelocity(turn);
+  const drag = useTransform(spin, (v) => Math.max(-BEND_MAX, Math.min(BEND_MAX, -v * BEND_PER)));
+  const bend = useSpring(drag, PAPER_SPRING);
+  const shadow = useTransform(turn, (r) => Math.max(0.1, Math.abs(Math.cos((r * Math.PI) / 180))));
+  // Each next title lands as the page passes edge-on.
+  useMotionValueEvent(turn, "change", (r) => setPhase(Math.min(n - 1, Math.max(0, Math.floor((r + 90) / 180)))));
+
+  // The bar's run (shared with its light on both sides of every strip), a
+  // flip between sweeps, and the hand-over to the fields at the end.
   const barY = useMotionValue(settled ? PAGE_H : 0);
+  const barA = useMotionValue(settled ? 0 : 1);
+  const bar = useMemo(() => ({ y: barY, opacity: barA }), [barY, barA]);
   useEffect(() => {
     if (rest) return;
-    const run = animate(barY, k.bar.values, { duration: k.total / 1000, ease: "easeInOut", times: k.bar.times });
-    return () => run.stop();
-  }, [rest, k, barY]);
+    const runs = [animate(barY, k.bar.values, { duration: k.total / 1000, ease: "easeInOut", times: k.bar.times })];
+    const ids = k.flips.map((t, i) => window.setTimeout(() => runs.push(animate(turn, (i + 1) * 180, FLIP_SPRING)), t));
+    ids.push(window.setTimeout(() => onScannedRef.current?.(), k.total));
+    return () => {
+      ids.forEach((id) => window.clearTimeout(id));
+      runs.forEach((r) => r.stop());
+    };
+  }, [rest, k, barY, turn]);
+  // Done: the bar fades, and the page turns square to us and stands up.
+  useEffect(() => {
+    if (!done || settled) return;
+    const runs = [
+      animate(barA, 0, { duration: 0.3, ease: EASE_STD }),
+      animate(turn, k.end, FLIP_SPRING),
+      animate(tilt, 0, { duration: 0.6, ease: EASE_OUT }),
+    ];
+    return () => runs.forEach((r) => r.stop());
+  }, [done, settled, k, barA, turn, tilt]);
+
   const glint = <AnimatePresence>{!rest && <Glint key="glint" y={barY} />}</AnimatePresence>;
 
   return (
     <div className={styles.scan}>
       <div className={styles.stage} aria-hidden>
-        <motion.span
-          className={styles.shadow}
-          initial={rest ? false : { scaleX: 1, opacity: 1 }}
-          animate={rest ? { scaleX: 1, opacity: 1 } : { scaleX: k.shadowW.values, opacity: k.shadowA.values }}
-          transition={rest ? settle : { scaleX: loop(k.shadowW), opacity: loop(k.shadowA) }}
-        />
-        <motion.div
-          className={styles.page}
-          initial={rest ? false : { rotateY: 0, rotateX: TILT, y: 0, z: 0 }}
-          animate={rest ? { rotateY: settled ? 0 : k.end, rotateX: 0, y: 0, z: 0 } : { rotateY: k.turn.values, rotateX: TILT, y: k.rise.values, z: k.toss.values }}
-          transition={rest ? settle : { rotateY: loop(k.turn), y: loop(k.rise), z: loop(k.toss) }}
-        >
-          <Face glint={glint}>
+        <motion.span className={styles.shadow} style={{ scaleX: shadow }} />
+        <motion.div className={styles.page} style={{ rotateY: turn, rotateX: tilt }}>
+          <Strip side="left" j={0} bend={bend} bar={bar} glint={glint} />
+          <Strip side="right" j={0} bend={bend} bar={bar} glint={glint} />
+          {/* Done: a purple tick on the page's corner, just off the front. */}
+          <span className={styles.tickPin}>
             <AnimatePresence>
               {rest && (
                 <motion.span
@@ -152,42 +192,7 @@ export function ResearchScan({ lines, note, doneTitle, doneNote, settled: settle
                 </motion.span>
               )}
             </AnimatePresence>
-          </Face>
-          <Face back glint={glint} />
-          {/* The page's edges: a little thickness, so edge-on mid-flip it
-              still reads as a sheet. */}
-          <span className={styles.edge} data-side="left" />
-          <span className={styles.edge} data-side="right" />
-          <span className={styles.edge} data-side="top" />
-          <span className={styles.edge} data-side="bottom" />
-          {/* The folded corner: a flap hinged on the crease, lifting in the
-              air as the page flips. */}
-          <span className={styles.fold}>
-            <motion.span
-              className={styles.hinge}
-              initial={rest ? false : { rotateX: 0 }}
-              animate={rest ? { rotateX: 0 } : { rotateX: k.fold.values }}
-              transition={rest ? settle : loop(k.fold)}
-            >
-              <span className={styles.flap} />
-            </motion.span>
           </span>
-          {/* The bar: a slab through the page, so it shows on both sides and
-              as a short block when the page is edge-on. */}
-          <motion.span
-            className={styles.bar}
-            style={{ y: barY }}
-            initial={{ opacity: rest ? 0 : 1 }}
-            animate={{ opacity: rest ? 0 : 1 }}
-            transition={{ duration: 0.3, ease: EASE_STD }}
-          >
-            <span className={styles.slab} data-side="front" />
-            <span className={styles.slab} data-side="back" />
-            <span className={styles.slab} data-side="left" />
-            <span className={styles.slab} data-side="right" />
-            <span className={styles.slab} data-side="top" />
-            <span className={styles.slab} data-side="bottom" />
-          </motion.span>
         </motion.div>
       </div>
 

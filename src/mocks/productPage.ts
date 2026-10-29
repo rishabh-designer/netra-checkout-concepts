@@ -378,15 +378,26 @@ export const mockProductPageContent: ProductPageContent = {
       // research (each case's search panel, kept as it was).
       researchView: "scan",
       scan: {
-        lines: ["Probing MCA Data", "Reading Director History", "Studying Company Financials"],
         note: "This will just take a few moments",
         doneTitle: "Research complete",
         doneNote: "Review the details, then confirm",
       },
       tasks: [
         { activeLabel: "Assessing Profile", readyLabel: "Ready to Confirm Profile", waitingLabel: "Enter your Profile Details", doneLabel: "Profile Confirmed", hasSearch: false },
-        { activeLabel: "Assessing Business", waitingLabel: "Business Assessed. Waiting for Confirmation", doneLabel: "Business Secured", hasSearch: true },
-        { activeLabel: "Assessing Risk", waitingLabel: "Risk Assessed. Waiting for Confirmation", doneLabel: "Risk Insured", hasSearch: true },
+        {
+          activeLabel: "Assessing Business",
+          waitingLabel: "Business Assessed. Waiting for Confirmation",
+          doneLabel: "Business Secured",
+          hasSearch: true,
+          scanLines: ["Probing MCA Data", "Reading Director History", "Studying Company Financials"],
+        },
+        {
+          activeLabel: "Assessing Risk",
+          waitingLabel: "Risk Assessed. Waiting for Confirmation",
+          doneLabel: "Risk Insured",
+          hasSearch: true,
+          scanLines: ["Assessing Business", "Understanding Risk", "Calculating Sum Insured"],
+        },
       ],
     },
     emptyNameError: "Enter your company's legal name to get your quote",

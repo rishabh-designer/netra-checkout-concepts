@@ -236,6 +236,9 @@ export interface EngineTask {
   /** true = the active task expands the Netra search viz (Business/Insurance);
    *  false = no search body (Profile). */
   hasSearch: boolean;
+  /** A researched task's scan titles, one per sweep of the bar, in turn
+   *  (one full loop). */
+  scanLines?: string[];
 }
 
 /** The persistent left-panel "Intelligence Engine" — NetraBot on Profile,
@@ -254,9 +257,9 @@ export interface IntelligenceEngine {
    *  (search, sources and typed results from each case's `search`), kept
    *  on hand. */
   researchView: "scan" | "findings";
-  /** The scan's copy: a title per sweep of the bar, in turn (one full
-   *  loop), the line under it, and both once the research is in. */
-  scan: { lines: string[]; note: string; doneTitle: string; doneNote: string };
+  /** The scan's shared copy: the line under its title (each task's
+   *  `scanLines`), and both once the research is in. */
+  scan: { note: string; doneTitle: string; doneNote: string };
   tasks: EngineTask[];
 }
 

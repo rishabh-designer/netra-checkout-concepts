@@ -12,19 +12,22 @@
 }
 
 /* The page's room: perspective, so it turns in depth, and 12 of headroom
-   for the bar past its top and foot. The sizes the 3D parts share: the
-   page (scanKeyframes PAGE_H = --page-h) 4 thick, its top-right corner
-   folded --fold in, and the bar, a slab wider than it by --bar-over either
-   side, --bar-d deep through it. */
+   for the bar past its top and foot. The sizes the 3D parts share
+   (scanKeyframes keeps PAGE_W, PAGE_H and SEGS in step): the page, 4
+   thick, in hinged strips (SEGS either side of the middle), and the bar,
+   a slab wider than the page by --bar-over either side, --bar-d deep
+   through it. */
 .stage {
   --page-w: 168px;
   --page-h: 230px;
   --page-t: 4px;
-  --fold: 30px;
+  --seg-w: calc(var(--page-w) / 8);
   --bar-over: 14px;
-  --bar-w: calc(var(--page-w) + 2 * var(--bar-over));
   --bar-h: 10px;
-  --bar-d: 28px;
+  --bar-d: 22px;
+  /* A bar piece's overlap on its neighbours: its faces sit off the hinge,
+     so a fold opens a gap there (--bar-d / 2 × tan of the bend). */
+  --bar-lap: 3px;
   display: grid;
   place-items: center;
   width: 100%;
@@ -32,8 +35,8 @@
   perspective: 900px;
 }
 
-/* The page, two-sided; its faces, edges and the bar keep their depth as it
-   turns. */
+/* The page: two chains of strips out from its middle; everything keeps its
+   depth as it turns and bends. */
 .page {
   position: relative;
   grid-area: 1 / 1;
@@ -42,82 +45,108 @@
   transform-style: preserve-3d;
 }
 
-/* A side of the page, half the sheet's thickness off its middle; only the
-   side facing us shows. It casts the raised glow (a drop shadow, so it
-   follows the folded corner). */
-.face {
+/* A strip, hinged on its inner side: the first either side of the middle,
+   each next one hung off the outer side of the last. */
+.strip {
   position: absolute;
-  inset: 0;
+  top: 0;
+  width: var(--seg-w);
+  height: var(--page-h);
+  transform-style: preserve-3d;
+}
+
+.strip[data-side="right"] {
+  transform-origin: left center;
+}
+
+.strip[data-side="left"] {
+  transform-origin: right center;
+}
+
+.page > .strip[data-side="right"] {
+  left: 50%;
+}
+
+.page > .strip[data-side="left"] {
+  left: calc(50% - var(--seg-w));
+}
+
+.strip > .strip[data-side="right"] {
+  left: var(--seg-w);
+}
+
+.strip > .strip[data-side="left"] {
+  left: calc(-1 * var(--seg-w));
+}
+
+/* A strip's window on one side of the paper, half the sheet's thickness
+   off its middle (a hair wider, so no seam shows); only the side facing us
+   shows. The back is turned round, so its slice is mirrored. */
+.slice {
+  position: absolute;
+  inset: 0 -0.5px;
+  overflow: hidden;
   backface-visibility: hidden;
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-label-tertiary) 40%, transparent));
   transform: translateZ(calc(var(--page-t) / 2));
 }
 
-.face[data-back] {
+.slice[data-back] {
   transform: rotateY(180deg) translateZ(calc(var(--page-t) / 2));
 }
 
-/* The paper: white, a neutral hairline, its text as grey bars, the corner
-   cut along the crease (the flap lies over the front). Mirrored on the
-   back, the same corner is its top-left. */
+/* The paper, whole, behind each window: white, a neutral hairline, its
+   text as grey bars, the bar's light. */
 .sheet {
   position: absolute;
-  inset: 0;
+  top: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: var(--page-w);
+  height: var(--page-h);
   padding: 26px 24px;
   border: var(--border-hairline) solid var(--color-border-neutral);
   border-radius: var(--radius-6);
   background: var(--color-card);
-  clip-path: polygon(0 0, calc(100% - var(--fold)) 0, 100% var(--fold), 100% 100%, 0 100%);
 }
 
-.face[data-back] .sheet {
-  clip-path: polygon(0 var(--fold), var(--fold) 0, 100% 0, 100% 100%, 0 100%);
-}
-
-/* Its edges, the sheet's thickness deep, in the sunken grey with a neutral
-   hairline. */
+/* The paper's edges, its thickness deep, in the sunken grey with a neutral
+   hairline: top and bottom on every strip, the side on the outermost. */
 .edge {
   position: absolute;
   border: var(--border-hairline) solid var(--color-border-neutral);
   background: var(--color-card-sunken);
 }
 
-.edge[data-side="left"],
-.edge[data-side="right"] {
-  top: 0;
-  left: calc((var(--page-w) - var(--page-t)) / 2);
-  width: var(--page-t);
-  height: var(--page-h);
-}
-
-.edge[data-side="left"] {
-  transform: rotateY(-90deg) translateZ(calc(var(--page-w) / 2));
-}
-
-.edge[data-side="right"] {
-  top: var(--fold);
-  height: calc(var(--page-h) - var(--fold));
-  transform: rotateY(90deg) translateZ(calc(var(--page-w) / 2));
-}
-
 .edge[data-side="top"],
 .edge[data-side="bottom"] {
   top: calc((var(--page-h) - var(--page-t)) / 2);
   left: 0;
-  width: var(--page-w);
+  width: var(--seg-w);
   height: var(--page-t);
 }
 
 .edge[data-side="top"] {
-  width: calc(var(--page-w) - var(--fold));
   transform: rotateX(90deg) translateZ(calc(var(--page-h) / 2));
 }
 
 .edge[data-side="bottom"] {
   transform: rotateX(-90deg) translateZ(calc(var(--page-h) / 2));
+}
+
+.edge[data-side="end"] {
+  top: 0;
+  width: var(--page-t);
+  height: var(--page-h);
+  transform: rotateY(90deg);
+}
+
+.strip[data-side="right"] > .edge[data-side="end"] {
+  left: calc(var(--seg-w) - var(--page-t) / 2);
+}
+
+.strip[data-side="left"] > .edge[data-side="end"] {
+  left: calc(var(--page-t) / -2);
 }
 
 .line {
@@ -139,16 +168,26 @@
   height: var(--spacing-8);
 }
 
-/* The bar: the slab, centred on its line. Its faces are placed in 3D
-   below. */
+/* The bar: the slab, centred on its line, in a piece per strip (so it bends
+   with the paper); the outermost pieces run past the page and close it
+   off. Its faces are placed in 3D below. */
 .bar {
   position: absolute;
   top: 0;
-  left: calc(-1 * var(--bar-over));
-  width: var(--bar-w);
+  left: 0;
+  width: var(--seg-w);
   height: var(--bar-h);
   margin-top: calc(var(--bar-h) / -2);
   transform-style: preserve-3d;
+}
+
+.strip[data-outer][data-side="right"] > .bar {
+  width: calc(var(--seg-w) + var(--bar-over));
+}
+
+.strip[data-outer][data-side="left"] > .bar {
+  left: calc(-1 * var(--bar-over));
+  width: calc(var(--seg-w) + var(--bar-over));
 }
 
 .slab {
@@ -156,13 +195,27 @@
   backface-visibility: visible;
 }
 
-/* Front and back: BimaNetra purple with a soft glow. */
+/* Front and back: BimaNetra purple with a soft glow, overlapping the next
+   pieces (--bar-lap) but not past the bar's ends. The back is turned
+   round, so its outer side is its left. */
 .slab[data-side="front"],
 .slab[data-side="back"] {
-  inset: 0;
-  border-radius: 2px;
+  top: 0;
+  bottom: 0;
+  left: calc(-1 * var(--bar-lap));
+  right: calc(-1 * var(--bar-lap));
   background: var(--color-brand-primary);
-  box-shadow: 0 0 14px color-mix(in srgb, var(--color-brand-primary) 40%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--color-brand-primary) 20%, transparent);
+}
+
+.strip[data-outer][data-side="right"] > .bar > .slab[data-side="front"],
+.strip[data-outer][data-side="left"] > .bar > .slab[data-side="back"] {
+  right: 0;
+}
+
+.strip[data-outer][data-side="right"] > .bar > .slab[data-side="back"],
+.strip[data-outer][data-side="left"] > .bar > .slab[data-side="front"] {
+  left: 0;
 }
 
 .slab[data-side="front"] {
@@ -173,32 +226,22 @@
   transform: rotateY(180deg) translateZ(calc(var(--bar-d) / 2));
 }
 
-/* The ends, shaded deeper. */
-.slab[data-side="left"],
-.slab[data-side="right"] {
-  top: 0;
-  left: calc((var(--bar-w) - var(--bar-d)) / 2);
-  width: var(--bar-d);
-  height: var(--bar-h);
-  background: var(--color-brand-primary-deep);
-}
-
-.slab[data-side="left"] {
-  transform: rotateY(-90deg) translateZ(calc(var(--bar-w) / 2));
-}
-
-.slab[data-side="right"] {
-  transform: rotateY(90deg) translateZ(calc(var(--bar-w) / 2));
-}
-
-/* Top and bottom, a shade between. */
+/* Top and bottom, a shade deeper. */
 .slab[data-side="top"],
 .slab[data-side="bottom"] {
   top: calc((var(--bar-h) - var(--bar-d)) / 2);
-  left: 0;
-  width: var(--bar-w);
+  left: calc(-1 * var(--bar-lap));
+  right: calc(-1 * var(--bar-lap));
   height: var(--bar-d);
   background: var(--color-brand-primary-hover);
+}
+
+.strip[data-outer][data-side="right"] > .bar > .slab:is([data-side="top"], [data-side="bottom"]) {
+  right: 0;
+}
+
+.strip[data-outer][data-side="left"] > .bar > .slab:is([data-side="top"], [data-side="bottom"]) {
+  left: 0;
 }
 
 .slab[data-side="top"] {
@@ -209,11 +252,32 @@
   transform: rotateX(-90deg) translateZ(calc(var(--bar-h) / 2));
 }
 
-/* Done: a purple tick on the page's corner. */
-.tick {
+/* The bar's ends, shaded deepest. */
+.slab[data-side="end"] {
+  top: 0;
+  width: var(--bar-d);
+  height: var(--bar-h);
+  background: var(--color-brand-primary-deep);
+  transform: rotateY(90deg);
+}
+
+.strip[data-side="right"] > .bar > .slab[data-side="end"] {
+  left: calc(100% - var(--bar-d) / 2);
+}
+
+.strip[data-side="left"] > .bar > .slab[data-side="end"] {
+  left: calc(var(--bar-d) / -2);
+}
+
+/* Done: a purple tick on the page's corner, just off the front. */
+.tickPin {
   position: absolute;
   right: -12px;
   bottom: -12px;
+  transform: translateZ(calc(var(--page-t) / 2 + 1px));
+}
+
+.tick {
   display: inline-flex;
 }
 
@@ -222,8 +286,8 @@
   height: 28px;
 }
 
-/* The floor shadow under the page: narrow as the page goes edge-on, faint
-   while it's in the air (scanKeyframes). */
+/* The floor shadow under the page, as wide as the page shows (TSX: the
+   cosine of its turn), so it narrows edge-on. */
 .shadow {
   grid-area: 1 / 1;
   align-self: end;
@@ -235,48 +299,9 @@
   background: radial-gradient(closest-side, color-mix(in srgb, var(--color-label-tertiary) 45%, transparent), transparent);
 }
 
-/* The folded corner: a square on the crease's corner, turned so its x axis
-   runs down the crease (the hinge's rotateX lifts the flap about it). Just
-   off the front. */
-.fold {
-  position: absolute;
-  top: 0;
-  left: calc(var(--page-w) - var(--fold));
-  width: var(--fold);
-  height: var(--fold);
-  transform-origin: 0 0;
-  transform: translateZ(calc(var(--page-t) / 2 + 0.5px)) rotateZ(45deg);
-  transform-style: preserve-3d;
-}
-
-.hinge {
-  position: absolute;
-  inset: 0;
-  transform-origin: 0 0;
-  transform-style: preserve-3d;
-}
-
-/* The flap, turned back square: the corner folded over onto the page, its
-   underside greyer at the crease, with a soft shadow on the page. */
-.flap {
-  position: absolute;
-  inset: 0;
-  transform-origin: 0 0;
-  transform: rotateZ(-45deg);
-  filter: drop-shadow(-1px 1px 1.5px color-mix(in srgb, var(--color-label-tertiary) 55%, transparent));
-}
-
-.flap::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  clip-path: polygon(0 0, 100% 100%, 0 100%);
-  background: linear-gradient(225deg, var(--color-border-neutral), var(--color-card-sunken) 45%, var(--color-card));
-}
-
 /* The bar's light on the paper, centred on the bar and riding with it: a
-   purple wash, then dither (dense at the bar, thinning away) and sparkles,
-   above and below. Clipped to the sheet. */
+   purple wash, then dither (dense at the bar, thinning away), above and
+   below. Clipped to the sheet. */
 .glint {
   position: absolute;
   top: 0;
@@ -294,7 +319,7 @@
   background: linear-gradient(
     to bottom,
     transparent,
-    color-mix(in srgb, var(--color-brand-primary) 12%, transparent),
+    color-mix(in srgb, var(--color-brand-primary) 6%, transparent),
     transparent
   );
 }
@@ -315,7 +340,7 @@
   top: 36px;
   height: 24px;
   background: repeating-conic-gradient(var(--color-brand-primary) 0 25%, transparent 0 50%) 0 0 / 4px 4px;
-  opacity: 0.35;
+  opacity: 0.175;
 }
 
 /* Further: one dot in four. */
@@ -323,7 +348,7 @@
   top: 18px;
   height: 60px;
   background: radial-gradient(circle at 1px 1px, var(--color-brand-primary) 0.8px, transparent 1.2px) 0 0 / 4px 4px;
-  opacity: 0.4;
+  opacity: 0.2;
 }
 
 /* Furthest: sparse dots. */
@@ -331,34 +356,12 @@
   top: 0;
   height: 96px;
   background: radial-gradient(circle at 1px 1px, var(--color-brand-primary) 0.8px, transparent 1.2px) 0 0 / 8px 6px;
-  opacity: 0.3;
+  opacity: 0.15;
 }
 
 @keyframes crawl {
   to {
     background-position: 4px 2px;
-  }
-}
-
-/* A four-point star, twinkling in turn (TSX sets each one's place, size and
-   delay). */
-.spark {
-  position: absolute;
-  background: var(--color-brand-primary);
-  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
-  opacity: 0;
-  animation: twinkle 0.9s ease-in-out infinite;
-}
-
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0;
-    transform: scale(0.2) rotate(0deg);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1) rotate(45deg);
   }
 }
 

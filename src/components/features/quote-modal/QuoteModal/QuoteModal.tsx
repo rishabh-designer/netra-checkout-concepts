@@ -1312,6 +1312,7 @@ function TaskRow({
                 {scan ? (
                   <ResearchScan
                     {...scan}
+                    lines={task.scanLines ?? []}
                     settled={research.instant}
                     done={research.done}
                     onScanned={research.onStreamDone}
