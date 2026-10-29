@@ -299,7 +299,7 @@ export const mockCheckoutContent: CheckoutContent = {
       phoneIconSrc: "/media/gold-inquiry/call.svg",
     },
     suggestions: {
-      title: "BimaNetra Suggests",
+      title: "Your Personalised Suggestions",
       ctaLabel: "Get a Quote",
       immediateLabel: "Immediate Purchase",
       immediateTip: TAG_TIPS.immediate,
