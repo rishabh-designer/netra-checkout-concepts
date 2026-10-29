@@ -82,6 +82,7 @@ export function QuotesChat({ content, context, session, open = true, variant, on
   const last = messages[messages.length - 1];
   const liveId = !thinking && last?.from === "bot" ? last.id : undefined;
   const botState = draft.trim() ? "listening" : "waiting";
+  const drawer = variant === "drawer";
 
   return (
     <section className={styles.chat} data-variant={variant} aria-label={content.title}>
@@ -92,6 +93,8 @@ export function QuotesChat({ content, context, session, open = true, variant, on
         <h2 className={styles.title}>{content.title}</h2>
         {onClose && <CloseButton label={content.closeLabel} onClick={onClose} />}
       </header>
+      {/* In the drawer, a warm rule under its title (Figma 880:29726). */}
+      {drawer && <hr className={styles.rule} />}
 
       <div ref={listRef} className={styles.list} role="log" aria-live="polite">
         {messages.map((m) => (
@@ -116,16 +119,20 @@ export function QuotesChat({ content, context, session, open = true, variant, on
         <AnimatePresence>
           {!asked && (
             <motion.div
-              className={styles.suggestions}
+              className={styles.starters}
               initial={reduced ? false : { opacity: 0 }}
               animate={{ opacity: 1, transition: { delay: 0.2 } }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
             >
-              {(context.keyLines && content.suggestionsScored ? content.suggestionsScored : content.suggestions).map((s) => (
-                <button key={s} type="button" className={styles.suggestion} onClick={() => ask(s)}>
-                  {s}
-                </button>
-              ))}
+              {/* In the drawer, a grey rule closes off the greeting (880:29652). */}
+              {drawer && <hr className={styles.startersRule} />}
+              <div className={styles.suggestions}>
+                {(context.keyLines && content.suggestionsScored ? content.suggestionsScored : content.suggestions).map((s) => (
+                  <button key={s} type="button" className={styles.suggestion} onClick={() => ask(s)}>
+                    {s}
+                  </button>
+                ))}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

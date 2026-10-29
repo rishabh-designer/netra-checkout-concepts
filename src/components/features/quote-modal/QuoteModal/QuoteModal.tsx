@@ -28,6 +28,7 @@ import type {
 } from "@/types/productPage";
 import { useResearchTimeline, type ResearchView } from "../useResearchTimeline";
 import { ResearchSources } from "../ResearchSources";
+import { ResearchScan } from "../ResearchScan";
 import { useDemoNotice } from "@/lib/demo-notice";
 import { useFieldTip } from "@/lib/field-tips";
 import styles from "./QuoteModal.module.css";
@@ -226,7 +227,8 @@ export function QuoteModal({
   // One clock for the step's research. Form-only (edit), Profile (collect
   // mode), Case C (nothing to fetch: the customer types straight in),
   // reduced motion and revisited steps start at rest.
-  const researchKeys = useMemo(() => qc.fields.map((f) => f.key).filter((k) => k !== "name"), [qc.fields]);
+  // The name is the customer's, and so are the declarations (Yes/No): neither waits on it.
+  const researchKeys = useMemo(() => qc.fields.filter((f) => f.key !== "name" && !f.declared).map((f) => f.key), [qc.fields]);
   const instant = formOnly || caseId === "C" || !!reduced || !!step.collectMode || probedRef.current.has(stepIndex);
   const runKey = `${stepIndex}:${caseId}`;
   const probeMs = qc.search.body ? fetchDelay : Math.min(fetchDelay, EMPTY_PROBE_MS);
@@ -565,7 +567,7 @@ export function QuoteModal({
                         caseId={caseId}
                         collectMode={formOnly ? collectKeys.has(field.key) : !!step.collectMode}
                         confirmed={formOnly}
-                        fetched={formOnly || field.key === "name" || tl.resolved.has(field.key)}
+                        fetched={formOnly || field.key === "name" || !!field.declared || tl.resolved.has(field.key)}
                         value={values[field.key] ?? ""}
                         error={errorFor(field)}
                         nameHelp={field.key === "name" ? nameHelp : undefined}
@@ -650,7 +652,7 @@ export function QuoteModal({
 }
 
 /* ---- per-field display status: name=userFilled (recalled from what the user
-   typed before the modal), A=green, B=orange, C/collect=green-when-filled ---- */
+   typed before the modal), A=green, B=orange, C/collect/declared=green-when-filled ---- */
 function displayStatus(
   field: QuoteModalField,
   caseId: QuoteCaseId,
@@ -662,8 +664,9 @@ function displayStatus(
   // The company name was supplied by the user in the hero field — we're recalling
   // their own data, so it reads as "prefilled by user", not system-verified.
   if (field.key === "name") return "userFilled";
-  // Profile (collect mode): status follows whether the field is filled.
-  if (collectMode) return value.trim() ? "success" : "empty";
+  // Profile (collect mode) and the declarations: status follows whether the
+  // field is filled.
+  if (collectMode || field.declared) return value.trim() ? "success" : "empty";
   if (caseId === "A") return "success";
   // Edit Details (after the quotes): the customer already confirmed these,
   // so nothing reads as a guess; a cleared field is just empty.
@@ -1118,6 +1121,7 @@ function IntelligenceEngine({
               profileComplete={profileComplete}
               research={research}
               search={search}
+              scan={engine.researchView === "scan" ? engine.scan : undefined}
               activeTab={activeTab}
               companyName={companyName}
               reduced={reduced}
@@ -1161,6 +1165,7 @@ function TaskRow({
   profileComplete,
   research,
   search,
+  scan,
   activeTab,
   companyName,
   reduced,
@@ -1170,6 +1175,8 @@ function TaskRow({
   profileComplete: boolean;
   research: ResearchView;
   search: QuoteSearchPanel;
+  /** The template scan in place of the findings (`search`), when chosen. */
+  scan?: IntelligenceEngineContent["scan"];
   activeTab: string;
   companyName: string;
   reduced: boolean;
@@ -1262,7 +1269,7 @@ function TaskRow({
         </button>
       ) : (
         <div className={styles.taskHead}>
-          {/* Active Profile task: a still ring and "Waiting for Profile
+          {/* Active Profile task: a still ring and "Enter your Profile
               Details" while incomplete; the purple filled check once
               complete. */}
           {profileComplete ? (
@@ -1301,14 +1308,24 @@ function TaskRow({
                 }}
                 exit={reduced || closing ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, transition: { duration: 0.15, ease: EASE_STD } }}
               >
-                <SearchResult
-                  compact
-                  search={search}
-                  activeTab={activeTab}
-                  companyName={companyName}
-                  reduced={reduced}
-                  research={research}
-                />
+                {/* The template scan, or the generated findings (kept on hand). */}
+                {scan ? (
+                  <ResearchScan
+                    {...scan}
+                    settled={research.instant}
+                    done={research.done}
+                    onScanned={research.onStreamDone}
+                  />
+                ) : (
+                  <SearchResult
+                    compact
+                    search={search}
+                    activeTab={activeTab}
+                    companyName={companyName}
+                    reduced={reduced}
+                    research={research}
+                  />
+                )}
               </motion.div>
             </motion.div>
           )}

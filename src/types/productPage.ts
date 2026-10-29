@@ -138,6 +138,9 @@ export interface QuoteModalField {
    *  spot, within the insurers' delegated authority, then the rest). */
   optionGroups?: { label: string; options: string[]; tone?: "immediate" }[];
   status: QuoteFieldStatus;
+  /** The customer's own declaration (Risk's Yes/No questions): never
+   *  researched or prefilled, in any case, so it's theirs to answer. */
+  declared?: boolean;
   /** Contextual help/disclaimer shown in the reserved help row (see helpTone). */
   helpText?: string;
   helpTone?: QuoteFieldHelpTone;
@@ -224,7 +227,7 @@ export interface EngineTask {
    *  "Ready to Confirm Profile"). */
   readyLabel?: string;
   /** Once it's the user's move: Profile from the start, while still
-   *  incomplete ("Waiting for Profile Details"); Business
+   *  incomplete ("Enter your Profile Details"); Business
    *  and Risk once their research is in ("Business Assessed. Waiting for
    *  Confirmation"). */
   waitingLabel?: string;
@@ -246,6 +249,14 @@ export interface IntelligenceEngine {
   headingLabels: string[];
   /** Agent Progress verb under the result tabs while details load. */
   progressLabel: string;
+  /** How a researched step (Business, Risk) shows its work: "scan", the
+   *  template animation (`scan`), or "findings", the generated research
+   *  (search, sources and typed results from each case's `search`), kept
+   *  on hand. */
+  researchView: "scan" | "findings";
+  /** The scan's copy: a title per sweep of the bar, in turn (one full
+   *  loop), the line under it, and both once the research is in. */
+  scan: { lines: string[]; note: string; doneTitle: string; doneNote: string };
   tasks: EngineTask[];
 }
 

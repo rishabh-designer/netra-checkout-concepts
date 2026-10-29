@@ -14,11 +14,14 @@
   overflow: hidden;
 }
 
-/* In the phone drawer (SideDrawer draws the surface, title and ×): no
-   chrome of its own, the log and composer filling the sheet. */
+/* In the drawer (Figma 880:29334; SideDrawer draws the surface, title and
+   ×): no chrome of its own, the rule, log and composer filling it. The
+   composer sits on the panel's 24 foot, past the body's 12, as Figma's
+   form does. */
 .chat[data-variant="drawer"] {
   flex: 1;
   height: auto;
+  margin-bottom: calc(-1 * var(--spacing-12));
   border: 0;
   border-radius: 0;
   background: none;
@@ -29,12 +32,75 @@
   display: none;
 }
 
+/* 16 under the title, 16 above the log: a hairline in BimaNetra's warm tint. */
+.rule {
+  flex-shrink: 0;
+  height: 0;
+  margin: 0 0 var(--spacing-16);
+  border: 0;
+  border-top: var(--border-hairline) solid var(--color-brand-secondary-border);
+}
+
 .chat[data-variant="drawer"] .list {
   padding: var(--spacing-12) 0;
 }
 
-.chat[data-variant="drawer"] .composer {
+/* BimaNetra's messages run the log's width, at 16 (20.3 leading). */
+.chat[data-variant="drawer"] .message[data-from="bot"] {
+  max-width: 100%;
+}
+
+.chat[data-variant="drawer"] .bubble {
+  font-size: var(--font-size-200);
+  line-height: 1.27;
+}
+
+/* The greeting, 24, a grey rule full width, 24, the starter questions. */
+.starters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+.chat[data-variant="drawer"] .starters {
+  margin-top: var(--spacing-12);
+}
+
+.startersRule {
+  height: 0;
   margin: 0;
+  border: 0;
+  border-top: var(--border-hairline) solid var(--color-border-neutral);
+}
+
+/* Starters 12 apart at 14 (Figma r12, one step rounder). */
+.chat[data-variant="drawer"] .suggestions {
+  gap: var(--spacing-12);
+}
+
+.chat[data-variant="drawer"] .suggestion {
+  border-radius: var(--radius-16);
+  font-size: var(--font-size-100);
+  line-height: 1.11;
+}
+
+/* The composer 24 under the log, ringed in BimaNetra's orange at rest too;
+   send r16 (Figma r12, one step rounder). */
+.chat[data-variant="drawer"] .composer {
+  margin: var(--spacing-12) 0 0;
+  border-color: var(--color-brand-secondary);
+}
+
+.chat[data-variant="drawer"] .send {
+  border-radius: var(--radius-16);
+}
+
+/* Phones (the bottom sheet, ≤900): the sheet's content scrolls, so the
+   composer stays inside it rather than reaching into the foot. */
+@media (max-width: 900px) {
+  .chat[data-variant="drawer"] {
+    margin-bottom: 0;
+  }
 }
 
 /* Header, as the drawers' (SideDrawer .head / .title): the serif title and

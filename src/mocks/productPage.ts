@@ -147,7 +147,7 @@ const RISK_NEWS_A: QuoteSearchPanel = {
     { label: "Court Records", result: "hit" },
     { label: "MCA Charges", result: "hit" },
   ],
-  verdict: "Risk signals from {sources} sources · {fields} answers pre-filled",
+  verdict: "Risk signals from {sources} sources · Sum Insured suggested",
 };
 
 const RISK_NEWS_B: QuoteSearchPanel = {
@@ -174,7 +174,7 @@ const RISK_NEWS_B: QuoteSearchPanel = {
     { label: "Court Records", result: "miss" },
     { label: "MCA Charges", result: "partial" },
   ],
-  verdict: "Weak signals from {sources} sources · {fields} answers to review",
+  verdict: "Weak signals from {sources} sources · Sum Insured suggested",
 };
 
 const RISK_NEWS_C: QuoteSearchPanel = {
@@ -374,8 +374,17 @@ export const mockProductPageContent: ProductPageContent = {
       messageTemplate: "BimaNetra is running 3 tasks to personalise your quote for {company}",
       headingLabels: ["Getting Started", "Assessing Business", "Assessing Risk"],
       progressLabel: "Researching",
+      // The template scan for now; "findings" brings back the generated
+      // research (each case's search panel, kept as it was).
+      researchView: "scan",
+      scan: {
+        lines: ["Probing MCA Data", "Reading Director History", "Studying Company Financials"],
+        note: "This will just take a few moments",
+        doneTitle: "Research complete",
+        doneNote: "Review the details, then confirm",
+      },
       tasks: [
-        { activeLabel: "Assessing Profile", readyLabel: "Ready to Confirm Profile", waitingLabel: "Waiting for Profile Details", doneLabel: "Profile Confirmed", hasSearch: false },
+        { activeLabel: "Assessing Profile", readyLabel: "Ready to Confirm Profile", waitingLabel: "Enter your Profile Details", doneLabel: "Profile Confirmed", hasSearch: false },
         { activeLabel: "Assessing Business", waitingLabel: "Business Assessed. Waiting for Confirmation", doneLabel: "Business Secured", hasSearch: true },
         { activeLabel: "Assessing Risk", waitingLabel: "Risk Assessed. Waiting for Confirmation", doneLabel: "Risk Insured", hasSearch: true },
       ],
@@ -441,7 +450,8 @@ export const mockProductPageContent: ProductPageContent = {
         title: "Risk",
         activeTab: "News",
         cases: {
-          // A (Matched) — auto-personalized: toggles answered No/No, coverage set, green.
+          // A (Matched): the Yes/No declarations are the customer's to answer
+          // (never prefilled); coverage set, green.
           A: {
             personalize: {
               pendingLabel: "Your quote is being personalised",
@@ -449,15 +459,16 @@ export const mockProductPageContent: ProductPageContent = {
               skipLabel: "Skip",
             },
             fields: [
-              { key: "existingPolicy", label: "Does your business have an existing Directors & Officers policy?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
-              { key: "claims5y", label: "Any claims or incidents in the last 5 years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "success" },
+              { key: "existingPolicy", label: "Does your business have an existing Directors & Officers policy?", mandatory: true, control: "toggle", declared: true, value: "", options: ["Yes", "No"], status: "empty" },
+              { key: "claims5y", label: "Any claims or incidents in the last 5 years?", mandatory: true, control: "toggle", declared: true, value: "", options: ["Yes", "No"], status: "empty" },
               { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "₹10 Cr", options: COVERAGE_OPTIONS, optionGroups: COVERAGE_GROUPS, status: "success", helpText: "Typical for businesses your size", helpTone: "success" },
             ],
             search: RISK_NEWS_A,
           },
-          // B (Fuzzy) — guessed: toggles orange, the same auto-personalize badge as
-          // A (loading → green "Personalised!", Skip goes away), sum insured
-          // in A's purple filled state with a black suggestion line.
+          // B (Fuzzy): the Yes/No declarations left to the customer, as in A;
+          // the same auto-personalize badge as A (loading → green
+          // "Personalised!", Skip goes away), sum insured in A's purple
+          // filled state with a black suggestion line.
           B: {
             personalize: {
               pendingLabel: "Your quote is being personalised",
@@ -465,8 +476,8 @@ export const mockProductPageContent: ProductPageContent = {
               skipLabel: "Skip",
             },
             fields: [
-              { key: "existingPolicy", label: "Does your business have an existing Directors & Officers policy?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "fuzzy" },
-              { key: "claims5y", label: "Any claims or incidents in the last 5 years?", mandatory: true, control: "toggle", value: "No", options: ["Yes", "No"], status: "fuzzy" },
+              { key: "existingPolicy", label: "Does your business have an existing Directors & Officers policy?", mandatory: true, control: "toggle", declared: true, value: "", options: ["Yes", "No"], status: "empty" },
+              { key: "claims5y", label: "Any claims or incidents in the last 5 years?", mandatory: true, control: "toggle", declared: true, value: "", options: ["Yes", "No"], status: "empty" },
               { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "₹10 Cr", options: COVERAGE_OPTIONS, optionGroups: COVERAGE_GROUPS, status: "success", helpText: "Typical cover for a business like yours", helpTone: "basic" },
             ],
             search: RISK_NEWS_B,
@@ -476,8 +487,8 @@ export const mockProductPageContent: ProductPageContent = {
           C: {
             demoFill: { existingPolicy: "No", claims5y: "No", coverage: "₹5 Cr" },
             fields: [
-              { key: "existingPolicy", label: "Does your business have an existing Directors & Officers policy?", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
-              { key: "claims5y", label: "Any claims or incidents in the last 5 years?", mandatory: true, control: "toggle", value: "", options: ["Yes", "No"], status: "empty" },
+              { key: "existingPolicy", label: "Does your business have an existing Directors & Officers policy?", mandatory: true, control: "toggle", declared: true, value: "", options: ["Yes", "No"], status: "empty" },
+              { key: "claims5y", label: "Any claims or incidents in the last 5 years?", mandatory: true, control: "toggle", declared: true, value: "", options: ["Yes", "No"], status: "empty" },
               { key: "coverage", label: SUM_INSURED_LABEL, infoTooltip: SUM_INSURED_TOOLTIP, mandatory: true, control: "select", value: "", placeholder: "Select Your Sum Insured", options: COVERAGE_OPTIONS, optionGroups: COVERAGE_GROUPS, status: "empty" },
             ],
             search: RISK_NEWS_C,

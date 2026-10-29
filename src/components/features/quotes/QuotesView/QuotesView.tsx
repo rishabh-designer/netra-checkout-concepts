@@ -291,7 +291,8 @@ function QuotesScreen({ content, quoteModal }: QuotesViewProps) {
         // NetraBot before the title, its eyes on the pointer.
         titleIcon={<NetraBot state="idle" follow="page" size={36} />}
         closeLabel={content.chat.closeLabel}
-        width={424}
+        // Figma 880:29334: 624 wide (the default), the rule 16 under the title.
+        headGap={16}
         sheetOnMobile
         className={styles.chatDrawer}
       >
