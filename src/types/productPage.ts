@@ -223,8 +223,8 @@ export interface EngineTask {
   /** Optional swap once the step's inputs are complete (Profile only:
    *  "Ready to Confirm Profile"). */
   readyLabel?: string;
-  /** Once the task stops working and it's the user's move: Profile after a
-   *  short while still incomplete ("Waiting for Profile Details"); Business
+  /** Once it's the user's move: Profile from the start, while still
+   *  incomplete ("Waiting for Profile Details"); Business
    *  and Risk once their research is in ("Business Assessed. Waiting for
    *  Confirmation"). */
   waitingLabel?: string;

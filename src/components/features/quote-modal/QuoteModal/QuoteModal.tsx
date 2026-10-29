@@ -224,9 +224,10 @@ export function QuoteModal({
   }, [open, stepIndex, caseId, companyName, formFields, initialValues]);
 
   // One clock for the step's research. Form-only (edit), Profile (collect
-  // mode), reduced motion and revisited steps start at rest.
+  // mode), Case C (nothing to fetch: the customer types straight in),
+  // reduced motion and revisited steps start at rest.
   const researchKeys = useMemo(() => qc.fields.map((f) => f.key).filter((k) => k !== "name"), [qc.fields]);
-  const instant = formOnly || !!reduced || !!step.collectMode || probedRef.current.has(stepIndex);
+  const instant = formOnly || caseId === "C" || !!reduced || !!step.collectMode || probedRef.current.has(stepIndex);
   const runKey = `${stepIndex}:${caseId}`;
   const probeMs = qc.search.body ? fetchDelay : Math.min(fetchDelay, EMPTY_PROBE_MS);
   const tl = useResearchTimeline({ runKey, active: open, instant, fieldKeys: researchKeys, probeMs });
@@ -1143,8 +1144,6 @@ const AUTO_OPEN_MS = 450;
 const TYPING_MS = 1200;
 /** Continue waits this long for NetraBot's celebration before moving on. */
 const CELEBRATE_MS = 900;
-/** Profile's task works this long before it says it's waiting on the user. */
-const WAITING_MS = 4000;
 /** The card lingers on the verdict before closing onto the filled form. */
 const RESULT_HOLD_MS = 900;
 
@@ -1182,15 +1181,9 @@ function TaskRow({
   // (`sheet`: the engine card's open / closing state and its toggle). Hooks
   // stay above the done/pending early returns.
   const [localExpanded, setLocalExpanded] = useState(true);
-  // Profile: after a while with the fields still incomplete, the task stops
-  // working and says it's waiting on the user (it's their move, not ours).
-  const [waiting, setWaiting] = useState(false);
-  const canWait = state === "active" && !task.hasSearch && !!task.waitingLabel && !profileComplete;
-  useEffect(() => {
-    if (!canWait) return;
-    const id = window.setTimeout(() => setWaiting(true), WAITING_MS);
-    return () => window.clearTimeout(id);
-  }, [canWait]);
+  // Profile: while its fields are incomplete, the task says it's waiting on
+  // the user from the start (it's their move, not ours).
+  const waiting = state === "active" && !task.hasSearch && !!task.waitingLabel && !profileComplete;
   const expanded = sheet ? sheet.expanded : localExpanded;
   const closing = sheet?.closing ?? false;
   const toggle = () => (sheet ? sheet.toggle() : setLocalExpanded((v) => !v));
@@ -1269,9 +1262,9 @@ function TaskRow({
         </button>
       ) : (
         <div className={styles.taskHead}>
-          {/* Active Profile task: a purple sweeping ring at first; after a
-              while still incomplete, a still ring and "Waiting for Profile
-              Details"; the purple filled check once complete. */}
+          {/* Active Profile task: a still ring and "Waiting for Profile
+              Details" while incomplete; the purple filled check once
+              complete. */}
           {profileComplete ? (
             <FilledCheck color="var(--color-brand-primary)" />
           ) : waiting ? (
@@ -1279,7 +1272,7 @@ function TaskRow({
           ) : (
             <RingSweep />
           )}
-          {waiting && !profileComplete ? (
+          {waiting ? (
             <span className={styles.taskActiveLabel}>{task.waitingLabel}</span>
           ) : (
             <AITextLoading text={label} className={styles.taskActiveLabel} />
